@@ -1,6 +1,8 @@
 <h1>Editing Song</h1>
 
 <%= render 'form', song: @song %>
+<%= react_component('SongForm', song: @song) %>
+
 
 <%= link_to 'Show', @song %> |
 <%= link_to 'Back', songs_path %>
