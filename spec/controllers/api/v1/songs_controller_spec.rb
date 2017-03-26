@@ -20,4 +20,9 @@ describe Api::V1::SongsController do
     end
   end
 
+  describe "POST #add_song" do
+    it "adds song to db"
+    it "returns 200"
+  end
+
 end
