@@ -1,6 +1,10 @@
 .song-container {
     white-space: pre-wrap; // lets return chars actually make new lines
 
+    span.comment {
+        color: darkgray;
+        font-size: 90%;
+    }
     span.chord {
         color: $chord-color;
     }

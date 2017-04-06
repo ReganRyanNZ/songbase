@@ -21,8 +21,10 @@ class SongForm extends React.Component {
       <div className="pure-g">
       <form onSubmit={this.handleSubmit} className="song-form pure-u-1-2" >
         <textarea
+          id="song_lyrics"
           value={this.state.value}
           onChange={this.handleChange}
+          name="song[lyrics]"
           className="song-form-textbox" />
         <input type="submit" value="Submit" />
       </form>

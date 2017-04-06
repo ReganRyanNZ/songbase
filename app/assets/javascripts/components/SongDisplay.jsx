@@ -18,10 +18,14 @@ class SongDisplay extends React.Component {
         chordlessTail = /\][^\[\]]+$/,
         getChordRegex = /\[(.*?)\]/g,
         isChorusStart = /{start_of_chorus}/i,
-        isChorusEnd = /{end_of_chorus}/i;
+        isChorusEnd = /{end_of_chorus}/i,
+        commentRegex = /\{[Cc]omments?: (.*?)\}/;
 
     for(var i=0; i < maxIndex; i++) {
-
+      // style comments
+      if(commentRegex.test(lines[i])) {
+        lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$1</span>");
+      }
       // change chorus tags to html tags
       if(isChorusStart.test(lines[i])) {
         lines[i] = "<div class='chorus'>"

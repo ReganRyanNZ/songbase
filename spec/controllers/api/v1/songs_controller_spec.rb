@@ -21,8 +21,20 @@ describe Api::V1::SongsController do
   end
 
   describe "POST #add_song" do
-    it "adds song to db"
-    it "returns 200"
-  end
+    before(:each) do
+      @song_attributes = FactoryGirl.attributes_for :song
+      post :create, params: {song: @song_attributes}, format: :json
+    end
 
+    it "adds song to db" do
+      song_response = JSON.parse(response.body, symbolize_names: true)
+      expect(song_response[:lyrics]).to eql @song_attributes[:lyrics]
+      expect(song_response[:title]).to eql @song_attributes[:title]
+      expect(song_response[:lang]).to eql @song_attributes[:lang]
+    end
+
+    it "returns 201" do
+      expect(response).to have_http_status(201)
+    end
+  end
 end

@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       get 'songs', to: 'songs#all_songs'
+      post 'create', to: 'songs#create'
     end
   end
 end

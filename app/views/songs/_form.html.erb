@@ -14,7 +14,7 @@
   <%= f.label :title %>
   <%= f.text_field :title %>
   <%= f.label :lyrics %>
-  <%= f.text_area :lyrics %>
+  <%= react_component('SongForm', song: song) %>
 
   <div class="actions">
     <%= f.submit %>
