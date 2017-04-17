@@ -6,7 +6,7 @@ class SongDisplay extends React.Component {
     };
   }
 
-  getLyrics() {
+  getLyricsHTML() {
     safetyRegex = /.*(<|>).*/;
     if(safetyRegex.test(this.props.lyrics)) {
       return "ERROR: HTML tags are forbidden. Please do not use '<' and '>'.";
@@ -89,7 +89,7 @@ class SongDisplay extends React.Component {
     return (
       <div
         className="song-container pure-u-1-2"
-        dangerouslySetInnerHTML={{__html: this.getLyrics()}}>
+        dangerouslySetInnerHTML={{__html: this.getLyricsHTML()}}>
       </div>
     );
   }
