@@ -14,32 +14,32 @@ class SongDisplay extends React.Component {
 
     var lines = this.props.lyrics.split('\n'),
         maxIndex = lines.length,
-        hasChords = /.*\[.*\].*/,
-        chordlessTail = /\][^\[\]]+$/,
+        hasChordsRegex = /.*\[.*\].*/,
+        chordlessTailRegex = /\][^\[\]]+$/,
         getChordRegex = /\[(.*?)\]/g,
-        isChorusStart = /{start_of_chorus}/i,
-        isChorusEnd = /{end_of_chorus}/i,
-        commentRegex = /\{[Cc]omments?: (.*?)\}/;
+        isChorusStartRegex = /{start_of_chorus}/i,
+        isChorusEndRegex = /{end_of_chorus}/i,
+        commentRegex = /^(\{ ?[Cc]omments?:|\# *)([^{}]*)}?/; // herein lies the beauty of regex
 
     for(var i=0; i < maxIndex; i++) {
       // style comments
       if(commentRegex.test(lines[i])) {
-        lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$1</span>");
+        lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$2</span>");
       }
       // change chorus tags to html tags
-      if(isChorusStart.test(lines[i])) {
+      if(isChorusStartRegex.test(lines[i])) {
         lines[i] = "<div class='chorus'>"
-      } else if(isChorusEnd.test(lines[i])) {
+      } else if(isChorusEndRegex.test(lines[i])) {
         lines[i] = "</div>"
       }
 
       // if a line has chords
-      if(hasChords.test(lines[i])) {
+      if(hasChordsRegex.test(lines[i])) {
 
         if(this.state.showChords) {
           var chordLine = lines[i];
           // strip chord line of trailing (no chord remaining) text
-          chordLine = chordLine.replace(chordlessTail, "]");
+          chordLine = chordLine.replace(chordlessTailRegex, "]");
           // format chord line
           chordLine = this.positionChords(chordLine); //deletes chars to get the chords in the right place
           chordLine = "<span class='spacer-text'>" + chordLine + "</span>";
