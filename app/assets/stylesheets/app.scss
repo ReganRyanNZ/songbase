@@ -1,3 +1,7 @@
 @import "variables",
         "components/*",
         "scaffolds";
+
+body {
+  background-color: hsla(0, 0%, 97%, 1);
+}

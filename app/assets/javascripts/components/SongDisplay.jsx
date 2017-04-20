@@ -19,7 +19,7 @@ class SongDisplay extends React.Component {
         getChordRegex = /\[(.*?)\]/g,
         isChorusStartRegex = /{start_of_chorus}/i,
         isChorusEndRegex = /{end_of_chorus}/i,
-        commentRegex = /^(\{ ?[Cc]omments?:|\# *)([^{}]*)}?/; // herein lies the beauty of regex
+        commentRegex = /^(\{ ?[Cc]omments?:|\#) *([^{}]*)}?/; // herein lies the beauty of regex
 
     for(var i=0; i < maxIndex; i++) {
       // style comments

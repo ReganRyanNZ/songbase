@@ -6,10 +6,14 @@
   padding-top: 5px;
   margin-top: 19px;
   resize: none;
+  border-color: lightgrey;
+  border-radius: 6px;
 }
 
 .song-form-title {
+  width: 40%;
   padding: 6px;
   font-size: 18px;
   border: none;
+  background: none;
 }

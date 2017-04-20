@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170330205452) do
+ActiveRecord::Schema.define(version: 20170419083641) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,7 +21,7 @@ ActiveRecord::Schema.define(version: 20170330205452) do
     t.text     "lyrics"
     t.string   "title"
     t.string   "lang",           default: "en"
-    t.integer  "suggested_capo"
+    t.integer  "suggested_capo",                null: false
   end
 
 end
