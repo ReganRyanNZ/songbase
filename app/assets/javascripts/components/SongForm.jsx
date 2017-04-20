@@ -19,7 +19,7 @@ class SongForm extends React.Component {
   render() {
     return (
       <div className="pure-g">
-      <form onSubmit={this.handleSubmit} className="song-form pure-u-1-2" >
+      <div className="song-form pure-u-1-2" >
         <textarea
           id="song_lyrics"
           value={this.state.lyrics}
@@ -27,8 +27,7 @@ class SongForm extends React.Component {
           name="song[lyrics]"
           className="song-form-textbox"
           placeholder="Enter song lyrics here..." />
-        <input type="submit" value="Submit" />
-      </form>
+      </div>
       <SongDisplay lyrics={this.state.lyrics} />
       </div>
     );
