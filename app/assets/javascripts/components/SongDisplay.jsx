@@ -12,14 +12,26 @@ class SongDisplay extends React.Component {
       return "ERROR: HTML tags are forbidden. Please do not use '<' and '>'.";
     }
 
-    var lines = this.props.lyrics.split('\n'),
-        maxIndex = lines.length,
+    var countableVerseRegex = /(^\n*|\n\n+)(({[Cc]omments?|#).*\n)*([^{# \n])/g,
         hasChordsRegex = /.*\[.*\].*/,
         chordlessTailRegex = /\][^\[\]]+$/,
         getChordRegex = /\[(.*?)\]/g,
         isChorusStartRegex = /{start_of_chorus}/i,
         isChorusEndRegex = /{end_of_chorus}/i,
         commentRegex = /^(\{ ?[Cc]omments?:|\#) *([^{}]*)}?/; // herein lies the beauty of regex
+
+    var lyrics = this.props.lyrics,
+        verseNumber = 0,
+        verseCount = lyrics.match(countableVerseRegex).length;
+
+    if (verseCount > 2) {
+      lyrics = lyrics.replace(countableVerseRegex, function($0, $1, $2, $3, $4) {
+        verseNumber++;
+        return $1 + ($2 || "") + "<div class='verse-number'>" + verseNumber + "</div>" + $4
+      })
+    }
+    var lines = lyrics.split('\n'),
+        maxIndex = lines.length;
 
     for(var i=0; i < maxIndex; i++) {
       // style comments
