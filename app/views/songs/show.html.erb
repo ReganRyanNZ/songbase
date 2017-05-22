@@ -1,5 +1,11 @@
 <p id="notice"><%= notice %></p>
-<h4><%= @song.title %></h4>
-<%= react_component('SongDisplay', lyrics: @song.lyrics) %>
-<%= link_to 'Edit', edit_song_path(@song) %> |
-<%= link_to 'Back', songs_path %>
+<div class="centered">
+  <h4 class="song-title"><%= @song.title %></h4>
+  <br />
+  <%= react_component('SongDisplay', lyrics: @song.lyrics) %>
+  <br />
+  <div class="bottom-nav-buttons">
+    <%= link_to 'Edit', edit_song_path(@song) %> |
+    <%= link_to 'Back', songs_path %>
+  </div>
+</div>

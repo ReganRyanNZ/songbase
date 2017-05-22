@@ -18,17 +18,11 @@ class SongDisplay extends React.Component {
 
     var countableVerseRegex = /(^\n*|\n\n+)(({[Cc]omments?|#).*\n)*([^{# \n])/g,
         hasChordsRegex = /.*\[.*\].*/,
-        chordlessTailRegex = /\][^\[\]]+$/,
         getChordRegex = /\[(.*?)\]/g,
-        commentRegex = /^(\{ ?[Cc]omments?:|\#) *([^{}]*)}?/;
-
-
-
-
-
-
+        chordlessTailRegex = /\][^\[\]]+$/,
+        commentRegex = /^(\{ ?[Cc]omments?:|\#) *([^{}]*)}?/,
         isChorusStartRegex = /{start_of_chorus}/i,
-        isChorusEndRegex = /{end_of_chorus}/i,
+        isChorusEndRegex = /{end_of_chorus}/i;
 
     var lyrics = this.props.lyrics,
         verseNumber = 0,
@@ -110,7 +104,7 @@ class SongDisplay extends React.Component {
   render() {
     return (
       <div
-        className="song-container pure-u-1-2"
+        className="song-container"
         dangerouslySetInnerHTML={{__html: this.getLyricsHTML()}}>
       </div>
     );
