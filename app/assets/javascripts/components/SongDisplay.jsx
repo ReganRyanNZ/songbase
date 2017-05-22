@@ -12,13 +12,23 @@ class SongDisplay extends React.Component {
       return "ERROR: HTML tags are forbidden. Please do not use '<' and '>'.";
     }
 
+
+
+
+
     var countableVerseRegex = /(^\n*|\n\n+)(({[Cc]omments?|#).*\n)*([^{# \n])/g,
         hasChordsRegex = /.*\[.*\].*/,
         chordlessTailRegex = /\][^\[\]]+$/,
         getChordRegex = /\[(.*?)\]/g,
+        commentRegex = /^(\{ ?[Cc]omments?:|\#) *([^{}]*)}?/;
+
+
+
+
+
+
         isChorusStartRegex = /{start_of_chorus}/i,
         isChorusEndRegex = /{end_of_chorus}/i,
-        commentRegex = /^(\{ ?[Cc]omments?:|\#) *([^{}]*)}?/; // herein lies the beauty of regex
 
     var lyrics = this.props.lyrics,
         verseNumber = 0,
@@ -69,7 +79,7 @@ class SongDisplay extends React.Component {
   }
 
 
-  // Chords are position within invisible duplicates of the line itself
+  // Chords are positioned within invisible duplicates of the line itself
   // Because the chords themselves take up space, when we add a chord
   // we take away some characters, to keep following chords in roughly
   // the right place.

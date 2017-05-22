@@ -10,18 +10,33 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170419083641) do
+ActiveRecord::Schema.define(version: 20170515055512) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "books", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "song_lists", id: false, force: :cascade do |t|
+    t.integer  "song_id"
+    t.integer  "book_id"
+    t.integer  "book_index"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_id"], name: "index_song_lists_on_book_id", using: :btree
+    t.index ["song_id"], name: "index_song_lists_on_song_id", using: :btree
+  end
+
   create_table "songs", force: :cascade do |t|
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
     t.text     "lyrics"
     t.string   "title"
-    t.string   "lang",           default: "en"
-    t.integer  "suggested_capo",                null: false
+    t.string   "lang",       default: "en"
   end
 
 end

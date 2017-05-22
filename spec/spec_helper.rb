@@ -31,6 +31,9 @@ RSpec.configure do |config|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end
 
+  # allows 'fdescribe', and 'fit' to focus rspec on those tests only
+  config.filter_run_when_matching :focus
+
   # rspec-mocks config goes here. You can use an alternate test double
   # library (such as bogus or mocha) by changing the `mock_with` option here.
   config.mock_with :rspec do |mocks|
