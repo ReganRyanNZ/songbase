@@ -13,8 +13,8 @@ namespace :import do
         if matches = (line.match /\{[Tt]itle: (?<title>.*)\}/)
           song.title = matches[:title]
         elsif matches = (line.match /\{section: (?<section>.*)\}/)
-        elsif matches = (line.match /\.*[Cc]apo.+(?<capo>[0-9]).*/)
-          song.suggested_capo = matches[:capo]
+        # elsif matches = (line.match /\.*[Cc]apo.+(?<capo>[0-9]).*/)
+          # song.suggested_capo = matches[:capo]
         else
           lyrics.push(line)
         end
