@@ -4,8 +4,8 @@ namespace :import do
     # for each .song file in /songs
     # Song.create(...)
     # delete file
-
     @files = Dir.glob("#{args[:folder_path]}/*.song").map do |song_file|
+      puts "loading #{song_file}"
       song = Song.new(lang: 'en')
       lyrics = []
       content = File.read(song_file)
@@ -36,3 +36,7 @@ namespace :import do
 
   end
 end
+
+
+
+

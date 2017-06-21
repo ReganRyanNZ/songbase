@@ -18,17 +18,19 @@ class SongForm extends React.Component {
 
   render() {
     return (
-      <div className="pure-g">
-      <div className="song-form pure-u-1-2" >
-        <textarea
-          id="song_lyrics"
-          value={this.state.lyrics}
-          onChange={this.handleChange}
-          name="song[lyrics]"
-          className="song-form-textbox"
-          placeholder="Enter song lyrics here..." />
-      </div>
-      <SongDisplay lyrics={this.state.lyrics} />
+      <div className="song-form pure-g">
+        <div className="form pure-u-1-2" >
+          <textarea
+            id="song_lyrics"
+            value={this.state.lyrics}
+            onChange={this.handleChange}
+            name="song[lyrics]"
+            className="song-form-textbox"
+            placeholder="Enter song lyrics here..." />
+        </div>
+        <div className="preview pure-u-1-2" >
+          <SongDisplay lyrics={this.state.lyrics} />
+        </div>
       </div>
     );
   }

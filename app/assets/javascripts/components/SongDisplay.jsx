@@ -7,9 +7,9 @@ class SongDisplay extends React.Component {
   }
 
   getLyricsHTML() {
-    safetyRegex = /.*(<|>).*/;
+    safetyRegex = /.*(<|>|`).*/;
     if(safetyRegex.test(this.props.lyrics)) {
-      return "ERROR: HTML tags are forbidden. Please do not use '<' and '>'.";
+      return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";
     }
 
 
