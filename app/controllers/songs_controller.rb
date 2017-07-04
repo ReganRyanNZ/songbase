@@ -4,7 +4,12 @@ class SongsController < ApplicationController
   # GET /songs
   # GET /songs.json
   def index
-    @songs = Song.all
+    @songs = []
+    Song.all.each do |song|
+      song.titles.each do |t|
+        @songs << {title: t, model: song}
+      end
+    end
   end
 
   # GET /songs/1
