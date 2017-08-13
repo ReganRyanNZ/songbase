@@ -1,20 +1,12 @@
 class Song < ApplicationRecord
   has_many :books, through: :song_list
-  store :titles, accessors: [:firstline, :chorus, :custom]
+  store :titles, accessors: [:firstline_title, :chorus_title, :custom_title]
 
-  # def titles
-  #   unique_titles ([
-  #     disabled_title ? nil : strip_line(title),
-  #     disabled_firstline_title ? nil : firstline,
-  #     disabled_chorus_title ? nil : chorus_firstline
-  #   ])
-  # end
-
-  def guess_firstline
+  def guess_firstline_title
     strip_line(/^[^{#\r\n].*/.match(lyrics)[0])
   end
 
-  def guess_chorus_firstline
+  def guess_chorus_title
     return nil unless /{start_of_chorus}/.match(lyrics)
     strip_line(
                 /{start_of_chorus}.*(\r|\n)+/m.match(lyrics)[0] # get the first chorus + rest of song

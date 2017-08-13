@@ -11,7 +11,7 @@ namespace :import do
       content = File.read(song_file)
       content.split(/\n|\r/).each do |line|
         if matches = (line.match /\{[Tt]itle: (?<title>.*)\}/)
-          song.title = matches[:title]
+          song.firstline_title = matches[:title]
         elsif matches = (line.match /\{section: (?<section>.*)\}/)
         # elsif matches = (line.match /\.*[Cc]apo.+(?<capo>[0-9]).*/)
           # song.suggested_capo = matches[:capo]
@@ -19,17 +19,11 @@ namespace :import do
           lyrics.push(line)
         end
       end
-      if song.title.blank?
-        content.split(/\n|\r/).each do |line|
-          if matches = (line.match /\{[Cc]comments?:.*/)
-          else
-            song.title = line.gsub(/\[.*\]/, '') # remove chords from first line
-            break
-          end
-        end
-      end
+      
       if lyrics.size > 0
         song.lyrics = lyrics.join("\n")
+        song.firstline_title = song.guess_firstline_title if song.firstline_title.blank?
+        song.chorus_title = song.guess_chorus_title
         song.save!
       end
     end
