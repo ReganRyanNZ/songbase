@@ -7,7 +7,7 @@ class SongsController < ApplicationController
     @songs = []
     Song.all.each do |song|
       song.titles.each do |t|
-        @songs << {title: t, model: song}
+        @songs << {title: t[1], model: song}
       end
     end
   end
