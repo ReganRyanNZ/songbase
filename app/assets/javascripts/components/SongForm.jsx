@@ -11,11 +11,6 @@ class SongForm extends React.Component {
     this.setState({lyrics: event.target.value});
   }
 
-  handleSubmit(event) {
-    alert('Still working on it, but this is the state: ' + this.state.lyrics);
-    event.preventDefault();
-  }
-
   render() {
     return (
       <div className="song-form pure-g">
@@ -30,6 +25,9 @@ class SongForm extends React.Component {
         </div>
         <div className="preview pure-u-1-2" >
           <SongDisplay lyrics={this.state.lyrics} />
+        </div>
+        <div className="titles">
+
         </div>
       </div>
     );

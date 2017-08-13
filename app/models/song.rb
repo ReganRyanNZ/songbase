@@ -1,23 +1,20 @@
 class Song < ApplicationRecord
   has_many :books, through: :song_list
+  store :titles, accessors: [:firstline, :chorus, :custom]
 
-  def titles
-    unique_titles ([
-      strip_line(title),
-      firstline,
-      chorus_firstline
-    ])
-  end
+  # def titles
+  #   unique_titles ([
+  #     disabled_title ? nil : strip_line(title),
+  #     disabled_firstline_title ? nil : firstline,
+  #     disabled_chorus_title ? nil : chorus_firstline
+  #   ])
+  # end
 
-
-
-
-  private
-  def firstline
+  def guess_firstline
     strip_line(/^[^{#\r\n].*/.match(lyrics)[0])
   end
 
-  def chorus_firstline
+  def guess_chorus_firstline
     return nil unless /{start_of_chorus}/.match(lyrics)
     strip_line(
                 /{start_of_chorus}.*(\r|\n)+/m.match(lyrics)[0] # get the first chorus + rest of song
@@ -25,6 +22,10 @@ class Song < ApplicationRecord
                 .gsub( /(\r|\n)+.*/m, "" ) # get only the first line
               )
   end
+
+
+
+  private
 
   def strip_line line
     # strip chords, newlines, trailing punctuation
@@ -34,6 +35,7 @@ class Song < ApplicationRecord
   end
 
   # gets unique strings from an array, ignoring case and punctuation
+  # deprecated?
   def unique_titles titles
     titles.compact.uniq { |title| title.upcase.gsub(/[,;:.—-’!\''\""]/, "") }
   end
