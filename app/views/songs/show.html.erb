@@ -1,6 +1,6 @@
 <p id="notice"><%= notice %></p>
 <div class="centered">
-  <h4 class="song-title"><%= @song.title %></h4>
+  <h4 class="song-title"><%= @song.firstline_title %></h4>
   <br />
   <%= react_component('SongDisplay', lyrics: @song.lyrics) %>
   <br />

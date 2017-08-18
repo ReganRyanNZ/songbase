@@ -16,7 +16,7 @@ class SongDisplay extends React.Component {
 
 
 
-    var countableVerseRegex = /(^\n*|\n\n+)(({[Cc]omments?|#).*\n)*([^{# \n])/g,
+    var countableVerseRegex = /(^(?:\n|\r)*|(?:\n|\r){2,})((?:{[Cc]omments?|#).*(?:\n|\r)+)*([^{# \n\r])/g,
         hasChordsRegex = /.*\[.*\].*/,
         getChordRegex = /\[(.*?)\]/g,
         chordlessTailRegex = /\][^\[\]]+$/,
@@ -29,9 +29,9 @@ class SongDisplay extends React.Component {
         verseCount = lyrics.match(countableVerseRegex).length;
 
     if (verseCount > 2) {
-      lyrics = lyrics.replace(countableVerseRegex, function($0, $1, $2, $3, $4) {
+      lyrics = lyrics.replace(countableVerseRegex, function($0, $1, $2, $3) {
         verseNumber++;
-        return $1 + ($2 || "") + "<div class='verse-number'>" + verseNumber + "</div>" + $4
+        return $1 + ($2 || "") + "<div class='verse-number'>" + verseNumber + "</div>" + $3
       })
     }
     var lines = lyrics.split('\n'),
