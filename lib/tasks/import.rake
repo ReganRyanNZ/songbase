@@ -19,7 +19,7 @@ namespace :import do
           lyrics.push(line)
         end
       end
-      
+
       if lyrics.size > 0
         song.lyrics = lyrics.join("\n")
         song.firstline_title = song.guess_firstline_title if song.firstline_title.blank?

@@ -49,30 +49,38 @@ class SongForm extends React.Component {
           Custom: {this.state.custom_title}
           <br/>
           </div>
-          <input
-            id="song_firstline_title"
-            placeholder="First line"
-            className="song-form-title"
-            type="text"
-            value={this.state.firstline_title}
-            name="song[firstline_title]"
-            onChange={this.handleChange} />
-          <input
-            id="song_chorus_title"
-            placeholder="Chorus first line"
-            className="song-form-title"
-            type="text"
-            value={this.state.chorus_title}
-            name="song[chorus_title]"
-            onChange={this.handleChange} />
-          <input
-            id="song_custom_title"
-            placeholder="Custom title"
-            className="song-form-title"
-            type="text"
-            value={this.state.custom_title}
-            name="song[custom_title]"
-            onChange={this.handleChange} />
+          <div className="titles">
+            <div className="pure-u-1-1">
+              <h2>
+                Indexing titles
+              </h2>
+              <input
+                id="song_firstline_title"
+                placeholder="First line"
+                className="song-form-title"
+                type="text"
+                value={this.state.firstline_title}
+                name="song[firstline_title]"
+                onChange={this.handleChange} />
+              <input
+                id="song_chorus_title"
+                placeholder="Chorus first line"
+                className="song-form-title"
+                type="text"
+                value={this.state.chorus_title}
+                name="song[chorus_title]"
+                onChange={this.handleChange} />
+              <input
+                id="song_custom_title"
+                placeholder="Custom title"
+                className="song-form-title"
+                type="text"
+                value={this.state.custom_title}
+                name="song[custom_title]"
+                onChange={this.handleChange} />
+            </div>
+
+          </div>
         </div>
       </div>
     );
