@@ -17,7 +17,11 @@ class Song < ApplicationRecord
   end
 
   def titles
-    [firstline_title, chorus_title, custom_title].reject(&:blank?)
+    {
+      firstline_title: firstline_title,
+      chorus_title: chorus_title,
+      custom_title: custom_title
+    }.reject { |k,v| v.blank? }
   end
 
   private

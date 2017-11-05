@@ -1,7 +1,16 @@
 class SongForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = this.props.song.lyrics ? {lyrics: this.props.song.lyrics} : {lyrics: ''};
+    lyrics = this.props.song.lyrics || '';
+    firstline_title = this.props.song.firstline_title || '';
+    chorus_title = this.props.song.chorus_title || '';
+    custom_title = this.props.song.custom_title || '';
+    this.state = {
+      lyrics: lyrics,
+      firstline_title: firstline_title,
+      chorus_title: chorus_title,
+      custom_title: custom_title
+    }
 
     this.handleChange = this.handleChange.bind(this);
     // this.handleSubmit = this.handleSubmit.bind(this);
