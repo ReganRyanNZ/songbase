@@ -1,6 +1,7 @@
 class Song < ApplicationRecord
   has_many :books, through: :song_list
-  store :titles, accessors: [:firstline_title, :chorus_title, :custom_title]
+  validate :titles_validation
+
 
   def guess_firstline_title
     strip_line(/^[^{#\r\n].*/.match(lyrics)[0])
@@ -15,9 +16,17 @@ class Song < ApplicationRecord
               )
   end
 
-
+  def titles
+    [firstline_title, chorus_title, custom_title].reject(&:blank?)
+  end
 
   private
+
+  def titles_validation
+    unless titles.any?
+      errors[:base] << "This song must have a title (or no one will find it!)"
+    end
+  end
 
   def strip_line line
     # strip chords, newlines, trailing punctuation
