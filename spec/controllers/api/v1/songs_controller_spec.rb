@@ -6,7 +6,7 @@ describe Api::V1::SongsController do
   describe "GET #all_songs" do
     before(:each) do
       @songs = [FactoryGirl.create(:song),
-                FactoryGirl.create(:song, title: "Another song", lyrics: "Different words[G]")]
+                FactoryGirl.create(:song, firstline_title: "Another song", lyrics: "Different words[G]")]
       get :all_songs, format: :json
     end
 
@@ -29,7 +29,7 @@ describe Api::V1::SongsController do
     it "adds song to db" do
       song_response = JSON.parse(response.body, symbolize_names: true)
       expect(song_response[:lyrics]).to eql @song_attributes[:lyrics]
-      expect(song_response[:title]).to eql @song_attributes[:title]
+      expect(song_response[:firstline_title]).to eql @song_attributes[:firstline_title]
       expect(song_response[:lang]).to eql @song_attributes[:lang]
     end
 

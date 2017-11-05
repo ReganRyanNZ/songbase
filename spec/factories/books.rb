@@ -4,7 +4,7 @@ FactoryGirl.define do
 
     after(:create) do |book|
       [nil, :accord_to_my_earnest, :abba_father].each { |song|
-        FactoryGirl.create(:song, song, book: book)
+        FactoryGirl.create(:song, song, books: [book])
       }
     end
   end

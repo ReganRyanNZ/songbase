@@ -1,5 +1,6 @@
 class Song < ApplicationRecord
-  has_many :books, through: :song_list
+  has_many :song_book
+  has_many :books, through: :song_book
   validate :titles_validation
 
 
@@ -10,10 +11,10 @@ class Song < ApplicationRecord
   def guess_chorus_title
     return nil unless /{start_of_chorus}/.match(lyrics)
     strip_line(
-                /{start_of_chorus}.*(\r|\n)+/m.match(lyrics)[0] # get the first chorus + rest of song
-                .gsub( /{start_of_chorus} *(\r|\n)+/, "" ) # chop chorus tag off the start
-                .gsub( /(\r|\n)+.*/m, "" ) # get only the first line
-              )
+      /{start_of_chorus}.*(\r|\n)+/m.match(lyrics)[0] # get the first chorus + rest of song
+      .gsub( /{start_of_chorus} *(\r|\n)+/, "" ) # chop chorus tag off the start
+      .gsub( /(\r|\n)+.*/m, "" ) # get only the first line
+    )
   end
 
   def titles

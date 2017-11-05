@@ -16,7 +16,7 @@ class Api::V1::SongsController < ApplicationController
   private
 
   def song_params
-    params.require(:song).permit(:title, :lyrics, :lang)
+    params.require(:song).permit(:firstline_title, :custom_title, :chorus_title, :lyrics, :lang)
   end
 
 end

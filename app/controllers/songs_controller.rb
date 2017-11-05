@@ -35,22 +35,18 @@ class SongsController < ApplicationController
   end
 
   def update
-    respond_to do |format|
-      if @song.update(song_params)
-        format.html { redirect_to @song, notice: 'Song was successfully updated.' }
-        format.json { render :show, status: :ok, location: @song }
-      else
-        format.html { render :edit }
-        format.json { render json: @song.errors, status: :unprocessable_entity }
-      end
+    if @song.update(song_params)
+      redirect_to @song, notice: 'Song was successfully updated.'
+    else
+      render :edit
     end
   end
 
   def destroy
-    @song.destroy
-    respond_to do |format|
-      format.html { redirect_to songs_url, notice: 'Song was successfully destroyed.' }
-      format.json { head :no_content }
+    if @song.destroy
+      redirect_to songs_url, notice: 'Song was successfully destroyed.'
+    else
+      render :back
     end
   end
 
@@ -60,6 +56,6 @@ class SongsController < ApplicationController
     end
 
     def song_params
-      params.require(:song).permit(:lyrics, :firstline_title, :custom_title, :chorus_title)
+      params.require(:song).permit(:lyrics, :firstline_title, :custom_title, :chorus_title, :lang)
     end
 end

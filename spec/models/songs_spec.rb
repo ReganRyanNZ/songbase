@@ -5,8 +5,13 @@ describe Api::V1::Song do
   describe ".titles" do
 
     it "returns titles from first line, chorus, and title field" do
-      song = FactoryGirl.create(:song)
-      expect(song.titles).to match ["Jesus, You're alive", "From the time I spoke Your Name", "Now my eyes begin to see"]
+      titles = {
+        firstline_title: "From the time I spoke Your Name",
+        chorus_title: "Now my eyes begin to see",
+        custom_title: "Jesus, You're alive"
+      }
+      song = FactoryGirl.create(:song, titles)
+      expect(song.titles).to match titles
     end
   end
 
