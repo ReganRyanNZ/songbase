@@ -8,6 +8,7 @@ class SongsController < ApplicationController
         @songs << {title: t[1], model: song}
       end
     end
+    @songs.sort_by! { |s| clean_for_sorting(s[:title]) }
   end
 
   def show
@@ -51,11 +52,16 @@ class SongsController < ApplicationController
   end
 
   private
-    def set_song
-      @song = Song.find(params[:id])
-    end
 
-    def song_params
-      params.require(:song).permit(:lyrics, :firstline_title, :custom_title, :chorus_title, :lang)
-    end
+  def set_song
+    @song = Song.find(params[:id])
+  end
+
+  def song_params
+    params.require(:song).permit(:lyrics, :firstline_title, :custom_title, :chorus_title, :lang)
+  end
+
+  def clean_for_sorting str
+    str.gsub(/['",“\-—–!?()]/, "").upcase
+  end
 end

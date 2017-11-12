@@ -29,6 +29,39 @@ namespace :import do
     end
 
   end
+
+
+  desc "Clean badly imported files"
+  task clean: :environment do
+    Song.all.each do |song|
+      if song.lyrics =~ /(\n)?\r(\n)?/
+        song.lyrics.gsub!(/(\n)?\r(\n)?/, "\n")
+        puts "replaced soft returns"
+      end
+
+      if song.lyrics =~ /\{start_of_chorus\}[\s\n\r]*\{end_of_chorus\}/
+        song.lyrics.gsub!(/\{start_of_chorus\}[\s\n\r]*\{end_of_chorus\}/, "\n\n")
+        puts "took out empty chorus nonsense"
+      end
+
+      if song.lyrics =~ /\n\n\n+/
+        song.lyrics.gsub!(/\n\n\n+/, "\n\n")
+        puts "calmed down new line craziness (too many in a row)"
+      end
+
+      if song.chorus_title =~ /{start_of_chorus}/
+        song.chorus_title = ""
+        puts "taken out {start_of_chorus} title nonsense"
+      end
+
+      if song.chorus_title == song.firstline_title
+        song.chorus_title = ""
+        puts "taken out duplicate chorus title"
+      end
+
+      song.save!
+    end
+  end
 end
 
 
