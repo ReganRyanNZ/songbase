@@ -62,6 +62,6 @@ class SongsController < ApplicationController
   end
 
   def clean_for_sorting str
-    str.gsub(/['",“\-—–!?()]/, "").upcase
+    str.gsub(/[’'",“\-—–!?()]/, "").upcase
   end
 end
