@@ -7,17 +7,28 @@ class SongApp extends React.Component {
     }
 
     this.setSong = this.setSong.bind(this);
+    this.getSong = this.getSong.bind(this);
     // this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   setSong(e) {
-    this.setState({song: '226'})
+    this.setState({song: e.target.id})
   }
 
+  getSong(id) {
+    songs = this.props.songData
+    for(var i=0; i < songs.length; i++){
+      if(songs[i].model.id == id) {
+        return songs[i];
+      }
+    }
+    return "couldn't find song"
+  }
 
   render() {
-    if(this.state.song) {
-      return <SongDisplay lyrics={this.state.lyrics} />
+    var id = this.state.song;
+    if(id) {
+      return <SongDisplay lyrics={ this.getSong(id).model.lyrics } />
     } else {
       return <SongIndex songData={this.props.songData} setSong={this.setSong}/>
     }

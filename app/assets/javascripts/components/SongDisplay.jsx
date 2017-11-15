@@ -8,7 +8,9 @@ class SongDisplay extends React.Component {
 
   getLyricsHTML() {
     safetyRegex = /.*(<|>|`).*/;
-    if(safetyRegex.test(this.props.lyrics)) {
+    lyrics = this.props.lyrics;
+
+    if(safetyRegex.test(lyrics)) {
       return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";
     }
 
@@ -28,8 +30,7 @@ class SongDisplay extends React.Component {
         isChorusStartRegex = /{start_of_chorus}/i,
         isChorusEndRegex = /{end_of_chorus}/i;
 
-    var lyrics = this.props.lyrics,
-        verseNumber = 0,
+    var verseNumber = 0,
         verseCount = (lyrics.match(countableVerseRegex) || '').length;
 
     if (verseCount > 2) {

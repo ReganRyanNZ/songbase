@@ -39,8 +39,8 @@ class SongIndex extends React.Component {
         </div>
         <div className="title-list pure-u-1-1">
           {this.filterSongs().map(function(obj, i){
-            return <div className="index_row">{obj.title}</div>;
-          })}
+            return <div className="index_row" id={obj.model.id} onClick={this.props.setSong}>{obj.title}</div>;
+          }, this)}
         </div>
 
       </div>
