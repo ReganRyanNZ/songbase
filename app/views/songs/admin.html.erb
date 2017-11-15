@@ -1,6 +1,6 @@
 <p id="notice"><%= notice %></p>
 
-<h1>Songs</h1>
+<h1>Songbase Admin</h1>
 
 <table>
   <thead>
@@ -10,6 +10,9 @@
   </thead>
 
   <tbody>
+    <tr>
+      <%= link_to 'New Song', new_song_path %>
+    </tr>
     <% @songs.each do |song| %>
       <tr>
         <td><%= song[:title] %></td>
@@ -20,8 +23,3 @@
     <% end %>
   </tbody>
 </table>
-
-<br>
-
-<%= link_to 'New Song', new_song_path %>
-

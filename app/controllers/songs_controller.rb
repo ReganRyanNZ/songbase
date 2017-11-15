@@ -1,14 +1,11 @@
 class SongsController < ApplicationController
   before_action :set_song, only: [:show, :edit, :update, :destroy]
+  before_action :set_songs, only: [:app, :admin]
 
-  def index
-    @songs = []
-    Song.all.each do |song|
-      song.titles.each do |t|
-        @songs << {title: t[1], model: song}
-      end
-    end
-    @songs.sort_by! { |s| clean_for_sorting(s[:title]) }
+  def app
+  end
+
+  def admin
   end
 
   def show
@@ -55,6 +52,16 @@ class SongsController < ApplicationController
 
   def set_song
     @song = Song.find(params[:id])
+  end
+
+  def set_songs
+    @songs = []
+    Song.all.each do |song|
+      song.titles.each do |t|
+        @songs << {title: t[1], model: song}
+      end
+    end
+    @songs.sort_by! { |s| clean_for_sorting(s[:title]) }
   end
 
   def song_params
