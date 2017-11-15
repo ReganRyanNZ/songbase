@@ -27,10 +27,12 @@ class SongApp extends React.Component {
 
   render() {
     var id = this.state.song;
-    if(id) {
-      return <SongDisplay lyrics={ this.getSong(id).model.lyrics } />
-    } else {
-      return <SongIndex songData={this.props.songData} setSong={this.setSong}/>
-    }
+
+    var content = id ? <SongDisplay lyrics={ this.getSong(id).model.lyrics } /> : <SongIndex songData={this.props.songData} setSong={this.setSong}/>
+    return(
+      <div className="song-app">
+        {content}
+      </div>
+    )
   }
 }

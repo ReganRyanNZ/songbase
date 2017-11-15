@@ -5,6 +5,8 @@ div[data-react-class='SongDisplay'] {
 .song-container {
     white-space: pre-wrap; // lets return chars actually make new lines
     display: inline-block;
+    text-align: left;
+
     span.comment {
         color: darkgray;
         font-size: 90%;
