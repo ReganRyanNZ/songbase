@@ -1,7 +1,11 @@
 .index_row {
-  padding: 2px 0px;
+  padding: 5px 0px;
   font-size: 120%;
 
+  &:active {
+    background-color: #333;
+    color: white;
+  }
   &:hover{
     font-weight: bold;
     cursor: pointer;
