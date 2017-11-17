@@ -2,8 +2,20 @@
         "components/*",
         "scaffolds";
 
+
+@media(min-width: 500px){
+  html{
+    font-size: 14px;
+  }
+}
+@media(max-width: 499px){
+  html {
+    font-size: 16px;
+  }
+}
 body {
   background-color: white;
+  font-size: 100%;
 }
 
 .application-container {
