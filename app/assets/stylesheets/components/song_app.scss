@@ -1,6 +1,17 @@
 .song-app {
+  max-width: 380px;
+  margin: auto;
+  padding: 0 5px;
   text-align: center;
+
   & > * {
     text-align: left;
+  }
+}
+
+.home-title {
+  text-align: center;
+  &:hover {
+    cursor: pointer;
   }
 }

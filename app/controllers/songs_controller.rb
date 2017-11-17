@@ -3,6 +3,7 @@ class SongsController < ApplicationController
   before_action :set_songs, only: [:app, :admin]
 
   def app
+    @song_id = params[:s]
   end
 
   def admin

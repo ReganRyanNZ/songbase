@@ -28,7 +28,7 @@ class SongIndex extends React.Component {
   render() {
     return (
       <div className="song-index pure-g">
-        <div className="form pure-u-1-1" >
+        <div className="search-form form pure-u-1-1" >
           <input
             id="index_search"
             value={this.state.search}

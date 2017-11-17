@@ -1,0 +1,14 @@
+.index_row {
+  padding: 2px 0px;
+  font-size: 1.1em;
+
+  &:hover{
+    font-weight: bold;
+    cursor: pointer;
+  }
+}
+
+.search-form {
+  margin-bottom: 10px;
+  text-align: center;
+}
