@@ -12,6 +12,8 @@ class SongApp extends React.Component {
 
     if(this.state.song == 'index') {
       window.history.replaceState({song: 'index'}, '', '/');
+    } else {
+      window.history.replaceState({ song: this.state.song}, '', '/?s=' + this.state.song);
     }
   }
 
