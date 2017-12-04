@@ -1,4 +1,6 @@
-<p id="notice"><%= notice %></p>
+<% if notice %>
+  <p id="notice"><%= notice %></p>
+<% end %>
 
 <h1>Songbase Admin</h1>
 
@@ -16,9 +18,8 @@
     <% @songs.each do |song| %>
       <tr>
         <td><%= song[:title] %></td>
-        <td><%= link_to 'Show', song[:model] %></td>
         <td><%= link_to 'Edit', edit_song_path(song[:model]) %></td>
-        <td><%= link_to 'Destroy', song[:model], method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Remove', song[:model], method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
   </tbody>

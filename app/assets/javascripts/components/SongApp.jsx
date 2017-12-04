@@ -53,7 +53,12 @@ class SongApp extends React.Component {
 
   render() {
     var id = this.state.song;
-    var content = (id != 'index') ? <SongDisplay lyrics={ this.getSong(id).model.lyrics } /> : <SongIndex songData={this.props.songData} setSong={this.setSong}/>
+    var content;
+    if(id != 'index'){
+      content = <SongDisplay lyrics={ this.getSong(id).model.lyrics } />
+    } else {
+      content = <SongIndex songData={this.props.songData} setSong={this.setSong}/>
+    }
     return(
       <div className="song-app">
         <h1 className="home-title" onClick={this.returnToIndex}>Songbase</h1>

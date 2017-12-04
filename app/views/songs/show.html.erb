@@ -1,4 +1,6 @@
-<p id="notice"><%= notice %></p>
+<% if notice %>
+  <p id="notice"><%= notice %></p>
+<% end %>
 <div class="centered">
   <h4 class="song-title"><%= @song.firstline_title %></h4>
   <br />
@@ -6,6 +8,6 @@
   <br />
   <div class="bottom-nav-buttons">
     <%= link_to 'Edit', edit_song_path(@song) %> |
-    <%= link_to 'Back', songs_path %>
+    <%= link_to 'Back', admin_path %>
   </div>
 </div>

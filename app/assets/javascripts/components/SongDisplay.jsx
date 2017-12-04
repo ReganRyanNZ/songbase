@@ -7,7 +7,7 @@ class SongDisplay extends React.Component {
   }
 
   getLyricsHTML() {
-    safetyRegex = /.*(<|>|`).*/;
+    safetyRegex = /.*[<>`].*/;
     lyrics = this.props.lyrics;
 
     if(safetyRegex.test(lyrics)) {
