@@ -29,6 +29,7 @@ class SongDisplay extends React.Component {
         commentRegex = /^(\{ ?[Cc]omments?:|\#) *([^{}]*)}?/,
         isChorusStartRegex = /{start_of_chorus}/i,
         isChorusEndRegex = /{end_of_chorus}/i;
+        isNoNumberRegex = /{no_number}/i;
 
     var verseNumber = 0,
         verseCount = (lyrics.match(countableVerseRegex) || '').length;
@@ -43,6 +44,13 @@ class SongDisplay extends React.Component {
         maxIndex = lines.length;
 
     for(var i=0; i < maxIndex; i++) {
+      // remove no number comment
+      // note this must remain the first regex of this loop, as it shifts the index
+      if(isNoNumberRegex.test(lines[i])) {
+        lines.splice(i, 1);
+        maxIndex -= 1;
+      }
+
       // style comments
       if(commentRegex.test(lines[i])) {
         lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$2</span>");
