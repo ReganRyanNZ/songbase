@@ -7,6 +7,7 @@ class SongIndex extends React.Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.filterSongs = this.filterSongs.bind(this);
+    this.stripString = this.stripString.bind(this);
   }
 
   handleChange(event) {
@@ -18,11 +19,36 @@ class SongIndex extends React.Component {
   }
 
   filterSongs() {
+    var songs = this.props.songData;
     var strippedSearch = this.state.search.replace(/[’'",“\-—–!?()]/g, '');
-    var regex = new RegExp(strippedSearch, 'i');
-    return this.props.songData.filter(function (song) {
-      return regex.test(song.title.replace(/[’'",“\-—–!?()]/g, ''));
-    })
+
+    var titleStartRegex = new RegExp("^" + strippedSearch, 'i');
+    var titleStart = songs.filter(function (song) {
+      return titleStartRegex.test(this.stripString(song.title));
+    }, this);
+
+    var titleMatchRegex = new RegExp(strippedSearch, 'i');
+    var titleMatch = songs.filter(function (song) {
+      return titleMatchRegex.test(this.stripString(song.title));
+    }, this);
+
+    var lyricsMatchRegex = new RegExp(strippedSearch, 'i');
+    var lyricsMatch = songs.filter(function (song) {
+      return lyricsMatchRegex.test(this.stripString(song.model.lyrics));
+    }, this);
+
+    searchResults = titleStart.concat(titleMatch).concat(lyricsMatch);
+
+    return searchResults.filter(function removeDuplicates(song, index, self) {
+      return self.indexOf(song) === index;
+    });
+
+  }
+
+  // get rid of punctuation and chords
+  stripString(str) {
+    str = str.replace(/\[.+?\]/g, '');
+    return str.replace(/[’'",“\-—–!?()]/g, '');
   }
 
   render() {
