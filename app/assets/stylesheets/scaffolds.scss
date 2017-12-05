@@ -47,7 +47,18 @@ div {
 }
 
 #notice {
-  color: green;
+  color: #41ab19;
+  background-color: #ddeadd;
+}
+
+#alert {
+  color: #f70505;
+  background-color: #ffd1d1;
+}
+
+#notice, #alert {
+  padding: 20px;
+  border-radius: 5px;
 }
 
 .field_with_errors {

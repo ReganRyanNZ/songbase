@@ -1,6 +1,7 @@
 class SongsController < ApplicationController
   before_action :set_song, only: [:show, :edit, :update, :destroy]
   before_action :set_songs, only: [:app, :admin]
+  before_action :authenticate, only: [:new, :edit, :create, :update, :destroy]
 
   def app
     @song_id = params[:s]
