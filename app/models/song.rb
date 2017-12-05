@@ -1,6 +1,7 @@
 class Song < ApplicationRecord
   has_many :song_book
   has_many :books, through: :song_book
+  has_many :audits
   validate :titles_validation
 
 

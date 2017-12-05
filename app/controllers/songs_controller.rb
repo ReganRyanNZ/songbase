@@ -25,6 +25,7 @@ class SongsController < ApplicationController
 
     respond_to do |format|
       if @song.save
+        Audit.create(user: current_user, song: @song, time: Time.zone.now)
         format.html { redirect_to @song, notice: 'Song was successfully created.' }
         format.json { render :show, status: :created, location: @song }
       else
@@ -36,6 +37,7 @@ class SongsController < ApplicationController
 
   def update
     if @song.update(song_params)
+      Audit.create(user: current_user, song: @song, time: Time.zone.now)
       redirect_to @song, notice: 'Song was successfully updated.'
     else
       render :edit
@@ -57,6 +59,7 @@ class SongsController < ApplicationController
   end
 
   def set_songs
+
     @songs = []
     Song.all.each do |song|
       song.titles.each do |t|

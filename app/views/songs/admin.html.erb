@@ -19,6 +19,7 @@
         <td><%= song[:title] %></td>
         <td><%= link_to 'Edit', edit_song_path(song[:model]) %></td>
         <td><%= link_to 'Remove', song[:model], method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><div class="last_edited">Last edited by: <%= song[:model][:last_editor] || 'System' %></div></td>
       </tr>
     <% end %>
   </tbody>
