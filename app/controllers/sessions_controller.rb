@@ -9,4 +9,7 @@ class SessionsController < ApplicationController
     session[:user_id] = nil
     redirect_to admin_path
   end
+
+  def maintenance_mode
+  end
 end

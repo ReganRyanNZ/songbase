@@ -12,4 +12,7 @@ class ApplicationController < ActionController::Base
     redirect_to admin_path, alert: "You must sign in to edit songs" unless current_user
   end
 
+  def check_maintenance
+    redirect_to maintenance_path if ENV['maintenance_mode'] == 'true'
+  end
 end
