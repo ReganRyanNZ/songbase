@@ -30,6 +30,8 @@ gem 'turbolinks', '~> 5'
 
 gem 'react-rails'
 
+gem 'omniauth-facebook'
+
 #Api gems
 gem 'active_model_serializers'
 
@@ -48,6 +50,8 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'guard-rspec'
   gem 'factory_girl_rails'
+  gem 'dotenv-rails'
+
 end
 
 group :development do

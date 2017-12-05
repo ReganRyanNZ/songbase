@@ -1,8 +1,10 @@
 Rails.application.routes.draw do
+  get 'auth/:provider/callback', to: 'sessions#create'
+  get 'auth/failure', to: redirect('/admin')
+  get 'signout', to: 'sessions#destroy', as: 'signout'
+
   resources :songs
-
   root to: 'songs#app'
-
   get 'admin', to: 'songs#admin'
 
   namespace :api do
