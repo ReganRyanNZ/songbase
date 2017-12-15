@@ -1,6 +1,6 @@
 <% songs.each do |song| %>
   <tr>
-    <td><%=link_to song[:title], edit_song_path(song[:model]), class: "edit_song_link #{"req_review" if review}" %></td>
+    <td><%= link_to song[:title], edit_song_path(song[:model]), class: "edit_song_link", id: ("req_review" if review) %></td>
 
     <% if super_admin %>
       <td><%= link_to 'Remove', song[:model], method: :delete, data: { confirm: 'Are you sure?' }, class: "remove_song_link" %></td>

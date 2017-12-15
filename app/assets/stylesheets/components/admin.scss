@@ -5,7 +5,7 @@
   margin-left: 25px;
 }
 
-.edit_song_link.req_review {
+#req_review {
   color: green;
   &:hover {
     color: lightgreen;
@@ -19,23 +19,15 @@
   color: #333;
   &:hover {
     background-color: #333;
+    color: white;
   }
   &:visited {
-    color: none;
+    color: #333;
   }
 }
 
 .new_song_link {
   padding: 10px 2px;
-}
-
-.remove_song_link, .new_song_link {
-  &:visited {
-    color: #333;
-  }
-  &:hover {
-    color: white;
-  }
 }
 
 .admin_table {
