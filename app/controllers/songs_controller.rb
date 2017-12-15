@@ -76,7 +76,11 @@ class SongsController < ApplicationController
     @songs = []
     Song.all.each do |song|
       song.titles.each do |t|
-        @songs << {title: t[1], model: song}
+        @songs << {
+          title: t[1],
+          model: song,
+          edit_timestamp: song.audits.last&.time
+        }
       end
     end
     @songs.sort_by! { |s| clean_for_sorting(s[:title]) }

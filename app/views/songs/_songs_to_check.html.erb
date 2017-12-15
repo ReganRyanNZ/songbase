@@ -1,9 +1,0 @@
-<% songs.each do |song| %>
-  <tr>
-    <td <%= "class=req_review" if super_admin %>><%= song[:title] %></td>
-    <td><%= link_to 'Edit', edit_song_path(song[:model]) %></td>
-    <td><%= link_to 'Remove', song[:model], method: :delete, data: { confirm: 'Are you sure?' } %></td>
-    <td><div class="last_edited"><%= song[:model][:last_editor] || 'System' %></div></td>
-    <td><div class="edit_timestamp"><%=time_ago_in_words(song[:edit_timestamp])%> ago</div></td>
-  </tr>
-<% end %>
