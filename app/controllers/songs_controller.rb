@@ -9,6 +9,7 @@ class SongsController < ApplicationController
   end
 
   def admin
+    set_songs_to_check if super_admin
   end
 
   def show
@@ -55,12 +56,23 @@ class SongsController < ApplicationController
 
   private
 
+  def set_songs_to_check
+    @songs_to_check = Song.all.select { |song|
+      song.audits.any? && song.audits.last.time - 7.days < Time.zone.now
+    }.sort_by { |song| song.audits.last.time }.reverse!.map { |s|
+      {
+        title: [s.custom_title, s.firstline_title, s.chorus_title].reject(&:blank?).first,
+        model: s,
+        edit_timestamp: s.audits.last.time
+      }
+    }
+  end
+
   def set_song
     @song = Song.find(params[:id])
   end
 
   def set_songs
-
     @songs = []
     Song.all.each do |song|
       song.titles.each do |t|

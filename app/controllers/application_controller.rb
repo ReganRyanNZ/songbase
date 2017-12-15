@@ -1,8 +1,14 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
-  helper_method :current_user, :authenticate
+  helper_method :current_user, :authenticate, :super_admin
 
   private
+
+  def super_admin
+  [
+    "regan.ryan.nz@gmail.com"
+  ].include?(current_user&.email)
+  end
 
   def current_user
     @current_user ||= User.find(session[:user_id]) if session[:user_id]
