@@ -1,9 +1,9 @@
 <% songs.each do |song| %>
   <tr>
-    <td><%= link_to song[:title], edit_song_path(song[:model]), class: "edit_song_link", id: ("req_review" if review) %></td>
+    <td><%= link_to song[:title], edit_song_path(song[:model]), class: "wash-link edit_song_link", id: ("req_review" if review) %></td>
 
     <% if super_admin %>
-      <td><%= link_to 'Remove', song[:model], method: :delete, data: { confirm: 'Are you sure?' }, class: "remove_song_link" %></td>
+      <td><%= link_to 'Remove', song[:model], method: :delete, data: { confirm: 'Are you sure?' }, class: "wash-link remove_song_link" %></td>
     <% end %>
 
     <td><div class="last_edited"><%= (super_admin ? '' : "last edited by: ") + (song[:model][:last_editor] || 'System') %></div></td>

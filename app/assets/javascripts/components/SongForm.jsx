@@ -53,6 +53,9 @@ class SongForm extends React.Component {
             <h2>
               Indexing titles
             </h2>
+            <p className="admin-comment">
+              These titles will appear on a songbook's index page. Every song must have at least one title (usually the first line).
+            </p>
             <input
               id="song_firstline_title"
               placeholder="First line"

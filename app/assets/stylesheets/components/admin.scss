@@ -1,3 +1,34 @@
+.wash-link {
+  text-decoration: none;
+  color: #333;
+  &:visited {
+    color: #333;
+  }
+  &:hover {
+    background-color: #333;
+    color: white;
+  }
+}
+
+.admin-comment {
+  margin: -10px 0 20px 0;
+  color: grey;
+  font-size: 80%;
+  font-style: italic;
+}
+
+.btn-update {
+  padding: 10px 50px;
+  background-color: #d4d4d4;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.admin-root-title {
+  margin-bottom: 45px;
+  text-align: center;
+}
+
 .last_edited, .edit_timestamp {
   font-style: italic;
   font-size: 80%;
@@ -15,15 +46,6 @@
 .edit_song_link, .new_song_link, .remove_song_link {
   padding: 4px 2px;
   display: block;
-  text-decoration: none;
-  color: #333;
-  &:hover {
-    background-color: #333;
-    color: white;
-  }
-  &:visited {
-    color: #333;
-  }
 }
 
 .new_song_link {

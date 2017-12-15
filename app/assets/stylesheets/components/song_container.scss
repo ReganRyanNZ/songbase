@@ -3,10 +3,13 @@ div[data-react-class='SongDisplay'] {
 }
 
 .song-container {
+    width: 90%;
+    float: right;
     margin-bottom: 200px;
     white-space: pre-wrap; // lets return chars actually make new lines
-    display: inline-block;
+    display: block;
     text-align: left;
+
     span.comment {
         color: darkgray;
         font-size: 90%;
