@@ -19,7 +19,12 @@ class SongForm extends React.Component {
   handleChange(event) {
     switch(event.target.id) {
       case "song_lyrics":
-        this.setState({lyrics: event.target.value});
+        var target   = event.target;
+        target.value = target.value.replace(/(^|\n)SC/, "$1{start_of_chorus}");
+        target.value = target.value.replace(/(^|\n)EC/, "$1{end_of_chorus}");
+        target.value = target.value.replace(/(^|\n)NN/, "$1{no_number}");
+
+        this.setState({lyrics: target.value});
         break;
       case "song_firstline_title":
         this.setState({firstline_title: event.target.value});
