@@ -20,13 +20,13 @@ class SongDisplay extends React.Component {
     // countable verse regex pseudo code:
     // if its the start of the lyrics OR if theres a gap of two new lines
     // after any amount of comments or new lines
-    // get the character that's not weird
+    // get the character that's not weird (not the start of a comment or '{')
 
-    var countableVerseRegex = /(^(?:[\n\r]*)|(?:[\n][\r]?[\n][\r]?))((?:{[Cc]omments?|#).*(?:\n|\r)+)*([^{#\n\r])/g,
+    var countableVerseRegex = /(^(?:[\n\r]*)|(?:[\n][\r]?[\n][\r]?))((?:(?:{ ?[Cc]omments?|#).*(?:\n|\r)+)*)([^{#\n\r])/g,
         hasChordsRegex = /.*\[.*\].*/,
         getChordRegex = /\[(.*?)\]/g,
         chordlessTailRegex = /\][^\[\]]+$/,
-        commentRegex = /^(\{ ?[Cc]omments?:|\#) *([^{}]*)}?/,
+        commentRegex = /^(\{\s*[Cc]omments?:|\#) *([^{}]*)}?/,
         isChorusStartRegex = /{start_of_chorus}/i,
         isChorusEndRegex = /{end_of_chorus}/i;
         isNoNumberRegex = /{no_number}/i;
