@@ -5,6 +5,8 @@ Rails.application.routes.draw do
 
   get 'maintenance', to: 'sessions#maintenance_mode'
 
+  get 'edit', to: 'songs#edit' # shortcut when wanting to edit a song from main app
+
   resources :songs
   root to: 'songs#app'
   get 'admin', to: 'songs#admin'
