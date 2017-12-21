@@ -23,10 +23,12 @@ class SongDisplay extends React.Component {
     // get the character that's not weird (not the start of a comment or '{')
 
     var countableVerseRegex = /(^(?:[\n\r]*)|(?:[\n][\r]?[\n][\r]?))((?:(?:{ ?[Cc]omments?|#).*(?:\n|\r)+)*)([^{#\n\r])/g,
-        hasChordsRegex = /.*\[.*\].*/,
-        getChordRegex = /\[(.*?)\]/g,
-        chordlessTailRegex = /\][^\[\]]+$/,
-        commentRegex = /^(\{\s*[Cc]omments?:|\#) *([^{}]*)}?/,
+        getVerseNumberRegex = /<div class='verse-number'.+<\/div>/, // gets inserted verse number div to strip from chord lines
+        hasChordsRegex = /.*\[.*\].*/, // has square brackets
+        getChordRegex = /\[(.*?)\]/g, // anything inside square brackets
+        spacerTextRegex = /(^|\])([^\[]+)([\[\n])/g, // 3 groups, before spacer text (start of line or ']'), spacer text, and after spacer text (new line or '[')
+        chordlessTailRegex = /\][^\[\]]+$/, // the last ']' in a string and everything after it
+        commentRegex = /^(\{\s*[Cc]omments?:|\#) *([^{}]*)}?/, // 2 groups, a comment marker, and the actual comment text
         isChorusStartRegex = /{start_of_chorus}/i,
         isChorusEndRegex = /{end_of_chorus}/i;
         isNoNumberRegex = /{no_number}/i;
@@ -37,7 +39,7 @@ class SongDisplay extends React.Component {
     if (verseCount > 2) {
       lyrics = lyrics.replace(countableVerseRegex, function($0, $1, $2, $3) {
         verseNumber++;
-        return $1 + ($2 || "") + "<div class='verse-number'>" + verseNumber + "</div>" + $3
+        return $1 + ($2 || "") + "<div class='verse-number' data-uncopyable-text='" + verseNumber + "'></div>" + $3
       })
     }
     var lines = lyrics.split('\n'),
@@ -69,11 +71,16 @@ class SongDisplay extends React.Component {
           var chordLine = lines[i];
           // strip chord line of trailing (no chord remaining) text
           chordLine = chordLine.replace(chordlessTailRegex, "]");
+          // strip chord line of verse number
+          chordLine = chordLine.replace(getVerseNumberRegex, "");
           // format chord line
-          chordLine = this.positionChords(chordLine); //deletes chars to get the chords in the right place
-          chordLine = "<span class='spacer-text'>" + chordLine + "</span>";
-          chordLine = chordLine.replace(getChordRegex, "</span><span class='chord'>$1</span><span class='spacer-text'>")
-          // add to lyrics
+            //deletes chars to get the chords in the right place
+          chordLine = this.positionChords(chordLine);
+            // makes the spacer text unselectable/uncopyable
+          chordLine = chordLine.replace(spacerTextRegex, "$1<span class='spacer-text' data-uncopyable-text='$2'></span>$3");
+            // makes the chords formatted
+          chordLine = chordLine.replace(getChordRegex, "<span class='chord'>$1</span>")
+          // add formatted chord line to lyrics
           lines.splice(i, 0, chordLine);
           i += 1;
           maxIndex += 1;
@@ -85,7 +92,9 @@ class SongDisplay extends React.Component {
     return (lines.join("\n"));
   }
 
-
+  // This method returns the line with chars taken out,
+  // so when chords are inserted they aren't misplaced
+  //
   // Chords are positioned within invisible duplicates of the line itself
   // Because the chords themselves take up space, when we add a chord
   // we take away some characters, to keep following chords in roughly

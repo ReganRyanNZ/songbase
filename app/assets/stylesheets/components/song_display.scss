@@ -36,3 +36,7 @@ div[data-react-class='SongDisplay'] {
         margin-left: -15px;
     }
 }
+
+[data-uncopyable-text]::after {
+    content: attr(data-uncopyable-text);
+}
