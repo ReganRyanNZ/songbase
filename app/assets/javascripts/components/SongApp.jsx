@@ -2,7 +2,7 @@ class SongApp extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      song: (props.songId || 'index')
+      page: (props.songId || 'index')
     }
 
     this.setSong = this.setSong.bind(this);
@@ -10,10 +10,10 @@ class SongApp extends React.Component {
     this.getSong = this.getSong.bind(this);
     this.returnToIndex = this.returnToIndex.bind(this);
 
-    if(this.state.song == 'index') {
-      window.history.replaceState({song: 'index'}, '', '/');
+    if(this.state.page == 'index') {
+      window.history.replaceState({page: 'index'}, '', '/');
     } else {
-      window.history.replaceState({ song: this.state.song}, '', '/?s=' + this.state.song);
+      window.history.replaceState({page: this.state.page}, '', '/?s=' + this.state.page);
     }
   }
 
@@ -22,24 +22,24 @@ class SongApp extends React.Component {
   }
 
   returnToIndex(e) {
-    this.setState({song: 'index'});
-    window.history.pushState({song: 'index'}, '', '/');
+    this.setState({page: 'index'});
+    window.history.pushState({page: 'index'}, '', '/');
     $('html,body').scrollTop(0);
   }
 
   setSongFromHistory(e) {
-    if(e.state.song){
+    if(e.state.page){
       e.preventDefault(); // stop request to server for new html
       e.stopPropagation();
-      this.setState({song: e.state.song});
+      this.setState({page: e.state.page});
       $('html,body').scrollTop(0);
     }
   }
 
   setSong(e) {
     var songId = e.target.id;
-    this.setState({song: songId});
-    window.history.pushState({song: songId}, '', '?s='+songId);
+    this.setState({page: songId});
+    window.history.pushState({page: songId}, '', '?s='+songId);
     $('html,body').scrollTop(0);
   }
 
@@ -54,12 +54,17 @@ class SongApp extends React.Component {
   }
 
   render() {
-    var id = this.state.song;
+    var page = "settings";// this.state.page;
     var content;
-    if(id != 'index'){
-      content = <SongDisplay lyrics={ this.getSong(id).model.lyrics } />
-    } else {
-      content = <SongIndex songData={this.props.songData} setSong={this.setSong}/>
+    switch(page) {
+      case "index":
+        content = <SongIndex songData={this.props.songData} setSong={this.setSong}/>
+        break;
+      case "settings":
+        content = <UserSettings/>
+        break;
+      default:
+        content = <SongDisplay lyrics={ this.getSong(page).model.lyrics } />
     }
     return(
       <div className="song-app">
