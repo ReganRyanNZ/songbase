@@ -9,6 +9,7 @@ class SongApp extends React.Component {
     this.setSongFromHistory = this.setSongFromHistory.bind(this);
     this.getSong = this.getSong.bind(this);
     this.returnToIndex = this.returnToIndex.bind(this);
+    this.getLanguages = this.getLanguages.bind(this);
 
     if(this.state.page == 'index') {
       window.history.replaceState({page: 'index'}, '', '/');
@@ -53,6 +54,12 @@ class SongApp extends React.Component {
     return "couldn't find song";
   }
 
+  // get a list of unique languages in the db
+  getLanguages() {
+    songs = this.props.songData;
+    return songs.map(s => s.model.lang).filter((v, i, a) => a.indexOf(v) === i);
+  }
+
   render() {
     var page = "settings";// this.state.page;
     var content;
@@ -61,7 +68,7 @@ class SongApp extends React.Component {
         content = <SongIndex songData={this.props.songData} setSong={this.setSong}/>
         break;
       case "settings":
-        content = <UserSettings/>
+        content = <UserSettings languages={this.getLanguages()}/>
         break;
       default:
         content = <SongDisplay lyrics={ this.getSong(page).model.lyrics } />

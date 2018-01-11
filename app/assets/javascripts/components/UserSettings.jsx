@@ -14,16 +14,26 @@ class UserSettings extends React.Component {
   }
 
   render() {
+    langCheckboxes = [];
+    for(var i=0; i < this.props.languages.length; i++) {
+      lang = this.props.languages[i];
+      langCheckboxes.push(
+        <label key={lang}>
+          <input
+            name="lang"
+            type="checkbox"
+            onClick={() => { this.toggleLanguage(lang)} }
+            defaultChecked={this.state.settings.languages.includes(lang)}
+          />
+          <div className="lang-label">{lang}</div>
+        </label>
+      );
+    }
     return (
       <div className="settings-container">
-        <label htmlFor="lang">Language</label>
-        <input
-          name="lang"
-          type="checkbox"
-          onClick={() => { this.toggleLanguage('english')} }
-          defaultChecked={this.state.settings.languages.includes('english')}
-        />
-        <h2>Current Lanugages</h2>
+        <h2>Languages</h2>
+        {langCheckboxes}
+        <h2>Current Languages</h2>
         <p>{this.state.settings.languages.toString()}</p>
       </div>
     );
