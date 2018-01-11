@@ -11,7 +11,7 @@
     </div>
   <% end %>
 
-  <%= react_component('SongForm', song: song) %>
+  <%= react_component('SongForm', song: song, languages: all_languages) %>
   <div class="actions text-center">
     <%= f.submit class: "btn-update" %>
   </div>

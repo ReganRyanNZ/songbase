@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
-  helper_method :current_user, :authenticate, :super_admin
+  helper_method :current_user, :authenticate, :super_admin, :all_languages
 
   private
 
@@ -20,5 +20,9 @@ class ApplicationController < ActionController::Base
 
   def check_maintenance
     redirect_to maintenance_path if ENV['maintenance_mode'] == 'true'
+  end
+
+  def all_languages
+    Song.distinct.pluck :lang
   end
 end
