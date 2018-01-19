@@ -1,16 +1,13 @@
 class SongForm extends React.Component {
   constructor(props) {
     super(props);
-    lyrics = this.props.song.lyrics || '';
-    firstline_title = this.props.song.firstline_title || '';
-    chorus_title = this.props.song.chorus_title || '';
-    custom_title = this.props.song.custom_title || '';
+
     this.state = {
-      lyrics: lyrics,
-      firstline_title: firstline_title,
-      chorus_title: chorus_title,
-      custom_title: custom_title,
-      new_lang: false
+      lyrics: this.props.song.lyrics || '',
+      firstline_title: this.props.song.firstline_title || '',
+      chorus_title: this.props.song.chorus_title || '',
+      custom_title: this.props.song.custom_title || '',
+      lang: this.props.song.lang || 'english'
     }
 
     this.handleChange = this.handleChange.bind(this);
@@ -36,7 +33,7 @@ class SongForm extends React.Component {
         this.setState({custom_title: event.target.value});
         break;
       case "song_lang":
-        this.setState({new_lang: event.target.value == "new_lang"});
+        this.setState({lang: event.target.value});
         break;
     }
   }
@@ -50,7 +47,7 @@ class SongForm extends React.Component {
     language_options.push(<option value="new_lang">create new language</option>);
 
     var new_lang;
-    if(this.state.new_lang) {
+    if(this.state.lang == "new_lang") {
       new_lang = <input
         id="song_new_lang"
         placeholder="new language"
@@ -59,14 +56,7 @@ class SongForm extends React.Component {
         name="song[new_lang]"
       />
     } else {
-      new_lang = <input
-        id="song_new_lang"
-        placeholder="new language"
-        className="song-form-title"
-        type="text"
-        name="song[new_lang]"
-        value=""
-      />
+      new_lang = null;
     }
 
     return (
@@ -118,7 +108,8 @@ class SongForm extends React.Component {
           <select
             id="song_lang"
             name="song[lang]"
-            onChange={this.handleChange}>
+            onChange={this.handleChange}
+            value={this.state.lang}>
             {language_options}
           </select>
           <div className="new_lang">

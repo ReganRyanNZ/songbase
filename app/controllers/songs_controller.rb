@@ -3,6 +3,7 @@ class SongsController < ApplicationController
   before_action :set_songs, only: [:app, :admin]
   before_action :authenticate, only: [:new, :edit, :create, :update, :destroy]
   before_action :check_maintenance
+  before_action :adjust_lang_params, only: [:create, :update]
 
   def app
     @song_id = params[:s]
@@ -55,6 +56,12 @@ class SongsController < ApplicationController
   end
 
   private
+
+  def adjust_lang_params
+    if params[:song][:lang] == "new_lang"
+      params[:song][:lang] = params[:song][:new_lang]
+    end
+  end
 
   def set_songs_to_check
     @songs_to_check = Song.all.select { |song|
