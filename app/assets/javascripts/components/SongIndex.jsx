@@ -22,6 +22,10 @@ class SongIndex extends React.Component {
     var songs = this.props.songData;
     var strippedSearch = this.state.search.replace(/[’'",“\-—–!?()]/g, '');
 
+    songs = songs.filter(function(song) {
+      return this.props.settings.languages.includes(song.model.lang);
+    }, this);
+
     var titleStartRegex = new RegExp("^" + strippedSearch, 'i');
     var titleStart = songs.filter(function (song) {
       return titleStartRegex.test(this.stripString(song.title));

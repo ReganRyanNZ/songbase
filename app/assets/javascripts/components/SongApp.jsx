@@ -98,7 +98,7 @@ class SongApp extends React.Component {
     var content;
     switch(page) {
       case "index":
-        content = <SongIndex songData={this.props.songData} setSong={this.setSong} toggleSettingsPage={this.toggleSettingsPage}/>
+        content = <SongIndex songData={this.props.songData} setSong={this.setSong} settings={this.state.settings} toggleSettingsPage={this.toggleSettingsPage}/>
         break;
       case "settings":
         content = <UserSettings languages={this.getLanguages()} setSettings={this.setSettings} settings={this.state.settings} toggleSettingsPage={this.toggleSettingsPage}/>
