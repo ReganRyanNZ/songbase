@@ -5,7 +5,7 @@ class UserSettings extends React.Component {
     this.state = {
       settings: this.props.settings
     }
-    console.log("usersetings constructore");
+
     this.toggleLanguage = this.toggleLanguage.bind(this);
     this.addLanguage = this.addLanguage.bind(this);
     this.removeLanguage = this.removeLanguage.bind(this);
