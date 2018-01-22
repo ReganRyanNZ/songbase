@@ -2,9 +2,12 @@ class SongApp extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      page: (props.songId || 'index')
+      page: (props.songId || 'index'),
+      settings: this.getSettings()
     }
 
+    this.getSettings = this.getSettings.bind(this);
+    this.setSettings = this.setSettings.bind(this);
     this.setSong = this.setSong.bind(this);
     this.setSongFromHistory = this.setSongFromHistory.bind(this);
     this.getSong = this.getSong.bind(this);
@@ -21,6 +24,26 @@ class SongApp extends React.Component {
   componentDidMount() {
     window.addEventListener("popstate", this.setSongFromHistory);
   }
+
+  setSettings(settings) {
+    this.setState({settings: settings});
+  }
+
+  getSettings() {
+  var cookies = decodeURIComponent(document.cookie).split(/; */);
+  var target = 'songbase_settings='
+  for(var i = 0; i <cookies.length; i++) {
+      var c = cookies[i];
+      if (c.indexOf(target) == 0) {
+          return JSON.parse(c.substring(target.length, c.length));
+      }
+  }
+
+  // default settings here
+  return {
+    languages: ["english"]
+  };
+}
 
   returnToIndex(e) {
     this.setState({page: 'index'});
@@ -68,7 +91,7 @@ class SongApp extends React.Component {
         content = <SongIndex songData={this.props.songData} setSong={this.setSong}/>
         break;
       case "settings":
-        content = <UserSettings languages={this.getLanguages()}/>
+        content = <UserSettings languages={this.getLanguages()} setSettings={this.setSettings} settings={this.state.settings}/>
         break;
       default:
         content = <SongDisplay lyrics={ this.getSong(page).model.lyrics } />

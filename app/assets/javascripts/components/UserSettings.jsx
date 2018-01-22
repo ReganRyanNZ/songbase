@@ -3,13 +3,12 @@ class UserSettings extends React.Component {
     super(props);
 
     this.state = {
-      settings: this.getSettings()
+      settings: this.props.settings
     }
-
+    console.log("usersetings constructore");
     this.toggleLanguage = this.toggleLanguage.bind(this);
     this.addLanguage = this.addLanguage.bind(this);
     this.removeLanguage = this.removeLanguage.bind(this);
-    this.getSettings = this.getSettings.bind(this);
     this.saveSettings = this.saveSettings.bind(this);
   }
 
@@ -30,12 +29,15 @@ class UserSettings extends React.Component {
         </label>
       );
     }
+    currentLanguagesForTesting = [
+      <h2>Current Languages</h2>,
+      <p>{this.state.settings.languages.toString()}</p>
+    ];
     return (
       <div className="settings-container">
         <h2>Languages</h2>
         {langCheckboxes}
-        <h2>Current Languages</h2>
-        <p>{this.state.settings.languages.toString()}</p>
+        {/* {currentLanguagesForTesting} */}
       </div>
     );
   }
@@ -67,23 +69,7 @@ class UserSettings extends React.Component {
   }
 
   saveSettings(settings) {
-    document.cookie =  "settings=" + JSON.stringify(settings) +  "; expires=Sat, 1 Jan 2050 12:00:00 UTC; path=/";
-    this.setState({settings: settings});
-  }
-
-  getSettings() {
-    var cookies = decodeURIComponent(document.cookie).split(/; */);
-    var target = 'settings='
-    for(var i = 0; i <cookies.length; i++) {
-        var c = cookies[i];
-        if (c.indexOf(target) == 0) {
-            return JSON.parse(c.substring(target.length, c.length));
-        }
-    }
-
-    // default settings here
-    return {
-      languages: ["english"]
-    };
+    document.cookie =  "songbase_settings=" + JSON.stringify(settings) +  "; expires=Sat, 1 Jan 2050 12:00:00 UTC; path=/";
+    this.props.setSettings(settings);
   }
 }
