@@ -35,6 +35,9 @@ class UserSettings extends React.Component {
     ];
     return (
       <div className="settings-container">
+        <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
+          <img src="/assets/home-icon.svg"/>
+        </div>
         <h2>Languages</h2>
         {langCheckboxes}
         {/* {currentLanguagesForTesting} */}

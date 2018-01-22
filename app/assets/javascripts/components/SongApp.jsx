@@ -8,6 +8,7 @@ class SongApp extends React.Component {
 
     this.getSettings = this.getSettings.bind(this);
     this.setSettings = this.setSettings.bind(this);
+    this.toggleSettingsPage = this.toggleSettingsPage.bind(this);
     this.setSong = this.setSong.bind(this);
     this.setSongFromHistory = this.setSongFromHistory.bind(this);
     this.getSong = this.getSong.bind(this);
@@ -83,15 +84,24 @@ class SongApp extends React.Component {
     return songs.map(s => s.model.lang).filter((v, i, a) => a.indexOf(v) === i);
   }
 
+  toggleSettingsPage() {
+    if(this.state.page == "settings") {
+      this.returnToIndex('');
+    } else {
+      this.setState({page: "settings"});
+      window.history.pushState({page: "settings"}, '', '/');
+    }
+  }
+
   render() {
-    var page = "settings";// this.state.page;
+    var page = this.state.page; //"settings";
     var content;
     switch(page) {
       case "index":
-        content = <SongIndex songData={this.props.songData} setSong={this.setSong}/>
+        content = <SongIndex songData={this.props.songData} setSong={this.setSong} toggleSettingsPage={this.toggleSettingsPage}/>
         break;
       case "settings":
-        content = <UserSettings languages={this.getLanguages()} setSettings={this.setSettings} settings={this.state.settings}/>
+        content = <UserSettings languages={this.getLanguages()} setSettings={this.setSettings} settings={this.state.settings} toggleSettingsPage={this.toggleSettingsPage}/>
         break;
       default:
         content = <SongDisplay lyrics={ this.getSong(page).model.lyrics } />
