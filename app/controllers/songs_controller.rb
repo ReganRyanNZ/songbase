@@ -10,7 +10,7 @@ class SongsController < ApplicationController
   end
 
   def admin
-    set_songs_to_check if super_admin
+    set_songs_to_check
   end
 
   def show
