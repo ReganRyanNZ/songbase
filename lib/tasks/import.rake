@@ -62,6 +62,13 @@ namespace :import do
       song.save!
     end
   end
+
+  desc "Import songs from the bluesongbook isilo file"
+  task bsb: :environment do
+    bluesongbook = Book.find_or_create_by(name: "Blue Songbook", lang: "english")
+    s = Song.create(lyrics: parsed_lyrics, firstline_title: title, lang: "english")
+    s.song_books.create(book: bluesongbook, index: parsed_index)
+  end
 end
 
 
