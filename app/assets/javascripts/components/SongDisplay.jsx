@@ -88,7 +88,7 @@ class SongDisplay extends React.Component {
         //remove chords from original line
         lines[i] = lines[i].replace(getChordRegex, "");
       }
-      lines[i] = lines[i].replace("_", "‿");
+      lines[i] = lines[i].replace(/_/g, "\u035c");
     }
     return (lines.join("\n"));
   }
