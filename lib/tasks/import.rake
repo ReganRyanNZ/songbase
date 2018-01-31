@@ -66,8 +66,65 @@ namespace :import do
   desc "Import songs from the bluesongbook isilo file"
   task bsb: :environment do
     bluesongbook = Book.find_or_create_by(name: "Blue Songbook", lang: "english")
-    s = Song.create(lyrics: parsed_lyrics, firstline_title: title, lang: "english")
-    s.song_books.create(book: bluesongbook, index: parsed_index)
+    hymnal = Book.find_or_create_by(name: "Hymnal", lang: "english")
+    filename = Rails.root.join('db', 'bsb.txt')
+    delim = <<-DELIM
+
+
+Blue Song Book v4.0
+Hymn Selector | FirstLines | Categories
+Feedback: songbook.blue@gmail.com | tinyurl.com/BlueBugsReport4
+Updated April 2015
+
+DELIM
+
+    File.foreach(filename, delim) do |txt|
+      # get rid of delimiter
+      txt = txt.chomp(delim)
+
+      # set index
+      bsb_index = /Previous Song (\d+) Next Song/.match(txt)[1]
+      hymnal_index = nil
+
+      # remove all header chaff
+      txt = /.*Word Wrap\n+(.*)/m.match(txt)[1]
+
+      # insert chords into lines, right to left
+      lines = txt.split("\n")
+      chord_regex = /\A\s*([\/ABCDEFG#bmMsu234579-]+\s*)+\z/
+      chorded_lines = []
+      lines.each_with_index do |line, i|
+        is_chords = line.match(chord_regex)
+        if is_chords
+          while(m = line.match(/.*\s([^\s]+)/)) do
+            chord = "[" + m[1] + "]"
+            offset = [m.offset(1).first, lines[i+1].length].min
+            lines[i+1].insert(offset, chord)
+            line = line[0...offset]
+          end
+        elsif hymnal_regex_match = /\(Hymns, \#(\d+)/.match(line)
+          hymnal_index = hymnal_regex_match[1]
+        else
+          # remove offset and add to chorded lines
+          line = /([\s\d]\s\s)?(.*)/.match(line)[2]
+
+          # comment out comments
+          line = /\A\(?(\s*[Pp]art[^a]|[Bb]rothers|[Ss]isters|[Cc]apo|[Rr]epeat|20\d\d|[Nn]ew tune|[Oo]riginal tune|chorus).*|([Ss]tanza|[Cc]horus \d)/.match(line) ? "#" + line : line
+
+          chorded_lines << line
+        end
+      end
+      parsed_lyrics = chorded_lines.join("\n")
+      s = Song.new(lyrics: parsed_lyrics, lang: "english")
+      s.firstline_title = s.guess_firstline_title
+      s.save!
+      puts s.firstline_title
+      s.song_books.create(book: bluesongbook, index: bsb_index)
+      s.song_books.create(book: hymnal, index: hymnal_index) if hymnal_index
+
+    end
+
+
   end
 end
 

@@ -1,5 +1,5 @@
 class Song < ApplicationRecord
-  has_many :song_book
+  has_many :song_books, dependent: :destroy
   has_many :books, through: :song_book
   has_many :audits, dependent: :destroy
   validate :titles_validation
@@ -38,6 +38,7 @@ class Song < ApplicationRecord
     # strip chords, newlines, trailing punctuation
     line.gsub( /\[[^\]]*\]/, "" ) # chords
         .gsub(/\n|\r/, "") # new lines
+        .gsub(/\A[,;: .!]*/, "") # leading punctuation
         .gsub(/[,;: .!]*\z/, "") # trailing punctuation
   end
 
