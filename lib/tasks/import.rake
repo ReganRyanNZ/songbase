@@ -109,7 +109,7 @@ DELIM
           line = /([\s\d]\s\s)?(.*)/.match(line)[2]
 
           # comment out comments
-          line = /\A\(?(\s*[Pp]art[^a]|[Bb]rothers|[Ss]isters|[Cc]apo|[Rr]epeat|20\d\d|[Nn]ew tune|[Oo]riginal tune|chorus).*|([Ss]tanza|[Cc]horus \d)/.match(line) ? "#" + line : line
+          line = /\A\(?(\s*[Pp]art[^a]|[Bb]rothers|[Ss]isters|[Cc]apo|[Rr]epeat|20\d\d|[Nn]ew tune|[Oo]riginal tune|chorus).*|([Ss]tanza|[Cc]horus|[Ii]nterlude)/.match(line) ? "#" + line : line
 
           chorded_lines << line
         end
