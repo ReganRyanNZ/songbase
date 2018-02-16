@@ -64,13 +64,11 @@ class SongsController < ApplicationController
   end
 
   def set_songs_to_check
-    @songs_to_check = Song.all.select { |song|
-      song.audits.any? && song.audits.last.time - 7.days < Time.zone.now
-    }.sort_by { |song| song.audits.last.time }.reverse!.map { |s|
+    @songs_to_check = Song.recently_changed.map { |s|
       {
         title: [s.custom_title, s.firstline_title, s.chorus_title].reject(&:blank?).first,
         model: s,
-        edit_timestamp: s.audits.last.time
+        edit_timestamp: s.updated_at
       }
     }
   end
@@ -86,7 +84,7 @@ class SongsController < ApplicationController
         @songs << {
           title: t[1],
           model: song,
-          edit_timestamp: song.audits.last&.time
+          edit_timestamp: song.updated_at
         }
       end
     end

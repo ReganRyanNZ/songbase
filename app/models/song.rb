@@ -4,6 +4,8 @@ class Song < ApplicationRecord
   has_many :audits, dependent: :destroy
   validate :titles_validation
 
+  scope :audited, -> { joins(:audits).order('audits.time ASC') }
+  scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
 
   def guess_firstline_title
     strip_line(/^[^{#\r\n].*/.match(lyrics)[0])
