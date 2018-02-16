@@ -22,7 +22,7 @@ class SongDisplay extends React.Component {
     // after any amount of comments or new lines
     // get the character that's not weird (not the start of a comment or '{')
 
-    var countableVerseRegex = /(^(?:\n*)|(?:\n\n))((?:(?:{ ?[Cc]omments?|#).*(?:\n)+)*)([^{#\n])/g,
+    var countableVerseRegex = /(^(?:\n*)|(?:\n\n))((?:(?:{ ?[Cc]omments?|#).*(?:\n)+)*)([^{#\n\s])/g,
         getVerseNumberRegex = /<div class='verse-number'.+<\/div>/, // gets inserted verse number div to strip from chord lines
         hasChordsRegex = /.*\[.*\].*/, // has square brackets
         getChordRegex = /\[(.*?)\]/g, // anything inside square brackets
