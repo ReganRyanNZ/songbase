@@ -1,9 +1,11 @@
 class Song < ApplicationRecord
-  has_many :song_book
+  has_many :song_books, dependent: :destroy
   has_many :books, through: :song_book
   has_many :audits, dependent: :destroy
   validate :titles_validation
 
+  scope :audited, -> { joins(:audits).order('audits.time ASC') }
+  scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
 
   def guess_firstline_title
     strip_line(/^[^{#\r\n].*/.match(lyrics)[0])
@@ -38,6 +40,7 @@ class Song < ApplicationRecord
     # strip chords, newlines, trailing punctuation
     line.gsub( /\[[^\]]*\]/, "" ) # chords
         .gsub(/\n|\r/, "") # new lines
+        .gsub(/\A[,;: .!]*/, "") # leading punctuation
         .gsub(/[,;: .!]*\z/, "") # trailing punctuation
   end
 

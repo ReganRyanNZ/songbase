@@ -62,6 +62,89 @@ namespace :import do
       song.save!
     end
   end
+
+  desc "Import songs from the bluesongbook isilo file"
+  task bsb: :environment do
+    bluesongbook = Book.find_or_create_by(name: "Blue Songbook", lang: "english")
+    hymnal = Book.find_or_create_by(name: "Hymnal", lang: "english")
+    filename = Rails.root.join('db', 'bsb.txt')
+    delim = <<-DELIM
+
+
+Blue Song Book v4.0
+Hymn Selector | FirstLines | Categories
+Feedback: songbook.blue@gmail.com | tinyurl.com/BlueBugsReport4
+Updated April 2015
+
+DELIM
+
+    File.foreach(filename, delim) do |txt|
+      # get rid of delimiter
+      txt = txt.chomp(delim)
+
+      # cut last delimiter off
+      break unless /Previous Song (\d+) Next Song/.match(txt)
+
+      # set index
+      bsb_index = /Previous Song (\d+) Next Song/.match(txt)[1]
+      hymnal_index = nil
+
+      # remove all header chaff
+      txt = /.*Word Wrap\n+(.*)/m.match(txt)[1]
+
+      # comment out comments
+      comments_regex = /^ *(\(?(([^#\n]*\d[a-z]|(Goes up a key)|[^#\n]*repeat chorus|\([Pp]arts|[Rr]epeat|20\d\d|[Nn]ew tune|[Oo]riginal tune|[Cc]apo [^\s]|[Ss]tanza ? \S?|[Cc]horus|[Ii]nterlud|[Pp]arts [AB12]|[Bb]anner \d|[^#\n].*\&).*)|([Pp]art [^\s]+|[Bb]rothers\:?|[Ss]isters\:?|Brothers & Sisters)$)/
+      txt = txt.sub(comments_regex, '#\1') while txt =~ comments_regex
+      # personal vendetta against em dash misuse
+      em_dash_regex = /(\S)— (\S)/
+      txt = txt.sub(em_dash_regex, '\1—\2') while txt =~ em_dash_regex
+
+
+      # replace blank lines with dummy [] chords
+      verse_blank_line_regex = /(^(?:\s|\d)\s\s[^\s][^#].*\n)(\n\s\s\s[^\s].*[^\n \/ABCDEFG#bmMsu234579\-^])/
+      chorus_blank_line_regex = /(^\s\s\s\s\s[^\s][^#].*\n)(\n\s\s\s\s\s[^\s].*[^\n \/ABCDEFG#bmMsu234579\-^])/
+        # gsub is not used here because two chordless lines in a row have overlapping regex
+
+      txt = txt.sub(verse_blank_line_regex, '\1   ^\2') while txt =~ verse_blank_line_regex
+      txt = txt.sub(chorus_blank_line_regex, '\1     ^\2') while txt =~ chorus_blank_line_regex
+
+      # insert chords into lines, right to left
+      lines = txt.split("\n")
+      chord_regex = /\A\s*([\/\(\)ABCDEFG#bmMsu234579\-^]+\s*)+\z/
+      chorded_lines = []
+      lines.each_with_index do |line, i|
+        is_chords = line.match(chord_regex)
+        if is_chords
+          bsb_chord_regex = /.*\s([^\s]+)/ # basically anything not a space, rightmost first
+          while(m = line.match(bsb_chord_regex)) do
+            chord = "[" + m[1] + "]"
+            chord = "[]" if m[1] == "^" # blank chord to space empty lines
+            offset = m.offset(1).first
+            lines[i+1].insert(-1, " ") while lines[i+1].length < offset # make sure the line is long enough to position the chord
+            lines[i+1].insert(offset, chord) # add songbase chord to words line
+            line = line[0...offset] # chop chord off the end
+          end
+        elsif hymnal_regex_match = /\(Hymns, \#(\d+)/.match(line)
+          hymnal_index = hymnal_regex_match[1]
+        else
+          # remove offset and add to chorded lines
+          line = /([\s\d]\s\s)?(.*)/.match(line)[2]
+
+          chorded_lines << line
+        end
+      end
+      parsed_lyrics = chorded_lines.join("\n")
+      s = Song.new(lyrics: parsed_lyrics, lang: "english")
+      s.firstline_title = s.guess_firstline_title
+      s.save!
+      puts s.firstline_title
+      s.song_books.create(book: bluesongbook, index: bsb_index)
+      s.song_books.create(book: hymnal, index: hymnal_index) if hymnal_index
+
+    end
+
+
+  end
 end
 
 

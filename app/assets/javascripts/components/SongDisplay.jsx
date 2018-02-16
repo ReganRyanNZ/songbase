@@ -22,7 +22,7 @@ class SongDisplay extends React.Component {
     // after any amount of comments or new lines
     // get the character that's not weird (not the start of a comment or '{')
 
-    var countableVerseRegex = /(^(?:[\n\r]*)|(?:[\n][\r]?[\n][\r]?))((?:(?:{ ?[Cc]omments?|#).*(?:\n|\r)+)*)([^{#\n\r])/g,
+    var countableVerseRegex = /(^(?:\n*)|(?:\n\n))((?:(?:{ ?[Cc]omments?|#).*(?:\n)+)*)([^{#\n\s])/g,
         getVerseNumberRegex = /<div class='verse-number'.+<\/div>/, // gets inserted verse number div to strip from chord lines
         hasChordsRegex = /.*\[.*\].*/, // has square brackets
         getChordRegex = /\[(.*?)\]/g, // anything inside square brackets
@@ -30,7 +30,8 @@ class SongDisplay extends React.Component {
         chordlessTailRegex = /\][^\[\]]+$/, // the last ']' in a string and everything after it
         commentRegex = /^(\{\s*[Cc]omments?:|\#) *([^{}]*)}?/, // 2 groups, a comment marker, and the actual comment text
         isChorusStartRegex = /{start_of_chorus}/i,
-        isChorusEndRegex = /{end_of_chorus}/i;
+        isChorusEndRegex = /{end_of_chorus}/i,
+        chorusRegex = /((?:(?:\n|^)  .*)+)/g, // block with two spaces at the front of each line
         isNoNumberRegex = /{no_number}/i;
 
     var verseNumber = 0,
@@ -42,6 +43,10 @@ class SongDisplay extends React.Component {
         return $1 + ($2 || "") + "<div class='verse-number' data-uncopyable-text='" + verseNumber + "'></div>" + $3
       })
     }
+    lyrics = lyrics.replace(/\r\n/g, `\n`); // get rid of windows carriage returns
+
+    lyrics = lyrics.replace(chorusRegex, `\n<div class='chorus'> $1 \n</div>`)
+
     var lines = lyrics.split('\n'),
         maxIndex = lines.length;
 
@@ -57,7 +62,7 @@ class SongDisplay extends React.Component {
       if(commentRegex.test(lines[i])) {
         lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$2</span>");
       }
-      // change chorus tags to html tags
+      // change chorus tags to html tags (for old chorus system)
       if(isChorusStartRegex.test(lines[i])) {
         lines[i] = "<div class='chorus'>"
       } else if(isChorusEndRegex.test(lines[i])) {
