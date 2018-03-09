@@ -22,8 +22,14 @@ class SongIndex extends React.Component {
     var songs = this.props.songData;
     var strippedSearch = this.state.search.replace(/[’'",“\-—–!?()]/g, '');
 
+    // filter songs by language settings
     songs = songs.filter(function(song) {
       return this.props.settings.languages.includes(song.model.lang);
+    }, this);
+
+    var indexMatch = songs.filter(function(song) {
+      var indices = $.map(song.books, function(v) { return v; });
+      return indices.includes(this.state.search);
     }, this);
 
     var titleStartRegex = new RegExp("^" + strippedSearch, 'i');
@@ -41,7 +47,7 @@ class SongIndex extends React.Component {
       return lyricsMatchRegex.test(this.stripString(song.model.lyrics));
     }, this);
 
-    searchResults = titleStart.concat(titleMatch).concat(lyricsMatch);
+    searchResults = indexMatch.concat(titleStart).concat(titleMatch).concat(lyricsMatch);
 
     return searchResults.filter(function removeDuplicates(song, index, self) {
       return self.indexOf(song) === index;
@@ -52,7 +58,7 @@ class SongIndex extends React.Component {
   // get rid of punctuation and chords
   stripString(str) {
     str = str.replace(/\[.+?\]/g, '');
-    return str.replace(/[’'",“\-—–!?()]/g, '');
+    return str.replace(/[’'",“\-—–!?()0-9]/g, '');
   }
 
   render() {

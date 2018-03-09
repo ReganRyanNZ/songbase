@@ -79,11 +79,12 @@ class SongsController < ApplicationController
 
   def set_songs
     @songs = []
-    Song.all.each do |song|
+    Song.all.includes(books: :song_books).each do |song|
       song.titles.each do |t|
         @songs << {
           title: t[1],
           model: song,
+          books: song.song_books.map {|sb| [sb.book.name, sb.index] }.to_h,
           edit_timestamp: song.updated_at
         }
       end
