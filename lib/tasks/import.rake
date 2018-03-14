@@ -128,7 +128,7 @@ DELIM
           hymnal_index = hymnal_regex_match[1]
         else
           # remove offset and add to chorded lines
-          line = /([\s\d]\s\s)?(.*)/.match(line)[2]
+          line = /([\s\d]\d?\s\s)?(.*)/.match(line)[2]
 
           chorded_lines << line
         end
