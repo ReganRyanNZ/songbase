@@ -14,6 +14,7 @@ class SongApp extends React.Component {
     this.getSong = this.getSong.bind(this);
     this.returnToIndex = this.returnToIndex.bind(this);
     this.getLanguages = this.getLanguages.bind(this);
+    this.getLanguageCounts = this.getLanguageCounts.bind(this);
 
     if(this.state.page == 'index') {
       window.history.replaceState({page: 'index'}, '', '/');
@@ -84,6 +85,15 @@ class SongApp extends React.Component {
     return songs.map(s => s.model.lang).filter((v, i, a) => a.indexOf(v) === i);
   }
 
+  // get a count of the languages in the db
+  getLanguageCounts() {
+    counts = {};
+    songs = this.props.songData;
+    langs = songs.map(s => s.model.lang).forEach(l => counts[l] = (counts[l] || 0) + 1);
+
+    return counts;
+  }
+
   toggleSettingsPage() {
     if(this.state.page == "settings") {
       this.returnToIndex('');
@@ -101,7 +111,7 @@ class SongApp extends React.Component {
         content = <SongIndex songData={this.props.songData} setSong={this.setSong} settings={this.state.settings} toggleSettingsPage={this.toggleSettingsPage}/>
         break;
       case "settings":
-        content = <UserSettings languages={this.getLanguages()} setSettings={this.setSettings} settings={this.state.settings} toggleSettingsPage={this.toggleSettingsPage}/>
+        content = <UserSettings languages={this.getLanguages()} languageCounts={this.getLanguageCounts()} setSettings={this.setSettings} settings={this.state.settings} toggleSettingsPage={this.toggleSettingsPage}/>
         break;
       default:
         content = <SongDisplay lyrics={ this.getSong(page).model.lyrics } />
