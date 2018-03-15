@@ -82,7 +82,7 @@ class SongApp extends React.Component {
   // get a list of unique languages in the db
   getLanguages() {
     songs = this.props.songData;
-    return songs.map(s => s.model.lang).filter((v, i, a) => a.indexOf(v) === i);
+    return songs.map(s => s.model.lang).filter((v, i, a) => a.indexOf(v) === i).sort();
   }
 
   // get a count of the languages in the db

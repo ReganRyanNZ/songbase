@@ -23,6 +23,6 @@ class ApplicationController < ActionController::Base
   end
 
   def all_languages
-    Song.distinct.pluck :lang
+    Song.distinct.pluck(:lang).sort
   end
 end
