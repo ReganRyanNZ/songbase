@@ -42,9 +42,9 @@ class SongForm extends React.Component {
     language_options = []
     langs = this.props.languages;
     for(var i=0; i < langs.length; i++) {
-      language_options.push(<option value={langs[i]} key={langs[i]}>{langs[i]}</option>);
+      language_options.push(<option value={langs[i]} key={langs[i]}>{langs[i][0].toUpperCase() + langs[i].slice(1)}</option>);
     }
-    language_options.push(<option value="new_lang" key="new_lang">create new language</option>);
+    language_options.push(<option value="new_lang" key="new_lang">Create new language</option>);
 
     var new_lang;
     if(this.state.lang == "new_lang") {
