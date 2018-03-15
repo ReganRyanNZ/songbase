@@ -8,7 +8,8 @@
     <tr>
       <%= link_to 'New Song', new_song_path, class: "new_song_link" %>
     </tr>
-    <%= render partial: 'admin_songs', locals: {songs: @songs_to_check, review: true} %>
-    <%= render partial: 'admin_songs', locals: {songs: @songs, review: false} %>
+    <%= render partial: 'admin_songs', locals: {songs: @songs_to_check[:duplicates], review_changed: false, review_duplicate: true} %>
+    <%= render partial: 'admin_songs', locals: {songs: @songs_to_check[:changed], review_changed: true, review_duplicate: false} %>
+    <%= render partial: 'admin_songs', locals: {songs: @songs, review_changed: false, review_duplicate: false} %>
   </tbody>
 </table>

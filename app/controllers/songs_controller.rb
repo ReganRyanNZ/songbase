@@ -64,7 +64,18 @@ class SongsController < ApplicationController
   end
 
   def set_songs_to_check
-    @songs_to_check = Song.recently_changed.map { |s|
+    @songs_to_check ||= {}
+    @songs_to_check[:changed] = Song.recently_changed.map { |s|
+      {
+        title: [s.custom_title, s.firstline_title, s.chorus_title].reject(&:blank?).first,
+        model: s,
+        edit_timestamp: s.updated_at
+      }
+    }
+
+    non_duplicate_title_ids = Song.select("MIN(id) as id").group(:firstline_title).collect(&:id)
+    duplicate_titles = Song.select(:firstline_title).where.not(id: non_duplicate_title_ids)
+    @songs_to_check[:duplicates] = Song.where(firstline_title: duplicate_titles).map { |s|
       {
         title: [s.custom_title, s.firstline_title, s.chorus_title].reject(&:blank?).first,
         model: s,
