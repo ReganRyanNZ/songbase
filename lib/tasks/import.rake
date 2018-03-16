@@ -63,6 +63,36 @@ namespace :import do
     end
   end
 
+  desc "Import hymnal"
+  task hymnal: :environment do
+    existing_hymns = SongBook.where(book: Book.find_by(name: "Hymnal")).map {|sb| sb.index}
+    hymnal = Book.find_or_create_by(name: "Hymnal", lang: "english")
+    filename = Rails.root.join('db', 'LSM English Hymnal.txt')
+    delim = "-"*8
+    raw_array = File.foreach(filename, delim) do |txt|
+      # get rid of delimiter
+      txt = txt.sub(delim, '')
+      index_regex = /\A[0-9]+\n/
+      hymnal_index = txt[index_regex].to_i
+      next if existing_hymns.include? hymnal_index
+
+      txt = txt.sub(txt[index_regex], '')
+
+      # comment out comments
+      comments_regex = %r{^ *(\(?
+        (([^#\n]*\d[a-z]|[0-9]|(Goes up a key)|[^#\n]*repeat\schorus|\([Pp]arts|[Rr]epeat|20\d\d|[Nn]ew\stune|[Oo]riginal\stune|[Cc]apo\s[^\s]|[Ss]tanza\s?\s\S?|[Cc]horus|[Ii]nterlud|[Pp]arts [AB12]|[Bb]anner\s\d|[^#\n].*\&|\*).*) # sections that can trail off in other chars
+        |([Pp]art [^\s]+|[Bb]rothers\:?|[Ss]isters\:?|Brothers & Sisters) # sections to the end
+        $)}x
+      txt = txt.sub(comments_regex, '#\1') while txt =~ comments_regex
+      # lines with numbers aren't being commented out????
+      s = Song.new(lyrics: txt, lang: "english")
+      s.firstline_title = s.guess_firstline_title
+      s.save!
+      puts s.firstline_title
+      s.song_books.create(book: hymnal, index: hymnal_index)
+    end
+  end
+
   desc "Import songs from the bluesongbook isilo file"
   task bsb: :environment do
     bluesongbook = Book.find_or_create_by(name: "Blue Songbook", lang: "english")
@@ -93,7 +123,7 @@ DELIM
       txt = /.*Word Wrap\n+(.*)/m.match(txt)[1]
 
       # comment out comments
-      comments_regex = /^ *(\(?(([^#\n]*\d[a-z]|(Goes up a key)|[^#\n]*repeat chorus|\([Pp]arts|[Rr]epeat|20\d\d|[Nn]ew tune|[Oo]riginal tune|[Cc]apo [^\s]|[Ss]tanza ? \S?|[Cc]horus|[Ii]nterlud|[Pp]arts [AB12]|[Bb]anner \d|[^#\n].*\&).*)|([Pp]art [^\s]+|[Bb]rothers\:?|[Ss]isters\:?|Brothers & Sisters)$)/
+      comments_regex = /^ *(\(?(([^#\n]*\d[a-z]|(Goes up a key)|[^#\n]*repeat chorus|\([Pp]arts|[Rr]epeat|20\d\d|[Nn]ew tune|[Oo]riginal tune|[Cc]apo [^\s]|[Ss]tanza ? \S?|[Cc]horus|[Ii]nterlud|[Pp]arts [AB12]|[Bb]anner \d|[^#\n].*\&|\*).*)|([Pp]art [^\s]+|[Bb]rothers\:?|[Ss]isters\:?|Brothers & Sisters)$)/
       txt = txt.sub(comments_regex, '#\1') while txt =~ comments_regex
       # personal vendetta against em dash misuse
       em_dash_regex = /(\S)— (\S)/
