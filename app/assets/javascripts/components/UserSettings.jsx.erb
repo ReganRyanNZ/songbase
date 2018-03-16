@@ -25,7 +25,7 @@ class UserSettings extends React.Component {
             defaultChecked={this.state.settings.languages.includes(lang)}
             value={lang}
           />
-          <div className="lang-label">{lang}</div>
+          <div className="lang-label">{lang[0].toUpperCase() + lang.slice(1) + ` (${this.props.languageCounts[lang]})`}</div>
         </label>
       );
     }
@@ -41,6 +41,10 @@ class UserSettings extends React.Component {
         <h2>Languages</h2>
         {langCheckboxes}
         {/* {currentLanguagesForTesting} */}
+        <div className="contact-footer">
+          <hr />
+          Site Support: <a href="mailto:songbase.brothers@gmail.com">songbase.brothers@gmail.com</a>
+        </div>
       </div>
     );
   }
