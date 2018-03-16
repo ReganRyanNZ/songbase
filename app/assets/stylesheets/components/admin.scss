@@ -36,10 +36,17 @@
   margin-left: 25px;
 }
 
-#req_review {
+#req_review_changed {
   color: green;
   &:hover {
     color: lightgreen;
+  }
+}
+
+#req_review_duplicate {
+  color: red;
+  &:hover {
+    color: lightred;
   }
 }
 
