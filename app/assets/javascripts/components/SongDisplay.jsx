@@ -29,8 +29,8 @@ class SongDisplay extends React.Component {
         spacerTextRegex = /(^|\])([^\[]+)([\[\n])/g, // 3 groups, before spacer text (start of line or ']'), spacer text, and after spacer text (new line or '[')
         chordlessTailRegex = /\][^\[\]]+$/, // the last ']' in a string and everything after it
         commentRegex = /^\# *(.*)/, // everything after a '# '
-        chorusRegex = /((?:(?:\n|^)  .*)+)/g; // block with two spaces at the front of each line is a chorus
-
+        chorusRegex = /((?:(?:\n|^)  .*)+)/g, // block with two spaces at the front of each line is a chorus
+        badCharsRegex = /['"]/g;
     // parse verse numbers
     var verseNumber = 0,
     lyrics = lyrics.replace(verseNumberRegex, function($0, $1, $2) {
@@ -63,7 +63,8 @@ class SongDisplay extends React.Component {
           chordLine = chordLine.replace(chordlessTailRegex, "]");
           // strip chord line of verse number
           chordLine = chordLine.replace(getVerseNumberRegex, "");
-
+          // get rid of any html-unfriendly chars
+          chordLine = chordLine.replace(badCharsRegex, " ");
           // format chord line
             //deletes chars to get the chords in the right place
           chordLine = this.positionChords(chordLine);
@@ -94,6 +95,8 @@ class SongDisplay extends React.Component {
   // the right place.
   positionChords(line) {
     for(var i=0; i<line.length; i++) {
+
+      // find start of chord
       if(line[i] === '[') {
         chordSize = 0;
         i += 1;
