@@ -5,8 +5,8 @@ describe Api::V1::SongsController do
 
   describe "GET #all_songs" do
     before(:each) do
-      @songs = [FactoryGirl.create(:song),
-                FactoryGirl.create(:song, firstline_title: "Another song", lyrics: "Different words[G]")]
+      @songs = [FactoryBot.create(:song),
+                FactoryBot.create(:song, firstline_title: "Another song", lyrics: "Different words[G]")]
       get :all_songs, format: :json
     end
 
@@ -22,7 +22,7 @@ describe Api::V1::SongsController do
 
   describe "POST #add_song" do
     before(:each) do
-      @song_attributes = FactoryGirl.attributes_for :song
+      @song_attributes = FactoryBot.attributes_for :song
       post :create, params: {song: @song_attributes}, format: :json
     end
 

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :song do
     firstline_title "From the time I spoke Your Name"
     lyrics "\nFrom the ti[D]me I s[G]poke Your Na[D]me,\nLord, my [G]life's not been the [D]same\nSince I called on the only One Who'd\nsav[A]e me.[A7]\nWhen for[D]saken,[G] in de[D]spair --\nWho'd have [G]thought that You'd be t[D]here?\nNow I've found out, J[A]esus, You're a[D]live![D7]\n\n{start_of_chorus}\nNow my[G] eyes begin to see\nI'm living [D]as I ought to be,\nAs this [G]turning, burning God\nmoves in my [A]heart.[A7]\nI don't [D]care now [G]how I fee[D]l;\nI just [G]know that this is [D]real,\nAnd I know, O [A]Jesus, You're a[D]live!\n{end_of_chorus}\n\nAll my friends may think it’s square,\nSince I’ve touched You I don’t care,\nFor I’ve found You’re the only life worth living.\nThough some mock and criticise,\nLord, they just don’t realise\nThat I’ve found out, Jesus, You’re alive!\n\nIt's no statue that I call,\nNot a picture on the wall,\nBut a Person Who lives His life within me.\nWish they'd told me long before,\nAll You want's an open door,\nAnd that really, Jesus, You're alive!"

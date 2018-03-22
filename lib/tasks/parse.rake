@@ -17,4 +17,14 @@ namespace :parse do
       end
     end
   end
+
+  desc "Add static stanza numbers to lyrics"
+  task add_stanza_numbers: :environment do |args|
+    countableVerseRegex = /(^(?:\n*)|(?:\n\n))((?:(?:{ ?[Cc]omments?|#).*(?:\n)+)*)([^{#\n\s])/g
+    Song.all.each do |song|
+
+
+
+    end
+  end
 end

@@ -10,7 +10,7 @@ describe Api::V1::Song do
         chorus_title: "Now my eyes begin to see",
         custom_title: "Jesus, You're alive"
       }
-      song = FactoryGirl.create(:song, titles)
+      song = FactoryBot.create(:song, titles)
       expect(song.titles).to match titles
     end
   end
