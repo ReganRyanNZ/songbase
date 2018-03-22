@@ -27,4 +27,16 @@ namespace :parse do
 
     end
   end
+
+  desc "Convert old {comments: ...} to # ..."
+  task convert_old_comments_to_new_format: :environment do |args|
+    comments_regex = /{comments:(.*)}/
+    Song.all.each do |song|
+      if(song.lyrics[comments_regex])
+        song.lyrics = song.lyrics.gsub(comments_regex) { '#' + $1 }
+        song.save!
+        puts song.firstline_title
+      end
+    end
+  end
 end
