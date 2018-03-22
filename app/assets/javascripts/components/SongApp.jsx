@@ -6,6 +6,7 @@ class SongApp extends React.Component {
       settings: this.getSettings()
     }
 
+    // bind all methods to this context (so we can use them)
     this.getSettings = this.getSettings.bind(this);
     this.setSettings = this.setSettings.bind(this);
     this.toggleSettingsPage = this.toggleSettingsPage.bind(this);
@@ -16,6 +17,7 @@ class SongApp extends React.Component {
     this.getLanguages = this.getLanguages.bind(this);
     this.getLanguageCounts = this.getLanguageCounts.bind(this);
 
+    // setup history so users can navigate via browser
     if(this.state.page == 'index') {
       window.history.replaceState({page: 'index'}, '', '/');
     } else {
@@ -23,6 +25,7 @@ class SongApp extends React.Component {
     }
   }
 
+  // when user clicks "back" in their browser, navigate to previous song
   componentDidMount() {
     window.addEventListener("popstate", this.setSongFromHistory);
   }
@@ -72,7 +75,7 @@ class SongApp extends React.Component {
   getSong(id) {
     songs = this.props.songData;
     for(var i=0; i < songs.length; i++){
-      if(songs[i].model.id == id) {
+      if(songs[i].id == id) {
         return songs[i];
       }
     }
@@ -82,14 +85,14 @@ class SongApp extends React.Component {
   // get a list of unique languages in the db
   getLanguages() {
     songs = this.props.songData;
-    return songs.map(s => s.model.lang).filter((v, i, a) => a.indexOf(v) === i).sort();
+    return songs.map(s => s.lang).filter((v, i, a) => a.indexOf(v) === i).sort();
   }
 
   // get a count of the languages in the db
   getLanguageCounts() {
     counts = {};
     songs = this.props.songData;
-    langs = songs.map(s => s.model.lang).forEach(l => counts[l] = (counts[l] || 0) + 1);
+    langs = songs.map(s => s.lang).forEach(l => counts[l] = (counts[l] || 0) + 1);
 
     return counts;
   }
@@ -114,7 +117,7 @@ class SongApp extends React.Component {
         content = <UserSettings languages={this.getLanguages()} languageCounts={this.getLanguageCounts()} setSettings={this.setSettings} settings={this.state.settings} toggleSettingsPage={this.toggleSettingsPage}/>
         break;
       default:
-        content = <SongDisplay lyrics={ this.getSong(page).model.lyrics } />
+        content = <SongDisplay lyrics={ this.getSong(page).lyrics } />
     }
     return(
       <div className="song-app">

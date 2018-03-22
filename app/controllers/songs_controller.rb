@@ -1,15 +1,16 @@
 class SongsController < ApplicationController
   before_action :set_song, only: [:show, :edit, :update, :destroy]
-  before_action :set_songs, only: [:app, :admin]
   before_action :authenticate, only: [:new, :edit, :create, :update, :destroy]
   before_action :check_maintenance
   before_action :adjust_lang_params, only: [:create, :update]
 
   def app
+    set_songs
     @song_id = params[:s]
   end
 
   def admin
+    set_songs(admin: true)
     set_songs_to_check
   end
 
@@ -65,48 +66,52 @@ class SongsController < ApplicationController
 
   def set_songs_to_check
     @songs_to_check ||= {}
-    @songs_to_check[:changed] = Song.recently_changed.map { |s|
-      {
-        title: [s.custom_title, s.firstline_title, s.chorus_title].reject(&:blank?).first,
-        model: s,
-        edit_timestamp: s.updated_at
-      }
-    }
+    @songs_to_check[:changed] = sort_songs(Song.recently_changed.map { |song| admin_song_entry(song.titles.values.first, song) })
+    @songs_to_check[:duplicates] = sort_songs(Song.duplicates.map { |song| admin_song_entry(song.titles.values.first, song) }) if super_admin
 
-    non_duplicate_title_ids = Song.select("MIN(id) as id").group(:firstline_title).collect(&:id)
-    duplicate_titles = Song.select(:firstline_title).where.not(id: non_duplicate_title_ids)
-    @songs_to_check[:duplicates] = Song.where(firstline_title: duplicate_titles).map { |s|
-      {
-        title: [s.custom_title, s.firstline_title, s.chorus_title].reject(&:blank?).first,
-        model: s,
-        edit_timestamp: s.updated_at
-      }
-    }
   end
 
   def set_song
     @song = Song.find(params[:id] || params[:s])
   end
 
-  def set_songs
+  def set_songs(admin: false)
     @songs = []
     Song.all.includes(books: :song_books).each do |song|
-      song.titles.each do |t|
-        @songs << {
-          title: t[1],
-          model: song,
-          books: song.song_books.map {|sb| [sb.book.name, sb.index] }.to_h,
-          edit_timestamp: song.updated_at
-        }
+      song.titles.values.each do |title|
+        @songs << (admin ? admin_song_entry(title, song) : song_entry(title, song))
       end
     end
-    @songs.sort_by! { |s| clean_for_sorting(s[:title]) }
+    sort_songs(@songs)
+  end
+
+  def admin_song_entry(title, song)
+    {
+      title: title,
+      id: song.id,
+      books: song.book_indices,
+      edit_timestamp: song.updated_at,
+      last_editor: song.last_editor
+    }
+  end
+
+  def song_entry(title, song)
+    {
+      id: song.id,
+      title: title,
+      lang: song.lang,
+      books: song.book_indices,
+      lyrics: song.lyrics
+    }
   end
 
   def song_params
     params.require(:song).permit(:lyrics, :firstline_title, :custom_title, :chorus_title, :lang)
   end
 
+  def sort_songs(songs)
+    songs.sort_by! { |s| clean_for_sorting(s[:title]) }
+  end
   def clean_for_sorting str
     str.gsub(/[’'",“\-—–!?()]/, "").upcase
   end
