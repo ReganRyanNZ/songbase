@@ -24,7 +24,7 @@ class SongIndex extends React.Component {
 
     // filter songs by language settings
     songs = songs.filter(function(song) {
-      return this.props.settings.languages.includes(song.model.lang);
+      return this.props.settings.languages.includes(song.lang);
     }, this);
 
     var indexMatch = songs.filter(function(song) {
@@ -44,7 +44,7 @@ class SongIndex extends React.Component {
 
     var lyricsMatchRegex = new RegExp(strippedSearch, 'i');
     var lyricsMatch = songs.filter(function (song) {
-      return lyricsMatchRegex.test(this.stripString(song.model.lyrics));
+      return lyricsMatchRegex.test(this.stripString(song.lyrics));
     }, this);
 
     searchResults = indexMatch.concat(titleStart).concat(titleMatch).concat(lyricsMatch);
@@ -78,7 +78,7 @@ class SongIndex extends React.Component {
         </div>
         <div className="title-list pure-u-1-1">
           {this.filterSongs().map(function(obj, i){
-            return <div className="index_row" key={i} id={obj.model.id} onClick={this.props.setSong}>{obj.title}</div>;
+            return <div className="index_row" key={i} id={obj.id} onClick={this.props.setSong}>{obj.title}</div>;
           }, this)}
         </div>
 

@@ -6,6 +6,14 @@ class Song < ApplicationRecord
 
   scope :audited, -> { joins(:audits).order('audits.time ASC') }
   scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
+  scope :duplicates, -> {
+    where(
+      firstline_title: Song.select(:firstline_title)
+        .group(:firstline_title) # group songs into buckets of the same title
+        .having("count(*) > 1") # bucket has more than one song
+        .select(:firstline_title) # get firstline from these buckets
+    ).where("updated_at > ?", 3.months.ago) # old duplicates can be considered checked and ignored
+  }
 
   def guess_firstline_title
     strip_line(/^[^{#\r\n].*/.match(lyrics)[0])
@@ -26,6 +34,10 @@ class Song < ApplicationRecord
       chorus_title: chorus_title,
       custom_title: custom_title
     }.reject { |k,v| v.blank? }
+  end
+
+  def book_indices
+    self.song_books.map {|sb| [sb.book.name, sb.index] }.to_h
   end
 
   private
