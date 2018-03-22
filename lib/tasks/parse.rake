@@ -1,5 +1,6 @@
-class RemoveStanzaNumbersFromLyrics < ActiveRecord::Migration[5.0]
-  def change
+namespace :parse do
+  desc "Remove stanza numbers from all lyrics"
+  task remove_stanza_numbers_from_lyrics: :environment do |args|
     Song.all.each do |s|
       cleaned_lyrics = ""
       s.lyrics.lines.each do |l|
