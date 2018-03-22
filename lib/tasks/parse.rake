@@ -58,7 +58,7 @@ namespace :parse do
 
   desc "Convert {start_of_chorus} and {end_of_chorus} blocks to new double space format"
   task convert_old_chorus_tags_to_new_format: :environment do |args|
-    chorus_regex = /{start_of_chorus}\n((?:.|\n)*?){end_of_chorus}/
+    chorus_regex = /{start_of_chorus}\n((?:.|\n)*?)\n{end_of_chorus}/
     Song.all.each do |song|
       if(song.lyrics[chorus_regex])
         song.lyrics = song.lyrics.gsub(chorus_regex) { $1.gsub(/^/, "  ") }
