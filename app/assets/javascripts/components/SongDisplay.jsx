@@ -28,7 +28,7 @@ class SongDisplay extends React.Component {
         getChordRegex = /\[(.*?)\]/g, // anything inside square brackets
         spacerTextRegex = /(^|\])([^\[]+)([\[\n])/g, // 3 groups, before spacer text (start of line or ']'), spacer text, and after spacer text (new line or '[')
         chordlessTailRegex = /\][^\[\]]+$/, // the last ']' in a string and everything after it
-        commentRegex = /^(\{\s*[Cc]omments?:|\#) *([^{}]*)}?/, // 2 groups, a comment marker, and the actual comment text
+        commentRegex = /^\# *(.*)/, // everything after a '# '
         isChorusStartRegex = /{start_of_chorus}/i,
         isChorusEndRegex = /{end_of_chorus}/i,
         chorusRegex = /((?:(?:\n|^)  .*)+)/g, // block with two spaces at the front of each line
@@ -60,7 +60,7 @@ class SongDisplay extends React.Component {
 
       // style comments
       if(commentRegex.test(lines[i])) {
-        lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$2</span>");
+        lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$1</span>");
       }
       // change chorus tags to html tags (for old chorus system)
       if(isChorusStartRegex.test(lines[i])) {
