@@ -22,7 +22,7 @@ class SongDisplay extends React.Component {
     // after any amount of comments or new lines
     // get the character that's not weird (not the start of a comment or '{')
 
-    var countableVerseRegex = /(^(?:\n*)|(?:\n\n))((?:(?:{ ?[Cc]omments?|#).*(?:\n)+)*)([^{#\n\s])/g,
+    var verseNumberRegex = /(^|\n)([0-9]+)\n/gm, // numbers by themselves on a line are verse numbers
         getVerseNumberRegex = /<div class='verse-number'.+<\/div>/, // gets inserted verse number div to strip from chord lines
         hasChordsRegex = /.*\[.*\].*/, // has square brackets
         getChordRegex = /\[(.*?)\]/g, // anything inside square brackets
@@ -34,16 +34,14 @@ class SongDisplay extends React.Component {
         chorusRegex = /((?:(?:\n|^)  .*)+)/g, // block with two spaces at the front of each line
         isNoNumberRegex = /{no_number}/i;
 
+    // parse verse numbers
     var verseNumber = 0,
-        verseCount = (lyrics.match(countableVerseRegex) || '').length;
+    lyrics = lyrics.replace(verseNumberRegex, function($0, $1, $2) {
+      return $1 + "<div class='verse-number' data-uncopyable-text='" + $2 + "'></div>"
+    })
 
-    if (verseCount > 2) {
-      lyrics = lyrics.replace(countableVerseRegex, function($0, $1, $2, $3) {
-        verseNumber++;
-        return $1 + ($2 || "") + "<div class='verse-number' data-uncopyable-text='" + verseNumber + "'></div>" + $3
-      })
-    }
-    lyrics = lyrics.replace(/\r\n/g, `\n`); // get rid of windows carriage returns
+    // get rid of windows carriage returns
+    lyrics = lyrics.replace(/\r\n/g, `\n`);
 
     lyrics = lyrics.replace(chorusRegex, `\n<div class='chorus'> $1 \n</div>`)
 

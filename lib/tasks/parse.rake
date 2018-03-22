@@ -18,13 +18,18 @@ namespace :parse do
     end
   end
 
+  # NOTE must run convert_old_comments_to_new_format first
   desc "Add static stanza numbers to lyrics"
   task add_stanza_numbers: :environment do |args|
-    countableVerseRegex = /(^(?:\n*)|(?:\n\n))((?:(?:{ ?[Cc]omments?|#).*(?:\n)+)*)([^{#\n\s])/g
+    countableVerseRegex = /(\A\n*|\n\n)((?:\#.*\n+)*)([^0-9\{\#\n\s])/
     Song.all.each do |song|
-
-
-
+      lyrics = song.lyrics
+      verse_number = 0
+      lyrics = lyrics.gsub(countableVerseRegex) {verse_number += 1; $1 + ($2 || "") + verse_number.to_s + "\n" + $3}
+      if verse_number > 2
+        song.update(lyrics: lyrics)
+        puts song.firstline_title
+      end
     end
   end
 
