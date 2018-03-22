@@ -22,51 +22,36 @@ class SongDisplay extends React.Component {
     // after any amount of comments or new lines
     // get the character that's not weird (not the start of a comment or '{')
 
-    var countableVerseRegex = /(^(?:\n*)|(?:\n\n))((?:(?:{ ?[Cc]omments?|#).*(?:\n)+)*)([^{#\n\s])/g,
+    var verseNumberRegex = /(^|\n)([0-9]+)\n/gm, // numbers by themselves on a line are verse numbers
         getVerseNumberRegex = /<div class='verse-number'.+<\/div>/, // gets inserted verse number div to strip from chord lines
         hasChordsRegex = /.*\[.*\].*/, // has square brackets
         getChordRegex = /\[(.*?)\]/g, // anything inside square brackets
         spacerTextRegex = /(^|\])([^\[]+)([\[\n])/g, // 3 groups, before spacer text (start of line or ']'), spacer text, and after spacer text (new line or '[')
         chordlessTailRegex = /\][^\[\]]+$/, // the last ']' in a string and everything after it
-        commentRegex = /^(\{\s*[Cc]omments?:|\#) *([^{}]*)}?/, // 2 groups, a comment marker, and the actual comment text
-        isChorusStartRegex = /{start_of_chorus}/i,
-        isChorusEndRegex = /{end_of_chorus}/i,
-        chorusRegex = /((?:(?:\n|^)  .*)+)/g, // block with two spaces at the front of each line
-        isNoNumberRegex = /{no_number}/i;
+        commentRegex = /^\# *(.*)/, // everything after a '# '
+        chorusRegex = /((?:(?:\n|^)  .*)+)/g; // block with two spaces at the front of each line is a chorus
 
+    // parse verse numbers
     var verseNumber = 0,
-        verseCount = (lyrics.match(countableVerseRegex) || '').length;
+    lyrics = lyrics.replace(verseNumberRegex, function($0, $1, $2) {
+      return $1 + "<div class='verse-number' data-uncopyable-text='" + $2 + "'></div>"
+    })
 
-    if (verseCount > 2) {
-      lyrics = lyrics.replace(countableVerseRegex, function($0, $1, $2, $3) {
-        verseNumber++;
-        return $1 + ($2 || "") + "<div class='verse-number' data-uncopyable-text='" + verseNumber + "'></div>" + $3
-      })
-    }
-    lyrics = lyrics.replace(/\r\n/g, `\n`); // get rid of windows carriage returns
+    // get rid of windows carriage returns
+    lyrics = lyrics.replace(/\r\n/g, `\n`);
 
+    // replace double-spaced lines with chorus tags
     lyrics = lyrics.replace(chorusRegex, `\n<div class='chorus'> $1 \n</div>`)
 
     var lines = lyrics.split('\n'),
         maxIndex = lines.length;
 
+    // parse each line
     for(var i=0; i < maxIndex; i++) {
-      // remove no number comment
-      // note this must remain the first regex of this loop, as it shifts the index
-      if(isNoNumberRegex.test(lines[i])) {
-        lines.splice(i, 1);
-        maxIndex -= 1;
-      }
 
       // style comments
       if(commentRegex.test(lines[i])) {
-        lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$2</span>");
-      }
-      // change chorus tags to html tags (for old chorus system)
-      if(isChorusStartRegex.test(lines[i])) {
-        lines[i] = "<div class='chorus'>"
-      } else if(isChorusEndRegex.test(lines[i])) {
-        lines[i] = "</div>"
+        lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$1</span>");
       }
 
       // if a line has chords
@@ -78,6 +63,7 @@ class SongDisplay extends React.Component {
           chordLine = chordLine.replace(chordlessTailRegex, "]");
           // strip chord line of verse number
           chordLine = chordLine.replace(getVerseNumberRegex, "");
+
           // format chord line
             //deletes chars to get the chords in the right place
           chordLine = this.positionChords(chordLine);
@@ -93,6 +79,7 @@ class SongDisplay extends React.Component {
         //remove chords from original line
         lines[i] = lines[i].replace(getChordRegex, "");
       }
+      // convert _ to musical tie for spanish songs
       lines[i] = lines[i].replace(/_/g, "\u035c");
     }
     return (lines.join("\n"));

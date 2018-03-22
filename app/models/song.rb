@@ -4,6 +4,8 @@ class Song < ApplicationRecord
   has_many :audits, dependent: :destroy
   validate :titles_validation
 
+  before_save :remove_windows_carriage_returns
+
   scope :audited, -> { joins(:audits).order('audits.time ASC') }
   scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
   scope :duplicates, -> {
@@ -62,4 +64,7 @@ class Song < ApplicationRecord
     titles.compact.uniq { |title| title.upcase.gsub(/[,;:.—-’!\''\""]/, "") }
   end
 
+  def remove_windows_carriage_returns
+    self.lyrics = self.lyrics.gsub(/\r/, "")
+  end
 end
