@@ -64,32 +64,47 @@ namespace :import do
   end
 
   desc "Import hymnal"
-  task hymnal: :environment do
-    existing_hymns = SongBook.where(book: Book.find_by(name: "Hymnal")).map {|sb| sb.index}
-    hymnal = Book.find_or_create_by(name: "Hymnal", lang: "english")
-    filename = Rails.root.join('db', 'LSM English Hymnal.txt')
-    delim = "-"*8
-    raw_array = File.foreach(filename, delim) do |txt|
-      # get rid of delimiter
-      txt = txt.sub(delim, '')
-      index_regex = /\A[0-9]+\n/
-      hymnal_index = txt[index_regex].to_i
-      next if existing_hymns.include? hymnal_index
+  namespace "hymnal" do
 
-      txt = txt.sub(txt[index_regex], '')
+    # TODO need chinese name and lang description
+    task chinese: :environment do
+      hymnal = Book.find_or_create_by(alias: :chinese_hymnal, name: "???", lang: "???")
+    end
 
-      # comment out comments
-      comments_regex = %r{^ *(\(?
-        (([^#\n]*\d[a-z]|[0-9]|(Goes up a key)|[^#\n]*repeat\schorus|\([Pp]arts|[Rr]epeat|20\d\d|[Nn]ew\stune|[Oo]riginal\stune|[Cc]apo\s[^\s]|[Ss]tanza\s?\s\S?|[Cc]horus|[Ii]nterlud|[Pp]arts [AB12]|[Bb]anner\s\d|[^#\n].*\&|\*).*) # sections that can trail off in other chars
-        |([Pp]art [^\s]+|[Bb]rothers\:?|[Ss]isters\:?|Brothers & Sisters) # sections to the end
-        $)}x
-      txt = txt.sub(comments_regex, '#\1') while txt =~ comments_regex
-      # lines with numbers aren't being commented out????
-      s = Song.new(lyrics: txt, lang: "english")
-      s.firstline_title = s.guess_firstline_title
-      s.save!
-      puts s.firstline_title
-      s.song_books.create(book: hymnal, index: hymnal_index)
+    task english: :environment do
+      hymnal = Book.find_by(name: "Hymnal")
+      hymnal.update(alias: :english_hymnal) unless hymnal.alias.present?
+      existing_hymns = SongBook.where(book: Book.find_by(name: "Hymnal")).map {|sb| sb.index}
+      filename = Rails.root.join('db', 'english-hymnal.txt')
+      delim = "\n\nDELIMITER"
+      File.foreach(filename, delim) do |txt|
+        # get rid of delimiter
+        txt = txt.sub(delim, '')
+
+        # get index number
+        index_regex = /\AE([0-9]+)\n/
+        hymnal_index = txt.match(index_regex)[1]
+
+        # skip if song is already on songbase
+        next if existing_hymns.include? hymnal_index
+
+        # remove index number from txt
+        txt = txt.sub(txt[index_regex], '')
+
+        # convert 'chorus' to 2-space padding
+        chorus_regex = /^chorus((?:\n[^\n]+)+)/
+        chorus_match = txt.match(chorus_regex)
+        txt = txt.gsub(chorus_regex) {$1.gsub("\n", "\n  ")}
+
+        # create song with lyrics
+        song = Song.new(lyrics: txt, lang: "english")
+        song.firstline_title = song.guess_firstline_title
+        song.save!
+        puts song.firstline_title
+
+        # add song to book
+        song.song_books.create(book: hymnal, index: hymnal_index)
+      end
     end
   end
 
@@ -172,11 +187,5 @@ DELIM
       s.song_books.create(book: hymnal, index: hymnal_index) if hymnal_index
 
     end
-
-
   end
 end
-
-
-
-

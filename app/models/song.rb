@@ -38,6 +38,17 @@ class Song < ApplicationRecord
     self.song_books.map {|sb| [sb.book.name, sb.index] }.to_h
   end
 
+  # keep indicies of old songs' books, then delete old song
+  # merge from the one you want to keep the lyrics of
+  def merge! old_song
+    existing_books = self.books.map(&:id)
+    old_song.song_books.each do |song_book|
+      song_book.update(song_id: self.id) unless existing_books.include?(song_book.book_id)
+    end
+    # reload to refresh song_book associations
+    old_song.reload.destroy
+  end
+
   private
 
   def titles_validation

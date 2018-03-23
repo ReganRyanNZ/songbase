@@ -19791,7 +19791,7 @@ My dwelling-place shall be.
 
 
 DELIMITERE528
-Psalms 23
+# Psalms 23
 1
 The King of love my Shepherd is,
 Whose goodness faileth never;
@@ -20934,7 +20934,7 @@ Till Thou on spices mountains come ere long.
 
 
 DELIMITERE557
-Luke 24:13-35
+# Luke 24:13-35
 1
 Jesus Himself drew near,
 And joined them as they walked,
@@ -22785,7 +22785,7 @@ Through the eternal Love.
 
 
 DELIMITERE604
-Psalms 121
+# Psalms 121
 1
 Unto the hills around do I lift up
 My longing eyes;
@@ -28814,7 +28814,7 @@ Cured by the Healer divine.
 
 
 DELIMITERE760
-Mark 5:25-34,Luke 8:43-48
+# Mark 5:25-34,Luke 8:43-48
 1
 She only touched the hem of His garment
 As to His side she stole,
@@ -41227,7 +41227,7 @@ Glory I shall enter in.
 
 
 DELIMITERE1072
-Mark 5:25-34,Luke 8:43-48
+# Mark 5:25-34,Luke 8:43-48
 1
 She only touched the hem of His garment
 As to His side she stole,
@@ -42039,7 +42039,7 @@ To praise the Lion-Lamb!
 
 
 DELIMITERE1093
-Revelation 5
+# Revelation 5
 1
 Though countless ages, many men
 Have longed and sought and tried to see
@@ -43001,7 +43001,7 @@ That all Thou art is small enough to eat.
 
 
 DELIMITERE1111
-Genesis 14:17-20
+# Genesis 14:17-20
 1
 Gathered at Thy table, Lord;
 Here the bread and wine are spread.
@@ -43766,7 +43766,7 @@ Glory to God, Hallelujah!
 
 
 DELIMITERE1129
-Hebrews 2:3
+# Hebrews 2:3
 1
 "So great a salvation," ye saints of the Lord,
 To us is revealed in His marvelous Word!
@@ -44282,7 +44282,7 @@ Now my nature's one with Thine.
 
 
 DELIMITERE1140
-Romans 7
+# Romans 7
 1
 Our old man has been crucified with Christ;
 Yes, all we are in oldness He sufficed
@@ -44583,7 +44583,7 @@ Jesus, our real meal offering.
 
 
 DELIMITERE1147
-Exodus 16
+# Exodus 16
 1
 Christ is our manna true,
 Our bread of life indeed;
@@ -44988,7 +44988,7 @@ Boast and glory to Him now!
 
 
 DELIMITERE1156
-Song of Songs
+# Song of Songs
 1
 To the Lord we're as a garden,
 Out from which the spices flow;
@@ -45418,7 +45418,7 @@ The topmost Christ, our offering!
 
 
 DELIMITERE1166
-Deuteronomy 8:7-10
+# Deuteronomy 8:7-10
 1
 God has set the land before us,
 And the land we will possess.
@@ -46167,7 +46167,7 @@ And He will quickly come.
 
 
 DELIMITERE1183
-Revelation 1:9-20
+# Revelation 1:9-20
 1
 On the Lord's day, John, in spirit,
 Heard a voice and turned and saw
@@ -46210,7 +46210,7 @@ May be strengthened and supplied.
 
 
 DELIMITERE1184
-Revelation 1
+# Revelation 1
 1
 In Revelation chapter one
 God gives a vision of the Son,
@@ -46255,7 +46255,7 @@ Let's take this Jesus, none beside.
 
 
 DELIMITERE1185
-John 5:1-9
+# John 5:1-9
 1
 In the multitude he lay there
 With a sickness many years;
@@ -46308,7 +46308,7 @@ Death is turned to life again!
 
 
 DELIMITERE1186
-John 1:19-36
+# John 1:19-36
 1
 The scribes and Pharisees all thought
 A leader great would come.
@@ -46515,7 +46515,7 @@ But we have been spared to praise Him more and more.
 
 
 DELIMITERE1190
-Genesis 12
+# Genesis 12
 1
 O Lord, You've called to us, and Canaan we would win,
 To be Your corporate man and dwell with You therein;
@@ -46596,7 +46596,7 @@ Hallelujah, I've heard an encouraging word:
 
 
 DELIMITERE1192
-Genesis 1
+# Genesis 1
 1
 Chapter one of Genesis:
 Life is God's one emphasis,
@@ -47036,7 +47036,7 @@ All Thy likeness to express.
 
 
 DELIMITERE1201
-Ezekiel 1:4-10
+# Ezekiel 1:4-10
 1
 From the north where God is dwelling
 Comes a rushing, stormy gale.
@@ -50622,7 +50622,7 @@ Speaks to all who have an ear.
 
 
 DELIMITERE1276
-Revelation 3:7-13
+# Revelation 3:7-13
 1
 Oh, the Lord is quickly coming,
 He has spoken in His Word;
@@ -52543,7 +52543,7 @@ And all the Father is and has.
 
 
 DELIMITERE1323
-Song of Songs 2:8-17
+# Song of Songs 2:8-17
 1
 The voice of my Beloved,
 Behold, He quickly comes;
