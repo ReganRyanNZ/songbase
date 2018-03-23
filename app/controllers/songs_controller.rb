@@ -68,7 +68,6 @@ class SongsController < ApplicationController
     @songs_to_check ||= {}
     @songs_to_check[:changed] = sort_songs(Song.recently_changed.map { |song| admin_song_entry(song.titles.values.first, song) })
     @songs_to_check[:duplicates] = sort_songs(Song.duplicates.map { |song| admin_song_entry(song.titles.values.first, song) }) if super_admin
-
   end
 
   def set_song

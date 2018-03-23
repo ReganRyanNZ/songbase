@@ -6,7 +6,6 @@ class Song < ApplicationRecord
 
   before_save :remove_windows_carriage_returns
 
-  scope :audited, -> { joins(:audits).order('audits.time ASC') }
   scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
   scope :duplicates, -> {
     where(
@@ -18,16 +17,13 @@ class Song < ApplicationRecord
   }
 
   def guess_firstline_title
-    strip_line(/^[^{#\r\n].*/.match(lyrics)[0])
+    strip_line(/^[^#\r\n0-9].*/.match(lyrics)[0])
   end
 
   def guess_chorus_title
-    return nil unless /{start_of_chorus}/.match(lyrics)
-    strip_line(
-      /{start_of_chorus}.*(\r|\n)+/m.match(lyrics)[0] # get the first chorus + rest of song
-      .gsub( /{start_of_chorus} *(\r|\n)+/, "" ) # chop chorus tag off the start
-      .gsub( /(\r|\n)+.*/m, "" ) # get only the first line
-    )
+    chorus_title_regex = /^  ([^ ].*)/
+    return nil unless chorus_title_regex.match(lyrics)
+    strip_line(chorus_title_regex.match(lyrics)[1])
   end
 
   def titles
@@ -56,12 +52,6 @@ class Song < ApplicationRecord
         .gsub(/\n|\r/, "") # new lines
         .gsub(/\A[,;: .!]*/, "") # leading punctuation
         .gsub(/[,;: .!]*\z/, "") # trailing punctuation
-  end
-
-  # gets unique strings from an array, ignoring case and punctuation
-  # deprecated?
-  def unique_titles titles
-    titles.compact.uniq { |title| title.upcase.gsub(/[,;:.—-’!\''\""]/, "") }
   end
 
   def remove_windows_carriage_returns
