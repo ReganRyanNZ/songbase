@@ -92,7 +92,7 @@ namespace :import do
         txt = txt.sub(txt[index_regex], '')
 
         # convert 'chorus' to 2-space padding
-        chorus_regex = /^chorus((?:\n[^\n]+)+)/
+        chorus_regex = /^\nchorus((?:\n[^\n]+)+)/
         chorus_match = txt.match(chorus_regex)
         txt = txt.gsub(chorus_regex) {$1.gsub("\n", "\n  ")}
 

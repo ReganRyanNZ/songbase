@@ -62,7 +62,7 @@ class Song < ApplicationRecord
     line.gsub( /\[[^\]]*\]/, "" ) # chords
         .gsub(/\n|\r/, "") # new lines
         .gsub(/\A[,;: .!]*/, "") # leading punctuation
-        .gsub(/[,;: .!]*\z/, "") # trailing punctuation
+        .gsub(/[,;: .!\-\—\–]*\z/, "") # trailing punctuation
   end
 
   def remove_windows_carriage_returns
