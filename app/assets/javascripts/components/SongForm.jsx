@@ -7,9 +7,10 @@ class SongForm extends React.Component {
       firstline_title: this.props.song.firstline_title || '',
       chorus_title: this.props.song.chorus_title || '',
       custom_title: this.props.song.custom_title || '',
-      lang: this.props.song.lang || 'english'
+      lang: this.props.song.lang || 'english',
+      references: this.props.references || {},
+      allBooks: this.props.books
     }
-
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -72,6 +73,7 @@ class SongForm extends React.Component {
         </div>
         <div className="preview pure-u-1-2" >
           <SongDisplay lyrics={this.state.lyrics} />
+          <SongReferences references={this.state.references} allBooks={this.state.allBooks} />
         </div>
         <div className="titles pure-u-1-1">
           <h2>Indexing titles</h2>

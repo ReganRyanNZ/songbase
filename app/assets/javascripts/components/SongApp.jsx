@@ -117,7 +117,7 @@ class SongApp extends React.Component {
         content = <UserSettings languages={this.getLanguages()} languageCounts={this.getLanguageCounts()} setSettings={this.setSettings} settings={this.state.settings} toggleSettingsPage={this.toggleSettingsPage}/>
         break;
       default:
-        content = <SongDisplay lyrics={ this.getSong(page).lyrics } />
+        content = <SongDisplay lyrics={ this.getSong(page).lyrics } references={this.getSong(page).references} allBooks={this.props.allBooks} />
     }
     return(
       <div className="song-app">

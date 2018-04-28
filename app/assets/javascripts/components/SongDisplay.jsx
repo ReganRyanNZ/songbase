@@ -28,7 +28,7 @@ class SongDisplay extends React.Component {
         getChordRegex = /\[(.*?)\]/g, // anything inside square brackets
         spacerTextRegex = /(^|\])([^\[]+)([\[\n])/g, // 3 groups, before spacer text (start of line or ']'), spacer text, and after spacer text (new line or '[')
         chordlessTailRegex = /\][^\[\]]+$/, // the last ']' in a string and everything after it
-        commentRegex = /^\# *(.*)/, // everything after a '# '
+        commentRegex = /^\# *(.*)/, // everything after a '#'
         chorusRegex = /((?:(?:\n|^)  .*)+)/g, // block with two spaces at the front of each line is a chorus
         badCharsRegex = /['"]/g;
     // parse verse numbers
@@ -121,9 +121,12 @@ class SongDisplay extends React.Component {
 
   render() {
     return (
-      <div
-        className="song-container"
-        dangerouslySetInnerHTML={{__html: this.getLyricsHTML()}}>
+      <div className="song-container">
+        <div
+          className="lyrics"
+          dangerouslySetInnerHTML={{__html: this.getLyricsHTML()}}
+        />
+        <SongReferences references={this.props.references} allBooks={this.props.allBooks} />
       </div>
     );
   }

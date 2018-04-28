@@ -99,8 +99,8 @@ class SongsController < ApplicationController
       id: song.id,
       title: title,
       lang: song.lang,
-      books: song.book_indices,
-      lyrics: song.lyrics
+      lyrics: song.lyrics,
+      references: song.book_indices
     }
   end
 

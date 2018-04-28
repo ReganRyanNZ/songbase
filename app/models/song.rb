@@ -35,7 +35,7 @@ class Song < ApplicationRecord
   end
 
   def book_indices
-    self.song_books.map {|sb| [sb.book.name, sb.index] }.to_h
+    self.song_books.map {|sb| [sb.book_id, sb.index] }.to_h
   end
 
   # keep indicies of old songs' books, then delete old song
