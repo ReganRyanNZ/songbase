@@ -111,13 +111,34 @@ class SongApp extends React.Component {
     var content;
     switch(page) {
       case "index":
-        content = <SongIndex songData={this.props.songData} setSong={this.setSong} settings={this.state.settings} toggleSettingsPage={this.toggleSettingsPage}/>
+        content = <SongIndex
+            songData={this.props.songData}
+            setSong={this.setSong}
+            settings={this.state.settings}
+            toggleSettingsPage={this.toggleSettingsPage}
+          />
         break;
       case "settings":
-        content = <UserSettings languages={this.getLanguages()} languageCounts={this.getLanguageCounts()} setSettings={this.setSettings} settings={this.state.settings} toggleSettingsPage={this.toggleSettingsPage}/>
+        content = <UserSettings
+            languages={this.getLanguages()}
+            languageCounts={this.getLanguageCounts()}
+            setSettings={this.setSettings}
+            settings={this.state.settings}
+            toggleSettingsPage={this.toggleSettingsPage}
+          />
         break;
       default:
-        content = <SongDisplay lyrics={ this.getSong(page).lyrics } references={this.getSong(page).references} allBooks={this.props.allBooks} />
+        content = <div className="song-container">
+            <SongDisplay
+              lyrics={ this.getSong(page).lyrics }
+              references={this.getSong(page).references}
+              allBooks={this.props.allBooks}
+            />
+            <SongReferences
+              references={this.getSong(page).references}
+              allBooks={this.props.allBooks}
+            />
+          </div>
     }
     return(
       <div className="song-app">

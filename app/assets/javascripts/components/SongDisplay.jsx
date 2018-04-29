@@ -121,13 +121,10 @@ class SongDisplay extends React.Component {
 
   render() {
     return (
-      <div className="song-container">
-        <div
-          className="lyrics"
-          dangerouslySetInnerHTML={{__html: this.getLyricsHTML()}}
-        />
-        <SongReferences references={this.props.references} allBooks={this.props.allBooks} />
-      </div>
+      <div
+        className="lyrics"
+        dangerouslySetInnerHTML={{__html: this.getLyricsHTML()}}
+      />
     );
   }
 
