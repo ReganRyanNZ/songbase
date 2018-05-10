@@ -4,8 +4,8 @@ div[data-react-class='SongDisplay'] {
 
 .lyrics {
     width: 90%;
-    float: right;
     margin-bottom: 50px;
+    margin-left: 40px;
     white-space: pre-wrap; // lets return chars actually make new lines
     display: block;
     text-align: left;
