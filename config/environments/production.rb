@@ -1,6 +1,9 @@
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
+  # This is to compress the giant songs json output
+  config.middleware.use Rack::Deflater
+
   # Code is not reloaded between requests.
   config.cache_classes = true
 
