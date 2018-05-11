@@ -38,13 +38,25 @@ class Song < ApplicationRecord
     self.song_books.map {|sb| [sb.book_id, sb.index] }.to_h
   end
 
-  # keep indicies of old songs' books, then delete old song
-  # merge from the one you want to keep the lyrics of
   def merge! old_song
+    # allow either Song or id as param
+    old_song = Song.find(old_song) if old_song.class == Integer
+
+    # keep indicies of old songs' books
     existing_books = self.books.map(&:id)
     old_song.song_books.each do |song_book|
       song_book.update(song_id: self.id) unless existing_books.include?(song_book.book_id)
     end
+
+    # choose the lyrics that has chords
+    if old_song.lyrics =~ /\[/ && !(self.lyrics =~ /\[/)
+      self.update(lyrics: old_song.lyrics)
+    end
+
+    hymn_ref_regex = /.*[Hh]ymns.*[0-9]+\n+/
+
+    self.update(lyrics: self.lyrics.gsub(hymn_ref_regex, "")) if self.lyrics =~ hymn_ref_regex
+
     # reload to refresh song_book associations
     old_song.reload.destroy
   end

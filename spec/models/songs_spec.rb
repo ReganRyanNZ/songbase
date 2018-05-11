@@ -49,14 +49,13 @@ Both now and evermore."
   describe ".merge!" do
     it "keeps indicies of old song and destroys old song" do
       book = FactoryBot.create(:book)
-      song1 = FactoryBot.create(:song)
+      song1 = FactoryBot.create(:song, :hymn_ref_in_comments)
       songbook = FactoryBot.create(:song_book, song: song1, book: book)
-
-      song2 = FactoryBot.create(:song)
+      song2 = FactoryBot.create(:song, :no_chords)
       song2.merge!(song1)
-
       expect(song2.reload.books.include? book).to be true
       expect(song1.persisted?).to be false
+      expect(song2.lyrics).to eq(song1.lyrics[15..-1])
     end
   end
 
