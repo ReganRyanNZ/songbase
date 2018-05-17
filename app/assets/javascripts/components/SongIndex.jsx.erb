@@ -28,7 +28,7 @@ class SongIndex extends React.Component {
     }, this);
 
     var indexMatch = songs.filter(function(song) {
-      var indices = $.map(song.books, function(v) { return v; });
+      var indices = $.map(song.references, function(v) { return v; });
       return indices.includes(this.state.search);
     }, this);
 
@@ -47,7 +47,10 @@ class SongIndex extends React.Component {
       return lyricsMatchRegex.test(this.stripString(song.lyrics));
     }, this);
 
-    searchResults = indexMatch.concat(titleStart).concat(titleMatch).concat(lyricsMatch);
+    searchResults = indexMatch
+                      .concat(titleStart)
+                      .concat(titleMatch)
+                      .concat(lyricsMatch);
 
     return searchResults.filter(function removeDuplicates(song, index, self) {
       return self.indexOf(song) === index;
