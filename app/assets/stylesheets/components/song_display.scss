@@ -6,7 +6,6 @@ div[data-react-class='SongDisplay'] {
     width: 90%;
     margin-bottom: 50px;
     margin-left: 40px;
-    white-space: pre-wrap; // lets return chars actually make new lines
     display: block;
     text-align: left;
 
@@ -15,20 +14,24 @@ div[data-react-class='SongDisplay'] {
         font-size: 90%;
     }
     span.chord {
+        display: inline-block;
+        position: relative;
+        top: -15px;
+        height: 34px;
+        width: 0px;
         color: $blue;
     }
-    .spacer-text {
-        color:rgba(255,255,255,0);
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
+    .line {
+        min-height: 12px;
+        position: relative;
     }
 
     .chorus {
         margin-left: 25px;
+        margin-top: 10px;
+        & ~ .chorus {
+            margin-top: 0;
+        }
     }
 
     .verse-number {
