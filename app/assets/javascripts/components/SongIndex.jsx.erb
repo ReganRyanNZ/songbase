@@ -66,11 +66,11 @@ class SongIndex extends React.Component {
 
   render() {
     return (
-      <div className="song-index pure-g">
+      <div className="song-index">
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
           <img src="<%= image_url("settings-icon.svg") %>"/>
         </div>
-        <div className="search-form form pure-u-1-1" >
+        <div className="search-form form" >
           <input
             id="index_search"
             value={this.state.search}
@@ -79,7 +79,7 @@ class SongIndex extends React.Component {
             className="index_search"
             placeholder="search..." />
         </div>
-        <div className="title-list pure-u-1-1">
+        <div className="title-list">
           {this.filterSongs().map(function(obj, i){
             return <div className="index_row" key={i} id={obj.id} onClick={this.props.setSong}>{obj.title}</div>;
           }, this)}

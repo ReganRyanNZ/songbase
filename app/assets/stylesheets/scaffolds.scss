@@ -11,6 +11,10 @@ p, ol, ul, td {
   margin: 33px;
 }
 
+input, textarea, select, button {
+  font-size: 100%;
+}
+
 pre {
   background-color: #eee;
   padding: 10px;
@@ -18,15 +22,16 @@ pre {
 }
 
 a {
-  color: #000;
+  color: #333;
+  text-decoration: none;
 
   &:visited {
-    color: #666;
+    color: #333;
   }
 
   &:hover {
     color: #fff;
-    background-color: #000;
+    background-color: #333;
   }
 }
 

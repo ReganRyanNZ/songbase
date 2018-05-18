@@ -17,12 +17,7 @@ class SongForm extends React.Component {
   handleChange(event) {
     switch(event.target.id) {
       case "song_lyrics":
-        var target   = event.target;
-        target.value = target.value.replace(/(^|\n)SC/, "$1{start_of_chorus}");
-        target.value = target.value.replace(/(^|\n)EC/, "$1{end_of_chorus}");
-        target.value = target.value.replace(/(^|\n)NN/, "$1{no_number}");
-
-        this.setState({lyrics: target.value});
+        this.setState({lyrics: event.target.value});
         break;
       case "song_firstline_title":
         this.setState({firstline_title: event.target.value});
@@ -61,8 +56,8 @@ class SongForm extends React.Component {
     }
 
     return (
-      <div className="song-form pure-g">
-        <div className="form pure-u-1-2" >
+      <div className="song-form">
+        <div className="form" >
           <textarea
             id="song_lyrics"
             value={this.state.lyrics}
@@ -71,11 +66,11 @@ class SongForm extends React.Component {
             className="song-form-textbox"
             placeholder="Enter song lyrics here..." />
         </div>
-        <div className="preview pure-u-1-2" >
+        <div className="preview" >
           <SongDisplay lyrics={this.state.lyrics} />
           <SongReferences references={this.state.references} allBooks={this.state.allBooks} />
         </div>
-        <div className="titles pure-u-1-1">
+        <div className="titles">
           <h2>Indexing titles</h2>
           <p className="admin-comment">
             These titles will appear on a songbook's index page. Every song must have at least one title (usually the first line).
@@ -105,7 +100,7 @@ class SongForm extends React.Component {
             name="song[custom_title]"
             onChange={this.handleChange} />
         </div>
-        <div className="languages pure-u-1-1">
+        <div className="languages">
           <h2>Language</h2>
           <select
             id="song_lang"
