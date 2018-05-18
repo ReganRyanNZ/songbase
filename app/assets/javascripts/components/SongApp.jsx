@@ -53,7 +53,7 @@ class SongApp extends React.Component {
   returnToIndex(e) {
     this.setState({page: 'index'});
     window.history.pushState({page: 'index'}, '', '/');
-    $('html,body').scrollTop(0);
+    window.scrollTo(0, 0);
   }
 
   setSongFromHistory(e) {
@@ -61,7 +61,7 @@ class SongApp extends React.Component {
       e.preventDefault(); // stop request to server for new html
       e.stopPropagation();
       this.setState({page: e.state.page});
-      $('html,body').scrollTop(0);
+      window.scrollTo(0, 0);
     }
   }
 
@@ -69,7 +69,7 @@ class SongApp extends React.Component {
     var songId = e.target.id;
     this.setState({page: songId});
     window.history.pushState({page: songId}, '', '?s='+songId);
-    $('html,body').scrollTop(0);
+    window.scrollTo(0, 0);
   }
 
   getSong(id) {

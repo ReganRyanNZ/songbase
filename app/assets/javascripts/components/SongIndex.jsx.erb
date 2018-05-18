@@ -28,8 +28,7 @@ class SongIndex extends React.Component {
     }, this);
 
     var indexMatch = songs.filter(function(song) {
-      var indices = $.map(song.references, function(v) { return v; });
-      return indices.includes(this.state.search);
+      return Object.values(song.references).includes(this.state.search);
     }, this);
 
     var titleStartRegex = new RegExp("^" + strippedSearch, 'i');
