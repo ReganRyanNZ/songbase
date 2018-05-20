@@ -9,15 +9,16 @@ div[data-react-class='SongDisplay'] {
     display: block;
     text-align: left;
 
-    span.comment {
+    .comment {
         color: darkgray;
         font-size: 90%;
     }
-    span.chord {
+    .chord {
         display: inline-block;
         height: 34px;
         width: 0px;
         color: $blue;
+        white-space: pre;
     }
     .line {
         min-height: 12px;
@@ -25,6 +26,7 @@ div[data-react-class='SongDisplay'] {
 
     .line-text {
         vertical-align: bottom;
+        white-space: pre;
     }
 
     .chorus {
