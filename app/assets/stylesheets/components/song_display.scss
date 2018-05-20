@@ -1,5 +1,5 @@
 div[data-react-class='SongDisplay'] {
-  display: initial;
+    display: initial;
 }
 
 .lyrics {
@@ -15,15 +15,16 @@ div[data-react-class='SongDisplay'] {
     }
     span.chord {
         display: inline-block;
-        position: relative;
-        top: -15px;
         height: 34px;
         width: 0px;
         color: $blue;
     }
     .line {
         min-height: 12px;
-        position: relative;
+    }
+
+    .line-text {
+        vertical-align: bottom;
     }
 
     .chorus {

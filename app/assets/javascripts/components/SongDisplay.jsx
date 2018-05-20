@@ -32,7 +32,7 @@ class SongDisplay extends React.Component {
     lyrics = lyrics.replace(/\r\n/g, `\n`);
 
     // replace double-spaced lines with chorus tags
-    lyrics = lyrics.replace(chorusRegex, `<div class='chorus'>$1</div>`)
+    lyrics = lyrics.replace(chorusRegex, `\n<div class='chorus'>$1\n</div>`)
     var lines = lyrics.split('\n'),
         maxIndex = lines.length;
 
@@ -44,12 +44,12 @@ class SongDisplay extends React.Component {
         lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$1</span>");
       }
       // wrap each line in a div
-      lines[i] = lines[i].replace(lineRegex, "$1$2<div class='line'>$3</div>");
+      lines[i] = lines[i].replace(lineRegex, "$1$2<div class='line'><span class='line-text'>$3</span></div>");
 
       // parse chords
       if(hasChordsRegex.test(lines[i])) {
         if(this.state.showChords) {
-          lines[i] = lines[i].replace(getChordsRegex, "<span class='chord' data-uncopyable-text='$1'></span>")
+          lines[i] = lines[i].replace(getChordsRegex, "</span><span class='chord' data-uncopyable-text='$1'></span><span class='line-text'>")
         }
       }
       // convert _ to musical tie for spanish songs
