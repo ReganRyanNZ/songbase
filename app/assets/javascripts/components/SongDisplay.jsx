@@ -44,6 +44,8 @@ class SongDisplay extends React.Component {
         lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$1</span>");
       }
       // wrap each line in a div
+      // lines contain spans for text and chords, text is vert aligned to the bottom.
+      // Chords have 0 width and double height, so everything aligns well.
       lines[i] = lines[i].replace(lineRegex, "$1$2<div class='line'><span class='line-text'>$3</span></div>");
 
       // parse chords
