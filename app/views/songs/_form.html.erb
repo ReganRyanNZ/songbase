@@ -18,6 +18,7 @@
     references: song.book_indices,
     books: Book.reactify) %>
   <div class="actions text-center">
-    <%= f.submit class: "btn-update" %>
+    <%= f.submit class: "btn btn-update" %>
+    <%= link_to 'Remove', song_path(song), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-delete" if super_admin %>
   </div>
 <% end %>

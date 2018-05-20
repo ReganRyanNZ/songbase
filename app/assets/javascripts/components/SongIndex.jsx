@@ -7,7 +7,6 @@ class SongIndex extends React.Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.filterSongs = this.filterSongs.bind(this);
-    this.stripString = this.stripString.bind(this);
   }
 
   handleChange(event) {
@@ -19,8 +18,12 @@ class SongIndex extends React.Component {
   }
 
   filterSongs() {
+    var stripString = function(str) {
+      str = str.replace(/\[.+?\]/g, '');
+      return str.replace(/[’'",“\-—–!?()0-9]/g, '');
+    }
     var songs = this.props.songData;
-    var strippedSearch = this.state.search.replace(/[’'",“\-—–!?()]/g, '');
+    var strippedSearch = stripString(this.state.search);
 
     // filter songs by language settings
     songs = songs.filter(function(song) {
@@ -33,17 +36,17 @@ class SongIndex extends React.Component {
 
     var titleStartRegex = new RegExp("^" + strippedSearch, 'i');
     var titleStart = songs.filter(function (song) {
-      return titleStartRegex.test(this.stripString(song.title));
+      return titleStartRegex.test(stripString(song.title));
     }, this);
 
     var titleMatchRegex = new RegExp(strippedSearch, 'i');
     var titleMatch = songs.filter(function (song) {
-      return titleMatchRegex.test(this.stripString(song.title));
+      return titleMatchRegex.test(stripString(song.title));
     }, this);
 
     var lyricsMatchRegex = new RegExp(strippedSearch, 'i');
     var lyricsMatch = songs.filter(function (song) {
-      return lyricsMatchRegex.test(this.stripString(song.lyrics));
+      return lyricsMatchRegex.test(stripString(song.lyrics));
     }, this);
 
     searchResults = indexMatch
@@ -57,17 +60,13 @@ class SongIndex extends React.Component {
 
   }
 
-  // get rid of punctuation and chords
-  stripString(str) {
-    str = str.replace(/\[.+?\]/g, '');
-    return str.replace(/[’'",“\-—–!?()0-9]/g, '');
-  }
+
 
   render() {
     return (
       <div className="song-index">
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
-          <img src="<%= image_url("settings-icon.svg") %>"/>
+          <img src={this.props.images.settings_icon}/>
         </div>
         <div className="search-form form" >
           <input

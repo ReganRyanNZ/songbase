@@ -5,11 +5,19 @@
   font-style: italic;
 }
 
-.btn-update {
+.btn {
   padding: 10px 50px;
   background-color: #d4d4d4;
   border-radius: 5px;
   text-decoration: none;
+}
+
+.btn-delete {
+  background-color: #ff4d4d;
+}
+
+.btn-update {
+  background-color: #90ee93;
 }
 
 .admin-root-title {
@@ -24,14 +32,14 @@
   margin-left: 25px;
 }
 
-#req_review_changed {
+.requires-review-changed {
   color: green;
   &:hover {
     color: lightgreen;
   }
 }
 
-#req_review_duplicate {
+.requires-review-duplicate {
   color: red;
   &:hover {
     color: lightred;
@@ -48,6 +56,7 @@
 }
 
 .admin_table {
+  width: 100%;
   & td {
     padding: 0;
   }

@@ -1,4 +1,14 @@
-<%= react_component('SongApp', songData: @songs, songId: @song_id, allBooks: Book.reactify) %>
+<%=
+  react_component(
+    'SongApp',
+    songData: @songs,
+    songId: @song_id,
+    allBooks: Book.reactify,
+    images: {
+      settings_icon: image_url("settings-icon.svg")
+    }
+  )
+%>
 
 <!-- Start of StatCounter Code for Default Guide -->
 <script type="text/javascript">

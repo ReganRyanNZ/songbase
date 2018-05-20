@@ -38,10 +38,10 @@ class SongApp extends React.Component {
   var cookies = decodeURIComponent(document.cookie).split(/; */);
   var target = 'songbase_settings='
   for(var i = 0; i <cookies.length; i++) {
-      var c = cookies[i];
-      if (c.indexOf(target) == 0) {
-          return JSON.parse(c.substring(target.length, c.length));
-      }
+    var c = cookies[i];
+    if (c.indexOf(target) == 0) {
+      return JSON.parse(c.substring(target.length, c.length));
+    }
   }
 
   // default settings here
@@ -116,6 +116,7 @@ class SongApp extends React.Component {
             setSong={this.setSong}
             settings={this.state.settings}
             toggleSettingsPage={this.toggleSettingsPage}
+            images={this.props.images}
           />
         break;
       case "settings":
