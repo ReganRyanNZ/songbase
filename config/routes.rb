@@ -9,7 +9,7 @@ Rails.application.routes.draw do
 
   resources :songs
   root to: 'songs#app'
-  get '/:s', to: 'songs#app'
+  # get '/:s', to: 'songs#app'
   get 'admin', to: 'songs#admin'
 
   namespace :api do
