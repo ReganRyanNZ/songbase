@@ -51,7 +51,7 @@ class SongDisplay extends React.Component {
       // parse chords
       if(hasChordsRegex.test(lines[i])) {
         if(this.state.showChords) {
-          lines[i] = lines[i].replace(getChordsRegex, "</span><span class='chord' data-uncopyable-text='$1'></span><span class='line-text'>")
+          lines[i] = lines[i].replace(getChordsRegex, "<span class='chord' data-uncopyable-text='$1'></span>")
         }
       }
       // convert _ to musical tie for spanish songs
