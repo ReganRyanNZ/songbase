@@ -21,7 +21,7 @@ class SongApp extends React.Component {
     if(this.state.page == 'index') {
       window.history.replaceState({page: 'index'}, '', '/');
     } else {
-      window.history.replaceState({page: this.state.page}, '', '/?s=' + this.state.page);
+      window.history.replaceState({page: this.state.page}, '', '/' + this.state.page);
     }
   }
 
@@ -68,7 +68,7 @@ class SongApp extends React.Component {
   setSong(e) {
     var songId = e.target.id;
     this.setState({page: songId});
-    window.history.pushState({page: songId}, '', '?s='+songId);
+    window.history.pushState({page: songId}, '', songId);
     window.scrollTo(0, 0);
   }
 

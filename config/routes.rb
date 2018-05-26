@@ -5,11 +5,11 @@ Rails.application.routes.draw do
 
   get 'maintenance', to: 'sessions#maintenance_mode'
 
-  get 'edit', to: 'songs#edit' # shortcut when wanting to edit a song from main app
-
   resources :songs
   root to: 'songs#app'
-  # get '/:s', to: 'songs#app'
+  get 'edit', to: 'songs#edit' # shortcut when wanting to edit a song from main app
+  get '/:s/e', to: 'songs#edit'
+  get '/:s', to: 'songs#app', s: /[0-9]+/
   get 'admin', to: 'songs#admin'
 
   namespace :api do
