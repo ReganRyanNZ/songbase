@@ -13,12 +13,21 @@ div[data-react-class='SongDisplay'] {
         color: darkgray;
         font-size: 90%;
     }
-    .chord {
+    .chord-word {
         display: inline-block;
-        height: 34px;
-        width: 0px;
-        color: $blue;
-        white-space: pre;
+        padding-top: 17px;
+        height: 17px;
+        position: relative;
+        .chord {
+            color: $blue;
+            white-space: pre;
+            position: absolute;
+            bottom: 17px;
+        }
+        &::after { // Empty chord-words must have content to align the absolute chords
+            content: "";
+            display: inline-block;
+        }
     }
     .line {
         min-height: 12px;
