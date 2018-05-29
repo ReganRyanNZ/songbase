@@ -18,9 +18,9 @@ class SongDisplay extends React.Component {
         getVerseNumberRegex = /<div class='verse-number'.+<\/div>/, // gets inserted verse number div to strip from chord lines
         hasChordsRegex = /.*\[.*\].*/, // has square brackets
         chordsRegex = /\[(.*?)\]/g, // anything inside square brackets
-        chordWordsRegex = /(\S*\[\S*?\]\S*)/g, // a word with a chord in it
-        commentRegex = /^\# *(.*)/, // everything after a '#'
-        chorusRegex = /((?:(?:\n|^)  .*)+)/g, // block with two spaces at the front of each line is a chorus
+        chordWordsRegex = /([^\>\s]*\[\S*?\]\S*)/g, // a word with a chord in it
+        commentRegex = /^\# ?(.*)/, // everything after a '#'
+        chorusRegex = /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
         lineRegex = /(.*\>)?( *)(.*)/;
 
     // parse verse numbers
@@ -33,7 +33,7 @@ class SongDisplay extends React.Component {
     lyrics = lyrics.replace(/\r\n/g, `\n`);
 
     // replace double-spaced lines with chorus tags
-    lyrics = lyrics.replace(chorusRegex, `<div class='chorus'>$1\n</div>`)
+    lyrics = lyrics.replace(chorusRegex, `$1<div class='chorus'>$2\n</div>`)
     var lines = lyrics.split('\n'),
         maxIndex = lines.length;
 
@@ -42,7 +42,7 @@ class SongDisplay extends React.Component {
 
       // style comments
       if(commentRegex.test(lines[i])) {
-        lines[i] = lines[i].replace(commentRegex, "<span class='comment'>$1</span>");
+        lines[i] = lines[i].replace(commentRegex, "<div class='comment'>$1</div>");
       }
       // wrap each line in a div
       // lines contain spans for text and chords, text is vert aligned to the bottom.
