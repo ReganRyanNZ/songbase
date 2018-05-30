@@ -18,7 +18,7 @@ class SongDisplay extends React.Component {
         getVerseNumberRegex = /<div class='verse-number'.+<\/div>/, // gets inserted verse number div to strip from chord lines
         hasChordsRegex = /.*\[.*\].*/, // has square brackets
         chordsRegex = /\[(.*?)\]/g, // anything inside square brackets
-        chordWordsRegex = /([^\>\s]*\[\S*?\]\S*)/g, // a word with a chord in it
+        chordWordsRegex = /([^\>\s]*\[[^\]]*?\]\S*)/g, // a word with a chord in it
         commentRegex = /^\# ?(.*)/, // everything after a '#'
         chorusRegex = /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
         lineRegex = /(.*\>)?( *)(.*)/;
