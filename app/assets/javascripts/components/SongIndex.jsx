@@ -24,35 +24,38 @@ class SongIndex extends React.Component {
     }
     var songs = this.props.songData;
     var strippedSearch = stripString(this.state.search);
+    var searchResults;
 
     // filter songs by language settings
     songs = songs.filter(function(song) {
       return this.props.settings.languages.includes(song.lang);
     }, this);
 
-    var indexMatch = songs.filter(function(song) {
-      return Object.values(song.references).includes(this.state.search);
-    }, this);
+    var isNumberRegex = new RegExp("^[0-9]+$", 'i');
+    if(isNumberRegex.test(this.state.search)) {
+      searchResults = songs.filter(function(song) {
+        return Object.values(song.references).includes(this.state.search);
+      }, this);
+    } else {
+      var titleStartRegex = new RegExp("^" + strippedSearch, 'i');
+      var titleStart = songs.filter(function (song) {
+        return titleStartRegex.test(stripString(song.title));
+      }, this);
 
-    var titleStartRegex = new RegExp("^" + strippedSearch, 'i');
-    var titleStart = songs.filter(function (song) {
-      return titleStartRegex.test(stripString(song.title));
-    }, this);
+      var titleMatchRegex = new RegExp(strippedSearch, 'i');
+      var titleMatch = songs.filter(function (song) {
+        return titleMatchRegex.test(stripString(song.title));
+      }, this);
 
-    var titleMatchRegex = new RegExp(strippedSearch, 'i');
-    var titleMatch = songs.filter(function (song) {
-      return titleMatchRegex.test(stripString(song.title));
-    }, this);
+      var lyricsMatchRegex = new RegExp(strippedSearch, 'i');
+      var lyricsMatch = songs.filter(function (song) {
+        return lyricsMatchRegex.test(stripString(song.lyrics));
+      }, this);
 
-    var lyricsMatchRegex = new RegExp(strippedSearch, 'i');
-    var lyricsMatch = songs.filter(function (song) {
-      return lyricsMatchRegex.test(stripString(song.lyrics));
-    }, this);
-
-    searchResults = indexMatch
-                      .concat(titleStart)
-                      .concat(titleMatch)
-                      .concat(lyricsMatch);
+      searchResults = titleStart
+                        .concat(titleMatch)
+                        .concat(lyricsMatch);
+    }
 
     return searchResults.filter(function removeDuplicates(song, index, self) {
       return self.indexOf(song) === index;
