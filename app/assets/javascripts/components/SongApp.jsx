@@ -117,7 +117,8 @@ class SongApp extends React.Component {
             settings={this.state.settings}
             toggleSettingsPage={this.toggleSettingsPage}
             images={this.props.images}
-          />
+            allBooks={this.props.allBooks}
+            />
         break;
       case "settings":
         content = <UserSettings

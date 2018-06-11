@@ -17,6 +17,11 @@ class SongIndex extends React.Component {
     }
   }
 
+  searchIsNumber() {
+    var isNumberRegex = new RegExp("^[0-9]+$", 'i');
+    return isNumberRegex.test(this.state.search);
+  }
+
   filterSongs() {
     var stripString = function(str) {
       str = str.replace(/\[.+?\]/g, '');
@@ -31,8 +36,7 @@ class SongIndex extends React.Component {
       return this.props.settings.languages.includes(song.lang);
     }, this);
 
-    var isNumberRegex = new RegExp("^[0-9]+$", 'i');
-    if(isNumberRegex.test(this.state.search)) {
+    if(this.searchIsNumber()) {
       searchResults = songs.filter(function(song) {
         return Object.values(song.references).includes(this.state.search);
       }, this);
@@ -66,6 +70,10 @@ class SongIndex extends React.Component {
 
 
   render() {
+    getKeysByValue = function(object, value) {
+      return Object.keys(object).filter(key => object[key] === value);
+    }
+
     return (
       <div className="song-index">
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
@@ -81,8 +89,26 @@ class SongIndex extends React.Component {
             placeholder="search..." />
         </div>
         <div className="title-list">
-          {this.filterSongs().map(function(obj, i){
-            return <div className="index_row" key={i} id={obj.id} onClick={this.props.setSong}>{obj.title}</div>;
+          {this.filterSongs().map(function(song, i){
+            var refKeys = [];
+            var refs = '';
+            if(this.searchIsNumber()) {
+              refKeys = getKeysByValue(song.references, this.state.search);
+              refs = refKeys.map(function(key, i) {
+                return (
+                <span className="index_row_ref" key={i}>
+                  {this.props.allBooks[key].name}: #{song.references[key]}
+                </span>
+                );
+              }, this)
+            }
+
+            return (
+            <div className="index_row" key={i} id={song.id} onClick={this.props.setSong}>
+              <span className="index_row_title">{song.title}</span>
+              {refs}
+            </div>
+            );
           }, this)}
         </div>
 
