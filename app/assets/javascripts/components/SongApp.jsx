@@ -66,7 +66,7 @@ class SongApp extends React.Component {
   }
 
   setSong(e) {
-    var songId = e.target.id;
+    var songId = e.target.closest(".index_row").id;
     this.setState({page: songId});
     window.history.pushState({page: songId}, '', songId);
     window.scrollTo(0, 0);
