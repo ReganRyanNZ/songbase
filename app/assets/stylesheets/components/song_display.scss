@@ -2,11 +2,14 @@ div[data-react-class='SongDisplay'] {
     display: initial;
 }
 
+.song-container {
+    text-align: center;
+}
+
 .lyrics {
-    width: 90%;
-    margin-bottom: 50px;
-    margin-left: 30px;
-    display: block;
+    width: auto;
+    margin-left: 20px;
+    display: inline-block;
     text-align: left;
 
     .comment {

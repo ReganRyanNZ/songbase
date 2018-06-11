@@ -5,7 +5,9 @@ Rails.application.routes.draw do
 
   get 'maintenance', to: 'sessions#maintenance_mode'
 
-  resources :songs
+  resources :songs, except: ["show"]
+  get '/songs/:id', to: redirect('/%{id}')
+
   root to: 'songs#app'
   get 'edit', to: 'songs#edit' # shortcut when wanting to edit a song from main app
   get '/:s/e', to: 'songs#edit'

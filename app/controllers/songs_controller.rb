@@ -41,7 +41,7 @@ class SongsController < ApplicationController
   def update
     if @song.update(song_params)
       Audit.create(user: current_user, song: @song, time: Time.zone.now)
-      redirect_to admin_path, notice: 'Song was successfully updated.'
+      redirect_to admin_path, notice: "Song was successfully updated. #{view_context.link_to 'Click here', song_path(@song), class: 'flash_link'} to go to app."
     else
       render :edit
     end
