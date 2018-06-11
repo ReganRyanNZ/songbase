@@ -33,7 +33,7 @@ class SongDisplay extends React.Component {
     lyrics = lyrics.replace(/\r\n/g, `\n`);
 
     // replace double-spaced lines with chorus tags
-    lyrics = lyrics.replace(chorusRegex, `$1<div class='chorus'>$2\n</div>`)
+    lyrics = lyrics.replace(chorusRegex, `$1<div class='chorus'>$2</div>`)
     var lines = lyrics.split('\n'),
         maxIndex = lines.length;
 

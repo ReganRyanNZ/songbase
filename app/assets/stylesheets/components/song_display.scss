@@ -38,9 +38,14 @@ div[data-react-class='SongDisplay'] {
         white-space: pre-wrap;
     }
 
+    // space between verses
+    .line-text:empty {
+        margin-top: 8px;
+        display: block;
+    }
+
     .chorus {
-        margin-left: 25px;
-        margin-top: 10px;
+        margin: 10px 0 10px 25px;
         & ~ .chorus {
             margin-top: 0;
         }
