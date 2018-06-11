@@ -43,11 +43,12 @@ class SongDisplay extends React.Component {
       // style comments
       if(commentRegex.test(lines[i])) {
         lines[i] = lines[i].replace(commentRegex, "<div class='comment'>$1</div>");
+      } else {
+        // wrap each non comment line in a div
+        // lines contain spans for text and chords, text is vert aligned to the bottom.
+        // Chords have 0 width and double height, so everything aligns well.
+        lines[i] = lines[i].replace(lineRegex, "$1$2<div class='line'><span class='line-text'>$3</span></div>");
       }
-      // wrap each line in a div
-      // lines contain spans for text and chords, text is vert aligned to the bottom.
-      // Chords have 0 width and double height, so everything aligns well.
-      lines[i] = lines[i].replace(lineRegex, "$1$2<div class='line'><span class='line-text'>$3</span></div>");
 
       // parse chords
       // words containing chords are in a chord-word span, so that if the line is too long,
