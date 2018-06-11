@@ -30,3 +30,17 @@
   border: none;
   background: none;
 }
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 100px;
+
+  &> * {
+    width: 200px;
+    box-sizing: border-box;
+  }
+}
