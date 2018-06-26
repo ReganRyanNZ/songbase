@@ -60,10 +60,11 @@ class AdminSongList extends React.Component {
         var editRef = "/songs/" + obj.id + "/edit";
         var removeLink = "";
 
-        if(this.props.superAdmin) {
-          var ref = "/songs/" + obj.id
-          removeLink = <a data-confirm="Are you sure?" className="remove_song_link" rel="nofollow" data-method="delete" href={ref}>Remove</a>
-        }
+        // DELETE is broken without jquery. Old code kept in case we want a workaround
+          // if(this.props.superAdmin) {
+          //   var ref = "/songs/" + obj.id
+          //   removeLink = <a data-confirm="Are you sure?" className="remove_song_link" rel="nofollow" data-method="delete" href={ref}>Remove</a>
+          // }
         return (
           <tr key={obj.id}>
             <td>
