@@ -24,8 +24,8 @@ class SongIndex extends React.Component {
 
   filterSongs() {
     var stripString = function(str) {
-      str = str.replace(/\[.+?\]/g, '');
-      return str.replace(/[’'",“\-—–!?()0-9]/g, '');
+      str = str.replace(/\_/g, ' ');
+      return str.replace(/(\[.+?\])|[’'",“\-—–!?()0-9\[\]]/g, '');
     }
     var songs = this.props.songData;
     var strippedSearch = stripString(this.state.search);

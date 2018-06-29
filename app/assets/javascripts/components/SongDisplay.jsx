@@ -15,7 +15,6 @@ class SongDisplay extends React.Component {
     }
 
     var verseNumberRegex = /(^|\n)([0-9]+)\n/gm, // numbers by themselves on a line are verse numbers
-        getVerseNumberRegex = /<div class='verse-number'.+<\/div>/, // gets inserted verse number div to strip from chord lines
         hasChordsRegex = /.*\[.*\].*/, // has square brackets
         chordsRegex = /\[(.*?)\]/g, // anything inside square brackets
         chordWordsRegex = /([^\>\s]*\[[^\]]*?\]\S*)/g, // a word with a chord in it
@@ -23,14 +22,14 @@ class SongDisplay extends React.Component {
         chorusRegex = /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
         lineRegex = /(.*\>)?( *)(.*)/;
 
+    // get rid of sketchy invisable unicode chars
+    lyrics = lyrics.replace(/[\r\u2028\u2029]/g, '');
+
     // parse verse numbers
-    var verseNumber = 0,
     lyrics = lyrics.replace(verseNumberRegex, function($0, $1, $2) {
       return $1 + "<div class='verse-number' data-uncopyable-text='" + $2 + "'></div>"
     })
 
-    // get rid of windows carriage returns
-    lyrics = lyrics.replace(/\r\n/g, `\n`);
 
     // replace double-spaced lines with chorus tags
     lyrics = lyrics.replace(chorusRegex, `$1<div class='chorus'>$2</div>`)
@@ -60,7 +59,7 @@ class SongDisplay extends React.Component {
         }
       }
       // convert _ to musical tie for spanish songs
-      lines[i] = lines[i].replace(/_/g, "\u035c");
+      lines[i] = lines[i].replace(/_/g, "<span class='musical-tie'>‿</span>");
     }
     return (lines.join("\n"));
   }

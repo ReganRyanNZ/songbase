@@ -32,8 +32,8 @@ class AdminSongList extends React.Component {
   filterSongs(songs, search) {
     // get rid of punctuation and chords
     var stripString = function(str) {
-      str = str.replace(/\[.+?\]/g, '');
-      return str.replace(/[’'",“\-—–!?()0-9]/g, '');
+      str = str.replace(/\_/g, ' ');
+      return str.replace(/(\[.+?\])|[’'",“\-—–!?()0-9\[\]]/g, '');
     }
     var strippedSearch = stripString(search);
     var titleMatchRegex = new RegExp(strippedSearch, 'i');

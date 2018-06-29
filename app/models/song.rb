@@ -78,6 +78,6 @@ class Song < ApplicationRecord
   end
 
   def remove_windows_carriage_returns
-    self.lyrics = self.lyrics.gsub(/\r/, "")
+    self.lyrics = self.lyrics.gsub(/[\r\u2028\u2029]/, "")
   end
 end
