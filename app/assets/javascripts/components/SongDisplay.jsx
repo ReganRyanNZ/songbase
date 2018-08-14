@@ -17,7 +17,7 @@ class SongDisplay extends React.Component {
     var verseNumberRegex = /(^|\n)([0-9]+)\n/gm, // numbers by themselves on a line are verse numbers
         hasChordsRegex = /.*\[.*\].*/, // has square brackets
         chordsRegex = /\[(.*?)\]/g, // anything inside square brackets
-        chordWordsRegex = /([^\>\s]*\[[^\]]*?\]\S*)/g, // a word with a chord in it
+        chordWordsRegex = /([^\>\s]*\[[^\]]*?\][^\s<]*)/g, // a word with a chord in it
         commentRegex = /^\# ?(.*)/, // everything after a '#'
         chorusRegex = /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
         lineRegex = /(.*\>)?( *)(.*)/;
