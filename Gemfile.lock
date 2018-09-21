@@ -140,6 +140,8 @@ GEM
       method_source (~> 0.9.0)
     puma (3.11.4)
     rack (2.0.5)
+    rack-mini-profiler (1.0.0)
+      rack (>= 1.2.0)
     rack-test (1.0.0)
       rack (>= 1.0, < 3)
     rails (5.1.6)
@@ -250,6 +252,7 @@ DEPENDENCIES
   omniauth-facebook
   pg (~> 0.21.0)
   puma (~> 3.0)
+  rack-mini-profiler
   rails (~> 5.1.0)
   react-rails
   rspec-rails

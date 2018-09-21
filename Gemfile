@@ -13,6 +13,8 @@ gem 'rails', '~> 5.1.0'
 gem 'pg', '~> 0.21.0'
 # Use Puma as the app server
 gem 'puma', '~> 3.0'
+# Speed profiler
+gem 'rack-mini-profiler'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
