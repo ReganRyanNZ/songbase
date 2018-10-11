@@ -9,7 +9,6 @@ class UserSettings extends React.Component {
     this.toggleLanguage = this.toggleLanguage.bind(this);
     this.addLanguage = this.addLanguage.bind(this);
     this.removeLanguage = this.removeLanguage.bind(this);
-    this.saveSettings = this.saveSettings.bind(this);
   }
 
   render() {
@@ -63,7 +62,7 @@ class UserSettings extends React.Component {
     if(!settings.languages.includes(lang)) {
       settings.languages.push(lang);
     }
-    this.saveSettings(settings);
+    this.props.setSettings(settings);
   }
 
   removeLanguage(lang) {
@@ -72,11 +71,6 @@ class UserSettings extends React.Component {
     if(index > -1) {
       settings.languages.splice(index, 1);
     }
-    this.saveSettings(settings);
-  }
-
-  saveSettings(settings) {
-    document.cookie =  "songbase_settings=" + JSON.stringify(settings) +  "; expires=Sat, 1 Jan 2050 12:00:00 UTC; path=/";
     this.props.setSettings(settings);
   }
 }

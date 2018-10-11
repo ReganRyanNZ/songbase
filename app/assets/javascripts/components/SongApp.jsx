@@ -3,11 +3,10 @@ class SongApp extends React.Component {
     super(props);
     this.state = {
       page: (props.songId || 'index'),
-      settings: this.getSettings()
+      settings: {languages: ['']}
     }
 
     // bind all methods to this context (so we can use them)
-    this.getSettings = this.getSettings.bind(this);
     this.setSettings = this.setSettings.bind(this);
     this.toggleSettingsPage = this.toggleSettingsPage.bind(this);
     this.setSong = this.setSong.bind(this);
@@ -25,30 +24,43 @@ class SongApp extends React.Component {
     }
   }
 
+  componentWillMount() {
+    this.initializeDB();
+  }
+
   // when user clicks "back" in their browser, navigate to previous song
   componentDidMount() {
     window.addEventListener("popstate", this.setSongFromHistory);
   }
 
+  initializeDB() {
+    this.db = new Dexie("songbaseDB");
+
+    // Change version number when db structure changes
+    // Note that stores() specifies primary key, then *indexed* properties,
+    // there may be more properties than specified here, these are just indexed ones.
+    this.db.version(3).stores({
+      settings: 'settingsType'
+    });
+
+    // initialize settings, set defaults if settings doesn't exist
+    this.db.settings.get({settingsType: 'global'})
+    .then((result) => {
+      if(result) {
+        console.log("Settings via IndexedDB detected.");
+      } else {
+        console.log("No settings found. Creating defaults...");
+        var defaultSettings = {settingsType: 'global', languages: ['english']};
+        this.db.settings.add(defaultSettings);
+      }
+      this.setState({settings: result || defaultSettings});
+    });
+  }
+
   setSettings(settings) {
+    this.db.settings.put(settings);
     this.setState({settings: settings});
   }
-
-  getSettings() {
-  var cookies = decodeURIComponent(document.cookie).split(/; */);
-  var target = 'songbase_settings='
-  for(var i = 0; i <cookies.length; i++) {
-    var c = cookies[i];
-    if (c.indexOf(target) == 0) {
-      return JSON.parse(c.substring(target.length, c.length));
-    }
-  }
-
-  // default settings here
-  return {
-    languages: ["english"]
-  };
-}
 
   returnToIndex(e) {
     this.setState({page: 'index'});
