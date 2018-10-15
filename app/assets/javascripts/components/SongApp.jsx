@@ -3,7 +3,8 @@ class SongApp extends React.Component {
     super(props);
     this.state = {
       page: (props.songId || 'index'),
-      settings: {languages: ['']}
+      settings: {languages: ['']},
+      songs: []
     }
 
     // bind all methods to this context (so we can use them)
@@ -31,6 +32,28 @@ class SongApp extends React.Component {
   // when user clicks "back" in their browser, navigate to previous song
   componentDidMount() {
     window.addEventListener("popstate", this.setSongFromHistory);
+    var settings = this.state.settings;
+    // add new songs
+    return new Dexie.Promise(function (resolve, reject) {
+      axios({
+        method: 'POST',
+        url: '/api/v1/songs',
+        data: {
+          updated_at: settings.updated_at || ''
+        },
+        headers: {
+          'X-CSRF-Token': document.querySelector("meta[name=csrf-token]").content
+        }
+      }).then(function (data) {
+        console.log("Syncing songs with indexedDB...");
+        // db.songs.bulkPut(data);
+      }).then(function (data) {
+        console.log("Syncing completed.");
+        // this.setState({songs: db.songs.where('lang').anyOf(this.state.settings.languages)})
+      })
+    });
+    // delete expired songs
+    // update existing if their date is old
   }
 
   initializeDB() {
@@ -39,8 +62,9 @@ class SongApp extends React.Component {
     // Change version number when db structure changes
     // Note that stores() specifies primary key, then *indexed* properties,
     // there may be more properties than specified here, these are just indexed ones.
-    this.db.version(3).stores({
-      settings: 'settingsType'
+    this.db.version(1).stores({
+      settings: 'settingsType',
+      songs: 'id, title, lang'
     });
 
     // initialize settings, set defaults if settings doesn't exist
@@ -50,7 +74,11 @@ class SongApp extends React.Component {
         console.log("Settings via IndexedDB detected.");
       } else {
         console.log("No settings found. Creating defaults...");
-        var defaultSettings = {settingsType: 'global', languages: ['english']};
+        var defaultSettings = {
+          settingsType: 'global',
+          languages: ['english'],
+          updated_at: 0
+        };
         this.db.settings.add(defaultSettings);
       }
       this.setState({settings: result || defaultSettings});
@@ -85,7 +113,7 @@ class SongApp extends React.Component {
   }
 
   getSong(id) {
-    songs = this.props.songData;
+    songs = this.state.songs;
     for(var i=0; i < songs.length; i++){
       if(songs[i].id == id) {
         return songs[i];
@@ -96,15 +124,13 @@ class SongApp extends React.Component {
 
   // get a list of unique languages in the db
   getLanguages() {
-    songs = this.props.songData;
-    return songs.map(s => s.lang).filter((v, i, a) => a.indexOf(v) === i).sort();
+    return this.state.songs.map(s => s.lang).filter((v, i, a) => a.indexOf(v) === i).sort();
   }
 
   // get a count of the languages in the db
   getLanguageCounts() {
     counts = {};
-    songs = this.props.songData;
-    langs = songs.map(s => s.lang).forEach(l => counts[l] = (counts[l] || 0) + 1);
+    langs = this.state.songs.map(s => s.lang).forEach(l => counts[l] = (counts[l] || 0) + 1);
 
     return counts;
   }
@@ -124,7 +150,7 @@ class SongApp extends React.Component {
     switch(page) {
       case "index":
         content = <SongIndex
-            songData={this.props.songData}
+            songs={this.state.songs}
             setSong={this.setSong}
             settings={this.state.settings}
             toggleSettingsPage={this.toggleSettingsPage}

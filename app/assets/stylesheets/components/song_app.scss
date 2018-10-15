@@ -15,3 +15,15 @@
     cursor: pointer;
   }
 }
+
+.loading {
+  text-align: center;
+  opacity: 1;
+  animation: fade 2s linear infinite;
+}
+
+
+@keyframes fade {
+0%,100% { opacity: 0 }
+50% { opacity: 1 }
+}

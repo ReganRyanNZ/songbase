@@ -68,14 +68,13 @@ class SongsController < ApplicationController
   end
 
   def set_songs
-    @songs = []
-
-    Song.all.includes(books: :song_books).each do |song|
-      song.titles.values.each do |title|
-        @songs << song_entry(title, song)
-      end
-    end
-    sort_songs(@songs)
+    @songs = Song.all.map { |song| [song.id, song.updated_at.to_i] }
+    # Song.all.includes(books: :song_books).each do |song|
+    #   song.titles.values.each do |title|
+    #     @songs << song_entry(title, song)
+    #   end
+    # end
+    # sort_songs(@songs)
   end
 
   def set_songs_admin
@@ -95,16 +94,6 @@ class SongsController < ApplicationController
       lyrics: song.lyrics,
       edit_timestamp: time_ago_in_words(song.updated_at || song.created_at) + " ago",
       last_editor: song.last_editor || "System"
-    }
-  end
-
-  def song_entry(title, song)
-    {
-      id: song.id,
-      title: title,
-      lang: song.lang,
-      lyrics: song.lyrics,
-      references: song.book_indices
     }
   end
 

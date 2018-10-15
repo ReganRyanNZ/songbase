@@ -61,6 +61,15 @@ class Song < ApplicationRecord
     old_song.reload.destroy
   end
 
+  def app_entry
+    {
+      id: id,
+      title: titles.first[1],
+      lang: lang,
+      lyrics: lyrics
+    }
+  end
+
   private
 
   def titles_validation

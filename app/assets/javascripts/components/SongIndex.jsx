@@ -27,7 +27,7 @@ class SongIndex extends React.Component {
       str = str.replace(/\_/g, ' ');
       return str.replace(/(\[.+?\])|[’'",“\-—–!?()0-9\[\]]/g, '');
     }
-    var songs = this.props.songData;
+    var songs = this.props.songs;
     var strippedSearch = stripString(this.state.search);
     var searchResults;
 
@@ -89,27 +89,32 @@ class SongIndex extends React.Component {
             placeholder="search..." />
         </div>
         <div className="title-list">
-          {this.filterSongs().map(function(song, i){
-            var refKeys = [];
-            var refs = '';
-            if(this.searchIsNumber()) {
-              refKeys = getKeysByValue(song.references, this.state.search);
-              refs = refKeys.map(function(key, i) {
+          {
+            this.props.songs.length == 0 ?
+              <div className="loading">Loading song data...</div>
+            :
+              this.filterSongs().map(function(song, i){
+                var refKeys = [];
+                var refs = '';
+                if(this.searchIsNumber()) {
+                  refKeys = getKeysByValue(song.references, this.state.search);
+                  refs = refKeys.map(function(key, i) {
+                    return (
+                    <span className="index_row_ref" key={i}>
+                      {this.props.allBooks[key].name}: #{song.references[key]}
+                    </span>
+                    );
+                  }, this)
+                }
+
                 return (
-                <span className="index_row_ref" key={i}>
-                  {this.props.allBooks[key].name}: #{song.references[key]}
-                </span>
+                <div className="index_row" key={i} id={song.id} onClick={this.props.setSong}>
+                  <span className="index_row_title">{song.title}</span>
+                  {refs}
+                </div>
                 );
               }, this)
-            }
-
-            return (
-            <div className="index_row" key={i} id={song.id} onClick={this.props.setSong}>
-              <span className="index_row_title">{song.title}</span>
-              {refs}
-            </div>
-            );
-          }, this)}
+          }
         </div>
 
       </div>
