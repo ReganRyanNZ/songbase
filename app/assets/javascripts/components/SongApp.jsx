@@ -2,9 +2,15 @@ class SongApp extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      page: (props.songId || 'index'),
-      settings: {languages: ['']},
-      songs: []
+      page: (props.song_id || 'index'),
+      settings: {
+        settingsType: 'global',
+        languages: ['english'],
+        updated_at: 0
+      },
+      songs: props.preloaded_song || [],
+      references: props.preloaded_references || [],
+      books: props.preloaded_books || []
     }
 
     // bind all methods to this context (so we can use them)
@@ -32,24 +38,50 @@ class SongApp extends React.Component {
   // when user clicks "back" in their browser, navigate to previous song
   componentDidMount() {
     window.addEventListener("popstate", this.setSongFromHistory);
-    var settings = this.state.settings;
+    var component = this;
+    var db = this.db;
+    console.log("Fetching data from api...")
     // add new songs
     return new Dexie.Promise(function (resolve, reject) {
       axios({
-        method: 'POST',
-        url: '/api/v1/songs',
-        data: {
-          updated_at: settings.updated_at || ''
+        method: 'GET',
+        url: '/api/v1/app_data',
+        params: {
+          updated_at: component.state.settings.updated_at || ''
         },
         headers: {
           'X-CSRF-Token': document.querySelector("meta[name=csrf-token]").content
         }
-      }).then(function (data) {
+      }).then(function (response) {
+        console.log("Fetch completed.");
         console.log("Syncing songs with indexedDB...");
-        // db.songs.bulkPut(data);
+        // run this all in a transaction, to stop mid-sync cut outs from wrecking everything
+        db.transaction('rw', db.songs, db.books, db.references, db.settings, ()=>{
+          db.songs.bulkPut(response.data.songs);
+          db.references.bulkPut(response.data.references);
+          db.books.bulkPut(response.data.books);
+          var settings = component.state.settings;
+          settings["updated_at"] = new Date().getTime();
+          component.setState({
+            settings: settings
+          })
+          db.settings.put(settings);
+        });
       }).then(function (data) {
         console.log("Syncing completed.");
-        // this.setState({songs: db.songs.where('lang').anyOf(this.state.settings.languages)})
+        var langs = component.state.settings.languages;
+        db.songs.where('lang').anyOf(langs).toArray((songs) => {
+          component.setState({songs: songs});
+        });
+        db.books.where('lang').anyOf(langs).toArray((books) => {
+          component.setState({books: books});
+          return books;
+        }).then((books) => {
+          var book_ids = books.map((book) => { return book.id })
+          db.references.where('book_id').anyOf(book_ids).toArray((references) => {
+            component.setState({references: references});
+          });
+        });
       })
     });
     // delete expired songs
@@ -64,7 +96,9 @@ class SongApp extends React.Component {
     // there may be more properties than specified here, these are just indexed ones.
     this.db.version(1).stores({
       settings: 'settingsType',
-      songs: 'id, title, lang'
+      songs: 'id, title, lang',
+      books: 'id, slug, lang',
+      references: 'id, song_id, book_id'
     });
 
     // initialize settings, set defaults if settings doesn't exist
@@ -72,16 +106,11 @@ class SongApp extends React.Component {
     .then((result) => {
       if(result) {
         console.log("Settings via IndexedDB detected.");
+        this.setState({settings: result})
       } else {
         console.log("No settings found. Creating defaults...");
-        var defaultSettings = {
-          settingsType: 'global',
-          languages: ['english'],
-          updated_at: 0
-        };
-        this.db.settings.add(defaultSettings);
+        this.db.settings.add(this.state.settings);
       }
-      this.setState({settings: result || defaultSettings});
     });
   }
 
@@ -145,7 +174,7 @@ class SongApp extends React.Component {
   }
 
   render() {
-    var page = this.state.page; //"settings";
+    var page = this.state.page;
     var content;
     switch(page) {
       case "index":

@@ -17,7 +17,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      post 'songs', to: 'songs#songs'
+      get 'app_data', to: 'songs#app_data'
     end
   end
 end

@@ -1,9 +1,9 @@
 <%=
   react_component(
     'SongApp',
-    songData: @songs,
-    songId: @song_id,
-    allBooks: Book.reactify,
+    song_id: @song_id,
+    preloaded_song: @preloaded_song,
+    preloaded_books: @preloaded_books,
     images: {
       settings_icon: image_url("settings-icon.svg"),
       home_icon: image_url("home-icon.svg")

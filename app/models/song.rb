@@ -70,6 +70,10 @@ class Song < ApplicationRecord
     }
   end
 
+  def self.app_data
+    all.map(&:app_entry)
+  end
+
   private
 
   def titles_validation

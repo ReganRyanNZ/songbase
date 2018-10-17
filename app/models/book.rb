@@ -2,6 +2,15 @@ class Book < ApplicationRecord
   has_many :song_books, dependent: :destroy
   has_many :songs, through: :song_books
 
+  def app_entry
+    {
+      id: id,
+      name: name,
+      lang: lang,
+      slug: slug
+    }
+  end
+
   def self.find(param)
     if param =~ /[^0-9]/
       self.find_by(slug: param)
@@ -10,15 +19,7 @@ class Book < ApplicationRecord
     end
   end
 
-  def self.reactify
-    hash = {}
-    self.all.each do |book|
-      hash[book.id] = {
-        name: book.name,
-        lang: book.lang,
-        slug: book.slug
-      }
-    end
-    hash
+  def self.app_data
+    self.all.map(&:app_entry)
   end
 end
