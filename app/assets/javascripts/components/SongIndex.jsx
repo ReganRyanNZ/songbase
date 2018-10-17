@@ -90,7 +90,7 @@ class SongIndex extends React.Component {
         </div>
         <div className="title-list">
           {
-            this.props.songs.length == 0 ?
+            this.props.songs.length <= 1 ?
               <div className="loading">Loading song data...</div>
             :
               this.filterSongs().map(function(song, i){

@@ -71,6 +71,17 @@ class SongApp extends React.Component {
         console.log("Syncing completed.");
         var langs = component.state.settings.languages;
         db.songs.where('lang').anyOf(langs).toArray((songs) => {
+          songs.sort((a,b) => {
+            var stripA = a.title.toUpperCase().replace(/[^A-Z]/g, '');
+            var stripB = b.title.toUpperCase().replace(/[^A-Z]/g, '');
+            if(stripA > stripB) {
+              return 1
+            } else if(stripA < stripB) {
+              return -1
+            } else {
+              return 0
+            }
+          });
           component.setState({songs: songs});
         });
         db.books.where('lang').anyOf(langs).toArray((books) => {
@@ -85,7 +96,6 @@ class SongApp extends React.Component {
       })
     });
     // delete expired songs
-    // update existing if their date is old
   }
 
   initializeDB() {
