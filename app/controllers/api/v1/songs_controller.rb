@@ -4,7 +4,7 @@ class Api::V1::SongsController < ApplicationController
   def app_data
 
     # check the param went through
-    time_in_seconds = (params[:updated_at].presence || 0) /1000
+    time_in_seconds = (params[:updated_at].presence&.to_i || 0) /1000
     client_updated_at = Time.at(time_in_seconds).utc
     render json: {
       songs: Song.where('updated_at > ?', client_updated_at).app_data,
