@@ -2,8 +2,6 @@ class Api::V1::SongsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def app_data
-
-    # check the param went through
     time_in_seconds = (params[:updated_at].presence&.to_i || 0) /1000
     client_updated_at = Time.at(time_in_seconds).utc
     render json: {

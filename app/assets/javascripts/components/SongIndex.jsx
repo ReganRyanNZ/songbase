@@ -28,17 +28,21 @@ class SongIndex extends React.Component {
       return str.replace(/(\[.+?\])|[’'",“\-—–!?()0-9\[\]]/g, '');
     }
     var songs = this.props.songs;
+    var reference_song_ids = this.props.references.map((ref) => ref.song_id);
+    console.log(reference_song_ids);
     var strippedSearch = stripString(this.state.search);
     var searchResults;
 
     // filter songs by language settings
-    songs = songs.filter(function(song) {
-      return this.props.settings.languages.includes(song.lang);
-    }, this);
+    // This is no longer needed while songs in state are set by language
+    // songs = songs.filter(function(song) {
+    //   return this.props.settings.languages.includes(song.lang);
+    // }, this);
 
     if(this.searchIsNumber()) {
+      var search = parseInt(this.state.search);
       searchResults = songs.filter(function(song) {
-        return Object.values(song.references).includes(this.state.search);
+        return reference_song_ids.includes(search);
       }, this);
     } else {
       var titleStartRegex = new RegExp("^" + strippedSearch, 'i');
@@ -97,7 +101,8 @@ class SongIndex extends React.Component {
                 var refKeys = [];
                 var refs = '';
                 if(this.searchIsNumber()) {
-                  refKeys = getKeysByValue(song.references, this.state.search);
+
+                  refKeys = getKeysByValue(references.song_id, this.state.search);
                   refs = refKeys.map(function(key, i) {
                     return (
                     <span className="index_row_ref" key={i}>

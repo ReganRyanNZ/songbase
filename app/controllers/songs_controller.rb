@@ -5,11 +5,12 @@ class SongsController < ApplicationController
   before_action :adjust_lang_params, only: [:create, :update]
 
   def app
-    if params[:s].present?
-      @song_id = params[:s]
-      @preloaded_song = Song.find(@song_id).app_entry
-      @preloaded_books = @preloaded_song.books.map(&:app_entry) if @preloaded_song.present?
-      @preloaded_references = @preloaded_song.song_books.map(&:app_entry) if @preloaded_song.present?
+    song = Song.where(id: params[:s]).first
+    if song.present?
+      @song_id = song.id
+      @preloaded_song = song.app_entry
+      @preloaded_books = song.books.map(&:app_entry)
+      @preloaded_references = song.song_books.map(&:app_entry)
     end
   end
 
