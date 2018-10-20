@@ -6,7 +6,7 @@ class SongIndex extends React.Component {
     }
 
     this.handleChange = this.handleChange.bind(this);
-    this.filterSongs = this.filterSongs.bind(this);
+    this.getSearchResults = this.getSearchResults.bind(this);
   }
 
   handleChange(event) {
@@ -22,53 +22,83 @@ class SongIndex extends React.Component {
     return isNumberRegex.test(this.state.search);
   }
 
-  filterSongs() {
+  getSearchResults() {
     var stripString = function(str) {
       str = str.replace(/\_/g, ' ');
-      return str.replace(/(\[.+?\])|[’'",“\-—–!?()0-9\[\]]/g, '');
+      return str.replace(/(\[.+?\])|[’'",“\-—–!?()\[\]]/g, '');
     }
     var songs = this.props.songs;
-    var reference_song_ids = this.props.references.map((ref) => ref.song_id);
-    console.log(reference_song_ids);
     var strippedSearch = stripString(this.state.search);
-    var searchResults;
+    var searchResults = [];
+    var displayLimit = 100; // react gets laggy rendering 2k songs, so there's a limit
 
     // filter songs by language settings
     // This is no longer needed while songs in state are set by language
     // songs = songs.filter(function(song) {
     //   return this.props.settings.languages.includes(song.lang);
     // }, this);
-
-    if(this.searchIsNumber()) {
+    if(strippedSearch == '') {
+      console.log("no search detected.");
+      searchResults = songs.slice(0, displayLimit).map((song) => {
+        return {
+          song: song,
+          tag: ''
+        };
+      });
+    } else if(this.searchIsNumber()) {
       var search = parseInt(this.state.search);
-      searchResults = songs.filter(function(song) {
-        return reference_song_ids.includes(search);
-      }, this);
+      var refs = this.props.references.filter((ref) => ref.index == search);
+      searchResults = refs.map((ref) => {
+        var book = this.props.books.find((book) => book.id == ref.book_id);
+        return {
+          song: this.props.songs.find((song) => song.id == ref.song_id),
+          tag: '<span class="search_tag">' + book.name + ': #' + ref.index + '</span>'
+        }
+      });
+      return searchResults;
     } else {
       var titleStartRegex = new RegExp("^" + strippedSearch, 'i');
-      var titleStart = songs.filter(function (song) {
-        return titleStartRegex.test(stripString(song.title));
-      }, this);
-
       var titleMatchRegex = new RegExp(strippedSearch, 'i');
-      var titleMatch = songs.filter(function (song) {
-        return titleMatchRegex.test(stripString(song.title));
-      }, this);
-
       var lyricsMatchRegex = new RegExp(strippedSearch, 'i');
-      var lyricsMatch = songs.filter(function (song) {
-        return lyricsMatchRegex.test(stripString(song.lyrics));
-      }, this);
 
-      searchResults = titleStart
-                        .concat(titleMatch)
-                        .concat(lyricsMatch);
+      searchResults = songs.filter((song) => {
+        var title = stripString(song.title);
+        var lyrics = stripString(song.lyrics);
+        return (titleMatchRegex.test(title) || lyricsMatchRegex.test(lyrics));
+      }, this).map((song) => {
+        return {
+          song: song,
+          tag: ''
+        };
+      });
+
+      // sort the results, making title matches appear higher than lyrics matches
+      searchResults.sort((a, b) => {
+        var titles = [stripString(a.song.title), stripString(b.song.title)];
+        var weights = titles.map((title) => {
+          if(titleStartRegex.test(title)) {
+            return 2;
+          } else if(titleMatchRegex.test(title)) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+
+        // sort alphabetically if they are in the same regex category
+        if (weights[0] == weights[1]) {
+          if (titles[0] < titles[1])
+            return -1;
+          if ( titles[0] > titles[1])
+            return 1;
+          return 0;
+        } else {
+          return weights[1] - weights[0];
+        }
+      });
     }
 
-    return searchResults.filter(function removeDuplicates(song, index, self) {
-      return self.indexOf(song) === index;
-    });
-
+    return searchResults.slice(0, displayLimit);
   }
 
 
@@ -97,25 +127,11 @@ class SongIndex extends React.Component {
             this.props.songs.length <= 1 ?
               <div className="loading">Loading song data...</div>
             :
-              this.filterSongs().map(function(song, i){
-                var refKeys = [];
-                var refs = '';
-                if(this.searchIsNumber()) {
-
-                  refKeys = getKeysByValue(references.song_id, this.state.search);
-                  refs = refKeys.map(function(key, i) {
-                    return (
-                    <span className="index_row_ref" key={i}>
-                      {this.props.allBooks[key].name}: #{song.references[key]}
-                    </span>
-                    );
-                  }, this)
-                }
-
+              this.getSearchResults().map(function(result, i){
                 return (
-                <div className="index_row" key={i} id={song.id} onClick={this.props.setSong}>
-                  <span className="index_row_title">{song.title}</span>
-                  {refs}
+                <div className="index_row" key={i} id={result.song.id} onClick={this.props.setSong}>
+                  <span className="index_row_title">{result.song.title}</span>
+                  <span className="index_row_tag" dangerouslySetInnerHTML={{__html: result.tag}}/>
                 </div>
                 );
               }, this)

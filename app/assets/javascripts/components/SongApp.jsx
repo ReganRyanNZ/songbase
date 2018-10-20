@@ -229,11 +229,10 @@ class SongApp extends React.Component {
             <SongDisplay
               lyrics={ this.getSong(page).lyrics }
               references={this.getSong(page).references}
-              allBooks={this.state.books}
             />
             <SongReferences
-              references={this.getSong(page).references}
-              allBooks={this.state.books}
+              references={this.state.references.filter((ref) => ref.song_id == page)}
+              books={this.state.books}
             />
           </div>
     }
