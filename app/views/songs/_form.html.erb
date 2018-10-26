@@ -16,7 +16,7 @@
     song: song,
     languages: all_languages,
     references: song.book_indices,
-    books: Book.reactify) %>
+    books: song.books) %>
   <div class="actions text-center">
     <%= f.submit class: "btn btn-update" %>
 <% end %>

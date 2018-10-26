@@ -8,7 +8,7 @@ class SongApp extends React.Component {
         languages: ['english'],
         updated_at: 0
       },
-      songs: props.preloaded_song || [],
+      songs: [props.preloaded_song] || [],
       references: props.preloaded_references || [],
       books: props.preloaded_books || []
     }

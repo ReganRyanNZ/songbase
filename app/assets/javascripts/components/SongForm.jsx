@@ -9,7 +9,7 @@ class SongForm extends React.Component {
       custom_title: this.props.song.custom_title || '',
       lang: this.props.song.lang || 'english',
       references: this.props.references || {},
-      allBooks: this.props.books
+      books: this.props.books
     }
     this.handleChange = this.handleChange.bind(this);
   }
