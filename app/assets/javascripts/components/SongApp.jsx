@@ -47,7 +47,26 @@ class SongApp extends React.Component {
     // Change version number when db structure changes
     // Note that stores() specifies primary key, then *indexed* properties,
     // there may be more properties than specified here, these are just indexed ones.
+    // NOTE I somewhat screwed up some versioning, that's why several versions are the same.
     app.db.version(1).stores({
+      settings: 'settingsType',
+      songs: 'id, title, lang',
+      books: 'id, slug, lang',
+      references: 'id, song_id, book_id'
+    });
+    app.db.version(2).stores({
+      settings: 'settingsType',
+      songs: 'id, title, lang',
+      books: 'id, slug, lang',
+      references: 'id, song_id, book_id'
+    });
+    app.db.version(3).stores({
+      settings: 'settingsType',
+      songs: 'id, title, lang',
+      books: 'id, slug, lang',
+      references: 'id, song_id, book_id'
+    });
+    app.db.version(4).stores({
       settings: 'settingsType',
       songs: 'id, title, lang',
       books: 'id, slug, lang',
