@@ -23,6 +23,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'react-rails'
 
 gem 'omniauth-facebook'
+gem 'omniauth-google-oauth2', '~> 0.2.2'
 
 #Api gems
 gem 'active_model_serializers'

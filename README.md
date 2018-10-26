@@ -19,4 +19,4 @@ Song sheet database for psalms, hymns, and spiritual songs
 - From a song, users can click to relevant book indicies, or straight to related songs [future]
 
 ### Admin
-- Users can log in via facebook [current] or google [future]
+- Users can log in via facebook or google
