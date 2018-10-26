@@ -81,7 +81,7 @@ class SongApp extends React.Component {
         app.setState({settings: result})
       } else {
         console.log("No settings found. Creating defaults...");
-        db.settings.add(app.state.settings);
+        app.db.settings.add(app.state.settings);
       }
       console.log("Fetching data from api...")
     }).then(function (response) {
