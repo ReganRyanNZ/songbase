@@ -216,7 +216,6 @@ class SongApp extends React.Component {
             setSong={this.setSong}
             settings={this.state.settings}
             toggleSettingsPage={this.toggleSettingsPage}
-            images={this.props.images}
             books={this.state.books}
             references={this.state.references}
             />
@@ -226,7 +225,6 @@ class SongApp extends React.Component {
             setSettings={this.setSettings}
             settings={this.state.settings}
             toggleSettingsPage={this.toggleSettingsPage}
-            images={this.props.images}
           />
         break;
       default:

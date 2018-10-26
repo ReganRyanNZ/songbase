@@ -111,7 +111,7 @@ class SongIndex extends React.Component {
     return (
       <div className="song-index">
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
-          <img src={this.props.images.settings_icon}/>
+          <SettingsIcon/>
         </div>
         <div className="search-form form" >
           <input

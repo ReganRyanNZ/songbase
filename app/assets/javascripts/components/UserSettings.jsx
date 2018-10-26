@@ -32,11 +32,10 @@ class UserSettings extends React.Component {
     return (
       <div className="settings-container">
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
-          <img src={this.props.images.home_icon}/>
+          <HomeIcon/>
         </div>
         <h2>Languages</h2>
         {langCheckboxes}
-        {/* {currentLanguagesForTesting} */}
         <div className="contact-footer">
           <hr />
           Site Support: <a href="mailto:songbase.brothers@gmail.com">songbase.brothers@gmail.com</a>
