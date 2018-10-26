@@ -8,6 +8,7 @@ class Api::V1::SongsController < ApplicationController
       songs: Song.where('updated_at > ?', client_updated_at).app_data,
       books: Book.where('updated_at > ?', client_updated_at).app_data,
       references: SongBook.where('updated_at > ?', client_updated_at).app_data,
+      languages_info: Song.all.group_by(&:lang).map{ |lang,songs| [lang, songs.count] },
       current_ids:
         {
           songs: Song.pluck(:id),

@@ -6,6 +6,7 @@ class SongApp extends React.Component {
       settings: {
         settingsType: 'global',
         languages: ['english'],
+        languagesInfo: [],
         updated_at: 0
       },
       songs: [props.preloaded_song] || [],
@@ -14,14 +15,13 @@ class SongApp extends React.Component {
     }
 
     // bind all methods to this context (so we can use them)
+    this.pushDBToState = this.pushDBToState.bind(this);
     this.setSettings = this.setSettings.bind(this);
     this.toggleSettingsPage = this.toggleSettingsPage.bind(this);
     this.setSong = this.setSong.bind(this);
     this.setSongFromHistory = this.setSongFromHistory.bind(this);
     this.getSong = this.getSong.bind(this);
     this.returnToIndex = this.returnToIndex.bind(this);
-    this.getLanguages = this.getLanguages.bind(this);
-    this.getLanguageCounts = this.getLanguageCounts.bind(this);
 
     // setup history so users can navigate via browser
     if(this.state.page == 'index') {
@@ -88,7 +88,7 @@ class SongApp extends React.Component {
       app.fetchData();
     }).catch(()=> {
       console.log("Failed to fetch new data.");
-      app.app.pushDBToState();
+      app.pushDBToState();
     });
   }
 
@@ -114,6 +114,7 @@ class SongApp extends React.Component {
         db.books.bulkPut(response.data.books);
         var settings = app.state.settings;
         settings["updated_at"] = new Date().getTime();
+        settings["languagesInfo"] = response.data.languages_info;
         console.log(settings);
         app.setState({
           settings: settings
@@ -160,8 +161,8 @@ class SongApp extends React.Component {
   }
 
   setSettings(settings) {
-    this.db.settings.put(settings);
     this.setState({settings: settings});
+    this.db.settings.put(settings).then(this.pushDBToState);
   }
 
   returnToIndex(e) {
@@ -196,19 +197,6 @@ class SongApp extends React.Component {
     return "couldn't find song";
   }
 
-  // get a list of unique languages in the db
-  getLanguages() {
-    return this.state.songs.map(s => s.lang).filter((v, i, a) => a.indexOf(v) === i).sort();
-  }
-
-  // get a count of the languages in the db
-  getLanguageCounts() {
-    counts = {};
-    langs = this.state.songs.map(s => s.lang).forEach(l => counts[l] = (counts[l] || 0) + 1);
-
-    return counts;
-  }
-
   toggleSettingsPage() {
     if(this.state.page == "settings") {
       this.returnToIndex('');
@@ -235,8 +223,6 @@ class SongApp extends React.Component {
         break;
       case "settings":
         content = <UserSettings
-            languages={this.getLanguages()}
-            languageCounts={this.getLanguageCounts()}
             setSettings={this.setSettings}
             settings={this.state.settings}
             toggleSettingsPage={this.toggleSettingsPage}
