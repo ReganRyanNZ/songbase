@@ -231,7 +231,6 @@ class SongApp extends React.Component {
         content = <div className="song-container">
             <SongDisplay
               lyrics={ this.getSong(page).lyrics }
-              references={this.getSong(page).references}
             />
             <SongReferences
               references={this.state.references.filter((ref) => ref.song_id == page)}

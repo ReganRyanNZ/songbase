@@ -5,8 +5,6 @@ class SongForm extends React.Component {
     this.state = {
       lyrics: this.props.song.lyrics || '',
       firstline_title: this.props.song.firstline_title || '',
-      chorus_title: this.props.song.chorus_title || '',
-      custom_title: this.props.song.custom_title || '',
       lang: this.props.song.lang || 'english',
       references: this.props.references || {},
       books: this.props.books
@@ -21,12 +19,6 @@ class SongForm extends React.Component {
         break;
       case "song_firstline_title":
         this.setState({firstline_title: event.target.value});
-        break;
-      case "song_chorus_title":
-        this.setState({chorus_title: event.target.value});
-        break;
-      case "song_custom_title":
-        this.setState({custom_title: event.target.value});
         break;
       case "song_lang":
         this.setState({lang: event.target.value});
@@ -68,36 +60,20 @@ class SongForm extends React.Component {
         </div>
         <div className="preview" >
           <SongDisplay lyrics={this.state.lyrics} />
-          <SongReferences references={this.state.references} allBooks={this.state.allBooks} />
+          <SongReferences references={this.state.references} books={this.state.books} />
         </div>
         <div className="titles">
-          <h2>Indexing titles</h2>
+          <h2>Index title</h2>
           <p className="admin-comment">
-            These titles will appear on a songbook's index page. Every song must have at least one title (usually the first line).
+            This title will appear on a songbook's index page.
           </p>
           <input
             id="song_firstline_title"
-            placeholder="First line"
+            placeholder="Title (usually the first line)"
             className="song-form-title"
             type="text"
             value={this.state.firstline_title}
             name="song[firstline_title]"
-            onChange={this.handleChange} />
-          <input
-            id="song_chorus_title"
-            placeholder="Chorus first line"
-            className="song-form-title"
-            type="text"
-            value={this.state.chorus_title}
-            name="song[chorus_title]"
-            onChange={this.handleChange} />
-          <input
-            id="song_custom_title"
-            placeholder="Custom title"
-            className="song-form-title"
-            type="text"
-            value={this.state.custom_title}
-            name="song[custom_title]"
             onChange={this.handleChange} />
         </div>
         <div className="languages">
