@@ -61,13 +61,20 @@ class Song < ApplicationRecord
     old_song.reload.destroy
   end
 
-  def app_entry
-    {
-      id: id,
-      title: titles.first[1],
-      lang: lang,
-      lyrics: lyrics
-    }
+  def app_entry(type=nil)
+    case type
+    when :books
+      books.map(&:app_entry)
+    when :references
+      song_books.map(&:app_entry)
+    else
+      {
+        id: id,
+        title: titles.first[1],
+        lang: lang,
+        lyrics: lyrics
+      }
+    end
   end
 
   def self.app_data

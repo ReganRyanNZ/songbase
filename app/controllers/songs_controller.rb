@@ -9,8 +9,8 @@ class SongsController < ApplicationController
     if song.present?
       @song_id = song.id
       @preloaded_song = song.app_entry
-      @preloaded_books = song.books.map(&:app_entry)
-      @preloaded_references = song.song_books.map(&:app_entry)
+      @preloaded_books = song.app_entry(:books)
+      @preloaded_references = song.app_entry(:references)
     end
   end
 

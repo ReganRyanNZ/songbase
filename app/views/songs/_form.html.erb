@@ -14,9 +14,9 @@
   <%= react_component(
     'SongForm',
     song: song,
-    languages: all_languages,
-    references: song.book_indices,
-    books: song.books) %>
+    languages: Song.distinct.pluck(:lang),
+    references: song.app_entry(:references),
+    books: Book.app_data) %>
   <div class="actions text-center">
     <%= f.submit class: "btn btn-update" %>
 <% end %>
