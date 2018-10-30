@@ -83,12 +83,12 @@ class SongApp extends React.Component {
         console.log("No settings found. Creating defaults...");
         app.db.settings.add(app.state.settings);
       }
+    }).then(app.pushDBToState)
+    .then(function (response) {
       console.log("Fetching data from api...")
-    }).then(function (response) {
       app.fetchData();
     }).catch(()=> {
       console.log("Failed to fetch new data.");
-      app.pushDBToState();
     });
   }
 
