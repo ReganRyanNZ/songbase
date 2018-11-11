@@ -1,9 +1,87 @@
+const keys = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab'];
+const scales = {
+  A: ['A','B','C#','D','E','F#','G#'],
+  Bb: ['Bb','C','D','Eb','F','G','A'],
+  B: ['B','C#','D#','E','F#','G#','A#'],
+  C: ['C','D','E','F','G','A','B'],
+  Db: ['Db','Eb','F','Gb','Ab','Bb','C'],
+  D: ['D','E','F#','G','A','B','C#'],
+  Eb: ['Eb','F','G','Ab','Bb','C','D'],
+  E: ['E','F#','G#','A','B','C#','D#'],
+  F: ['F','G','A','Bb','C','D','E'],
+  Gb: ['Gb','Ab','Bb','Cb','Db','Eb','F'],
+  G: ['G','A','B','C','D','E','F#'],
+  Ab: ['Ab','Bb','C','Db','Eb','F','G'],
+}
+
+
 class SongDisplay extends React.Component {
   constructor(props) {
     super(props);
+
+    var lastChordRegex = /\[([A-G]b*#*).*?\]/gm;
+    var keyMatch = props.lyrics.match(lastChordRegex);
+    var key = keyMatch ? keyMatch[keyMatch.length-1].replace(lastChordRegex, "$1") : 'C';
+    console.log("key: " + key);
+
     this.state = {
-      showChords: true
+      showChords: true,
+      transpose: this.props.transpose || 0,
+      key: key
     };
+
+    this.transpose = this.transpose.bind(this);
+    this.changeKey = this.changeKey.bind(this);
+    this.addCapoListener = this.addCapoListener.bind(this);
+  }
+  componentDidMount() {
+    this.addCapoListener();
+  }
+  componentDidUpdate() {
+    this.addCapoListener();
+  }
+
+  addCapoListener() {
+    var capo = document.getElementById('capo')
+    if(capo) {
+      capo.addEventListener('click', this.changeKey);
+    }
+  }
+
+  changeKey(e) {
+    transpose = parseInt(e.target.dataset["capo"]);
+    if (transpose == this.state.transpose) {
+      console.log("transposing to " + 0);
+      this.setState({
+        transpose: 0
+      });
+    } else {
+      console.log("transposing to " + transpose);
+      this.setState({
+        transpose: transpose
+      });
+    }
+  }
+
+  transpose(chord) {
+    // whatever index a chord has in its original key, it'll have that index in the new key
+
+    if (this.state.transpose == 0) {
+      return chord;
+    }
+
+    var chordCoreRegex = /([A-G]#?b?)(.*)/;
+    var chordCoreMatch = chord.match(chordCoreRegex);
+
+    if (!chordCoreMatch) {
+      return chord;
+    }
+
+    var ogKey = this.state.key;
+    var newKey = keys[(keys.indexOf(ogKey) + this.state.transpose) % 12];
+    var chordCore = chordCoreMatch[1];
+    var chordPosition = scales[ogKey].indexOf(chordCore);
+    return chord.replace(chordCoreRegex, scales[newKey][chordPosition] + "$2");
   }
 
   getLyricsHTML() {
@@ -19,6 +97,7 @@ class SongDisplay extends React.Component {
         chordsRegex = /\[(.*?)\]/g, // anything inside square brackets
         chordWordsRegex = /([^\>\s]*\[[^\]]*?\][^\s<]*)/g, // a word with a chord in it
         commentRegex = /^\# ?(.*)/, // everything after a '#'
+        capoRegex = /([Cc]apo (\d+))/, // e.g. "Capo 3"
         chorusRegex = /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
         lineRegex = /(.*\>)?( *)(.*)/;
 
@@ -42,6 +121,11 @@ class SongDisplay extends React.Component {
       // style comments
       if(commentRegex.test(lines[i])) {
         lines[i] = lines[i].replace(commentRegex, "<div class='comment'>$1</div>");
+
+        // turn capo note into a handy button
+        if(capoRegex.test(lines[i])) {
+          lines[i] = lines[i].replace(capoRegex, "<span id='capo' class='capo' data-capo=$2>$1</span>");
+        }
       } else {
         // wrap each non comment line in a div
         // lines contain spans for text and chords, text is vert aligned to the bottom.
@@ -55,7 +139,9 @@ class SongDisplay extends React.Component {
       if(hasChordsRegex.test(lines[i])) {
         if(this.state.showChords) {
           lines[i] = lines[i].replace(chordWordsRegex, "<span class='chord-word'>$1</span>")
-          lines[i] = lines[i].replace(chordsRegex, "<span class='chord' data-uncopyable-text='$1'></span>")
+          lines[i] = lines[i].replace(chordsRegex, (match, chord) => {
+            return "<span class='chord' data-uncopyable-text='" + this.transpose(chord) + "'></span>";
+          });
         }
       }
       // convert _ to musical tie for spanish songs

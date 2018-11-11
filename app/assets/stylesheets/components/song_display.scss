@@ -12,7 +12,10 @@ div[data-react-class='SongDisplay'] {
     display: inline-block;
     text-align: left;
 
-
+    .capo {
+        cursor: pointer;
+        user-select: none;
+    }
     .musical-tie {
         width: 5px;
         display: inline-block;
