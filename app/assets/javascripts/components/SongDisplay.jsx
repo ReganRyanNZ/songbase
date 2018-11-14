@@ -19,9 +19,9 @@ class SongDisplay extends React.Component {
   constructor(props) {
     super(props);
 
-    var lastChordRegex = /\[([A-G]b*#*).*?\]/gm;
-    var keyMatch = props.lyrics.match(lastChordRegex);
-    var key = keyMatch ? keyMatch[keyMatch.length-1].replace(lastChordRegex, "$1") : 'C';
+    var keyFromChordRegex = /\[([A-G]b*#*).*?\]/gm;
+    var keyMatch = props.lyrics.match(keyFromChordRegex);
+    var key = keyMatch ? keyMatch[0].replace(keyFromChordRegex, "$1") : 'C';
     console.log("key: " + key);
 
     this.state = {
