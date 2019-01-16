@@ -1,0 +1,48 @@
+<%# Styling is inline because I don't want to add any weight to the main songbase app. %>
+<style>
+  body, .application-container {
+    padding-top: 0;
+    margin-top: 0;
+    background-color: black;
+  }
+  .card {
+    max-width: 380px;
+    height: 100vh;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    color: lightgrey;
+    font-family: verdana, helvetica, sans-serif;
+    font-size: 16px;
+  }
+  .title {
+    margin-bottom: 100px;
+    font-size: 1.6em;
+  }
+  .verse {
+    display: inline-block;
+  }
+  .ref {
+    text-align: right;
+    width: 100%;
+    margin-top: 5%;
+    margin-bottom: 10%;
+  }
+</style>
+<% @cards.each do |card| %>
+  <div class="card">
+    <div class="title">
+      <%= card[0] %>
+    </div>
+    <div class="verse">
+      <%= card[1].html_safe %>
+    </div>
+    <div class="ref">
+      <%= card[2] %>
+    </div>
+  </div>
+<% end %>
