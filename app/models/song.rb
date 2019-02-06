@@ -77,6 +77,11 @@ class Song < ApplicationRecord
     end
   end
 
+  def destroy_with_audit user
+    DeadSong.create(user: user, song_id: self.id, time: Time.zone.now)
+    self.destroy
+  end
+
   def self.app_data
     all.map(&:app_entry)
   end

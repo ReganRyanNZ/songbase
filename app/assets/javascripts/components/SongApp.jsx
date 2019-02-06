@@ -112,6 +112,8 @@ class SongApp extends React.Component {
         db.songs.bulkPut(response.data.songs);
         db.references.bulkPut(response.data.references);
         db.books.bulkPut(response.data.books);
+        db.songs.bulkDelete(response.data.destroyed.songs);
+        db.references.bulkDelete(response.data.destroyed.references);
         var settings = app.state.settings;
         settings["updated_at"] = new Date().getTime();
         settings["languagesInfo"] = response.data.languages_info;

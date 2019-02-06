@@ -53,7 +53,7 @@ class SongsController < ApplicationController
   end
 
   def destroy
-    if @song.destroy
+    if @song.destroy_with_audit(current_user)
       redirect_to admin_path, notice: 'Song was successfully destroyed.'
     else
       render :back

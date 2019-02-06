@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190115002234) do
+ActiveRecord::Schema.define(version: 20190206111449) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,12 +29,12 @@ ActiveRecord::Schema.define(version: 20190115002234) do
     t.datetime "updated_at", null: false
     t.string "lang"
     t.string "slug"
-    t.boolean "print_only", default: true
   end
 
   create_table "dead_songs", force: :cascade do |t|
     t.integer "song_id"
     t.bigint "user_id"
+    t.datetime "time"
     t.index ["user_id"], name: "index_dead_songs_on_user_id"
   end
 
@@ -43,7 +43,7 @@ ActiveRecord::Schema.define(version: 20190115002234) do
     t.integer "book_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "index"
+    t.string "index"
     t.index ["book_id"], name: "index_song_books_on_book_id"
     t.index ["song_id"], name: "index_song_books_on_song_id"
   end
@@ -71,6 +71,5 @@ ActiveRecord::Schema.define(version: 20190115002234) do
   end
 
   add_foreign_key "audits", "songs"
-  add_foreign_key "audits", "users"
   add_foreign_key "dead_songs", "users"
 end
