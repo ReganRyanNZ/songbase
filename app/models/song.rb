@@ -58,7 +58,7 @@ class Song < ApplicationRecord
     self.update(lyrics: self.lyrics.gsub(hymn_ref_regex, "")) if self.lyrics =~ hymn_ref_regex
 
     # reload to refresh song_book associations
-    old_song.reload.destroy
+    old_song.reload.destroy_with_audit(User.first)
   end
 
   def app_entry(type=nil)

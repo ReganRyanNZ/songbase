@@ -34,7 +34,7 @@ class SongsController < ApplicationController
     respond_to do |format|
       if @song.save
         Audit.create(user: current_user, song: @song, time: Time.zone.now)
-        format.html { redirect_to admin_path, notice: 'Song was successfully created.' }
+        format.html { redirect_to admin_path, notice: "Song was successfully created. #{view_context.link_to 'Click here', song_path(@song), class: 'flash_link'} to view in app." }
         format.json { render :show, status: :created, location: @song }
       else
         format.html { render :new }
@@ -46,7 +46,7 @@ class SongsController < ApplicationController
   def update
     if @song.update(song_params)
       Audit.create(user: current_user, song: @song, time: Time.zone.now)
-      redirect_to admin_path, notice: "Song was successfully updated. #{view_context.link_to 'Click here', song_path(@song), class: 'flash_link'} to go to app."
+      redirect_to admin_path, notice: "Song was successfully updated. #{view_context.link_to 'Click here', song_path(@song), class: 'flash_link'} to view in app."
     else
       render :edit
     end
