@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Api::V1::Song do
+describe Song do
 
   describe ".titles" do
     it "returns titles from first line, chorus, and title field" do

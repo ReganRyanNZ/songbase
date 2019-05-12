@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :book do
-    name "my songbook"
+    name { "my songbook" }
 
     trait :with_songs do
       after(:create) do |book|
