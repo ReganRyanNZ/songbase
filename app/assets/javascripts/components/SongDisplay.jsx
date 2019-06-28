@@ -99,7 +99,9 @@ class SongDisplay extends React.Component {
         commentRegex = /^\# ?(.*)/, // everything after a '#'
         capoRegex = /([Cc]apo (\d+))/, // e.g. "Capo 3"
         chorusRegex = /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
-        lineRegex = /(.*\>)?( *)(.*)/;
+        lineRegex = /(.*\>)?( *)(.*)/,
+        boldTextRegex = /\*\*(.+?)\*\*/g,
+        italicTextRegex = /\*(.+?)\*/g;
 
     // get rid of sketchy invisable unicode chars
     lyrics = lyrics.replace(/[\r\u2028\u2029]/g, '');
@@ -138,6 +140,9 @@ class SongDisplay extends React.Component {
       // the text wrapping doesn't split on the chord (chopping the word in half)
       if(hasChordsRegex.test(lines[i])) {
         if(this.state.showChords) {
+          // remove bold/italic formatting from chord line
+          // we don't use the regex's here so that even un-matched * are removed
+          lines[i] = lines[i].replace(/\*/g, "")
           lines[i] = lines[i].replace(chordWordsRegex, "<span class='chord-word'>$1</span>")
           lines[i] = lines[i].replace(chordsRegex, (match, chord) => {
             return "<span class='chord' data-uncopyable-text='" + this.transpose(chord) + "'></span>";
@@ -147,7 +152,12 @@ class SongDisplay extends React.Component {
       // convert _ to musical tie for spanish songs
       lines[i] = lines[i].replace(/_/g, "<span class='musical-tie'>‿</span>");
     }
-    return (lines.join("\n"));
+
+    text = lines.join("\n");
+    text = text.replace(boldTextRegex, "<b>$1</b>");
+    text = text.replace(italicTextRegex, "<i>$1</i>");
+
+    return text;
   }
 
   render() {
