@@ -30,14 +30,14 @@ class TakeTimeController < ApplicationController
         "Psalms 110:3"
       ],
       [
-        "Ask",
-        "If you then being evil know how to give good gifts to your children, how much more will your Father who is in the heavens give good things to those who ask Him!",
-        "Matthew 7:11"
-      ],
-      [
         "Confess",
         "If we confess our sins, He is faithful and righteous to forgive us our sins and cleanse us from all unrighteousness.",
         "1 John 1:9"
+      ],
+      [
+        "Ask",
+        "If you then being evil know how to give good gifts to your children, how much more will your Father who is in the heavens give good things to those who ask Him!",
+        "Matthew 7:11"
       ],
       [
         "Cast",
