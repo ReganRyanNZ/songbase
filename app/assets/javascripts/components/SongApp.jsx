@@ -11,7 +11,8 @@ class SongApp extends React.Component {
       },
       songs: [props.preloaded_song] || [],
       references: props.preloaded_references || [],
-      books: props.preloaded_books || []
+      books: props.preloaded_books || [],
+      loading_data: true
     }
 
     // bind all methods to this context (so we can use them)
@@ -147,7 +148,7 @@ class SongApp extends React.Component {
           return 0
         }
       });
-      app.setState({songs: songs});
+      app.setState({songs: songs, loading_data: false});
       console.log("Fetching complete.");
     });
     db.books.where('lang').anyOf(langs).toArray((books) => {
@@ -220,6 +221,7 @@ class SongApp extends React.Component {
             toggleSettingsPage={this.toggleSettingsPage}
             books={this.state.books}
             references={this.state.references}
+            loading_data={this.state.loading_data}
             />
         break;
       case "settings":
