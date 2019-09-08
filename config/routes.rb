@@ -4,7 +4,6 @@ Rails.application.routes.draw do
   get 'signout', to: 'sessions#destroy', as: 'signout'
 
   get 'maintenance', to: 'sessions#maintenance_mode'
-  match "/application.manifest" => Rails::Offline, via: [:get, :post]
 
   resources :songs, except: ["show"]
   get '/songs/:id', to: redirect('/%{id}')

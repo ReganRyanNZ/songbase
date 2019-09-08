@@ -158,7 +158,6 @@ GEM
     rack (2.0.7)
     rack-mini-profiler (1.0.2)
       rack (>= 1.2.0)
-    rack-offline (0.6.4)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails (5.2.3)
@@ -272,7 +271,6 @@ DEPENDENCIES
   pg (~> 0.21.0)
   puma (~> 3.0)
   rack-mini-profiler
-  rack-offline
   rails (~> 5.2.3)
   react-rails
   rspec-rails
