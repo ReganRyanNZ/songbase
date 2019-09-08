@@ -124,7 +124,7 @@ class SongIndex extends React.Component {
         </div>
         <div className="title-list">
           {
-            this.props.songs.length <= 1 ?
+            !!this.props.loading_data ?
               <div className="loading">Loading song data...</div>
             :
               this.getSearchResults().map(function(result, i){
