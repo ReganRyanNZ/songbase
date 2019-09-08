@@ -4,6 +4,9 @@ class SongReferences extends React.Component {
   }
 
   render() {
+    if (this.props.loading_data) {
+      return null;
+    }
     return (
       <div className="song-references">
         {this.props.references.map((ref) => {

@@ -9,7 +9,7 @@ class SongApp extends React.Component {
         languagesInfo: [],
         updated_at: 0
       },
-      songs: [props.preloaded_song] || [],
+      songs: [],
       references: props.preloaded_references || [],
       books: props.preloaded_books || [],
       loading_data: true
@@ -135,22 +135,6 @@ class SongApp extends React.Component {
     var app = this;
     var db = app.db;
     var langs = app.state.settings.languages;
-    db.songs.where('lang').anyOf(langs).toArray((songs) => {
-      songs.sort((a,b) => {
-        var title = (str) => { return str.title.toUpperCase().replace(/[^A-Z]/g, '') };
-        var titleA = title(a);
-        var titleB = title(b);
-        if(titleA > titleB) {
-          return 1
-        } else if(titleA < titleB) {
-          return -1
-        } else {
-          return 0
-        }
-      });
-      app.setState({songs: songs, loading_data: false});
-      console.log("Fetching complete.");
-    });
     db.books.where('lang').anyOf(langs).toArray((books) => {
       app.setState({books: books});
       return books;
@@ -159,6 +143,23 @@ class SongApp extends React.Component {
       db.references.where('book_id').anyOf(book_ids).toArray((references) => {
         app.setState({references: references});
       });
+    }).then(()=>{
+      db.songs.where('lang').anyOf(langs).toArray((songs) => {
+        songs.sort((a,b) => {
+          var title = (str) => { return str.title.toUpperCase().replace(/[^A-Z]/g, '') };
+          var titleA = title(a);
+          var titleB = title(b);
+          if(titleA > titleB) {
+            return 1
+          } else if(titleA < titleB) {
+            return -1
+          } else {
+            return 0
+          }
+        });
+        app.setState({songs: songs, loading_data: false});
+        console.log("Fetching complete.");
+      })
     });
     // delete expired songs
   }
@@ -191,6 +192,9 @@ class SongApp extends React.Component {
   }
 
   getSong(id) {
+    if(!!this.props.preloaded_song && this.props.preloaded_song.id == id) {
+      return this.props.preloaded_song;
+    }
     songs = this.state.songs;
     for(var i=0; i < songs.length; i++){
       if(songs[i].id == id) {
@@ -239,6 +243,7 @@ class SongApp extends React.Component {
             <SongReferences
               references={this.state.references.filter((ref) => ref.song_id == page)}
               books={this.state.books}
+              loading_data={this.state.loading_data}
             />
           </div>
     }
