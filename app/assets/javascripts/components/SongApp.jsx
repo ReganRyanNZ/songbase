@@ -12,7 +12,8 @@ class SongApp extends React.Component {
       songs: [],
       references: props.preloaded_references || [],
       books: props.preloaded_books || [],
-      loading_data: true
+      loading_data: true,
+      search: ''
     }
 
     // bind all methods to this context (so we can use them)
@@ -23,6 +24,8 @@ class SongApp extends React.Component {
     this.setSongFromHistory = this.setSongFromHistory.bind(this);
     this.getSong = this.getSong.bind(this);
     this.returnToIndex = this.returnToIndex.bind(this);
+    this.setSearch = this.setSearch.bind(this);
+    this.clearSearch = this.clearSearch.bind(this);
 
     // setup history so users can navigate via browser
     if(this.state.page == 'index') {
@@ -204,6 +207,14 @@ class SongApp extends React.Component {
     return "couldn't find song";
   }
 
+  setSearch(search) {
+    this.setState({search: search});
+  }
+
+  clearSearch() {
+    this.setState({search: ''});
+  }
+
   toggleSettingsPage() {
     if(this.state.page == "settings") {
       this.returnToIndex('');
@@ -226,6 +237,9 @@ class SongApp extends React.Component {
             books={this.state.books}
             references={this.state.references}
             loading_data={this.state.loading_data}
+            setSearch={this.setSearch}
+            clearSearch={this.clearSearch}
+            search={this.state.search}
             />
         break;
       case "settings":

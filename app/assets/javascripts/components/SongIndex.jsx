@@ -1,9 +1,6 @@
 class SongIndex extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      search: ''
-    }
 
     this.handleChange = this.handleChange.bind(this);
     this.getSearchResults = this.getSearchResults.bind(this);
@@ -12,14 +9,14 @@ class SongIndex extends React.Component {
   handleChange(event) {
     switch(event.target.id) {
       case "index_search":
-        this.setState({search: event.target.value});
+        this.props.setSearch(event.target.value);
         break;
     }
   }
 
   searchIsNumber() {
     var isNumberRegex = new RegExp("^[0-9]+$", 'i');
-    return isNumberRegex.test(this.state.search);
+    return isNumberRegex.test(this.props.search);
   }
 
   getSearchResults() {
@@ -28,7 +25,7 @@ class SongIndex extends React.Component {
       return str.replace(/(\[.+?\])|[’'",“\-—–!?()\[\]]/g, '');
     }
     var songs = this.props.songs;
-    var strippedSearch = stripString(this.state.search);
+    var strippedSearch = stripString(this.props.search);
     var searchResults = [];
     var displayLimit = 100; // react gets laggy rendering 2k songs, so there's a limit
 
@@ -46,7 +43,7 @@ class SongIndex extends React.Component {
         };
       });
     } else if(this.searchIsNumber()) {
-      var search = parseInt(this.state.search);
+      var search = parseInt(this.props.search);
       var refs = this.props.references.filter((ref) => ref.index == search);
       searchResults = refs.map((ref) => {
         var book = this.props.books.find((book) => book.id == ref.book_id);
@@ -116,11 +113,16 @@ class SongIndex extends React.Component {
         <div className="search-form form" >
           <input
             id="index_search"
-            value={this.state.search}
+            value={this.props.search}
             onChange={this.handleChange}
             name="song[search]"
             className="index_search"
             placeholder="search..." />
+          {
+            this.props.search.length > 0 ?
+              <div className="btn_clear_search" onClick={this.props.clearSearch}>×</div>
+            : null
+          }
         </div>
         <div className="title-list">
           {

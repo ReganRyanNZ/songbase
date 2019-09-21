@@ -23,9 +23,27 @@
 }
 
 .search-form {
-  margin-bottom: 10px;
+  position: relative;
+  width: fit-content;
+  margin: 0 auto 10px auto;
   text-align: center;
+  .index_search {
+    padding-right: 25px;
+  }
+  .btn_clear_search {
+    position: absolute;
+    right: -4px;
+    top: -2px;
+    padding: 5px 10px;
+    color: #aaa;
+    &:hover {
+      cursor: pointer;
+      color: black;
+    }
+  }
 }
+
+
 
 .settings-btn {
   position: absolute;
