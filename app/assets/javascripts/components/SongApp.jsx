@@ -213,6 +213,7 @@ class SongApp extends React.Component {
 
   clearSearch() {
     this.setState({search: ''});
+    document.getElementById("index_search").focus();
   }
 
   toggleSettingsPage() {
