@@ -12,7 +12,6 @@ Rails.application.routes.draw do
   get 'edit', to: 'songs#edit' # shortcut when wanting to edit a song from main app
   get '/:s/e', to: 'songs#edit'
   get '/:s', to: 'songs#app', s: /[0-9]+/
-  get '/r', to: 'songs#app', s: Song.pluck(:id).sample
   get 'admin', to: 'songs#admin'
 
   get 'taketime', to: 'take_time#take_time'
