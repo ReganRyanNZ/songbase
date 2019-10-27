@@ -74,7 +74,19 @@ namespace :import do
     task german: :environment do
       hymnal = Book.find_or_create_by(slug: :german_hymnal, name: "Liederbuch", lang: "Deutsch")
       filename = Rails.root.join('db', 'german-hymnal.txt')
-      delim = "\n\nG"
+      delim = "\n**DELIMITER"
+      File.foreach(filename, delim) do |txt|
+        txt = txt.sub(delim, '')
+        hymnal_index = txt[/^\d+/]
+        txt = txt.sub(/^\d+/, '')
+        chorus_regex = /^\nchorus((?:\n[^\n]+)+)/
+        txt = txt.gsub(chorus_regex) {$1.gsub("\n", "\n  ")}
+        song = Song.new(lyrics: txt, lang: "Deutsch")
+        song.firstline_title = song.guess_firstline_title
+        song.save!
+        puts song.firstline_title
+        song.song_books.create(book: hymnal, index: hymnal_index)
+      end
     end
 
     task spanish: :environment do
