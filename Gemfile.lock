@@ -155,7 +155,7 @@ GEM
       method_source (~> 0.9.0)
     public_suffix (3.0.3)
     puma (3.12.1)
-    rack (2.0.7)
+    rack (2.0.8)
     rack-mini-profiler (1.0.2)
       rack (>= 1.2.0)
     rack-test (1.1.0)
