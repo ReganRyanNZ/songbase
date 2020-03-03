@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   get 'signout', to: 'sessions#destroy', as: 'signout'
 
   get 'maintenance', to: 'sessions#maintenance_mode'
-
+  get 'privacy', to: 'application#privacy'
   resources :songs, except: ["show"]
   get '/songs/:id', to: redirect('/%{id}')
 

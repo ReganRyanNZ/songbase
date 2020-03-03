@@ -22,12 +22,14 @@ gem 'uglifier', '>= 1.3.0'
 gem 'react-rails'
 
 gem 'omniauth-facebook'
-gem 'omniauth-google-oauth2', '~> 0.2.2'
+gem 'omniauth-google-oauth2'
 
 #Api gems
 gem 'active_model_serializers'
 
 gem 'jbuilder', '~> 2.5'
+
+gem 'slim-rails'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

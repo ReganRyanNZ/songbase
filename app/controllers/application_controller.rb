@@ -2,6 +2,9 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
   helper_method :current_user, :authenticate, :super_admin, :all_languages
 
+  def privacy
+  end
+
   private
 
   def super_admin
