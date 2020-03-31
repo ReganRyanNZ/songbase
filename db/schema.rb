@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_06_111449) do
+ActiveRecord::Schema.define(version: 2020_03_15_225330) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(version: 2019_02_06_111449) do
     t.datetime "updated_at", null: false
     t.string "lang"
     t.string "slug"
+    t.datetime "deleted_at"
   end
 
   create_table "dead_songs", force: :cascade do |t|
@@ -71,6 +72,5 @@ ActiveRecord::Schema.define(version: 2019_02_06_111449) do
   end
 
   add_foreign_key "audits", "songs"
-  add_foreign_key "audits", "users"
   add_foreign_key "dead_songs", "users"
 end

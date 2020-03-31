@@ -14,7 +14,7 @@ class Api::V1::SongsController < ApplicationController
         {
           songs: dead_songs,
           references: SongBook.where(song_id: dead_songs).pluck(:id),
-          # books: Book.where('updated_at > ?', client_updated_at).pluck(:id),
+          books: Book.where('deleted_at > ?', client_updated_at).pluck(:id)
         }
       }, status: 200
   end
