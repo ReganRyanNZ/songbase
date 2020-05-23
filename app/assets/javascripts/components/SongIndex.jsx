@@ -22,7 +22,7 @@ class SongIndex extends React.Component {
   getSearchResults() {
     var stripString = function(str) {
       str = str.replace(/\_/g, " ");
-      return str.replace(/(\[.+?\])|[’'",“\-—–!?()\[\]]/g, "");
+      return str.normalize("NFD").replace(/(\[.+?\])|[’'",“\-—–!?()\[\]]|[\u0300-\u036f]/g, "");
     };
     var songs = this.props.songs;
     var strippedSearch = stripString(this.props.search);
