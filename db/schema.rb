@@ -72,5 +72,6 @@ ActiveRecord::Schema.define(version: 2020_03_15_225330) do
   end
 
   add_foreign_key "audits", "songs"
+  add_foreign_key "audits", "users"
   add_foreign_key "dead_songs", "users"
 end
