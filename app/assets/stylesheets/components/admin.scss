@@ -21,6 +21,16 @@
   background-color: #90ee93;
 }
 
+a.btn-help {
+  color: #4646fd;
+  display: inline-block;
+  padding: 9px;
+  &:hover {
+    color: #4646fd;;
+    background-color: #fff;
+  }
+}
+
 .admin-root-title {
   margin-bottom: 45px;
   text-align: center;

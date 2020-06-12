@@ -18,6 +18,10 @@ class SongsController < ApplicationController
     set_songs_admin
   end
 
+  def admin_example
+    @song = Song.new(lyrics: example_lyrics)
+  end
+
   def show
   end
 
@@ -116,5 +120,32 @@ class SongsController < ApplicationController
 
   def time_ago_in_words(time)
     time.to_s
+  end
+
+  def example_lyrics
+"
+# This is a comment.
+# If there is a comment for the recommended capo like the one below, users can tap it to transpose the chords.
+# Capo 2
+
+You can enter [C]chords in [Am]the ex[F]act place you want them [G]with squ[E7]are b[C]rackets like this.
+
+  Chorus lines are
+  made with
+  2 spaces
+  before each line
+
+1
+Stanza numbers go above the
+First line of the stanza
+
+2
+For languages like spanish,
+Where you want to merge the start and end
+of a line. You can use_ underscores to link words
+like_ this.
+
+This example opened in a new tab. The song you were working on is still there in the previous tab.
+"
   end
 end

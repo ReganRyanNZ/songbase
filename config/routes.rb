@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   get '/:s/e', to: 'songs#edit'
   get '/:s', to: 'songs#app', s: /[0-9]+/
   get 'admin', to: 'songs#admin'
-
+  get 'admin/example', to: 'songs#admin_example'
   get 'taketime', to: 'take_time#take_time'
 
   namespace :api do

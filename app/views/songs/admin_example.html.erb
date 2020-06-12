@@ -1,0 +1,10 @@
+<h1 class="admin-root-title">
+  <%= link_to "Example Song", '_self', onclick: 'window.close();' %>
+</h1>
+
+<%= react_component(
+    'SongForm',
+    song: @song,
+    languages: Song.distinct.pluck(:lang),
+    references: @song.app_entry(:references),
+    books: Book.app_data) %>
