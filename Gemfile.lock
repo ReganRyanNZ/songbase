@@ -148,7 +148,7 @@ GEM
     pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    puma (3.12.4)
+    puma (3.12.6)
     rack (2.2.2)
     rack-mini-profiler (1.1.6)
       rack (>= 1.2.0)
@@ -270,7 +270,7 @@ DEPENDENCIES
   omniauth-facebook
   omniauth-google-oauth2
   pg (~> 0.21.0)
-  puma (~> 3.0)
+  puma (~> 3.12)
   rack-mini-profiler
   rails (~> 5.2.3)
   react-rails
