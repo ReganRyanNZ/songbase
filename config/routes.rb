@@ -9,6 +9,8 @@ Rails.application.routes.draw do
   get '/songs/:id', to: redirect('/%{id}')
 
   root to: 'songs#app'
+  get '/books', to: 'songs#app'
+  get '/:book/:s', to: 'songs#app', constraints: { book: /[^0-9].+/, s: /[i0-9]+/ }
   get 'edit', to: 'songs#edit' # shortcut when wanting to edit a song from main app
   get '/:s/e', to: 'songs#edit'
   get '/:s', to: 'songs#app', s: /[0-9]+/

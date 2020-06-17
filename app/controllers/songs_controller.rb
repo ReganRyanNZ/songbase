@@ -12,6 +12,7 @@ class SongsController < ApplicationController
       @preloaded_books = song.app_entry(:books)
       @preloaded_references = song.app_entry(:references)
     end
+    @book_slug = params[:book]
   end
 
   def admin

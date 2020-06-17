@@ -10,10 +10,11 @@ class SongApp extends React.Component {
         languagesInfo: [],
         updated_at: 0
       },
+      bookSlug: props.book_slug,
       songs: [],
       references: props.preloaded_references || [],
       books: props.preloaded_books || [],
-      loading_data: true,
+      loadingData: true,
       search: ""
     };
 
@@ -21,6 +22,8 @@ class SongApp extends React.Component {
     this.pushDBToState = this.pushDBToState.bind(this);
     this.setSettings = this.setSettings.bind(this);
     this.toggleSettingsPage = this.toggleSettingsPage.bind(this);
+    this.toggleBookIndex = this.toggleBookIndex.bind(this);
+    this.setBook = this.setBook.bind(this);
     this.setSong = this.setSong.bind(this);
     this.setSongFromHistory = this.setSongFromHistory.bind(this);
     this.getSong = this.getSong.bind(this);
@@ -29,15 +32,7 @@ class SongApp extends React.Component {
     this.clearSearch = this.clearSearch.bind(this);
 
     // setup history so users can navigate via browser
-    if (this.state.page == "index") {
-      window.history.replaceState({ page: "index" }, "", "/");
-    } else {
-      window.history.replaceState(
-        { page: this.state.page },
-        "",
-        "/" + this.state.page
-      );
-    }
+    window.history.replaceState({ page: this.state.page }, "", window.location.pathname);
   }
 
   componentWillMount() {
@@ -195,7 +190,7 @@ class SongApp extends React.Component {
                 return 0;
               }
             });
-            app.setState({ songs: songs, loading_data: false });
+            app.setState({ songs: songs, loadingData: false });
             console.log("Fetching complete.");
           });
       });
@@ -251,12 +246,39 @@ class SongApp extends React.Component {
     document.getElementById("index_search").focus();
   }
 
+  setBook(e) {
+    var bookSlug = e.target.closest(".index_row").id;
+    this.setState({
+      page: "index",
+      bookSlug: bookSlug
+    });
+    window.history.pushState({ page: "index" }, "", `/${bookSlug}/i`);
+    window.scrollTo(0, 0);
+  }
+
+  clearBook() {
+    this.setState({
+      page: "index",
+      book: null
+    });
+    window.history.pushState({ page: "index" }, "", "/");
+    window.scrollTo(0, 0);
+  }
+
   toggleSettingsPage() {
     if (this.state.page == "settings") {
       this.returnToIndex("");
     } else {
       this.setState({ page: "settings" });
       window.history.pushState({ page: "settings" }, "", "/");
+    }
+  }
+
+  toggleBookIndex() {
+    if (this.state.page == "books") {
+      this.returnToIndex("");
+    } else {
+      this.setState({ page: "books" });
     }
   }
 
@@ -271,9 +293,11 @@ class SongApp extends React.Component {
             setSong={this.setSong}
             settings={this.state.settings}
             toggleSettingsPage={this.toggleSettingsPage}
+            toggleBookIndex={this.toggleBookIndex}
             books={this.state.books}
+            bookSlug={this.state.bookSlug}
             references={this.state.references}
-            loading_data={this.state.loading_data}
+            loadingData={this.state.loadingData}
             setSearch={this.setSearch}
             clearSearch={this.clearSearch}
             search={this.state.search}
@@ -290,6 +314,14 @@ class SongApp extends React.Component {
           />
         );
         break;
+      case "books":
+        content = (
+          <BookIndex
+          books={this.state.books}
+          setBook={this.setBook}
+          />
+        );
+        break;
       default:
         content = (
           <div className="song-container">
@@ -299,7 +331,7 @@ class SongApp extends React.Component {
                 ref => ref.song_id == page
               )}
               books={this.state.books}
-              loading_data={this.state.loading_data}
+              loadingData={this.state.loadingData}
             />
           </div>
         );

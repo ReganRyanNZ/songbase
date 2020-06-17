@@ -25,6 +25,13 @@ class SongIndex extends React.Component {
       return str.normalize("NFD").replace(/(\[.+?\])|[’'",“\-—–!?()\[\]]|[\u0300-\u036f]/g, "");
     };
     var songs = this.props.songs;
+
+    if(this.props.bookSlug != null) {
+      var bookId = this.props.books.find(book => book.slug === this.props.bookSlug).id;
+      var song_ids = this.props.references.filter(ref => ref.book_id === bookId).map(ref => ref.song_id);
+      songs = songs.filter(song => song_ids.includes(song.id));
+    }
+
     var strippedSearch = stripString(this.props.search);
     var searchResults = [];
     var displayLimit = 100; // react gets laggy rendering 2k songs, so there's a limit
@@ -110,12 +117,17 @@ class SongIndex extends React.Component {
 
     return (
       <div className="song-index" key="song-index">
+        <div className="book-icon" onClick={this.props.toggleBookIndex}>
+            <div className="book-icon-marker"></div>
+        </div>
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
           <SettingsIcon />
         </div>
         <div className="search-form form" key="search-form">
           <input
             id="index_search"
+            type="search"
+            autocomplete="off"
             value={this.props.search}
             onChange={this.handleChange}
             name="song[search]"

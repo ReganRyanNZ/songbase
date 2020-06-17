@@ -25,3 +25,25 @@
   border-radius: 5px;
   text-decoration: none;
 }
+
+.book-icon {
+  position: absolute;
+  left: 24px;
+  top: 22px;
+  height: 24px;
+  width: 22px;
+  border-radius: 2px;
+  border-top-left-radius: 6px;
+  background-color: #ccc;
+
+  & > div {
+    position: absolute;
+    left: -3px;
+    top: 2px;
+    height: 26px;
+    width: 19px;
+    border: 2px solid white;
+    border-radius: 2px;
+    background-color: #ccc;
+  }
+}

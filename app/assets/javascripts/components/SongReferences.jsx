@@ -4,7 +4,7 @@ class SongReferences extends React.Component {
   }
 
   render() {
-    if (this.props.loading_data) {
+    if (this.props.loadingData) {
       return null;
     }
     return (
