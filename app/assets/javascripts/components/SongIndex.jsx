@@ -122,7 +122,7 @@ class SongIndex extends React.Component {
 
     return (
       <div className="song-index" key="song-index">
-        <BookButton toggleBookIndex={this.props.toggleBookIndex} />
+        <BookButton toggleBookIndex={this.props.toggleBookIndex} inBook={!!this.props.currentBook}/>
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
           <SettingsIcon />
         </div>

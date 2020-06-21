@@ -47,3 +47,30 @@
     background-color: #ccc;
   }
 }
+
+.book-icon-close{
+  margin-top: -5px;
+  margin-left: -5px;
+  width: 12px;
+  height: 12px;
+  background-color: #ccc;
+  border: 1px solid white;
+  border-radius: 12px;
+
+  .book-icon-close-x1 {
+    height: 10px;
+    width: 1px;
+    margin-left: 5px;
+    margin-top: 1px;
+    background-color: white;
+    transform: rotate(45deg);
+    z-index: 1;
+  }
+  .book-icon-close-x2 {
+    height: 10px;
+    width: 1px;
+    background-color: white;
+    transform: rotate(-90deg);
+    z-index: 2;
+  }
+}
