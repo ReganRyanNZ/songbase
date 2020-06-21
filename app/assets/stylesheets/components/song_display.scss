@@ -38,6 +38,8 @@ div[data-react-class='SongDisplay'] {
             white-space: pre;
             position: absolute;
             bottom: 17px;
+            font-weight: normal;
+            font-style: normal;
         }
         &::after { // Empty chord-words must have content to align the absolute chords
             content: "";
