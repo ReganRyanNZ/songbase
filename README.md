@@ -11,6 +11,10 @@ Song sheet database for psalms, hymns, and spiritual songs
 
 If you don't have heroku access, send an email to songbase.brothers@gmail.com to request a DB dump (I think the app won't run without data in the db).
 
+## react-rails
+
+This was first a Rails app, now it uses React to allow state management and offline navigation. Instead of maintaining two separate apps, the frontend and backend are (somewhat mashed) together in this project. The main difference is that React is served through a Rails gem, and importing/exporting JS components doesn't work like a regular React project.
+
 ## Product Goals
 - Users can view lyrics and chords to songs
 - Languages can be toggled
