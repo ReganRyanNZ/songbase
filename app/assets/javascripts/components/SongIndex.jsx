@@ -130,7 +130,6 @@ class SongIndex extends React.Component {
         <div className="search-form form" key="search-form">
           <input
             id="index_search"
-            type="search"
             autoComplete="off"
             value={this.props.search}
             onChange={this.handleChange}
