@@ -25,15 +25,16 @@ class SongIndex extends React.Component {
       return str.normalize("NFD").replace(/(\[.+?\])|[’'",“\-—–!?()\[\]]|[\u0300-\u036f]/g, "");
     };
     var songs = this.props.songs;
+    var references = this.props.references;
 
     if(songs.length === 0) {
       return [];
     }
 
+    // scope songs to the current selected book
     if(this.props.currentBook != null) {
-      var song_ids = this.props.references
-            .filter(ref => ref.book_id === this.props.currentBook.id)
-            .map(ref => ref.song_id);
+      references = references.filter(ref => ref.book_id === this.props.currentBook.id)
+      var song_ids = references.map(ref => ref.song_id);
       songs = songs.filter(song => song_ids.includes(song.id));
     }
 
@@ -56,11 +57,11 @@ class SongIndex extends React.Component {
       });
     } else if (this.searchIsNumber()) {
       var search = parseInt(this.props.search);
-      var refs = this.props.references.filter(ref => ref.index == search);
+      var refs = references.filter(ref => ref.index == search);
       searchResults = refs.map(ref => {
         var book = this.props.books.find(book => book.id == ref.book_id);
         return {
-          song: this.props.songs.find(song => song.id == ref.song_id),
+          song: songs.find(song => song.id == ref.song_id),
           tag:
             '<span class="search_tag">' +
             book.name +
