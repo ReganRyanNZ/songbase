@@ -26,9 +26,14 @@ class SongIndex extends React.Component {
     };
     var songs = this.props.songs;
 
-    if(this.props.bookSlug != null) {
-      var bookId = this.props.books.find(book => book.slug === this.props.bookSlug).id;
-      var song_ids = this.props.references.filter(ref => ref.book_id === bookId).map(ref => ref.song_id);
+    if(songs.length === 0) {
+      return [];
+    }
+
+    if(this.props.currentBook != null) {
+      var song_ids = this.props.references
+            .filter(ref => ref.book_id === this.props.currentBook.id)
+            .map(ref => ref.song_id);
       songs = songs.filter(song => song_ids.includes(song.id));
     }
 
@@ -117,9 +122,7 @@ class SongIndex extends React.Component {
 
     return (
       <div className="song-index" key="song-index">
-        <div className="book-icon" onClick={this.props.toggleBookIndex}>
-            <div className="book-icon-marker"></div>
-        </div>
+        <BookButton toggleBookIndex={this.props.toggleBookIndex} />
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
           <SettingsIcon />
         </div>
@@ -127,7 +130,7 @@ class SongIndex extends React.Component {
           <input
             id="index_search"
             type="search"
-            autocomplete="off"
+            autoComplete="off"
             value={this.props.search}
             onChange={this.handleChange}
             name="song[search]"

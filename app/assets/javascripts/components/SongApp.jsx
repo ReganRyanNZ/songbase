@@ -11,6 +11,7 @@ class SongApp extends React.Component {
         updated_at: 0
       },
       bookSlug: props.book_slug,
+      currentBook: props.preloaded_current_book || null,
       songs: [],
       references: props.preloaded_references || [],
       books: props.preloaded_books || [],
@@ -24,6 +25,7 @@ class SongApp extends React.Component {
     this.toggleSettingsPage = this.toggleSettingsPage.bind(this);
     this.toggleBookIndex = this.toggleBookIndex.bind(this);
     this.setBook = this.setBook.bind(this);
+    this.clearBook = this.clearBook.bind(this);
     this.setSong = this.setSong.bind(this);
     this.setSongFromHistory = this.setSongFromHistory.bind(this);
     this.getSong = this.getSong.bind(this);
@@ -33,9 +35,6 @@ class SongApp extends React.Component {
 
     // setup history so users can navigate via browser
     window.history.replaceState({ page: this.state.page }, "", window.location.pathname);
-  }
-
-  componentWillMount() {
     this.initializeDB();
   }
 
@@ -93,8 +92,7 @@ class SongApp extends React.Component {
       .then(function(response) {
         console.log("Fetching data from api...");
         app.fetchData();
-      })
-      .catch(() => {
+      }).catch(() => {
         console.log("Failed to fetch new data.");
       });
   }
@@ -193,6 +191,13 @@ class SongApp extends React.Component {
             app.setState({ songs: songs, loadingData: false });
             console.log("Fetching complete.");
           });
+      })
+      .then(result => {
+        if(app.props.book_slug) {
+          app.setState({
+            currentBook: app.state.books.find(book => book.slug === app.props.book_slug)
+          })
+        }
       });
     // delete expired songs
   }
@@ -204,7 +209,7 @@ class SongApp extends React.Component {
 
   returnToIndex(e) {
     this.setState({ page: "index" });
-    window.history.pushState({ page: "index" }, "", "/");
+    window.history.pushState({ page: "index" }, "", !!this.state.currentBook ? `/${this.state.currentBook.slug}/i` : "/");
     window.scrollTo(0, 0);
   }
 
@@ -248,9 +253,10 @@ class SongApp extends React.Component {
 
   setBook(e) {
     var bookSlug = e.target.closest(".index_row").id;
+    var currentBook = this.state.books.find(book => book.slug === bookSlug);
     this.setState({
       page: "index",
-      bookSlug: bookSlug
+      currentBook: currentBook
     });
     window.history.pushState({ page: "index" }, "", `/${bookSlug}/i`);
     window.scrollTo(0, 0);
@@ -259,7 +265,7 @@ class SongApp extends React.Component {
   clearBook() {
     this.setState({
       page: "index",
-      book: null
+      currentBook: null
     });
     window.history.pushState({ page: "index" }, "", "/");
     window.scrollTo(0, 0);
@@ -279,6 +285,7 @@ class SongApp extends React.Component {
       this.returnToIndex("");
     } else {
       this.setState({ page: "books" });
+      window.history.pushState({ page: "books" }, "", "/books");
     }
   }
 
@@ -293,9 +300,9 @@ class SongApp extends React.Component {
             setSong={this.setSong}
             settings={this.state.settings}
             toggleSettingsPage={this.toggleSettingsPage}
-            toggleBookIndex={this.toggleBookIndex}
+            toggleBookIndex={!!this.state.currentBook ? this.clearBook : this.toggleBookIndex}
             books={this.state.books}
-            bookSlug={this.state.bookSlug}
+            currentBook={this.state.currentBook}
             references={this.state.references}
             loadingData={this.state.loadingData}
             setSearch={this.setSearch}
@@ -317,7 +324,7 @@ class SongApp extends React.Component {
       case "books":
         content = (
           <BookIndex
-          books={this.state.books}
+          books={this.state.books || []}
           setBook={this.setBook}
           />
         );
@@ -339,7 +346,7 @@ class SongApp extends React.Component {
     return (
       <div className="song-app" key="song-app">
         <h1 className="home-title" onClick={this.returnToIndex}>
-          Songbase
+          {!!this.state.currentBook ? this.state.currentBook.name : "Songbase"}
         </h1>
         {content}
       </div>
