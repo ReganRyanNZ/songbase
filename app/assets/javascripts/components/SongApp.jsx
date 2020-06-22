@@ -230,16 +230,38 @@ class SongApp extends React.Component {
   }
 
   getSong(id) {
-    if (!!this.props.preloaded_song && this.props.preloaded_song.id == id) {
-      return this.props.preloaded_song;
+    // shortcut for preloaded song (load url with a song id) so user doesn't
+    // wait for whole db to load.
+    if (!!this.props.preloaded_song) {
+      if (!!this.props.preloaded_current_book) {
+        // If we are inside a book, the song's id will point to the song's index in that book
+        if (this.props.preloaded_references.find(ref =>
+          ref.book_id == this.props.preloaded_current_book.id &&
+          ref.song_id == id)
+        ) {
+          return this.props.preloaded_song;
+        }
+      } else {
+        if(this.props.preloaded_song.id == id) {
+          return this.props.preloaded_song;
+        }
+      }
+
     }
     songs = this.state.songs;
-    for (var i = 0; i < songs.length; i++) {
-      if (songs[i].id == id) {
-        return songs[i];
-      }
+    var song = null,
+        ref_id = null;
+    // If we are inside a book, the song's id will point to the song's index in that book
+    if(!!this.state.currentBook) {
+      var ref = this.state.references.find(ref =>
+        ref.index == id &&
+        ref.book_id == this.state.currentBook.id
+      );
+      ref_id = ref.song_id;
     }
-    return "couldn't find song";
+    song = songs.find(song => song.id == (ref_id || id));
+
+    return song || "couldn't find song";
   }
 
   setSearch(search) {
@@ -330,12 +352,13 @@ class SongApp extends React.Component {
         );
         break;
       default:
+        var song = this.getSong(page);
         content = (
           <div className="song-container">
-            <SongDisplay lyrics={this.getSong(page).lyrics} />
+            <SongDisplay lyrics={song.lyrics} />
             <SongReferences
               references={this.state.references.filter(
-                ref => ref.song_id == page
+                ref => ref.song_id == song.id
               )}
               books={this.state.books}
               loadingData={this.state.loadingData}

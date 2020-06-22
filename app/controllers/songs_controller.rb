@@ -4,23 +4,29 @@ class SongsController < ApplicationController
   before_action :check_maintenance
   before_action :adjust_lang_params, only: [:create, :update]
 
+  # Preloaded data is to send the data directly with the html
+  # Usually the client gets the data from our api
+  # But by sending the data of the url the user is loading,
+  # we can deliver the data instantly while the rest is
+  # still loading via api.
   def app
+    @book_slug = params[:book]
     if(params[:s] =~ /\d+/)
-      song = Song.where(id: params[:s]).first
+      if @book_slug.present?
+        @ref = SongBook
+          .joins(:book)
+          .where(books: {slug: @book_slug}, index: params[:s])
+          .first
+      end
+      song = Song.find(@ref&.song_id || params[:s])
       if song.present?
         @song_id = song.id
         @preloaded_song = song.app_entry
-        @preloaded_current_book = {
-          "id":2,
-          "name":"Hymnal",
-          "lang":"english",
-          "slug":"english_hymnal"
-        }
+        @preloaded_current_book = Book.find_by(slug: @book_slug)&.app_entry
         @preloaded_books = song.app_entry(:books)
         @preloaded_references = song.app_entry(:references)
       end
     end
-    @book_slug = params[:book]
   end
 
   def admin
