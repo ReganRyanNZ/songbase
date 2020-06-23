@@ -149,13 +149,18 @@ class SongIndex extends React.Component {
             <div className="loading">Loading song data...</div>
           ) : (
             this.getSearchResults().map(function(result, i) {
+              var id = result.song.id;
+              if(!!this.props.currentBook) {
+                id = this.props.references.find(ref =>
+                  ref.song_id === result.song.id &&
+                  ref.book_id === this.props.currentBook.id
+                ).index
+              }
               return (
                 <div
                   className="index_row"
                   key={i}
-                  id={this.props.currentBook === null ? result.song.id : this.props.references.find(ref =>
-                    ref.song_id === result.song.id && ref.book_id === this.props.currentBook.id
-                    ).index}
+                  id={id}
                   onClick={this.props.setSong}
                 >
                   <span className="index_row_title">{result.song.title}</span>
