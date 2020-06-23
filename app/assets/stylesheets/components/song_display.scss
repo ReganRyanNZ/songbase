@@ -6,6 +6,12 @@ div[data-react-class='SongDisplay'] {
     text-align: center;
 }
 
+.title-number {
+  display: inline-block;
+  color: #aaa;
+  margin-left: 15px;
+}
+
 .lyrics {
     width: auto;
     margin-left: 20px;
