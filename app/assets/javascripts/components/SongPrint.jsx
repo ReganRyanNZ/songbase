@@ -7,7 +7,8 @@ class SongPrint extends React.Component {
     var lyrics = this.props.lyrics;
     var removeChordsSplitter = /\[.*?\]/; // using .split() will remove everything within square brackets
     var getChordsFilter = /(^|\])[^[]*\[?/g; // using replace() will remove everything not in square brackets
-    var lines = lyrics.split("\n");
+    lyrics = lyrics.replace(/(^|\n)\s\s/g, "$1    "); // pad out choruses to 4 spaces
+      var lines = lyrics.split("\n");
     for(i=0; i < lines.length; i++) {
       var line = lines[i].split(removeChordsSplitter);
       if(line.length > 1) {
