@@ -13,8 +13,15 @@ div[data-react-class='SongDisplay'] {
     text-align: left;
 
     .capo {
-        cursor: pointer;
         user-select: none;
+    }
+    #transpose-up {
+        cursor: pointer;
+        margin-left: 5px;
+    }
+    #transpose-down {
+        cursor: pointer;
+        margin-left: 2px;
     }
     .musical-tie {
         width: 5px;
