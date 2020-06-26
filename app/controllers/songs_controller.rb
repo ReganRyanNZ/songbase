@@ -40,6 +40,10 @@ class SongsController < ApplicationController
   def show
   end
 
+  def print
+    @song = Song.find(params[:s])
+  end
+
   def new
     @song = Song.new
   end
