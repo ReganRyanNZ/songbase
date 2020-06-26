@@ -14,6 +14,10 @@ const scales = {
   Ab: ["Ab", "Bb", "C", "Db", "Eb", "F", "Gb", "G"]
 };
 
+function mod(n, m) {
+  return ((n % m) + m) % m;
+}
+
 class SongDisplay extends React.Component {
   constructor(props) {
     super(props);
@@ -31,35 +35,36 @@ class SongDisplay extends React.Component {
 
     this.transpose = this.transpose.bind(this);
     this.changeKey = this.changeKey.bind(this);
-    this.addCapoListener = this.addCapoListener.bind(this);
+    this.upHalfStep = this.upHalfStep.bind(this);
+    this.downHalfStep = this.downHalfStep.bind(this);
+    this.addTransposeListeners = this.addTransposeListeners.bind(this);
   }
   componentDidMount() {
-    this.addCapoListener();
+    this.addTransposeListeners();
   }
   componentDidUpdate() {
-    this.addCapoListener();
+    this.addTransposeListeners();
   }
 
-  addCapoListener() {
-    var capo = document.getElementById("capo");
-    if (capo) {
-      capo.addEventListener("click", this.changeKey);
-    }
+  addTransposeListeners() {
+    document.getElementById("transpose-up").addEventListener("click", this.upHalfStep);
+    document.getElementById("transpose-down").addEventListener("click", this.downHalfStep);
   }
 
-  changeKey(e) {
-    transpose = parseInt(e.target.dataset["capo"]);
-    if (transpose == this.state.transpose) {
-      console.log("transposing to " + 0);
-      this.setState({
-        transpose: 0
-      });
-    } else {
-      console.log("transposing to " + transpose);
-      this.setState({
-        transpose: transpose
-      });
-    }
+  upHalfStep(e) {
+    this.changeKey(1);
+  }
+
+  downHalfStep(e) {
+    this.changeKey(-1);
+  }
+
+  changeKey(step) {
+    var key = parseInt(this.state.transpose);
+    console.log(key + step);
+    this.setState({
+      transpose: key + step
+    });
   }
 
   transpose(chord) {
@@ -77,7 +82,7 @@ class SongDisplay extends React.Component {
     }
 
     var ogKey = this.state.key;
-    var newKey = keys[(keys.indexOf(ogKey) + this.state.transpose) % 12];
+    var newKey = keys[mod((keys.indexOf(ogKey) + this.state.transpose), 12)];
     var chordCore = chordCoreMatch[1];
     var chordPosition = scales[ogKey].indexOf(chordCore);
     return chord.replace(chordCoreRegex, scales[newKey][chordPosition] + "$2");
@@ -121,9 +126,12 @@ class SongDisplay extends React.Component {
       maxIndex = lines.length;
 
     // parse each line
+    var capo = false;
+    var transposeControl = "<a id='transpose-up'>+</a><a id='transpose-down'>-</a>"
     for (var i = 0; i < maxIndex; i++) {
       // style comments
       if (commentRegex.test(lines[i])) {
+
         lines[i] = lines[i].replace(
           commentRegex,
           "<div class='comment'>$1</div>"
@@ -133,8 +141,9 @@ class SongDisplay extends React.Component {
         if (capoRegex.test(lines[i])) {
           lines[i] = lines[i].replace(
             capoRegex,
-            "<span id='capo' class='capo' data-capo=$2>$1</span>"
+            "<span id='capo' class='capo' data-capo=$2>$1</span>" + transposeControl
           );
+          capo = true;
         }
       } else {
         // wrap each non comment line in a div
@@ -167,6 +176,11 @@ class SongDisplay extends React.Component {
       // convert _ to musical tie for spanish songs
       lines[i] = lines[i].replace(/_/g, "<span class='musical-tie'>‿</span>");
     }
+
+    if (!capo) {
+      lines.unshift("<div class='comment'>Tranpose" + transposeControl + "</div>")
+    }
+
     var text = lines.join("\n");
     text = text.replace(boldTextRegex, "<b>$1</b>");
     text = text.replace(italicTextRegex, "<i>$1</i>");
