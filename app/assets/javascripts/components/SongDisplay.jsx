@@ -178,7 +178,7 @@ class SongDisplay extends React.Component {
     }
 
     if (!capo) {
-      lines.unshift("<div class='comment'>Tranpose" + transposeControl + "</div>")
+      lines.unshift("<div class='comment'>Transpose" + transposeControl + "</div>")
     }
 
     var text = lines.join("\n");
