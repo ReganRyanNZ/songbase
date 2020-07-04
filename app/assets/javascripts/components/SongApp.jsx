@@ -210,7 +210,6 @@ class SongApp extends React.Component {
   returnToIndex(e) {
     this.setState({ page: "index" });
     window.history.pushState({ page: "index" }, "", !!this.state.currentBook ? `/${this.state.currentBook.slug}/i` : "/");
-    window.scrollTo(0, 0);
   }
 
   setSongFromHistory(e) {
