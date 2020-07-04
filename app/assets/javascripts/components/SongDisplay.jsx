@@ -56,8 +56,14 @@ class SongDisplay extends React.Component {
       if(presetElement) {
         presetElement.addEventListener("click", this.transposePresetKey);
       }
-      document.getElementById("transpose-up").addEventListener("click", this.upHalfStep);
-      document.getElementById("transpose-down").addEventListener("click", this.downHalfStep);
+      var tUpElement = document.getElementById("transpose-up")
+      if(tUpElement) {
+        tUpElement.addEventListener("click", this.upHalfStep);
+      }
+      var tDownElement = document.getElementById("transpose-down")
+      if(tDownElement) {
+        tDownElement.addEventListener("click", this.downHalfStep);
+      }
     }
   }
 
@@ -68,7 +74,7 @@ class SongDisplay extends React.Component {
       if(this.state.transpose != presetTranspose) {
         newTranspose = presetTranspose;
       }
-      this.setState({transpose: newTranspose});
+      this.setState({transpose: parseInt(newTranspose)});
     }
   }
 
