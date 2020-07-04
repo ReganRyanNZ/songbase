@@ -1,9 +1,9 @@
 div[data-react-class='SongDisplay'] {
-    display: initial;
+  display: initial;
 }
 
 .song-container {
-    text-align: center;
+  text-align: center;
 }
 
 .title-number {
@@ -14,77 +14,106 @@ div[data-react-class='SongDisplay'] {
 }
 
 .lyrics {
-    width: auto;
-    margin-left: 20px;
+  width: auto;
+  margin-left: 20px;
+  display: inline-block;
+  text-align: left;
+
+  .capo {
+    user-select: none;
+  }
+  .transpose-symbol {
+    position: relative;
+    top: 1px;
+    width: 18px;
+    padding: 2px;
     display: inline-block;
-    text-align: left;
+    font-weight: 900;
+    color: #777;
+    opacity: 50%;
+    font-size: 1.5em;
+    border: 1px solid;
+    border-radius: 17px;
+    text-align: center;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    &+ .transpose-symbol {
+      margin-left: 8px;
+    }
+  }
+  .musical-tie {
+    width: 5px;
+    display: inline-block;
+    position: relative;
+    top: 3px;
+    left: -2px;
+  }
+  .comment, .transpose-comment {
+    margin-bottom: 8px;
+    color: darkgray;
+    font-size: 90%;
+  }
+  .transpose-comment {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    div {
+      display: inline-block;
+    }
+    margin-bottom: 0;
+    text-align: right;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-direction: row-reverse;
+  }
+  .chord-word {
+    display: inline-block;
+    padding-top: 17px;
+    height: 17px;
+    position: relative;
+    .chord {
+      color: $blue;
+      white-space: pre;
+      position: absolute;
+      bottom: 17px;
+      font-weight: normal;
+      font-style: normal;
+    }
+    &::after { // Empty chord-words must have content to align the absolute chords
+      content: "";
+      display: inline-block;
+    }
+  }
+  .line {
+    min-height: 12px;
+  }
 
-    .capo {
-        user-select: none;
-    }
-    #transpose-up {
-        cursor: pointer;
-        margin-left: 5px;
-    }
-    #transpose-down {
-        cursor: pointer;
-        margin-left: 2px;
-    }
-    .musical-tie {
-        width: 5px;
-        display: inline-block;
-        position: relative;
-        top: 3px;
-        left: -2px;
-    }
-    .comment {
-        margin-bottom: 8px;
-        color: darkgray;
-        font-size: 90%;
-    }
-    .chord-word {
-        display: inline-block;
-        padding-top: 17px;
-        height: 17px;
-        position: relative;
-        .chord {
-            color: $blue;
-            white-space: pre;
-            position: absolute;
-            bottom: 17px;
-            font-weight: normal;
-            font-style: normal;
-        }
-        &::after { // Empty chord-words must have content to align the absolute chords
-            content: "";
-            display: inline-block;
-        }
-    }
-    .line {
-        min-height: 12px;
-    }
+  .line-text {
+    vertical-align: bottom;
+    white-space: pre-wrap;
+  }
 
-    .line-text {
-        vertical-align: bottom;
-        white-space: pre-wrap;
-    }
+  // space between verses
+  .line-text:empty {
+    margin-top: 8px;
+    display: block;
+  }
 
-    // space between verses
-    .line-text:empty {
-        margin-top: 8px;
-        display: block;
-    }
+  .chorus {
+    margin: 0 0 10px 25px;
+  }
 
-    .chorus {
-        margin: 0 0 10px 25px;
-    }
-
-    .verse-number {
-        position: absolute;
-        margin-left: -25px;
-    }
+  .verse-number {
+    position: absolute;
+    margin-left: -25px;
+  }
 }
 
 [data-uncopyable-text]::after {
-    content: attr(data-uncopyable-text);
+  content: attr(data-uncopyable-text);
 }

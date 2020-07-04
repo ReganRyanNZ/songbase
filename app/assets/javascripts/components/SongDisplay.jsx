@@ -13,6 +13,7 @@ const scales = {
   G: ["G", "A", "B", "C", "D", "E", "F", "F#"],
   Ab: ["Ab", "Bb", "C", "Db", "Eb", "F", "Gb", "G"]
 };
+const capoRegex = /.*Capo (\d+).*/;
 
 function mod(n, m) {
   return ((n % m) + m) % m;
@@ -26,17 +27,20 @@ class SongDisplay extends React.Component {
     var keyMatch = props.lyrics.match(keyFromChordRegex);
     var key = keyMatch ? keyMatch[0].replace(keyFromChordRegex, "$1") : "C";
     console.log("key: " + key);
+    var transpose = props.transpose || 0;
 
     this.state = {
       showChords: true,
-      transpose: this.props.transpose || 0,
+      transpose: transpose,
       key: key
     };
 
     this.transpose = this.transpose.bind(this);
+    this.transposeControls = this.transposeControls.bind(this);
     this.changeKey = this.changeKey.bind(this);
     this.upHalfStep = this.upHalfStep.bind(this);
     this.downHalfStep = this.downHalfStep.bind(this);
+    this.transposePresetKey = this.transposePresetKey.bind(this);
     this.addTransposeListeners = this.addTransposeListeners.bind(this);
   }
   componentDidMount() {
@@ -47,8 +51,24 @@ class SongDisplay extends React.Component {
   }
 
   addTransposeListeners() {
-    document.getElementById("transpose-up").addEventListener("click", this.upHalfStep);
-    document.getElementById("transpose-down").addEventListener("click", this.downHalfStep);
+    if(/\[/.test(this.props.lyrics)) {
+      if(capoRegex.test(this.props.lyrics)) {
+        document.getElementById("transpose-preset").addEventListener("click", this.transposePresetKey);
+      }
+      document.getElementById("transpose-up").addEventListener("click", this.upHalfStep);
+      document.getElementById("transpose-down").addEventListener("click", this.downHalfStep);
+    }
+  }
+
+  transposePresetKey(e) {
+    if(capoRegex.test(this.props.lyrics)) {
+      var presetTranspose = this.props.lyrics.match(capoRegex)[1];
+      var newTranspose = 0;
+      if(this.state.transpose != presetTranspose) {
+        newTranspose = presetTranspose;
+      }
+      this.setState({transpose: newTranspose});
+    }
   }
 
   upHalfStep(e) {
@@ -74,18 +94,13 @@ class SongDisplay extends React.Component {
       return chord;
     }
 
-    var chordCoreRegex = /([A-G]#?b?)(.*)/;
-    var chordCoreMatch = chord.match(chordCoreRegex);
-
-    if (!chordCoreMatch) {
-      return chord;
-    }
-
     var ogKey = this.state.key;
     var newKey = keys[mod((keys.indexOf(ogKey) + this.state.transpose), 12)];
-    var chordCore = chordCoreMatch[1];
-    var chordPosition = scales[ogKey].indexOf(chordCore);
-    return chord.replace(chordCoreRegex, scales[newKey][chordPosition] + "$2");
+    var chordCoreRegex = /([A-G]#?b?)([^A-G]*)/g;
+
+    return chord.replace(chordCoreRegex, (match, chordCore, trailingChars) => {
+      return scales[newKey][scales[ogKey].indexOf(chordCore)] + trailingChars
+    })
   }
 
   getLyricsHTML() {
@@ -101,7 +116,6 @@ class SongDisplay extends React.Component {
       chordsRegex = /\[(.*?)\]/g, // anything inside square brackets
       chordWordsRegex = /([^\>\s]*\[[^\]]*?\][^\s<]*)/g, // a word with a chord in it
       commentRegex = /^\# ?(.*)/, // everything after a '#'
-      capoRegex = /([Cc]apo (\d+))/, // e.g. "Capo 3"
       chorusRegex = /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
       lineRegex = /(.*\>)?( *)(.*)/,
       boldTextRegex = /\*\*(.+?)\*\*/g,
@@ -125,9 +139,6 @@ class SongDisplay extends React.Component {
     var lines = lyrics.split("\n"),
       maxIndex = lines.length;
 
-    // parse each line
-    var capo = false;
-    var transposeControl = "<a id='transpose-up'>+</a><a id='transpose-down'>-</a>"
     for (var i = 0; i < maxIndex; i++) {
       // style comments
       if (commentRegex.test(lines[i])) {
@@ -139,11 +150,7 @@ class SongDisplay extends React.Component {
 
         // turn capo note into a handy button
         if (capoRegex.test(lines[i])) {
-          lines[i] = lines[i].replace(
-            capoRegex,
-            "<span id='capo' class='capo' data-capo=$2>$1</span>" + transposeControl
-          );
-          capo = true;
+          lines[i] = lines[i].replace(capoRegex, (a, b) => this.transposeControls(b));
         }
       } else {
         // wrap each non comment line in a div
@@ -177,14 +184,28 @@ class SongDisplay extends React.Component {
       lines[i] = lines[i].replace(/_/g, "<span class='musical-tie'>‿</span>");
     }
 
-    if (!capo) {
-      lines.unshift("<div class='comment'>Transpose" + transposeControl + "</div>")
+    // set capo controls
+    if (/\[/.test(lyrics) && !capoRegex.test(lyrics)) {
+      lines.unshift(this.transposeControls(null));
     }
 
     var text = lines.join("\n");
     text = text.replace(boldTextRegex, "<b>$1</b>");
     text = text.replace(italicTextRegex, "<i>$1</i>");
     return text;
+  }
+
+  transposeControls(capo) {
+    var capoRecommended = !!capo ? `<div id='transpose-preset'>Capo ${capo}</div>` : ''
+
+    return `<div class='transpose-comment'>
+      <div class='transpose-controls'>
+        <a id='transpose-up' class='transpose-symbol'>+</a>
+        <div class='transpose-value'>${this.state.transpose}</div>
+        <a id='transpose-down' class='transpose-symbol'>-</a>
+      </div>
+      ${capoRecommended}
+    </div>`;
   }
 
   render() {
