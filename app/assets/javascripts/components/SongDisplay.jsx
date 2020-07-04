@@ -52,8 +52,9 @@ class SongDisplay extends React.Component {
 
   addTransposeListeners() {
     if(/\[/.test(this.props.lyrics)) {
-      if(capoRegex.test(this.props.lyrics)) {
-        document.getElementById("transpose-preset").addEventListener("click", this.transposePresetKey);
+      var presetElement = document.getElementById("transpose-preset")
+      if(presetElement) {
+        presetElement.addEventListener("click", this.transposePresetKey);
       }
       document.getElementById("transpose-up").addEventListener("click", this.upHalfStep);
       document.getElementById("transpose-down").addEventListener("click", this.downHalfStep);
