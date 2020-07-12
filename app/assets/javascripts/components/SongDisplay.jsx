@@ -207,9 +207,9 @@ class SongDisplay extends React.Component {
 
     return `<div class='transpose-comment'>
       <div class='transpose-controls'>
-        <a id='transpose-up' class='transpose-symbol'>+</a>
-        <div class='transpose-value'>${this.state.transpose}</div>
         <a id='transpose-down' class='transpose-symbol'>-</a>
+        <div class='transpose-value'>${this.state.transpose}</div>
+        <a id='transpose-up' class='transpose-symbol'>+</a>
       </div>
       ${capoRecommended}
     </div>`;
