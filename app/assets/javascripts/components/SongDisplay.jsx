@@ -1,4 +1,5 @@
 const keys = ["A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab"];
+const bestGuessScale = ["A", "Bb", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
 const scales = {
   A: ["A", "B", "C#", "D", "E", "F#", "G", "G#"],
   Bb: ["Bb", "C", "D", "Eb", "F", "G", "G#", "A"],
@@ -106,7 +107,13 @@ class SongDisplay extends React.Component {
     var chordCoreRegex = /([A-G]#?b?)([^A-G]*)/g;
 
     return chord.replace(chordCoreRegex, (match, chordCore, trailingChars) => {
-      return scales[newKey][scales[ogKey].indexOf(chordCore)] + trailingChars
+      // whatever the chord is for original scale, put that chord on the new scale
+      // if the scale doesn't make sense, try the bestGuess™ scale
+      return (
+        scales[newKey][scales[ogKey].indexOf(chordCore)] ||
+        bestGuessScale[(bestGuessScale.indexOf(chordCore)+this.state.transpose) % 12] ||
+        '?'
+      ) + trailingChars
     })
   }
 
