@@ -5,8 +5,6 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-ruby '2.6.3'
-
 gem 'rails', '~> 5.2.3'
 # Use postgres as the database for Active Record
 gem 'pg', '~> 0.21.0'
