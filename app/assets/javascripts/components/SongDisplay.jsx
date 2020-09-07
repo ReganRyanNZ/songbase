@@ -14,7 +14,10 @@ const scales = {
   G: ["G", "A", "B", "C", "D", "E", "F", "F#"],
   Ab: ["Ab", "Bb", "C", "Db", "Eb", "F", "Gb", "G"]
 };
-const capoRegex = /.*Capo (\d+).*/;
+const capoRegex = /.*capo (\d+).*/i;
+const regex = {
+  comment: /^\# ?(.*)/ // everything after a '#'
+};
 
 function mod(n, m) {
   return ((n % m) + m) % m;
@@ -38,6 +41,11 @@ class SongDisplay extends React.Component {
 
     this.transpose = this.transpose.bind(this);
     this.transposeControls = this.transposeControls.bind(this);
+    this.controls = this.controls.bind(this);
+    this.formatVerseNumbers = this.formatVerseNumbers.bind(this);
+    this.formatChorus = this.formatChorus.bind(this);
+    this.formatComment = this.formatComment.bind(this);
+    this.formatTextLine = this.formatTextLine.bind(this);
     this.changeKey = this.changeKey.bind(this);
     this.upHalfStep = this.upHalfStep.bind(this);
     this.downHalfStep = this.downHalfStep.bind(this);
@@ -125,55 +133,30 @@ class SongDisplay extends React.Component {
       return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";
     }
 
-    var verseNumberRegex = /(^|\n)([0-9]+)\n/gm, // numbers by themselves on a line are verse numbers
-      hasChordsRegex = /.*\[.*\].*/, // has square brackets
+    var hasChordsRegex = /.*\[.*\].*/, // has square brackets
       chordsRegex = /\[(.*?)\]/g, // anything inside square brackets
       chordWordsRegex = /([^\>\s]*\[[^\]]*?\][^\s<]*)/g, // a word with a chord in it
-      commentRegex = /^\# ?(.*)/, // everything after a '#'
-      chorusRegex = /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
-      lineRegex = /(.*\>)?( *)(.*)/,
       boldTextRegex = /\*\*(.+?)\*\*/g,
       italicTextRegex = /\*(.+?)\*/g;
 
-    // get rid of sketchy invisable unicode chars
-    lyrics = lyrics.replace(/[\r\u2028\u2029]/g, "");
 
-    // parse verse numbers
-    lyrics = lyrics.replace(verseNumberRegex, function($0, $1, $2) {
-      return (
-        $1 +
-        "<div class='verse-number' data-uncopyable-text='" +
-        $2 +
-        "'></div>"
-      );
-    });
+    lyrics = lyrics.replace(/[\r\u2028\u2029]/g, ""); // get rid of sketchy invisable unicode chars
 
-    // replace double-spaced lines with chorus tags
-    lyrics = lyrics.replace(chorusRegex, `$1<div class='chorus'>$2</div>`);
+    lyrics = this.formatVerseNumbers(lyrics);
+    lyrics = this.formatChorus(lyrics);
+
     var lines = lyrics.split("\n"),
-      maxIndex = lines.length;
+        maxIndex = lines.length;
 
     for (var i = 0; i < maxIndex; i++) {
-      // style comments
-      if (commentRegex.test(lines[i])) {
-
-        lines[i] = lines[i].replace(
-          commentRegex,
-          "<div class='comment'>$1</div>"
-        );
-
-        // turn capo note into a handy button
+      if (regex.comment.test(lines[i])) {
         if (capoRegex.test(lines[i])) {
-          lines[i] = lines[i].replace(capoRegex, (a, b) => this.transposeControls(b));
+          lines[i] = this.formatCapoComment(lines[i]);
+        } else {
+          lines[i] = this.formatComment(lines[i]);
         }
       } else {
-        // wrap each non comment line in a div
-        // lines contain spans for text and chords, text is vert aligned to the bottom.
-        // Chords have 0 width and double height, so everything aligns well.
-        lines[i] = lines[i].replace(
-          lineRegex,
-          "$1$2<div class='line'><span class='line-text'>$3</span></div>"
-        );
+        lines[i] = this.formatTextLine(lines[i]);
       }
 
       // parse chords
@@ -198,10 +181,7 @@ class SongDisplay extends React.Component {
       lines[i] = lines[i].replace(/_/g, "<span class='musical-tie'>‿</span>");
     }
 
-    // set capo controls
-    if (/\[/.test(lyrics) && !capoRegex.test(lyrics)) {
-      lines.unshift(this.transposeControls(null));
-    }
+    lines.unshift(this.controls());
 
     var text = lines.join("\n");
     text = text.replace(boldTextRegex, "<b>$1</b>");
@@ -209,17 +189,54 @@ class SongDisplay extends React.Component {
     return text;
   }
 
-  transposeControls(capo) {
-    var capoRecommended = !!capo ? `<div id='transpose-preset'>Capo ${capo}</div>` : ''
+  formatVerseNumbers(lyrics) {
+    var verseNumberRegex = /(^|\n)([0-9]+)\n/gm; // numbers by themselves on a line are verse numbers
+    return lyrics.replace(verseNumberRegex, `$1<div class='verse-number' data-uncopyable-text='$2'></div>`);
+  }
 
-    return `<div class='transpose-comment'>
+  formatChorus(lyrics) {
+    var chorusRegex = /(\n|^)((  .*(?:\n|$))+)/g; // block with two spaces at the front of each line is a chorus
+    return lyrics.replace(chorusRegex, `$1<div class='chorus'>$2</div>`);
+  }
+
+  formatCapoComment(line) {
+    return line.replace(capoRegex, `<div id='transpose-preset'>Capo $1</div>`);
+  }
+
+  formatComment(line) {
+    return line.replace(regex.comment, "<div class='comment'>$1</div>");
+  }
+
+  formatTextLine(line) {
+    // Chords have 0 width and double height, so they appear above the text.
+    // Both chords and text are in the same "line" block so they are aligned.
+    lineRegex = /(.*\> *)?(.*)/;
+    return line.replace(lineRegex, `$1<div class='line'><span class='line-text'>$2</span></div>`);
+  }
+
+  controls() {
+    return `
+      <div class='song-controls'>
+        <div class='bookmark'>
+          ${BookmarkIconAsString}
+        </div>
+        ${this.transposeControls()}
+      </div>
+    `
+  }
+
+  transposeControls() {
+    var songHasChords = /\[/.test(lyrics);
+    if(!songHasChords) {
+      return '';
+    }
+
+    return `
       <div class='transpose-controls'>
         <a id='transpose-down' class='transpose-symbol'>-</a>
         <div class='transpose-value'>${this.state.transpose}</div>
         <a id='transpose-up' class='transpose-symbol'>+</a>
-      </div>
-      ${capoRecommended}
-    </div>`;
+      </div>`;
   }
 
   render() {

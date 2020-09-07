@@ -33,6 +33,13 @@ h4 {
   display: inline-block;
 }
 
+h1 {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 .text-center {
   text-align: center;
 }

@@ -51,12 +51,23 @@ div[data-react-class='SongDisplay'] {
     top: 3px;
     left: -2px;
   }
-  .comment, .transpose-comment {
+  .comment, #transpose-preset {
     margin-bottom: 8px;
     color: darkgray;
     font-size: 90%;
   }
-  .transpose-comment {
+  #transpose-preset {
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  .transpose-controls {
+    color: darkgray;
+  }
+  .song-controls {
+    margin-bottom: 14px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -87,6 +98,11 @@ div[data-react-class='SongDisplay'] {
       content: "";
       display: inline-block;
     }
+  }
+  .bookmark {
+    position: absolute;
+    top: 0px;
+    right: 32%;
   }
   .line {
     min-height: 12px;
