@@ -14,9 +14,18 @@ const scales = {
   G: ["G", "A", "B", "C", "D", "E", "F", "F#"],
   Ab: ["Ab", "Bb", "C", "Db", "Eb", "F", "Gb", "G"]
 };
-const capoRegex = /.*capo (\d+).*/i;
 const regex = {
-  comment: /^\# ?(.*)/ // everything after a '#'
+  capo: /.*capo (\d+).*/i,
+  comment: /^\# ?(.*)/, // everything after a '#'
+  chordWords: /([^\>\s]*\[[^\]]*?\][^\s<]*)/g, // a word with a chord in it
+  chords: /\[(.*?)\]/g, // anything inside square brackets
+  chorus: /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
+  hasChords: /.*\[.*\].*/, // has square brackets
+  boldText: /\*\*(.+?)\*\*/g,
+  italicText: /\*(.+?)\*/g,
+  html_safety: /.*[<>`].*/,
+  verseNumber: /(^|\n)([0-9]+)\n/gm, // numbers by themselves on a line are verse numbers
+  chordCore: /([A-G]#?b?)([^A-G]*)/g
 };
 
 function mod(n, m) {
@@ -30,7 +39,6 @@ class SongDisplay extends React.Component {
     var keyFromChordRegex = /\[([A-G]b*#*).*?\]/gm;
     var keyMatch = props.lyrics.match(keyFromChordRegex);
     var key = keyMatch ? keyMatch[0].replace(keyFromChordRegex, "$1") : "C";
-    console.log("key: " + key);
     var transpose = props.transpose || 0;
 
     this.state = {
@@ -44,6 +52,7 @@ class SongDisplay extends React.Component {
     this.controls = this.controls.bind(this);
     this.formatVerseNumbers = this.formatVerseNumbers.bind(this);
     this.formatChorus = this.formatChorus.bind(this);
+    this.formatChords = this.formatChords.bind(this);
     this.formatComment = this.formatComment.bind(this);
     this.formatTextLine = this.formatTextLine.bind(this);
     this.changeKey = this.changeKey.bind(this);
@@ -77,8 +86,8 @@ class SongDisplay extends React.Component {
   }
 
   transposePresetKey(e) {
-    if(capoRegex.test(this.props.lyrics)) {
-      var presetTranspose = this.props.lyrics.match(capoRegex)[1];
+    if(regex.capo.test(this.props.lyrics)) {
+      var presetTranspose = this.props.lyrics.match(regex.capo)[1];
       var newTranspose = 0;
       if(this.state.transpose != presetTranspose) {
         newTranspose = presetTranspose;
@@ -97,24 +106,20 @@ class SongDisplay extends React.Component {
 
   changeKey(step) {
     var key = parseInt(this.state.transpose);
-    console.log(key + step);
     this.setState({
       transpose: key + step
     });
   }
 
   transpose(chord) {
-    // whatever index a chord has in its original key, it'll have that index in the new key
-
     if (this.state.transpose == 0) {
       return chord;
     }
 
     var ogKey = this.state.key;
     var newKey = keys[mod((keys.indexOf(ogKey) + this.state.transpose), 12)];
-    var chordCoreRegex = /([A-G]#?b?)([^A-G]*)/g;
 
-    return chord.replace(chordCoreRegex, (match, chordCore, trailingChars) => {
+    return chord.replace(regex.chordCore, (match, chordCore, trailingChars) => {
       // whatever the chord is for original scale, put that chord on the new scale
       // if the scale doesn't make sense, try the bestGuess™ scale
       return (
@@ -126,81 +131,66 @@ class SongDisplay extends React.Component {
   }
 
   getLyricsHTML() {
-    safetyRegex = /.*[<>`].*/;
     lyrics = this.props.lyrics;
 
-    if (safetyRegex.test(lyrics)) {
+    if (regex.html_safety.test(lyrics)) {
       return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";
     }
 
-    var hasChordsRegex = /.*\[.*\].*/, // has square brackets
-      chordsRegex = /\[(.*?)\]/g, // anything inside square brackets
-      chordWordsRegex = /([^\>\s]*\[[^\]]*?\][^\s<]*)/g, // a word with a chord in it
-      boldTextRegex = /\*\*(.+?)\*\*/g,
-      italicTextRegex = /\*(.+?)\*/g;
-
-
     lyrics = lyrics.replace(/[\r\u2028\u2029]/g, ""); // get rid of sketchy invisable unicode chars
-
     lyrics = this.formatVerseNumbers(lyrics);
     lyrics = this.formatChorus(lyrics);
+    lyrics = this.formatMusicalTies(lyrics);
 
-    var lines = lyrics.split("\n"),
-        maxIndex = lines.length;
+    var lines = lyrics.split("\n");
 
-    for (var i = 0; i < maxIndex; i++) {
-      if (regex.comment.test(lines[i])) {
-        if (capoRegex.test(lines[i])) {
-          lines[i] = this.formatCapoComment(lines[i]);
-        } else {
-          lines[i] = this.formatComment(lines[i]);
-        }
+    for (var i = 0; i < lines.length; i++) {
+      if (regex.capo.test(lines[i])) {
+        lines[i] = this.formatCapoComment(lines[i]);
+      } else if (regex.comment.test(lines[i])) {
+        lines[i] = this.formatComment(lines[i]);
       } else {
         lines[i] = this.formatTextLine(lines[i]);
-      }
 
-      // parse chords
-      // words containing chords are in a chord-word span, so that if the line is too long,
-      // the text wrapping doesn't split on the chord (chopping the word in half)
-      if (hasChordsRegex.test(lines[i])) {
-        if (this.state.showChords) {
-          lines[i] = lines[i].replace(
-            chordWordsRegex,
-            "<span class='chord-word'>$1</span>"
-          );
-          lines[i] = lines[i].replace(chordsRegex, (match, chord) => {
-            return (
-              "<span class='chord' data-uncopyable-text='" +
-              this.transpose(chord) +
-              "'></span>"
-            );
-          });
+        if (regex.hasChords.test(lines[i]) && this.state.showChords) {
+          lines[i] = this.formatChords(lines[i]);
         }
       }
-      // convert _ to musical tie for spanish songs
-      lines[i] = lines[i].replace(/_/g, "<span class='musical-tie'>‿</span>");
     }
 
     lines.unshift(this.controls());
 
-    var text = lines.join("\n");
-    text = text.replace(boldTextRegex, "<b>$1</b>");
-    text = text.replace(italicTextRegex, "<i>$1</i>");
-    return text;
+    return this.formatTextBoldItalic(lines.join("\n"));
+  }
+
+  formatTextBoldItalic(text) {
+    text = text.replace(regex.boldText, "<b>$1</b>");
+    text = text.replace(regex.italicText, "<i>$1</i>");
+    return text
+  }
+
+  formatMusicalTies(lyrics) {
+    // convert _ to musical tie for spanish songs
+    return lyrics.replace(/_/g, "<span class='musical-tie'>‿</span>");
   }
 
   formatVerseNumbers(lyrics) {
-    var verseNumberRegex = /(^|\n)([0-9]+)\n/gm; // numbers by themselves on a line are verse numbers
-    return lyrics.replace(verseNumberRegex, `$1<div class='verse-number' data-uncopyable-text='$2'></div>`);
+    return lyrics.replace(regex.verseNumber, `$1<div class='verse-number' data-uncopyable-text='$2'></div>`);
   }
 
   formatChorus(lyrics) {
-    var chorusRegex = /(\n|^)((  .*(?:\n|$))+)/g; // block with two spaces at the front of each line is a chorus
-    return lyrics.replace(chorusRegex, `$1<div class='chorus'>$2</div>`);
+    return lyrics.replace(regex.chorus, `$1<div class='chorus'>$2</div>`);
+  }
+
+  formatChords(line) {
+    // words containing chords are in a chord-word span, so that if the line is too long,
+    // the text wrapping can move the whole word with chords.
+    var separatedIntoWords = line.replace(regex.chordWords, `<span class='chord-word'>$1</span>`);
+    return separatedIntoWords.replace(regex.chords, (match, chord) => `<span class='chord' data-uncopyable-text='${this.transpose(chord)}'></span>`);
   }
 
   formatCapoComment(line) {
-    return line.replace(capoRegex, `<div id='transpose-preset'>Capo $1</div>`);
+    return line.replace(regex.capo, `<div id='transpose-preset'>Capo $1</div>`);
   }
 
   formatComment(line) {
