@@ -5,7 +5,7 @@ class SongIndex extends React.Component {
       rowLimit: 100 // react gets laggy rendering 2k songs, so there's a limit
     }
 
-    this.handleChange = this.handleChange.bind(this);
+    this.searchInputChange = this.searchInputChange.bind(this);
     this.getSearchResults = this.getSearchResults.bind(this);
     this.infiniteScrolling = this.infiniteScrolling.bind(this);
   }
@@ -27,9 +27,10 @@ class SongIndex extends React.Component {
     }
   }
 
-  handleChange(event) {
+  searchInputChange(event) {
     switch (event.target.id) {
       case "index_search":
+        this.setState({rowLimit: 100});
         this.props.setSearch(event.target.value);
         break;
     }
@@ -152,7 +153,7 @@ class SongIndex extends React.Component {
             id="index_search"
             autoComplete="off"
             value={this.props.search}
-            onChange={this.handleChange}
+            onChange={this.searchInputChange}
             name="song[search]"
             className="index_search"
             placeholder="search..."
