@@ -170,12 +170,15 @@ class SongIndex extends React.Component {
             <div className="loading">Loading song data...</div>
           ) : (
             this.getSearchResults().map(function(result, i) {
-              var id = result.song.id;
+              var id = result.song.id,
+                  index_tag = '';
+
               if(!!this.props.currentBook) {
                 id = this.props.references.find(ref =>
                   ref.song_id === result.song.id &&
                   ref.book_id === this.props.currentBook.id
                 ).index
+                index_tag = <div className="index_row_book_index">{id}</div>;
               }
               return (
                 <div
@@ -184,8 +187,11 @@ class SongIndex extends React.Component {
                   id={id}
                   onClick={this.props.setSong}
                 >
-                  <span className="index_row_title">{result.song.title}</span>
-                  <span
+                  <div className="index_row_title">
+                    <div className="title-text">{result.song.title}</div>
+                    {index_tag}
+                  </div>
+                  <div
                     className="index_row_tag"
                     dangerouslySetInnerHTML={{ __html: result.tag }}
                   />
