@@ -17,30 +17,43 @@ If you don't have heroku access, send an email to songbase.brothers@gmail.com to
 
 This was first a Rails app, now it uses React to allow state management and offline navigation. Instead of maintaining two separate apps, the frontend and backend are (somewhat mashed) together in this project. The main difference is that React is served through a Rails gem, and importing/exporting JS components doesn't work like a regular React project.
 
-## Product Goals
+## Features
 - Users can view lyrics and chords to songs
 - Languages can be toggled
-- Any site navigation is offline (after first visiting the site)
+- Any song/book navigation is offline (after first visiting the site)
 - Site navigation and search is instant
 - Songs can be filtered by search or by book
+- Search looks at lyrics as well as first line
 - Backend users can log in via facebook or google
 - Backend users can enter new songs and edit songs
-- [Future] Backend users can CRUD custom songbooks (e.g. a songbook for a home meeting or conference)
-- [Future] Backend users can export a songbook to a PDF for printing
+- Infinite scrolling to speed up search loading.
 
 
 # TODO
 
-### Favorites
+### References to books for each song
 
-- move capo to a triple dot menu btn
-- add a "+⭐" button to add a song to favs (and I guess a "-⭐" if it's a fav?)
-- add a "⭐" book in the book index page, should be at the top
-- "⭐" book should show all the device's favorited songs
-- in the settings, there should be an "export ⭐" that gives a password for "import ⭐"
+- At the bottom of the song put all its references.
+- Each reference is a link to that book's index.
+- Index needs to be sorted by index number.
 
-- in the books index, there should be an option to make a new book
-- new books are not globally synced by default
-- indexdb can keep a list of private books to sync
-- in the books index, private books should have an option to remove
-- in the books index, there should be an import function where you type the name of the book (autocomplete maybe?)
+### Index sorted by book index
+
+- For book indices allow to switch between a-z to 1-9
+- References at the bottom of a song should link to that book's index
+  - Sorted by number
+  - Scrolled to the song you came from
+
+### CRUD books
+
+- Add a local book by default called "My Favorites"
+- At the bottom of songs, where the book refs are, add a "+ [book name]" for every local-owned book
+- At the bottom of the books page, add a "+" that shows an input and submit to make a local book (maybe an HR can separate this from the list of references, and another to separate the song).
+- Local books need a delete btn on the index page, and an "export" button that gives a url for others to import. Delete and export could be under a burger menu.
+- Local books are not globally synced.
+- Local books should be uniquely named, and importing a dup name should ask if you want to delete the previous (i..e a kind of simple override to simulate updating)
+
+### Book printing
+
+- First stage is to get a single song with chords in a copy-paste format.
+- Second stage is to get the whole book as back-to-back copy-paste songs. This is probably the best state because people still want to edit and move things around.

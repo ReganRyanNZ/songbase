@@ -1,9 +1,30 @@
 class SongIndex extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      rowLimit: 100 // react gets laggy rendering 2k songs, so there's a limit
+    }
 
     this.handleChange = this.handleChange.bind(this);
     this.getSearchResults = this.getSearchResults.bind(this);
+    this.infiniteScrolling = this.infiniteScrolling.bind(this);
+  }
+
+  componentWillMount(){
+    window.addEventListener('scroll', this.infiniteScrolling);
+  }
+
+  componentWillUnmount(){
+    window.removeEventListener('scroll', this.infiniteScrolling);
+  }
+
+  infiniteScrolling(){
+    var pixelsBeforeTheEnd = 500,
+        currentScrollPoint = window.innerHeight + document.documentElement.scrollTop,
+        maxScrollPoint = document.scrollingElement.scrollHeight;
+    if (pixelsBeforeTheEnd + currentScrollPoint > maxScrollPoint) {
+        this.setState({rowLimit: this.state.rowLimit + 100});
+    }
   }
 
   handleChange(event) {
@@ -40,7 +61,6 @@ class SongIndex extends React.Component {
 
     var strippedSearch = stripString(this.props.search);
     var searchResults = [];
-    var displayLimit = 100; // react gets laggy rendering 2k songs, so there's a limit
 
     // filter songs by language settings
     // This is no longer needed while songs in state are set by language
@@ -49,7 +69,7 @@ class SongIndex extends React.Component {
     // }, this);
     if (strippedSearch == "") {
       console.log("no search detected.");
-      searchResults = songs.slice(0, displayLimit).map(song => {
+      searchResults = songs.slice(0, this.state.rowLimit).map(song => {
         return {
           song: song,
           tag: ""
@@ -113,7 +133,7 @@ class SongIndex extends React.Component {
       });
     }
 
-    return searchResults.slice(0, displayLimit);
+    return searchResults.slice(0, this.state.rowLimit);
   }
 
   render() {
