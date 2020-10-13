@@ -100,6 +100,7 @@ div[data-react-class='SongDisplay'] {
     }
   }
   .bookmark {
+    display: none !important; // haven't finished any function!
     position: absolute;
     top: 0px;
     right: 32%;
