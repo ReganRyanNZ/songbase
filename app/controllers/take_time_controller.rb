@@ -36,8 +36,8 @@ class TakeTimeController < ApplicationController
       ],
       [
         "Ask",
-        "If you then being evil know how to give good gifts to your children, how much more will your Father who is in the heavens give good things to those who ask Him!",
-        "Matthew 7:11"
+        "Until now you have asked for nothing in My name; ask and you shall receive, that your joy may be made full.",
+        "John 16:24"
       ],
       [
         "Cast",
