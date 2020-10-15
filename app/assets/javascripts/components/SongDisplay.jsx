@@ -200,8 +200,8 @@ class SongDisplay extends React.Component {
   formatTextLine(line) {
     // Chords have 0 width and double height, so they appear above the text.
     // Both chords and text are in the same "line" block so they are aligned.
-    lineRegex = /(.*\> *)?(.*)/;
-    return line.replace(lineRegex, `$1<div class='line'><span class='line-text'>$2</span></div>`);
+    lineRegex = /(.*\>)?(  )?(.*)/;
+    return line.replace(lineRegex, `$1<div class='line'><span class='line-text'>$3</span></div>`);
   }
 
   controls() {
