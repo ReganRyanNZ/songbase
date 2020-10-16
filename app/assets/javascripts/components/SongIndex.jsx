@@ -179,6 +179,7 @@ class SongIndex extends React.Component {
                   ref.book_id === this.props.currentBook.id
                 ).index
                 index_tag = <div className="index_row_book_index">{id}</div>;
+                result.tag = '';
               }
               return (
                 <div
