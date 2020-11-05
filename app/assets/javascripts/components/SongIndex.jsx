@@ -2,12 +2,14 @@ class SongIndex extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      rowLimit: 100 // react gets laggy rendering 2k songs, so there's a limit
+      rowLimit: 100, // react gets laggy rendering 2k songs, so there's a limit
+      sortField: 'alpha'
     }
 
     this.searchInputChange = this.searchInputChange.bind(this);
     this.getSearchResults = this.getSearchResults.bind(this);
     this.infiniteScrolling = this.infiniteScrolling.bind(this);
+    this.toggleSort = this.toggleSort.bind(this);
   }
 
   componentWillMount(){
@@ -25,6 +27,11 @@ class SongIndex extends React.Component {
     if (pixelsBeforeTheEnd + currentScrollPoint > maxScrollPoint) {
         this.setState({rowLimit: this.state.rowLimit + 100});
     }
+  }
+
+  toggleSort(){
+    var newSortField = this.state.sortField == 'alpha' ? 'book' : 'alpha';
+    this.setState({sortField: newSortField});
   }
 
   searchInputChange(event) {
@@ -68,15 +75,7 @@ class SongIndex extends React.Component {
     // songs = songs.filter(function(song) {
     //   return this.props.settings.languages.includes(song.lang);
     // }, this);
-    if (strippedSearch == "") {
-      console.log("no search detected.");
-      searchResults = songs.slice(0, this.state.rowLimit).map(song => {
-        return {
-          song: song,
-          tag: ""
-        };
-      });
-    } else if (this.searchIsNumber()) {
+    if (this.searchIsNumber()) {
       var search = parseInt(this.props.search);
       var refs = references.filter(ref => ref.index == search);
       searchResults = refs.map(ref => {
@@ -110,28 +109,36 @@ class SongIndex extends React.Component {
           };
         });
 
-      // sort the results, making title matches appear higher than lyrics matches
-      searchResults.sort((a, b) => {
-        var titles = [stripString(a.song.title), stripString(b.song.title)];
-        var weights = titles.map(title => {
-          if (titleStartRegex.test(title)) {
-            return 2;
-          } else if (titleMatchRegex.test(title)) {
-            return 1;
-          } else {
+      if(this.props.currentBook && this.state.sortField == 'book') {
+        searchResults.sort((a, b) => {
+          var index_a = references.find((ref) => (ref.song_id == a.song.id)).index;
+          var index_b = references.find((ref) => (ref.song_id == b.song.id)).index;
+          return parseInt(index_a) > parseInt(index_b) ? 1 : -1;
+        });
+      } else {
+        // sort the results, making title matches appear higher than lyrics matches
+        searchResults.sort((a, b) => {
+          var titles = [stripString(a.song.title), stripString(b.song.title)];
+          var titlesImportance = titles.map(title => {
+            if (titleStartRegex.test(title)) {
+              return 2;
+            } else if (titleMatchRegex.test(title)) {
+              return 1;
+            } else {
+              return 0;
+            }
+          });
+
+          // sort alphabetically if they are in the same importance category
+          if (titlesImportance[0] == titlesImportance[1]) {
+            if (titles[0] < titles[1]) return -1;
+            if (titles[0] > titles[1]) return 1;
             return 0;
+          } else {
+            return titlesImportance[1] - titlesImportance[0];
           }
         });
-
-        // sort alphabetically if they are in the same regex category
-        if (weights[0] == weights[1]) {
-          if (titles[0] < titles[1]) return -1;
-          if (titles[0] > titles[1]) return 1;
-          return 0;
-        } else {
-          return weights[1] - weights[0];
-        }
-      });
+      }
     }
 
     return searchResults.slice(0, this.state.rowLimit);
@@ -166,6 +173,11 @@ class SongIndex extends React.Component {
           ) : null}
         </div>
         <div className="title-list">
+          {!!this.props.currentBook ? (
+            <div className="btn-sort" onClick={this.toggleSort}>
+              <SortIcon />
+            </div>) : null}
+
           {!!this.props.loading_data ? (
             <div className="loading">Loading song data...</div>
           ) : (

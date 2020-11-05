@@ -54,6 +54,19 @@
 }
 
 
+.title-list {
+  position: relative;
+}
+
+.btn-sort {
+  position: absolute;
+  right: 8px;
+  top: -30px;
+  svg {
+    width: 20px;
+  }
+}
+
 
 .settings-btn {
   position: absolute;
