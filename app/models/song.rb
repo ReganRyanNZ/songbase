@@ -1,5 +1,5 @@
 class Song < ApplicationRecord
-  has_many :song_books, dependent: :destroy
+  has_many :song_books
   has_many :books, through: :song_books
   has_many :audits, dependent: :destroy
   validate :titles_validation
@@ -79,6 +79,7 @@ class Song < ApplicationRecord
 
   def destroy_with_audit user
     DeadSong.create(user: user, song_id: self.id, time: Time.zone.now)
+    song_books.update_all(deleted_at: Time.zone.now)
     self.destroy
   end
 
