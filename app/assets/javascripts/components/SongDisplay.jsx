@@ -140,7 +140,6 @@ class SongDisplay extends React.Component {
     lyrics = lyrics.replace(/[\r\u2028\u2029]/g, ""); // get rid of sketchy invisable unicode chars
     lyrics = this.formatVerseNumbers(lyrics);
     lyrics = this.formatChorus(lyrics);
-    lyrics = this.formatMusicalTies(lyrics);
 
     var lines = lyrics.split("\n");
 
@@ -157,10 +156,11 @@ class SongDisplay extends React.Component {
         }
       }
     }
-
     lines.unshift(this.controls());
-
-    return this.formatTextBoldItalic(lines.join("\n"));
+    lyrics = lines.join("\n");
+    lyrics = this.formatTextBoldItalic(lyrics);
+    lyrics = this.formatMusicalTies(lyrics);
+    return lyrics;
   }
 
   formatTextBoldItalic(text) {
