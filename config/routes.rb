@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   get 'admin/example', to: 'songs#admin_example'
   get 'taketime', to: 'take_time#take_time'
   get '/:s/print', to: 'songs#print', s: /[0-9]+/
+  get '/:s/p', to: 'songs#print', s: /[0-9]+/
 
   namespace :api do
     namespace :v1 do
