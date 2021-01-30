@@ -16,7 +16,8 @@ class SongApp extends React.Component {
       references: props.preloaded_references || [],
       books: props.preloaded_books || [],
       loadingData: true,
-      search: ""
+      search: "",
+      orderIndexBy: 'alpha'
     };
 
     // bind all methods to this context (so we can use them)
@@ -32,6 +33,7 @@ class SongApp extends React.Component {
     this.returnToIndex = this.returnToIndex.bind(this);
     this.setSearch = this.setSearch.bind(this);
     this.clearSearch = this.clearSearch.bind(this);
+    this.toggleOrderIndexBy = this.toggleOrderIndexBy.bind(this);
 
     // setup history so users can navigate via browser
     window.history.replaceState({ page: this.state.page }, "", window.location.pathname);
@@ -310,6 +312,11 @@ class SongApp extends React.Component {
     }
   }
 
+  toggleOrderIndexBy(){
+    var newOrderIndexBy = this.state.orderIndexBy == 'alpha' ? 'number' : 'alpha';
+    this.setState({orderIndexBy: newOrderIndexBy});
+  }
+
   render() {
     var page = this.state.page;
     var content;
@@ -330,6 +337,8 @@ class SongApp extends React.Component {
             setSearch={this.setSearch}
             clearSearch={this.clearSearch}
             search={this.state.search}
+            orderIndexBy={this.state.orderIndexBy}
+            toggleOrderIndexBy={this.toggleOrderIndexBy}
             key="song-index"
           />
         );

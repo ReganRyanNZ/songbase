@@ -2,14 +2,12 @@ class SongIndex extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      rowLimit: 100, // react gets laggy rendering 2k songs, so there's a limit
-      sortField: 'alpha'
+      rowLimit: 100 // react gets laggy rendering 2k songs, so there's a limit
     }
 
     this.searchInputChange = this.searchInputChange.bind(this);
     this.getSearchResults = this.getSearchResults.bind(this);
     this.infiniteScrolling = this.infiniteScrolling.bind(this);
-    this.toggleSort = this.toggleSort.bind(this);
   }
 
   componentWillMount(){
@@ -29,10 +27,6 @@ class SongIndex extends React.Component {
     }
   }
 
-  toggleSort(){
-    var newSortField = this.state.sortField == 'alpha' ? 'book' : 'alpha';
-    this.setState({sortField: newSortField});
-  }
 
   searchInputChange(event) {
     switch (event.target.id) {
@@ -109,7 +103,7 @@ class SongIndex extends React.Component {
           };
         });
 
-      if(this.props.currentBook && this.state.sortField == 'book') {
+      if(this.props.currentBook && this.props.orderIndexBy == 'number') {
         searchResults.sort((a, b) => {
           var index_a = references.find((ref) => (ref.song_id == a.song.id)).index;
           var index_b = references.find((ref) => (ref.song_id == b.song.id)).index;
@@ -174,7 +168,7 @@ class SongIndex extends React.Component {
         </div>
         <div className="title-list">
           {!!this.props.currentBook ? (
-            <div className="btn-sort" onClick={this.toggleSort}>
+            <div className="btn-sort" onClick={this.props.toggleOrderIndexBy}>
               <SortIcon />
             </div>) : null}
 
