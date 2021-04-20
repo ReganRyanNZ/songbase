@@ -7,7 +7,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'rails', '~> 5.2.3'
+gem 'rails', '~> 5.2.4'
 # Use postgres as the database for Active Record
 gem 'pg', '~> 0.21.0'
 # Use Puma as the app server
