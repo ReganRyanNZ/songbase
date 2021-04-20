@@ -23,6 +23,7 @@ This was first a Rails app, now it uses React to allow state management and offl
 - Any song/book navigation is offline (after first visiting the site)
 - Site navigation and search is instant
 - Songs can be filtered by search or by book
+- Within a book, index can be sorted by title or by index number
 - Search looks at lyrics as well as first line
 - Backend users can log in via facebook or google
 - Backend users can enter new songs and edit songs
@@ -36,13 +37,6 @@ This was first a Rails app, now it uses React to allow state management and offl
 - At the bottom of the song put all its references.
 - Each reference is a link to that book's index.
 - Index needs to be sorted by index number.
-
-### Index sorted by book index
-
-- For book indices allow to switch between a-z to 1-9
-- References at the bottom of a song should link to that book's index
-  - Sorted by number
-  - Scrolled to the song you came from
 
 ### CRUD books
 
