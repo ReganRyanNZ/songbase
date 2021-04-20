@@ -1,4 +1,8 @@
-<div class="note">Note: Stanza numbers and chords will be out of alignment. To create a printable songsheet, you will need to copy this text into an editor and reformat it according to your preference.</div>
-<div class="note">Look out for comments in the lyrics (lines that start with #). It is good to format them differently to the song (e.g. italics, grey color, etc).</div>
-<div class="note">Ctrl + A is a quick way to select all text. This grey text will not be selected.</div>
-<%= react_component('SongPrint', lyrics: @song.lyrics) %>
+<div class="note">
+  <p>Welcome to the print page! All lines start with a tab (but verse numbers are on the left side of the tab).</p>
+  <p>To format this nicely, copy to your favorite text editor (google docs is a great choice), and set the left tab stops in your document. Choruses have two tabs, so set a second left tab stop for them.</p>
+  <p>Depending on your editor, you may need to paste with <b>ctrl + shift + v</b>, to get the formatting to adjust the text properly.</p>
+  <p>Look out for comments in the lyrics (lines that start with #). It is good to format them differently to the song (e.g. italics, grey color, etc).</p>
+  <p>Ctrl + A is a quick way to select all text. This grey text will not be selected.</p>
+</div>
+<div class="song-print"><%= @song.print_format %>

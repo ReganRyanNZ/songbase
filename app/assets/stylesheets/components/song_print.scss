@@ -2,7 +2,13 @@
   white-space: break-spaces;
 }
 
+@media print {
+  .note {
+    display: none !important;
+  }
+}
 .note {
+
   // no select, so users don't copy the note into songbooks by mistake
   -webkit-user-select: none; /* Safari */
   -moz-user-select: none; /* Firefox */

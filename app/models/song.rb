@@ -86,6 +86,28 @@ class Song < ApplicationRecord
     all.map(&:app_entry)
   end
 
+  def print_format
+    chord_chars = /\[.*?\]/
+    not_chord_chars = /(^\s*|\])[^\[]*\[?/
+    start_of_chorus = /(^|\n)  /
+    lines = lyrics.gsub(start_of_chorus, '\1' + "\t").split("\n")
+
+    tabbed_lines = "\t" + lines.map do |line|
+      if line['[']
+        words = line.split(chord_chars).join('')
+        chords = line.gsub(not_chord_chars) { |match| " " * match.length }
+        is_chorus_line = line[/^\t/]
+        if is_chorus_line
+          chords = "\t" + chords
+        end
+        line = [chords, words]
+      end
+      line
+    end.join("\n\t")
+    verse_number_regex = /^\t(\d+)\s*\n/
+    tabbed_lines.gsub(verse_number_regex, '\1')
+  end
+
   private
 
   def titles_validation
