@@ -7,17 +7,17 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'rails', '~> 5.2.4'
+gem 'rails', '~> 6.0.3'
 # Use postgres as the database for Active Record
 gem 'pg', '~> 0.21.0'
 # Use Puma as the app server
-gem 'puma', '~> 3.0'
+gem 'puma'
 # Speed profiler
 gem 'rack-mini-profiler', require: false
 # Use SCSS for stylesheets
-gem 'sass-rails', '~> 5.0'
+gem 'sassc-rails'
 # Use Uglifier as compressor for JavaScript assets
-gem 'uglifier', '>= 1.3.0'
+gem 'uglifier'
 
 gem 'react-rails'
 
