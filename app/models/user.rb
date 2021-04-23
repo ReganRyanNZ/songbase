@@ -20,4 +20,14 @@ class User < ApplicationRecord
     user.save!
     user
   end
+
+  def self.placeholder
+    user = find_or_initialize_by(provider: "localhost", uid: "abcde12345")
+    user.name = "Placeholder User because Regan broke auth :/"
+    user.email = "placeholder@example.com"
+    user.oauth_token = "abcde12345"
+    user.oauth_expires_at = Time.now + 7.days
+    user.save!
+    user
+  end
 end
