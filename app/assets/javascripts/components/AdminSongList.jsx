@@ -3,60 +3,59 @@ class AdminSongList extends React.Component {
     super(props);
 
     this.state = {
-      search: ""
+      songs: []
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.linkClassName = this.linkClassName.bind(this);
-    this.filterSongs = this.filterSongs.bind(this);
+    this.updateSongList = this.updateSongList.bind(this);
+  }
+
+  componentDidMount() {
+    var value = document.getElementById('admin_search').value
+    this.updateSongList(value || '');
   }
 
   handleChange(event) {
     switch (event.target.id) {
       case "admin_search":
-        this.setState({ search: event.target.value });
+        this.updateSongList(event.target.value);
         break;
     }
   }
 
-  linkClassName(review_type) {
-    if (review_type == "duplicate") {
+  linkClassName(reviewType) {
+    if (reviewType == "duplicate") {
       return "requires-review-duplicate";
     }
-    if (review_type == "changed") {
+    if (reviewType == "changed") {
       return "requires-review-changed";
     }
     return "";
   }
 
-  filterSongs(songs, search) {
-    // get rid of punctuation and chords
-    var stripString = function(str) {
-      str = str.replace(/\_/g, " ");
-      return str.replace(/(\[.+?\])|[’'",“\-—–!?()0-9\[\]]/g, "");
-    };
-    var strippedSearch = stripString(search);
-    var titleMatchRegex = new RegExp(strippedSearch, "i");
-    var lyricsMatchRegex = new RegExp(strippedSearch, "i");
+  updateSongList(search) {
+    var app = this;
 
-    // filter songs by language settings
-    return (searchResults = songs.filter(function(song) {
-      return (
-        this.props.settings.languages.includes(song.lang) && //language match
-        (Object.values(song.references).includes(search) || //index match
-        titleMatchRegex.test(stripString(song.title)) || //title match;
-          lyricsMatchRegex.test(stripString(song.lyrics)))
-      );
-    }, this));
+    axios({
+      method: "GET",
+      url: "/api/v1/admin_songs",
+      params: { search: search },
+      headers: { "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content }
+    }).then(function(response) {
+        console.log("Admin fetch completed.");
+        app.setState({songs: response.data.songs});
+      });
   }
 
   render() {
-    var list = Object.keys(this.props.songs).map(function(review_type, i) {
+    var list = Object.keys(this.state.songs).map(function(reviewType, i) {
       return [].concat.apply(
         [],
-        this.filterSongs(this.props.songs[review_type], this.state.search).map(
+
+        this.state.songs[reviewType].map(
           function(obj, i) {
-            var editClass = "edit_song_link " + this.linkClassName(review_type);
+            var editClass = "edit_song_link " + this.linkClassName(reviewType);
             var editRef = "/songs/" + obj.id + "/edit";
             var removeLink = "";
 

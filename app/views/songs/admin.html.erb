@@ -7,7 +7,6 @@
 
 <%= react_component(
   'AdminSongList',
-  songs: @songs,
   superAdmin: super_admin,
   settings: {
     languages: Song.distinct.pluck(:lang)

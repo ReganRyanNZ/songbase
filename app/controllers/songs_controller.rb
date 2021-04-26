@@ -30,7 +30,6 @@ class SongsController < ApplicationController
   end
 
   def admin
-    set_songs_admin
   end
 
   def admin_example
@@ -95,50 +94,9 @@ class SongsController < ApplicationController
     @song = Song.find(params[:id] || params[:s])
   end
 
-  def set_songs
-    @songs = Song.all.map { |song| [song.id, song.updated_at.to_i] }
-    # Song.all.includes(books: :song_books).each do |song|
-    #   song.titles.values.each do |title|
-    #     @songs << song_entry(title, song)
-    #   end
-    # end
-    # sort_songs(@songs)
-  end
-
-  def set_songs_admin
-    @songs = {}
-    @songs[:duplicate] =  sort_songs(Song.duplicates.includes(books: :song_books).map { |song| admin_song_entry(song.titles.values.first, song) }) if super_admin
-    @songs[:changed] = sort_songs(Song.recently_changed.includes(books: :song_books).map { |song| admin_song_entry(song.titles.values.first, song) })
-    @songs[:unchanged] = sort_songs((Song.all.includes(books: :song_books) - Song.duplicates - Song.recently_changed).map { |song| admin_song_entry(song.titles.values.first, song) })
-  end
-
-  def admin_song_entry(title, song)
-    {
-      title: title,
-      id: song.id,
-      books: song.book_indices,
-      lang: song.lang,
-      references: song.book_indices,
-      lyrics: song.lyrics,
-      edit_timestamp: time_ago_in_words(song.updated_at || song.created_at) + " ago",
-      last_editor: song.last_editor || "System"
-    }
-  end
 
   def song_params
     params.require(:song).permit(:lyrics, :firstline_title, :custom_title, :chorus_title, :lang)
-  end
-
-  def sort_songs(songs)
-    songs.sort_by! { |s| clean_for_sorting(s[:title]) }
-  end
-
-  def clean_for_sorting str
-    str.gsub(/[’'",“\-—–!?()]/, "").upcase
-  end
-
-  def time_ago_in_words(time)
-    time.to_s
   end
 
   def example_lyrics

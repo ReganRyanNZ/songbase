@@ -18,4 +18,29 @@ class Api::V1::SongsController < ApplicationController
         }
       }, status: 200
   end
+
+  def admin_songs
+    songs = {
+      duplicates: super_admin ? sort_songs(Song.duplicates.includes(books: :song_books).map(&:admin_entry)) : [],
+      changed: sort_songs(Song.recently_changed.includes(books: :song_books).map(&:admin_entry)),
+      unchanged: sort_songs(Song.with_lyrics(params[:search]).includes(books: :song_books).limit(100).map(&:admin_entry))
+    }
+    render json: {songs: songs}, status: 200
+  end
+
+  private
+
+
+  def sort_songs(songs)
+    return songs unless songs.present?
+
+    songs.sort_by { |s| clean_for_sorting(s[:title]) }
+  end
+
+  def clean_for_sorting(str)
+    return '' unless str.present?
+
+    str.gsub(/[’'",“\-—–!?()]/, "").upcase
+  end
+
 end

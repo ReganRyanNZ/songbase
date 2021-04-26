@@ -15,6 +15,11 @@ class Song < ApplicationRecord
         .select(:firstline_title) # get firstline from these buckets
     ).where("updated_at > ?", 3.months.ago) # old duplicates can be considered checked and ignored
   }
+  scope :with_lyrics, ->(search='') {
+    chord_or_non_char_or_newline_regex = "(?:(?:\\[[^\\]]*\\])|[.,?'\"!@#$%^&*();:-—]|\\n)*"
+    wildcard_search = search.split('').join(chord_or_non_char_or_newline_regex)
+    matches = where("lyrics ~* ?", wildcard_search)
+  }
 
   def guess_firstline_title
     strip_line(/^[^#\r\n0-9].*/.match(lyrics)[0])
@@ -75,6 +80,19 @@ class Song < ApplicationRecord
         lyrics: lyrics
       }
     end
+  end
+
+  def admin_entry
+    {
+      title: firstline_title,
+      id: id,
+      books: book_indices,
+      lang: lang,
+      references: book_indices,
+      lyrics: lyrics,
+      edit_timestamp: (updated_at || created_at).to_s + " ago",
+      last_editor: last_editor || "System"
+    }
   end
 
   def destroy_with_audit user
