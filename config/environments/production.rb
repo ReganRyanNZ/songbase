@@ -29,7 +29,9 @@ Rails.application.configure do
   config.assets.css_compressor = :sass
 
   # Do not fallback to assets pipeline if a precompiled asset is missed.
+  # This should be false on prod or the server will slow down.
   config.assets.compile = false
+  
   # config.assets.compress = false
   # config.assets.debug = true
 

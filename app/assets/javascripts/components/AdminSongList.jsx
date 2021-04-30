@@ -49,21 +49,14 @@ class AdminSongList extends React.Component {
   }
 
   render() {
-    var list = Object.keys(this.state.songs).map(function(reviewType, i) {
-      return [].concat.apply(
-        [],
-
+    var list = Object.keys(this.state.songs).map(function(reviewType) {
+      return [].concat.apply([],
         this.state.songs[reviewType].map(
-          function(obj, i) {
+          function(obj) {
             var editClass = "edit_song_link " + this.linkClassName(reviewType);
             var editRef = "/songs/" + obj.id + "/edit";
             var removeLink = "";
 
-            // DELETE is broken without jquery. Old code kept in case we want a workaround
-            // if(this.props.superAdmin) {
-            //   var ref = "/songs/" + obj.id
-            //   removeLink = <a data-confirm="Are you sure?" className="remove_song_link" rel="nofollow" data-method="delete" href={ref}>Remove</a>
-            // }
             return (
               <tr key={obj.id}>
                 <td>
