@@ -124,7 +124,7 @@ class SongDisplay extends React.Component {
       // if the scale doesn't make sense, try the bestGuess™ scale
       return (
         scales[newKey][scales[ogKey].indexOf(chordCore)] ||
-        bestGuessScale[(bestGuessScale.indexOf(chordCore)+this.state.transpose) % 12] ||
+        bestGuessScale[mod(bestGuessScale.indexOf(chordCore)+this.state.transpose, 12)] ||
         '?'
       ) + trailingChars
     })
