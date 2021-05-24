@@ -26,7 +26,7 @@ div[data-react-class='SongDisplay'] {
     position: relative;
     top: 1px;
     width: 18px;
-    padding: 2px;
+    padding: 1px 2px 3px 2px;
     display: inline-block;
     font-weight: 900;
     color: #777;
@@ -40,9 +40,9 @@ div[data-react-class='SongDisplay'] {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    &+ .transpose-symbol {
-      margin-left: 8px;
-    }
+  }
+  .transpose-value+.transpose-symbol {
+    padding: 1px 4px 3px 1px;
   }
   .musical-tie {
     width: 5px;

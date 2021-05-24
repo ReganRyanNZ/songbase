@@ -10,3 +10,28 @@
 .contact-footer {
   padding-top: 3em;
 }
+
+.radio-btns {
+  margin-left: 20px;
+  input {
+    display: none;
+  }
+  label {
+    display: inline-block;
+    width: 100px;
+    text-align: center;
+    padding-bottom: 8px;
+    padding-top: 8px;
+    margin-bottom: 12px;
+    border: 1px grey solid;
+    border-radius: 8px;
+    &.demo-css-normal {
+      background-color: white;
+      color: black;
+    }
+    &.demo-css-night {
+      background-color: black;
+      color: white;
+    }
+  }
+}

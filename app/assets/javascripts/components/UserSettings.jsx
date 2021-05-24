@@ -9,6 +9,7 @@ class UserSettings extends React.Component {
     this.toggleLanguage = this.toggleLanguage.bind(this);
     this.addLanguage = this.addLanguage.bind(this);
     this.removeLanguage = this.removeLanguage.bind(this);
+    this.updateTheme = this.updateTheme.bind(this);
   }
 
   render() {
@@ -34,6 +35,20 @@ class UserSettings extends React.Component {
       <h2>Current Languages</h2>,
       <p>{this.state.settings.languages.toString()}</p>
     ];
+
+    var themeRadioBtns = (
+      <div className='radio-btns' onChange={this.updateTheme}>
+        <div>
+          <input type='radio' id='css-normal' name='theme' value='css-normal'/>
+          <label htmlFor='css-normal' className='demo-css-normal'>Normal</label>
+        </div>
+        <div>
+          <input type='radio' id='css-night' name='theme' value='css-night'/>
+          <label htmlFor='css-night' className='demo-css-night'>Night</label>
+        </div>
+      </div>
+    );
+
     return (
       <div className="settings-container">
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
@@ -41,6 +56,8 @@ class UserSettings extends React.Component {
         </div>
         <h2>Languages</h2>
         {langCheckboxes}
+        <h2>Theme</h2>
+        {themeRadioBtns}
         <div className="contact-footer">
           <hr />
           Site Support:{" "}
@@ -75,6 +92,12 @@ class UserSettings extends React.Component {
     if (index > -1) {
       settings.languages.splice(index, 1);
     }
+    this.props.setSettings(settings);
+  }
+
+  updateTheme(e) {
+    var settings = this.state.settings;
+    settings.cssTheme = e.target.value;
     this.props.setSettings(settings);
   }
 }

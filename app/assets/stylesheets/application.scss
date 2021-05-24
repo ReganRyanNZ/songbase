@@ -1,6 +1,7 @@
 @import "variables",
         "components/*",
-        "scaffolds";
+        "scaffolds",
+        "themes";
 
 
 @media(min-width: 500px){
@@ -22,7 +23,6 @@ body {
   max-width: 800px;
   margin: auto;
   padding: 20px 30px;
-  background-color: white;
 
   @media (max-width: 400px) {
     padding: 20px 10px;
@@ -38,6 +38,10 @@ h1 {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+h2 {
+  margin-top: 30px;
 }
 
 .text-center {

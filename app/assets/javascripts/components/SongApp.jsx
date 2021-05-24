@@ -8,7 +8,8 @@ class SongApp extends React.Component {
         settingsType: "global",
         languages: ["english"],
         languagesInfo: [],
-        updated_at: 0
+        updated_at: 0,
+        cssTheme: 'css-normal'
       },
       bookSlug: props.book_slug,
       currentBook: props.preloaded_current_book || null,
@@ -34,6 +35,7 @@ class SongApp extends React.Component {
     this.setSearch = this.setSearch.bind(this);
     this.clearSearch = this.clearSearch.bind(this);
     this.toggleOrderIndexBy = this.toggleOrderIndexBy.bind(this);
+    this.setTheme = this.setTheme.bind(this);
 
     // setup history so users can navigate via browser
     window.history.replaceState({ page: this.state.page }, "", window.location.pathname);
@@ -317,6 +319,18 @@ class SongApp extends React.Component {
     this.setState({orderIndexBy: newOrderIndexBy});
   }
 
+  setTheme(){
+    var theme = this.state.settings.cssTheme;
+
+    if(theme == "css-night") {
+      document.body.classList.add('css-night');
+      document.body.classList.remove('css-normal');
+    } else if(theme == "css-normal") {
+      document.body.classList.add('css-normal');
+      document.body.classList.remove('css-night');
+    }
+  }
+
   render() {
     var page = this.state.page;
     var content;
@@ -349,6 +363,7 @@ class SongApp extends React.Component {
             setSettings={this.setSettings}
             settings={this.state.settings}
             toggleSettingsPage={this.toggleSettingsPage}
+            setTheme={this.setTheme}
           />
         );
         break;
@@ -378,6 +393,8 @@ class SongApp extends React.Component {
           </div>
         );
     }
+
+    this.setTheme();
     return (
       <div className="song-app" key="song-app">
         <h1 className="home-title" onClick={this.returnToIndex}>

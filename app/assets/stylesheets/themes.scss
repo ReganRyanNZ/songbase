@@ -1,0 +1,30 @@
+.css-night {
+  background-color: black;
+  color: white;
+  & .index_row:nth-child(even) {
+    background-color: #222;
+  }
+  & .book-icon-marker {
+    border-color: black;
+  }
+  & .lyrics .chord-word .chord {
+    color: #aaa;
+  }
+  & h1,h2 {
+    color: #ccc;
+  }
+  & .index_search {
+    background-color: #000;
+    color: white;
+    border-radius: 2px;
+    border: 1px solid #777;
+    padding-bottom: 5px;
+  }
+
+  & a {
+    color: #aaa;
+  }
+  & .search-form .btn_clear_search:hover {
+    color: white;
+  }
+}

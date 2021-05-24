@@ -1,6 +1,7 @@
 .index_row {
   padding: 5px 8px;
   font-size: 120%;
+  line-height: 1.1;
 
   &:active {
     background-color: #333;
@@ -38,13 +39,14 @@
   margin: 0 auto 10px auto;
   text-align: center;
   .index_search {
+    padding: 4px 8px;
     padding-right: 25px;
   }
   .btn_clear_search {
     position: absolute;
-    right: -4px;
-    top: -2px;
-    padding: 5px 10px;
+    right: 0;
+    top: 0;
+    padding: 6px 8px;
     color: #aaa;
     &:hover {
       cursor: pointer;
