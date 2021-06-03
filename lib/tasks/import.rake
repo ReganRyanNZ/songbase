@@ -89,6 +89,29 @@ namespace :import do
       end
     end
 
+    task french: :environment do
+      hymnal = Book.find_or_create_by(slug: :french_hymnal, name: "Cantiques", lang: "français")
+      filename = Rails.root.join('db', 'french-hymnal.txt')
+      delim = "QWERTY FR"
+      File.foreach(filename, delim) do |txt|
+        txt = txt.sub(delim, '')
+
+        # assign and remove index number
+        hymnal_index = txt[/\d+/]
+        txt = txt.sub(/.*\n/, '')
+
+        # replacing newlines after "chorus" to have 2 spaces in front of them
+        chorus_regex = /^\nchorus((?:\n[^\n]+)+)/
+        txt = txt.gsub(chorus_regex) {$1.gsub("\n", "\n  ")}
+
+        song = Song.new(lyrics: txt, lang: "français")
+        song.firstline_title = song.guess_firstline_title
+        song.save!
+        puts song.firstline_title
+        song.song_books.create(book: hymnal, index: hymnal_index)
+      end
+    end
+
     task spanish: :environment do
       hymnal = Book.find_or_create_by(slug: :spanish_hymnal, name: "Himnos", lang: "español")
       filename = Rails.root.join('db', 'spanish-hymnal.txt')

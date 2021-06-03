@@ -45,7 +45,7 @@ class SongIndex extends React.Component {
   getSearchResults() {
     var stripString = function(str) {
       str = str.replace(/\_/g, " ");
-      return str.normalize("NFD").replace(/(\[.+?\])|[’'",“\-—–!?()\[\]]|[\u0300-\u036f]/g, "");
+      return str.normalize("NFD").toUpperCase().replace(/(\[.+?\])|[’'",“\-—–!?()\[\]]|[\u0300-\u036f]/g, "");
     };
     var songs = this.props.songs;
     var references = this.props.references;
