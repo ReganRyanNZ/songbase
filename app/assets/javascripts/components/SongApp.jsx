@@ -335,8 +335,12 @@ class SongApp extends React.Component {
     var page = this.state.page;
     var content;
     var indexNumber;
+    var pageTitle = 'Songbase';
     switch (page) {
       case "index":
+        if(!!this.state.currentBook) {
+          pageTitle = this.state.currentBook.name + ' - Songbase';
+        }
         content = (
           <SongIndex
             songs={this.state.songs}
@@ -377,6 +381,7 @@ class SongApp extends React.Component {
         break;
       default:
         var song = this.getSong(page);
+        pageTitle = song.title;
         if(!!this.state.currentBook) {
           indexNumber = <div className="title-number">{window.location.pathname.split('/').pop()}</div>;
         }
@@ -393,6 +398,8 @@ class SongApp extends React.Component {
           </div>
         );
     }
+
+    document.title = pageTitle;
 
     this.setTheme();
     return (
