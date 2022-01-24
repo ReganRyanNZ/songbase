@@ -18,7 +18,9 @@ class SongApp extends React.Component {
       books: props.preloaded_books || [],
       loadingData: true,
       search: "",
-      orderIndexBy: 'alpha'
+      orderIndexBy: 'alpha',
+      scrollTo: null,
+      rowLimit: 100
     };
 
     // bind all methods to this context (so we can use them)
@@ -26,7 +28,6 @@ class SongApp extends React.Component {
     this.setSettings = this.setSettings.bind(this);
     this.toggleSettingsPage = this.toggleSettingsPage.bind(this);
     this.toggleBookIndex = this.toggleBookIndex.bind(this);
-    this.setBook = this.setBook.bind(this);
     this.clearBook = this.clearBook.bind(this);
     this.setSong = this.setSong.bind(this);
     this.setSongFromHistory = this.setSongFromHistory.bind(this);
@@ -36,6 +37,9 @@ class SongApp extends React.Component {
     this.clearSearch = this.clearSearch.bind(this);
     this.toggleOrderIndexBy = this.toggleOrderIndexBy.bind(this);
     this.setTheme = this.setTheme.bind(this);
+    this.goToBookIndex = this.goToBookIndex.bind(this);
+    this.scrollToSong = this.scrollToSong.bind(this);
+    this.infiniteScrolling = this.infiniteScrolling.bind(this);
 
     // setup history so users can navigate via browser
     window.history.replaceState({ page: this.state.page }, "", window.location.pathname);
@@ -45,6 +49,25 @@ class SongApp extends React.Component {
   // when user clicks "back" in their browser, navigate to previous song
   componentDidMount() {
     window.addEventListener("popstate", this.setSongFromHistory);
+  }
+
+  componentDidUpdate() {
+    if(!!this.state.scrollTo && this.state.page == 'index') {
+      var element = document.getElementById(this.state.scrollTo);
+      if(element) {
+        element.scrollIntoView({ block: 'center'});
+      }
+      this.setState({scrollTo: null});
+    }
+  }
+
+  infiniteScrolling(){
+    var pixelsBeforeTheEnd = 500,
+        currentScrollPoint = window.innerHeight + document.documentElement.scrollTop,
+        maxScrollPoint = document.scrollingElement.scrollHeight;
+    if (pixelsBeforeTheEnd + currentScrollPoint > maxScrollPoint) {
+        this.setState({rowLimit: this.state.rowLimit + 100});
+    }
   }
 
   initializeDB() {
@@ -268,7 +291,10 @@ class SongApp extends React.Component {
   }
 
   setSearch(search) {
-    this.setState({ search: search });
+    this.setState({
+      search: search,
+      rowLimit: 100
+    });
   }
 
   clearSearch() {
@@ -276,8 +302,7 @@ class SongApp extends React.Component {
     document.getElementById("index_search").focus();
   }
 
-  setBook(e) {
-    var bookSlug = e.target.closest(".index_row").id;
+  goToBookIndex(bookSlug) {
     var currentBook = this.state.books.find(book => book.slug === bookSlug);
     this.setState({
       page: "index",
@@ -290,7 +315,8 @@ class SongApp extends React.Component {
   clearBook() {
     this.setState({
       page: "index",
-      currentBook: null
+      currentBook: null,
+      rowLimit: 100
     });
     window.history.pushState({ page: "index" }, "", "/");
     window.scrollTo(0, 0);
@@ -314,9 +340,20 @@ class SongApp extends React.Component {
     }
   }
 
-  toggleOrderIndexBy(){
-    var newOrderIndexBy = this.state.orderIndexBy == 'alpha' ? 'number' : 'alpha';
+  // toggle unless given a specific order
+  toggleOrderIndexBy(newOrderIndexBy){
+    if(newOrderIndexBy.constructor != String) {
+      newOrderIndexBy = this.state.orderIndexBy == 'alpha' ? 'number' : 'alpha';
+    }
     this.setState({orderIndexBy: newOrderIndexBy});
+  }
+
+  scrollToSong(songIndex) {
+    this.setState({
+      scrollTo: songIndex,
+      rowLimit: this.state.rowLimit < songIndex ? (parseInt(songIndex) + 50) : this.state.rowLimit,
+      search: ""
+    });
   }
 
   setTheme(){
@@ -357,6 +394,9 @@ class SongApp extends React.Component {
             search={this.state.search}
             orderIndexBy={this.state.orderIndexBy}
             toggleOrderIndexBy={this.toggleOrderIndexBy}
+            scrollTo={this.state.scrollTo}
+            rowLimit={this.state.rowLimit}
+            infiniteScrolling={this.infiniteScrolling}
             key="song-index"
           />
         );
@@ -375,11 +415,12 @@ class SongApp extends React.Component {
         content = (
           <BookIndex
           books={this.state.books || []}
-          setBook={this.setBook}
+          goToBookIndex={this.goToBookIndex}
           />
         );
         break;
-      default:
+
+      default: // display a song
         var song = this.getSong(page);
         pageTitle = song.title;
         if(!!this.state.currentBook) {
@@ -389,6 +430,9 @@ class SongApp extends React.Component {
           <div className="song-container">
             <SongDisplay lyrics={song.lyrics} />
             <SongReferences
+              goToBookIndex={this.goToBookIndex}
+              toggleOrderIndexBy={this.toggleOrderIndexBy}
+              scrollToSong={this.scrollToSong}
               references={this.state.references.filter(
                 ref => ref.song_id == song.id
               )}

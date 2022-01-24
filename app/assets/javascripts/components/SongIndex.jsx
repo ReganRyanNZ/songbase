@@ -1,37 +1,20 @@
 class SongIndex extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      rowLimit: 100 // react gets laggy rendering 2k songs, so there's a limit
-    }
 
     this.searchInputChange = this.searchInputChange.bind(this);
     this.getSearchResults = this.getSearchResults.bind(this);
-    this.infiniteScrolling = this.infiniteScrolling.bind(this);
-  }
 
-  componentWillMount(){
-    window.addEventListener('scroll', this.infiniteScrolling);
+    window.addEventListener('scroll', this.props.infiniteScrolling);
   }
 
   componentWillUnmount(){
-    window.removeEventListener('scroll', this.infiniteScrolling);
+    window.removeEventListener('scroll', this.props.infiniteScrolling);
   }
-
-  infiniteScrolling(){
-    var pixelsBeforeTheEnd = 500,
-        currentScrollPoint = window.innerHeight + document.documentElement.scrollTop,
-        maxScrollPoint = document.scrollingElement.scrollHeight;
-    if (pixelsBeforeTheEnd + currentScrollPoint > maxScrollPoint) {
-        this.setState({rowLimit: this.state.rowLimit + 100});
-    }
-  }
-
 
   searchInputChange(event) {
     switch (event.target.id) {
       case "index_search":
-        this.setState({rowLimit: 100});
         this.props.setSearch(event.target.value);
         break;
     }
@@ -135,7 +118,7 @@ class SongIndex extends React.Component {
       }
     }
 
-    return searchResults.slice(0, this.state.rowLimit);
+    return searchResults.slice(0, this.props.rowLimit);
   }
 
   render() {
@@ -195,7 +178,7 @@ class SongIndex extends React.Component {
                   onClick={this.props.setSong}
                 >
                   <div className="index_row_title">
-                    <div className="title-text">{result.song.title}</div>
+                    {result.song.title}
                     {index_tag}
                   </div>
                   <div

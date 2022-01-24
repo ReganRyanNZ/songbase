@@ -4,6 +4,10 @@ class BookIndex extends React.Component {
   }
 
   render() {
+    var handleClick = (e)=> {
+      var bookSlug = e.target.closest(".index_row").id;
+      this.props.goToBookIndex(bookSlug);
+    }
     return (
       <div>
       {
@@ -13,7 +17,7 @@ class BookIndex extends React.Component {
               className="index_row"
               key={i}
               id={book.slug}
-              onClick={this.props.setBook}
+              onClick={handleClick}
             >
               <span className="index_row_title">{book.name}</span>
             </div>
