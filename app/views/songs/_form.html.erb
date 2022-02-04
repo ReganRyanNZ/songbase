@@ -15,7 +15,7 @@
   <%= react_component(
     'SongForm',
     song: song,
-    languages: Song.distinct.pluck(:lang),
+    languages: Song.distinct.pluck(:lang).map(&:downcase).sort.without('english').prepend('english'),
     references: song.app_entry(:references),
     books: Book.app_data) %>
   <div class="actions text-center">
