@@ -42,7 +42,7 @@ class SongApp extends React.Component {
     this.infiniteScrolling = this.infiniteScrolling.bind(this);
 
     // setup history so users can navigate via browser
-    window.history.replaceState({ page: this.state.page }, "", window.location.pathname);
+    window.history.replaceState({ page: this.state.page, currentBook: this.state.currentBook }, "", window.location.pathname);
     this.initializeDB();
   }
 
@@ -236,14 +236,14 @@ class SongApp extends React.Component {
 
   returnToIndex(e) {
     this.setState({ page: "index" });
-    window.history.pushState({ page: "index" }, "", !!this.state.currentBook ? `/${this.state.currentBook.slug}/i` : "/");
+    window.history.pushState({ page: "index", currentBook: this.state.currentBook }, "", !!this.state.currentBook ? `/${this.state.currentBook.slug}/i` : "/");
   }
 
   setSongFromHistory(e) {
     if (e.state.page) {
       e.preventDefault(); // stop request to server for new html
       e.stopPropagation();
-      this.setState({ page: e.state.page });
+      this.setState({ page: e.state.page, currentBook: e.state.currentBook });
       window.scrollTo(0, 0);
     }
   }
@@ -251,7 +251,7 @@ class SongApp extends React.Component {
   setSong(e) {
     var songId = e.target.closest(".index_row").id;
     this.setState({ page: songId });
-    window.history.pushState({ page: songId }, "", songId);
+    window.history.pushState({ page: songId, currentBook: this.state.currentBook }, "", songId);
     window.scrollTo(0, 0);
   }
 
@@ -308,7 +308,7 @@ class SongApp extends React.Component {
       page: "index",
       currentBook: currentBook
     });
-    window.history.pushState({ page: "index" }, "", `/${bookSlug}/i`);
+    window.history.pushState({ page: "index", currentBook: this.state.currentBook }, "", `/${bookSlug}/i`);
     window.scrollTo(0, 0);
   }
 
@@ -318,7 +318,7 @@ class SongApp extends React.Component {
       currentBook: null,
       rowLimit: 100
     });
-    window.history.pushState({ page: "index" }, "", "/");
+    window.history.pushState({ page: "index", currentBook: this.state.currentBook }, "", "/");
     window.scrollTo(0, 0);
   }
 
@@ -327,7 +327,7 @@ class SongApp extends React.Component {
       this.returnToIndex("");
     } else {
       this.setState({ page: "settings" });
-      window.history.pushState({ page: "settings" }, "", "/");
+      window.history.pushState({ page: "settings", currentBook: this.state.currentBook }, "", "/");
     }
   }
 
@@ -336,7 +336,7 @@ class SongApp extends React.Component {
       this.returnToIndex("");
     } else {
       this.setState({ page: "books" });
-      window.history.pushState({ page: "books" }, "", "/books");
+      window.history.pushState({ page: "books", currentBook: this.state.currentBook }, "", "/books");
     }
   }
 
