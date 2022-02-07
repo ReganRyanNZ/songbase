@@ -1,12 +1,11 @@
 class User < ApplicationRecord
   has_many :audits
 
-  def self.from_omniauth(auth)
-    user = find_or_initialize_by(provider: auth.provider, uid: auth.uid)
-    user.name = auth.info.name
-    user.email = auth.info.email
-    user.oauth_token = auth.credentials.token
-    user.oauth_expires_at = Time.at(auth.credentials.expires_at)
+  def self.from_google(google_id)
+    google_data = GoogleSignIn::Identity.new(google_id)
+    user = find_or_initialize_by(provider: 'google', uid: google_id)
+    user.name = google_data.name
+    user.email = google_data.email_address
     user.save!
     user
   end
@@ -15,18 +14,6 @@ class User < ApplicationRecord
     user = find_or_initialize_by(provider: "localhost", uid: "abcde12345")
     user.name = "Test User"
     user.email = "test@example.com"
-    user.oauth_token = "abcde12345"
-    user.oauth_expires_at = Time.now + 7.days
-    user.save!
-    user
-  end
-
-  def self.placeholder
-    user = find_or_initialize_by(provider: "localhost", uid: "abcde12345")
-    user.name = "Placeholder User because Regan broke auth :/"
-    user.email = "placeholder@example.com"
-    user.oauth_token = "abcde12345"
-    user.oauth_expires_at = Time.now + 7.days
     user.save!
     user
   end

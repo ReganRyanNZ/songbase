@@ -21,8 +21,7 @@ gem 'uglifier'
 
 gem 'react-rails'
 
-gem 'omniauth-facebook'
-gem 'omniauth-google-oauth2'
+gem 'google_sign_in'
 
 #Api gems
 gem 'active_model_serializers'

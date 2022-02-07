@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  get 'auth/:provider/callback', to: 'sessions#create'
+  get 'auth/:provider/callback', to: 'sessions#create', as: 'create_session'
   get 'auth/failure', to: redirect('/admin')
   get 'signout', to: 'sessions#destroy', as: 'signout'
 

@@ -3,7 +3,6 @@
     Signed in as <strong><%= current_user.name %></strong>
     <%= link_to "Sign out", signout_path, id: "sign_out" %>
   <% else %>
-    <%= link_to "Sign in with Facebook", "/auth/facebook", id: "sign_in_facebook" %>
-    <%= link_to "Sign in with Google", "/auth/google_oauth2", id: "sign_in_google" %>
+    <%= google_sign_in_button image_tag('btn_google_signin_dark_normal_web@2x.png', alt: 'Google'), proceed_to: create_session_url(:google), class: 'sign_in_google' %>
   <% end %>
 </div>

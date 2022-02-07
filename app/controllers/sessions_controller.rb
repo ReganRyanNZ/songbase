@@ -1,6 +1,6 @@
 class SessionsController < ApplicationController
   def create
-    user = User.from_omniauth(request.env["omniauth.auth"])
+    user = User.from_google(flash[:google_sign_in]["id_token"])
     session[:user_id] = user.id
     redirect_to admin_path
   end

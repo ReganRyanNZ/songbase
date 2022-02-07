@@ -2,20 +2,15 @@
   text-align: right;
 }
 
-#sign_in_facebook {
-  padding: 10px;
-  background-color: #4167B2;
-  border-radius: 5px;
-  color: white;
-  text-decoration: none;
-}
-
-#sign_in_google {
-  padding: 10px;
-  background-color: #dd4b39;
-  border-radius: 5px;
-  color: white;
-  text-decoration: none;
+.sign_in_google {
+  width: 200px;
+  padding: 0;
+  display: inline-block;
+  background: none;
+  border: none;
+  img {
+    width: 100%;
+  }
 }
 
 #sign_out {
