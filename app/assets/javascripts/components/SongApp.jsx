@@ -16,7 +16,7 @@ class SongApp extends React.Component {
       songs: [],
       references: props.preloaded_references || [],
       books: props.preloaded_books || [],
-      loadingData: true,
+      loadingData: false,
       search: "",
       orderIndexBy: 'alpha',
       scrollTo: null,
@@ -215,7 +215,7 @@ class SongApp extends React.Component {
                 return 0;
               }
             });
-            app.setState({ songs: songs, loadingData: false });
+            app.setState({ songs: songs, loadingData: songs.length == 0 });
             console.log("Fetching complete.");
           });
       })

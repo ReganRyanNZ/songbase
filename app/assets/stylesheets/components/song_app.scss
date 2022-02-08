@@ -21,6 +21,12 @@
   text-align: center;
   opacity: 1;
   animation: fade 2s linear infinite;
+  position: fixed;
+  width: 100vw;
+  left: 0;
+  top: 0;
+  margin-top: calc(50vh - 20px);
+  font-size: 1.2em;
 }
 
 
