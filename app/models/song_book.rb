@@ -1,6 +1,7 @@
 class SongBook < ApplicationRecord
   belongs_to :book
   belongs_to :song
+  scope :for_books, ->(books) { books.present? ? where(book_id: books.map(&:id)) : all }
 
   def app_entry
     {

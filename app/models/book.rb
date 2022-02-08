@@ -1,6 +1,7 @@
 class Book < ApplicationRecord
   has_many :song_books, dependent: :destroy
   has_many :songs, through: :song_books
+  scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
 
   def app_entry
     {

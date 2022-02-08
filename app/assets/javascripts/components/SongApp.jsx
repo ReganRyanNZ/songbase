@@ -125,52 +125,95 @@ class SongApp extends React.Component {
   }
 
   fetchData() {
+    // fetch a list of languages
+    // sort the list so languages in settings are first
+    // for each language, fetch and update db
     var app = this;
     var db = app.db;
+    var lastUpdatedAt = app.state.settings.updated_at || "";
+    var newUpdateTime = new Date().getTime();
+
+    axios({
+      method: "GET",
+      url: "/api/v1/languages",
+      headers: {
+        "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content
+      }
+    }).then(function(response) {
+      var myLanguages = app.state.settings.languages;
+      var hiddenLanguages = response.data.languages.filter(lang => !myLanguages.includes(lang));
+      var languages = myLanguages.concat(hiddenLanguages);
+
+      console.log('myLanguages: ' + myLanguages);
+      console.log('hiddenLanguages: ' + hiddenLanguages);
+
+      languages.forEach((language) => {
+        app.fetchDataByLanguage(app, db, language, lastUpdatedAt)
+      })
+    }).then(function() {
+      db.transaction(
+        "rw",
+        db.settings,
+        () => {
+          var settings = app.state.settings;
+          settings["updated_at"] = newUpdateTime;
+          app.setState({
+            settings: settings
+          });
+          db.settings.put(settings);
+        }
+      )
+  });
+    console.log("Fetch completed.");
+  }
+
+  fetchDataByLanguage(app, db, language, lastUpdatedAt) {
     axios({
       method: "GET",
       url: "/api/v1/app_data",
       params: {
-        updated_at: app.state.settings.updated_at || ""
+        updated_at: lastUpdatedAt,
+        language: language
       },
       headers: {
         "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content
       }
     })
-      .then(function(response) {
-        console.log("Fetch completed.");
-        console.log(
-          "Syncing " + response.data.songs.length + " songs with indexedDB..."
-        );
-        // run this all in a transaction, to stop mid-sync cut outs from wrecking everything
-        db.transaction(
-          "rw",
-          db.songs,
-          db.books,
-          db.references,
-          db.settings,
-          () => {
-            db.songs.bulkPut(response.data.songs);
-            db.references.bulkPut(response.data.references);
-            db.books.bulkPut(response.data.books);
-            db.songs.bulkDelete(response.data.destroyed.songs);
-            db.references.bulkDelete(response.data.destroyed.references);
-            db.books.bulkDelete(response.data.destroyed.books);
-            var settings = app.state.settings;
-            settings["updated_at"] = new Date().getTime();
-            settings["languagesInfo"] = response.data.languages_info;
-            console.log(settings);
-            app.setState({
-              settings: settings
-            });
-            db.settings.put(settings);
-          }
-        );
-      })
-      .then(function(data) {
-        console.log("Syncing completed.");
-        app.pushDBToState();
-      });
+    .then(function(response) {
+      console.log(
+        "Syncing " + response.data.songs.length + " " + language + " songs with indexedDB..."
+      );
+      // run this all in a transaction, to stop mid-sync cut outs from wrecking everything.
+      // if I'm fetching by language, things could still break if there's a song or book referring to multiple languages
+      // I guess we'll see...
+      db.transaction(
+        "rw",
+        db.songs,
+        db.books,
+        db.references,
+        db.settings,
+        () => {
+          db.songs.bulkPut(response.data.songs);
+          db.references.bulkPut(response.data.references);
+          db.books.bulkPut(response.data.books);
+          db.songs.bulkDelete(response.data.destroyed.songs);
+          db.references.bulkDelete(response.data.destroyed.references);
+          db.books.bulkDelete(response.data.destroyed.books);
+
+          var settings = app.state.settings;
+          settings['languagesInfo'] = settings['languagesInfo'].filter(info => info[0] != language); // remove previous value
+          settings['languagesInfo'].push([language, response.data.songCount]); // add new value
+          app.setState({
+            settings: settings
+          });
+          db.settings.put(settings);
+        }
+      );
+    })
+    .then(function(data) {
+      console.log("Syncing " + language + " completed.");
+      app.pushDBToState();
+    });
   }
 
   pushDBToState() {

@@ -20,6 +20,7 @@ class Song < ApplicationRecord
     wildcard_search = search.split('').join(chord_or_non_char_or_newline_regex)
     matches = where("lyrics ~* ?", wildcard_search)
   }
+  scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
 
   def guess_firstline_title
     strip_line(/^[^#\r\n0-9].*/.match(lyrics)[0])

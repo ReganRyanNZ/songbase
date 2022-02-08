@@ -5,18 +5,25 @@ class Api::V1::SongsController < ApplicationController
     time_in_seconds = (params[:updated_at].presence&.to_i || 0) /1000
     client_updated_at = Time.at(time_in_seconds).utc
     dead_songs = DeadSong.where('time > ?', client_updated_at).pluck(:song_id)
+    songs_to_sync = Song.where('updated_at > ?', client_updated_at).for_language(params[:language])
+    books_to_sync = Book.where('updated_at > ?', client_updated_at).for_language(params[:language])
+    references_to_sync = SongBook.where('updated_at > ?', client_updated_at).for_books(books_to_sync)
     render json: {
-      songs: Song.where('updated_at > ?', client_updated_at).app_data,
-      books: Book.where('updated_at > ?', client_updated_at).app_data,
-      references: SongBook.where('updated_at > ?', client_updated_at).app_data,
-      languages_info: Song.all.group_by(&:lang).map{ |lang,songs| [lang, songs.count] },
-      destroyed:
-        {
-          songs: dead_songs,
-          references: SongBook.where(song_id: dead_songs).pluck(:id),
-          books: Book.where('deleted_at > ?', client_updated_at).pluck(:id)
-        }
-      }, status: 200
+      songs: songs_to_sync.app_data,
+      books: books_to_sync.app_data,
+      references: references_to_sync.app_data,
+      destroyed: { songs: dead_songs,
+                   references: SongBook.where(song_id: dead_songs).pluck(:id),
+                   books: Book.where('deleted_at > ?', client_updated_at).pluck(:id) },
+      songCount: Song.for_language(params[:language]).count,
+      },
+      status: 200
+  end
+
+  def languages
+    render json: {
+      languages: Song.distinct.pluck(:lang).without('english').prepend('english')
+    }
   end
 
   def admin_songs
@@ -29,7 +36,6 @@ class Api::V1::SongsController < ApplicationController
   end
 
   private
-
 
   def sort_songs(songs)
     return songs unless songs.present?
