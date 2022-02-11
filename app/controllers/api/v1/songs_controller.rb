@@ -35,7 +35,12 @@ class Api::V1::SongsController < ApplicationController
   private
 
   def client_updated_at
-    return @client_updated_at ||= Time.at((params[:updated_at].presence&.to_i || 0) / 1000).utc
+    return @client_updated_at if @client_updated_at.present?
+
+    updated_at = params[:updated_at].presence&.to_i || 0
+    seconds = updated_at / 1000
+    milliseconds = updated_at % 1000
+    @client_updated_at = Time.at(seconds, milliseconds, :millisecond).utc
   end
 
   def dead_songs

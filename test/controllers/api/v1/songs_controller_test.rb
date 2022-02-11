@@ -4,13 +4,14 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
   test "GET #app_data" do
 
     deleted_song = FactoryBot.create(:song)
-    sleep 1
+
     time_of_fetch = js_time_now
+
     @songs = [FactoryBot.create(:song), FactoryBot.create(:song, firstline_title: "Another song", lyrics: "Different words[G]")]
-    sleep 1
-    song_to_ignore = FactoryBot.create(:song)
 
     deleted_song.destroy_with_audit
+
+    song_to_ignore = FactoryBot.create(:song)
     song_to_ignore.destroy_with_audit
 
     get api_v1_app_data_path, params: {updated_at: time_of_fetch}
