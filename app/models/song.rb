@@ -6,6 +6,11 @@ class Song < ApplicationRecord
 
   before_save :remove_windows_carriage_returns
 
+  default_scope -> { where(deleted_at: nil) }
+  # We want to know songs that have been deleted since the client's last update
+  # but if it was already _created_ (and then deleted) since the last update then we can completely ignore it.
+  scope :deleted_after, ->(last_updated_at) { unscoped.where('deleted_at > ?', last_updated_at).where('created_at < ?', last_updated_at) }
+
   scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
   scope :duplicates, -> {
     where(
@@ -64,7 +69,7 @@ class Song < ApplicationRecord
     self.update(lyrics: self.lyrics.gsub(hymn_ref_regex, "")) if self.lyrics =~ hymn_ref_regex
 
     # reload to refresh song_book associations
-    old_song.reload.destroy_with_audit(User.first)
+    old_song.reload.destroy_with_audit(User.system_user)
   end
 
   def app_entry(type=nil)
@@ -96,9 +101,9 @@ class Song < ApplicationRecord
     }
   end
 
-  def destroy_with_audit user
-    DeadSong.create(user: user, song_id: self.id, time: Time.zone.now)
-    self.destroy
+  def destroy_with_audit(user=nil)
+    user ||= User.system_user
+    update(deleted_at: Time.current, deleted_by: user.id)
   end
 
   def self.app_data

@@ -17,4 +17,12 @@ class User < ApplicationRecord
     user.save!
     user
   end
+
+  def self.system_user
+    user = find_or_initialize_by(provider: "system", uid: "abcde12345")
+    user.name = "System"
+    user.email = "songbase.brothers@gmail.com"
+    user.save!
+    user
+  end
 end

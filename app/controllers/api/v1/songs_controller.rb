@@ -2,9 +2,6 @@ class Api::V1::SongsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def app_data
-    time_in_seconds = (params[:updated_at].presence&.to_i || 0) /1000
-    client_updated_at = Time.at(time_in_seconds).utc
-    dead_songs = DeadSong.where('time > ?', client_updated_at).pluck(:song_id)
     songs_to_sync = Song.where('updated_at > ?', client_updated_at).for_language(params[:language])
     books_to_sync = Book.where('updated_at > ?', client_updated_at).for_language(params[:language])
     references_to_sync = SongBook.where('updated_at > ?', client_updated_at).for_books(books_to_sync)
@@ -36,6 +33,14 @@ class Api::V1::SongsController < ApplicationController
   end
 
   private
+
+  def client_updated_at
+    return @client_updated_at ||= Time.at((params[:updated_at].presence&.to_i || 0) / 1000).utc
+  end
+
+  def dead_songs
+    @dead_songs ||= Song.deleted_after(client_updated_at).pluck(:id)
+  end
 
   def sort_songs(songs)
     return songs unless songs.present?
