@@ -20,11 +20,11 @@ class Song < ApplicationRecord
         .select(:title) # get firstline from these buckets
     ).where("updated_at > ?", 3.months.ago) # old duplicates can be considered checked and ignored
   }
-  scope :with_lyrics, ->(search) {
-    search ||= ''
+  scope :search, ->(search_term) {
+    search_term ||= ''
     chord_or_non_char_or_newline_regex = "(?:(?:\\[[^\\]]*\\])|[.,?'\"!@#$%^&*();:-—]|\\n)*"
-    wildcard_search = search.split('').join(chord_or_non_char_or_newline_regex)
-    matches = where("lyrics ~* ?", wildcard_search)
+    wildcard_search = search_term.split('').join(chord_or_non_char_or_newline_regex)
+    where("lyrics ~* ?", wildcard_search).or(where("title ~* ?", wildcard_search))
   }
   scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
 
