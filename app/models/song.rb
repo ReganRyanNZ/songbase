@@ -2,7 +2,7 @@ class Song < ApplicationRecord
   has_many :song_books, dependent: :destroy
   has_many :books, through: :song_books
   has_many :audits, dependent: :destroy
-  validate :titles_validation
+  validates :title, presence: true
 
   before_save :remove_windows_carriage_returns
 
@@ -14,10 +14,10 @@ class Song < ApplicationRecord
   scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
   scope :duplicates, -> {
     where(
-      firstline_title: Song.select(:firstline_title)
-        .group(:firstline_title) # group songs into buckets of the same title
+      title: Song.select(:title)
+        .group(:title) # group songs into buckets of the same title
         .having("count(*) > 1") # bucket has more than one song
-        .select(:firstline_title) # get firstline from these buckets
+        .select(:title) # get firstline from these buckets
     ).where("updated_at > ?", 3.months.ago) # old duplicates can be considered checked and ignored
   }
   scope :with_lyrics, ->(search) {
@@ -28,7 +28,7 @@ class Song < ApplicationRecord
   }
   scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
 
-  def guess_firstline_title
+  def guess_title
     strip_line(/^[^#\r\n0-9].*/.match(lyrics)[0])
   end
 
@@ -36,14 +36,6 @@ class Song < ApplicationRecord
     chorus_title_regex = /^  ([^ ].*)/
     return nil unless chorus_title_regex.match(lyrics)
     strip_line(chorus_title_regex.match(lyrics)[1])
-  end
-
-  def titles
-    {
-      firstline_title: firstline_title,
-      chorus_title: chorus_title,
-      custom_title: custom_title
-    }.reject { |k,v| v.blank? }
   end
 
   def book_indices
@@ -82,7 +74,7 @@ class Song < ApplicationRecord
     else
       {
         id: id,
-        title: titles.first[1],
+        title: title,
         lang: lang,
         lyrics: lyrics
       }
@@ -91,7 +83,7 @@ class Song < ApplicationRecord
 
   def admin_entry
     {
-      title: firstline_title,
+      title: title,
       id: id,
       books: book_indices,
       lang: lang,
@@ -133,19 +125,7 @@ class Song < ApplicationRecord
     tabbed_lines.gsub(verse_number_regex, '\1')
   end
 
-  # Songs were originally designed to have firstline, chorus, and custom title.
-  # This is deprecated, so we only use title now...
-  def title
-    titles.first[1]
-  end
-
   private
-
-  def titles_validation
-    unless titles.any?
-      errors[:base] << "This song must have a title (or no one will find it!)"
-    end
-  end
 
   def strip_line line
     # strip chords, newlines, trailing punctuation

@@ -1,17 +1,7 @@
 require 'test_helper'
 
 class SongTest < ActiveSupport::TestCase
-  test ".titles returns titles from first line, chorus, and title field" do
-    titles = {
-      firstline_title: "From the time I spoke Your Name",
-      chorus_title: "Now my eyes begin to see",
-      custom_title: "Jesus, You're alive"
-    }
-    song = FactoryBot.create(:song, titles)
-    assert_equal titles, song.titles
-  end
-
-  test ".guess_firstline_title returns the first line of the song" do
+  test ".guess_title returns the first line of the song" do
     song = FactoryBot.create(:song, lyrics: "
 # Revelation 5:12-13
 1
@@ -31,7 +21,7 @@ And glory be Thine.
 Blessing and honor and glory be Thine,
 Both now and evermore."
     )
-    assert_equal "Blessing and honor and glory be Thine", song.guess_firstline_title
+    assert_equal "Blessing and honor and glory be Thine", song.guess_title
   end
 
   test ".guess_chorus_title returns the first line of the chorus" do
@@ -52,9 +42,9 @@ Both now and evermore."
   end
 
   test "#duplicates returns duplicate songs" do
-    title = {firstline_title: "From the time I spoke Your Name"}
-    song1 = FactoryBot.create(:song, title)
-    song2 = FactoryBot.create(:song, title)
+    title ="From the time I spoke Your Name"
+    song1 = FactoryBot.create(:song, title: title)
+    song2 = FactoryBot.create(:song, title: title)
     assert_equal [song1, song2], Song.duplicates
   end
 

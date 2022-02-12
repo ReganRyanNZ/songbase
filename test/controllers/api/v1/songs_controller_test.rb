@@ -45,7 +45,7 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
   end
 
   def songs
-    @songs ||= [FactoryBot.create(:song), FactoryBot.create(:song, firstline_title: "Another song", lyrics: "Different words[G]")]
+    @songs ||= [FactoryBot.create(:song), FactoryBot.create(:song, title: "Another song", lyrics: "Different words[G]")]
   end
 
   def js_time_now

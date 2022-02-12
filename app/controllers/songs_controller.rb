@@ -96,7 +96,7 @@ class SongsController < ApplicationController
 
 
   def song_params
-    params.require(:song).permit(:lyrics, :firstline_title, :custom_title, :chorus_title, :lang)
+    params.require(:song).permit(:lyrics, :title, :lang)
   end
 
   def example_lyrics

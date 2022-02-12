@@ -4,7 +4,7 @@ class SongForm extends React.Component {
 
     this.state = {
       lyrics: this.props.song.lyrics || "",
-      firstline_title: this.props.song.firstline_title || "",
+      title: this.props.song.title || "",
       lang: this.props.song.lang || "english",
       references: this.props.references || {},
       books: this.props.books
@@ -17,8 +17,8 @@ class SongForm extends React.Component {
       case "song_lyrics":
         this.setState({ lyrics: event.target.value });
         break;
-      case "song_firstline_title":
-        this.setState({ firstline_title: event.target.value });
+      case "song_title":
+        this.setState({ title: event.target.value });
         break;
       case "song_lang":
         this.setState({ lang: event.target.value });
@@ -82,12 +82,12 @@ class SongForm extends React.Component {
             This title will appear on a songbook's index page.
           </p>
           <input
-            id="song_firstline_title"
+            id="song_title"
             placeholder="Title (usually the first line)"
             className="song-form-title"
             type="text"
-            value={this.state.firstline_title}
-            name="song[firstline_title]"
+            value={this.state.title}
+            name="song[title]"
             onChange={this.handleChange}
           />
         </div>
