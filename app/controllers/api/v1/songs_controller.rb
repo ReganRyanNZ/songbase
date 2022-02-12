@@ -24,12 +24,13 @@ class Api::V1::SongsController < ApplicationController
   end
 
   def admin_songs
-    songs = {
-      duplicates: super_admin ? sort_songs(Song.duplicates.includes(books: :song_books).map(&:admin_entry)) : [],
-      changed: sort_songs(Song.recently_changed.includes(books: :song_books).map(&:admin_entry)),
-      unchanged: sort_songs(Song.with_lyrics(params[:search]).includes(books: :song_books).limit(100).map(&:admin_entry))
-    }
-    render json: {songs: songs}, status: 200
+    duplicates = super_admin ? sort_songs(Song.duplicates.includes(books: :song_books).map(&:admin_entry)) : []
+    changed = sort_songs(Song.recently_changed.includes(books: :song_books).map(&:admin_entry)) - duplicates
+    unchanged = sort_songs(Song.with_lyrics(params[:search]).includes(books: :song_books).limit(100).map(&:admin_entry))
+
+    render json: {songs: {duplicates:duplicates,
+                          changed: changed,
+                          unchanged: unchanged}}, status: 200
   end
 
   private

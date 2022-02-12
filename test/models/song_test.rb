@@ -58,13 +58,10 @@ Both now and evermore."
     song1 = FactoryBot.create(:song)
     time_before_creation = Time.now
 
-    sleep 0.01
-
     song2 = FactoryBot.create(:song)
 
-    sleep 0.01
     time_before_destruction = Time.now
-    sleep 0.01
+
     song2.destroy_with_audit
 
     assert song2.deleted_at?

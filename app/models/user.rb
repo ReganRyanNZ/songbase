@@ -11,10 +11,12 @@ class User < ApplicationRecord
   end
 
   def self.test_user
+    role = :user
+    role = :admin
+
     user = find_or_initialize_by(provider: "localhost", uid: "abcde12345")
-    user.name = "Test User"
-    user.email = "regan.ryan.nz@gmail.com" # use regan's email to test superadmin
-    # user.email = "test@example.com" # use test to test normal admin
+    user.email = {admin: "regan.ryan.nz@gmail.com", user: "test@example.com"}[role]
+    user.name = {admin: 'Test Admin User', user: "Test User"}[role]
     user.save!
     user
   end

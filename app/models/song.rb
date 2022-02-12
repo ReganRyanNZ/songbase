@@ -103,6 +103,18 @@ class Song < ApplicationRecord
     all.map(&:app_entry)
   end
 
+  # This gets duplicates including substrings and ignoring case and punctuation. It's very slow, so we can't
+  # include it in normal admin pages
+  def self.duplicate_songs
+    all_songs = all.where(lang: 'english').pluck(:title, :id).each { |t| t[0] = t[0].downcase.gsub(/[,.'"?!:]/, '') }
+
+    all_songs.select do |song|
+      all_songs.any? do |potential_dup|
+        song[0].match?(potential_dup[0]) && potential_dup[1] != song[1]
+      end
+    end.sort_by(&:first)
+  end
+
   def print_format
     chord_chars = /\[.*?\]/
     not_chord_chars = /(^\s*|\])[^\[]*\[?/

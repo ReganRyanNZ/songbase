@@ -25,7 +25,7 @@ class AdminSongList extends React.Component {
   }
 
   linkClassName(reviewType) {
-    if (reviewType == "duplicate") {
+    if (reviewType == "duplicates") {
       return "requires-review-duplicate";
     }
     if (reviewType == "changed") {
