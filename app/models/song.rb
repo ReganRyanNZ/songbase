@@ -96,7 +96,7 @@ class Song < ApplicationRecord
       lang: lang,
       references: book_indices,
       lyrics: lyrics,
-      edit_timestamp: (updated_at || created_at).to_s + " ago",
+      edit_timestamp: ApplicationController.helpers.time_ago_in_words(updated_at || created_at) + ' ago',
       last_editor: last_editor || "System"
     }
   end

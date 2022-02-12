@@ -43,6 +43,13 @@ a.btn-help {
   margin-left: 25px;
 }
 
+@media (max-width: 768px) {
+  .edit_timestamp {
+    display: none;
+  }
+}
+
+
 .requires-review-changed {
   color: green;
   &:hover {

@@ -69,7 +69,7 @@ class AdminSongList extends React.Component {
                   <div className="last_edited">{obj.last_editor}</div>
                 </td>
                 <td>
-                  <div className="edit_timestamp">{obj.timestamp}</div>
+                  <div className="edit_timestamp">{obj.edit_timestamp}</div>
                 </td>
               </tr>
             );
