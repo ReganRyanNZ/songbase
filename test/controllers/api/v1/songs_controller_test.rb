@@ -7,7 +7,7 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
 
     time_of_fetch = js_time_now
 
-    @songs = [FactoryBot.create(:song), FactoryBot.create(:song, firstline_title: "Another song", lyrics: "Different words[G]")]
+    songs
 
     deleted_song.destroy_with_audit
 
@@ -16,15 +16,36 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
 
     get api_v1_app_data_path, params: {updated_at: time_of_fetch}
 
-    songs_response = JSON.parse(response.body, symbolize_names: true)
-    song_data = [
-      {:title=>"From the time I spoke Your Name", :lang=>"en", :lyrics=>"1\nFrom the [D]time I [G]spoke Your [D]Name,\nLord, my l[G]ife's not been the [D]same\n[]Since I called on the only One Who'd\n[A]Save me[A7].\nWhen fors[D]aken, [G]in desp[D]air—\nWho'd have t[G]hought that You'd be t[D]here?\nNow I've found out, [A]Jesus, You're [D]ali[D7]ve!\n\n  Now my [G]eyes begin to see\n  I'm living [D]as I ought to be,\n  As this [G]turning, burning God\n  Moves in my [A]heart.[A7]\n  I don't [D]care now [G]how I [D]feel;\n  I just [G]know that this is [D]real,\n  And I know, O [A]Jesus, You're a[D]live!\n\n2\nAll my friends may think it’s square,\nSince I’ve touched You I don’t care,\nFor I’ve found You’re the only life worth living.\nThough some mock and criticise,\nLord, they just don’t realise\nThat I’ve found out, Jesus, You’re alive!\n\n3\nIt's no statue that I call,\nNot a picture on the wall,\nBut a Person Who lives His life\nwithin me.\nWish they'd told me long before,\nAll You want's an open door,\nAnd that really, Jesus, You're alive!"},
-      {:title=>"Another song", :lang=>"en", :lyrics=>"Different words[G]"}
-    ]
+    songs_response
+    song_data = songs.map do |song|
+      {
+        title: song.title,
+        lang: song.lang,
+        lyrics: song.lyrics
+      }
+    end
 
     assert_response :success
     assert_equal [deleted_song.id], songs_response[:destroyed][:songs]
     assert_equal song_data, songs_response[:songs].map{|song| song.except(:id)}
+  end
+
+  test 'GET #admin_songs' do
+    songs
+    get api_v1_admin_songs_path
+
+    assert_equal 2, songs_response[:songs][:changed].count
+
+    song_data = {:title=>"Another song", :books=>{}, :lang=>"en", :references=>{}, :lyrics=>"Different words[G]", :edit_timestamp=>"less than a minute ago", :last_editor=>"System"}
+    assert_equal song_data, songs_response[:songs][:changed].first.except(:id)
+  end
+
+  def songs_response
+    @songs_response ||= JSON.parse(response.body, symbolize_names: true)
+  end
+
+  def songs
+    @songs ||= [FactoryBot.create(:song), FactoryBot.create(:song, firstline_title: "Another song", lyrics: "Different words[G]")]
   end
 
   def js_time_now

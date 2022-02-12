@@ -20,7 +20,8 @@ class Song < ApplicationRecord
         .select(:firstline_title) # get firstline from these buckets
     ).where("updated_at > ?", 3.months.ago) # old duplicates can be considered checked and ignored
   }
-  scope :with_lyrics, ->(search='') {
+  scope :with_lyrics, ->(search) {
+    search ||= ''
     chord_or_non_char_or_newline_regex = "(?:(?:\\[[^\\]]*\\])|[.,?'\"!@#$%^&*();:-—]|\\n)*"
     wildcard_search = search.split('').join(chord_or_non_char_or_newline_regex)
     matches = where("lyrics ~* ?", wildcard_search)
@@ -130,6 +131,12 @@ class Song < ApplicationRecord
     end.join("\n\t")
     verse_number_regex = /^\t(\d+)\s*\n/
     tabbed_lines.gsub(verse_number_regex, '\1')
+  end
+
+  # Songs were originally designed to have firstline, chorus, and custom title.
+  # This is deprecated, so we only use title now...
+  def title
+    titles.first[1]
   end
 
   private
