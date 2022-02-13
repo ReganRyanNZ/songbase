@@ -51,7 +51,11 @@ class Api::V1::SongsController < ApplicationController
   def sort_songs(songs)
     return songs unless songs.present?
 
-    songs.sort_by { |s| clean_for_sorting(s[:title]) }
+    search = params[:search].downcase
+    songs.sort_by do |s|
+      title = clean_for_sorting(s[:title])
+      [title.downcase.index(search) || 99, title]
+    end
   end
 
   def clean_for_sorting(str)
