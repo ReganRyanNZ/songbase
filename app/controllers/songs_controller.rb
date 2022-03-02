@@ -20,6 +20,7 @@ class SongsController < ApplicationController
       end
       song = Song.find(@ref&.song_id || params[:s])
       if song.present?
+        @title = song.title
         @song_id = song.id
         @preloaded_song = song.app_entry
         @preloaded_current_book = Book.find_by(slug: @book_slug)&.app_entry
