@@ -1,0 +1,7 @@
+// Auto-generated js to register serviceworker.js (which should not be included in application.js)
+if (navigator.serviceWorker) {
+  navigator.serviceWorker.register('/serviceworker.js', { scope: './' })
+    .then(function(reg) {
+      console.log('[Companion]', 'Service worker registered!');
+    });
+}

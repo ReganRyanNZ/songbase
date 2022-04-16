@@ -14,9 +14,7 @@
 //= require react_ujs
 //= require_tree ./vendor
 //= require components
-//= require_tree .
-
-
+//= require serviceworker-companion
 
 // Workaround for delete buttons that don't need jquery
 class Confirm {

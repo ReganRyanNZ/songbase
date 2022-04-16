@@ -33,6 +33,10 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 # TODO
 
+### Offline app
+
+- allow urls with books and songs to navigate on load, e.g. `songbase.life/123` or `songbase.life/english_hymnal/i` or `songbase.life/english_hymnal/1330`
+
 ### CRUD books
 
 - Add a local book by default called "My Favorites"

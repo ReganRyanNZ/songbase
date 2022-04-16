@@ -10,6 +10,8 @@
     <meta name="google-site-verification" content="37ffvoSa1-N_lySTBC3xeLJozjNWNh0Sy-rI9g3DBVY" />
     <%= stylesheet_link_tag    'application', media: 'all' %>
     <%= javascript_include_tag 'application' %>
+    <link rel="manifest" href=<%= asset_path "manifest.json" %> />
+    <meta name="apple-mobile-web-app-capable" content="yes">
   </head>
 
   <body>
