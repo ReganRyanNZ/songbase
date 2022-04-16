@@ -24,19 +24,14 @@ This was first a Rails app, now it uses React to allow state management and offl
 - Site navigation and search is instant
 - Songs can be filtered by search or by book
 - Within a book, index can be sorted by title or by index number
-- Search looks at lyrics as well as first line
-- Backend users can log in via facebook or google
+- Search lyrics as well as first line
+- Backend users can log in via google
 - Backend users can enter new songs and edit songs
 - Infinite scrolling to speed up search loading.
+- References at the end of a song bring the user to the index of that book
 
 
 # TODO
-
-### References to books for each song
-
-- At the bottom of the song put all its references.
-- Each reference is a link to that book's index.
-- Index needs to be sorted by index number.
 
 ### CRUD books
 
@@ -49,5 +44,5 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 ### Book printing
 
-- First stage is to get a single song with chords in a copy-paste format.
+- [done] First stage is to get a single song with chords in a copy-paste format.
 - Second stage is to get the whole book as back-to-back copy-paste songs. This is probably the best state because people still want to edit and move things around.
