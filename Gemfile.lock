@@ -254,14 +254,9 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
-    shellany (0.0.1)
-    slim (4.1.0)
-      temple (>= 0.7.6, < 0.9)
-      tilt (>= 2.0.6, < 2.1)
-    slim-rails (3.2.0)
-      actionpack (>= 3.1)
+    serviceworker-rails (0.6.0)
       railties (>= 3.1)
-      slim (>= 3.0, < 5.0)
+    shellany (0.0.1)
     spring (2.1.1)
     spring-watcher-listen (2.0.1)
       listen (>= 2.7, < 4.0)
@@ -273,7 +268,6 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    temple (0.8.2)
     thor (1.1.0)
     tilt (2.0.10)
     tzinfo (2.0.4)
@@ -310,10 +304,9 @@ DEPENDENCIES
   rails (~> 6.1)
   react-rails
   sassc-rails
-  slim-rails
+  serviceworker-rails
   spring
   spring-watcher-listen
-  tzinfo-data
   uglifier
   web-console
 
@@ -321,4 +314,4 @@ RUBY VERSION
    ruby 2.6.6p146
 
 BUNDLED WITH
-   1.17.3
+   2.11.3
