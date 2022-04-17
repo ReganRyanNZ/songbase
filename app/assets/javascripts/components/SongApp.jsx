@@ -109,19 +109,19 @@ class SongApp extends React.Component {
       .get({ settingsType: "global" })
       .then(result => {
         if (result) {
-          if(this.state.logSyncData) { console.log("Settings via IndexedDB detected."); }
+          if(app.state.logSyncData) { console.log("Settings via IndexedDB detected."); }
           app.setState({ settings: result });
         } else {
-          if(this.state.logSyncData) { console.log("No settings found. Creating defaults..."); }
+          if(app.state.logSyncData) { console.log("No settings found. Creating defaults..."); }
           app.db.settings.add(app.state.settings);
         }
       })
       .then(app.pushDBToState)
       .then(function(response) {
-        if(this.state.logSyncData) { console.log("Fetching data from api..."); }
+        if(app.state.logSyncData) { console.log("Fetching data from api..."); }
         app.fetchData();
-      }).catch(() => {
-        if(this.state.logSyncData) { console.log("Failed to fetch new data."); }
+      }).catch((e) => {
+        if(app.state.logSyncData) { console.log("Failed to fetch new data.", e); }
       });
   }
 
@@ -145,8 +145,8 @@ class SongApp extends React.Component {
       var hiddenLanguages = response.data.languages.filter(lang => !myLanguages.includes(lang));
       var languages = myLanguages.concat(hiddenLanguages);
 
-      if(this.state.logSyncData) { console.log('myLanguages: ' + myLanguages); }
-      if(this.state.logSyncData) { console.log('hiddenLanguages: ' + hiddenLanguages); }
+      if(app.state.logSyncData) { console.log('myLanguages: ' + myLanguages); }
+      if(app.state.logSyncData) { console.log('hiddenLanguages: ' + hiddenLanguages); }
 
       languages.forEach((language) => {
         app.fetchDataByLanguage(app, db, language, lastUpdatedAt)
@@ -165,10 +165,13 @@ class SongApp extends React.Component {
         }
       )
   });
-    if(this.state.logSyncData) { console.log("Fetch completed."); }
+    if(app.state.logSyncData) { console.log("Fetch completed."); }
   }
 
   fetchDataByLanguage(app, db, language, lastUpdatedAt) {
+    if(app.state.logSyncData) { console.log(
+      "Fetching " + language + " songs"
+    );}
     axios({
       method: "GET",
       url: "/api/v1/app_data",
@@ -181,7 +184,7 @@ class SongApp extends React.Component {
       }
     })
     .then(function(response) {
-      if(this.state.logSyncData) { console.log(
+      if(app.state.logSyncData) { console.log(
         "Syncing " + response.data.songs.length + " " + language + " songs with indexedDB..."
       );}
       // run this all in a transaction, to stop mid-sync cut outs from wrecking everything.
@@ -212,7 +215,7 @@ class SongApp extends React.Component {
       );
     })
     .then(function(data) {
-      if(this.state.logSyncData) { console.log("Syncing " + language + " completed."); }
+      if(app.state.logSyncData) { console.log("Syncing " + language + " completed."); }
       app.pushDBToState();
     });
   }
@@ -260,11 +263,11 @@ class SongApp extends React.Component {
               }
             });
             app.setState({ songs: songs, loadingData: songs.length == 0 });
-            if(this.state.logSyncData) { console.log("Fetching complete."); }
+            if(app.state.logSyncData) { console.log("Fetching complete."); }
           });
       })
       .then(result => {
-        if(app.props.book_slug) {
+        if(app.props.book_slug && app.state.books.length > 0) {
           app.setState({
             currentBook: app.state.books.find(book => book.slug === app.props.book_slug)
           })

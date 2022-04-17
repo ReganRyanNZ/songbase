@@ -1,6 +1,6 @@
 var CACHE_VERSION = 'v1';
 var CACHE_NAME = CACHE_VERSION + ':sw-cache-';
-var LOGGING = true;
+var LOGGING = false;
 
 // add to cache
 function onInstall(event) {
@@ -43,13 +43,11 @@ function onActivate(event) {
 // note this may get wild with my offline navigation
 // Borrowed from https://github.com/TalAter/UpUp
 function onFetch(event) {
-  if(LOGGING && event.request.headers.get('accept').includes('text/html')) {
-    console.log('[Serviceworker]', "Fetching!", event); // this works
-  }
   event.respondWith(
     // try to return untouched request from network first
     fetch(event.request).catch(function() {
       // if it fails, try to return request from the cache
+      if(LOGGING) { console.log('[Serviceworker]', "Fetching!", event); }
       return caches.match(event.request).then(function(response) {
         if (response) {
           return response;
