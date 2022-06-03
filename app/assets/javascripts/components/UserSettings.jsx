@@ -13,7 +13,8 @@ class UserSettings extends React.Component {
   }
 
   render() {
-    langCheckboxes = this.props.settings.languagesInfo.map(lang => {
+    var sortedLangs = this.props.settings.languagesInfo.sort((a,b) => a[0].toUpperCase() >= b[0].toUpperCase() ? 1 : -1);
+    langCheckboxes = sortedLangs.map(lang => {
       var langName = lang[0],
         langCount = lang[1];
       return (
@@ -49,6 +50,14 @@ class UserSettings extends React.Component {
       </div>
     );
 
+    var resetCacheBtn = (
+      <div className="reset-cache-container">
+        If songs are not loading properly, you can reset the cache and download them again:
+        <button type='button' id='reset-cache' onClick={this.props.resetCache}>Reset cache</button>
+        <div className="counter">Cached songs: {this.props.cachedSongCount}</div>
+      </div>
+    );
+
     return (
       <div className="settings-container">
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
@@ -58,6 +67,8 @@ class UserSettings extends React.Component {
         {langCheckboxes}
         <h2>Theme</h2>
         {themeRadioBtns}
+        <h2>Reset Cache</h2>
+        {resetCacheBtn}
         <div className="contact-footer">
           <hr />
           Site Support:{" "}

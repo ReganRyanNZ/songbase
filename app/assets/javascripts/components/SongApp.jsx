@@ -11,6 +11,7 @@ class SongApp extends React.Component {
         updated_at: 0,
         cssTheme: 'css-normal'
       },
+      totalSongsCached: 0,
       bookSlug: props.book_slug,
       currentBook: props.preloaded_current_book || null,
       songs: [],
@@ -26,6 +27,7 @@ class SongApp extends React.Component {
 
     // bind all methods to this context (so we can use them)
     this.pushDBToState = this.pushDBToState.bind(this);
+    this.resetCache = this.resetCache.bind(this);
     this.setSettings = this.setSettings.bind(this);
     this.toggleSettingsPage = this.toggleSettingsPage.bind(this);
     this.toggleBookIndex = this.toggleBookIndex.bind(this);
@@ -272,8 +274,29 @@ class SongApp extends React.Component {
             currentBook: app.state.books.find(book => book.slug === app.props.book_slug)
           })
         }
+      })
+      .then(result => {
+        db.songs.count(songCount => { app.setState({totalSongsCached: songCount}) });
       });
-    // delete expired songs
+  }
+
+  // reset updated timestamp, wipe db tables, then call fetch
+  resetCache() {
+    var settings = this.state.settings,
+        db = this.db,
+        app = this;
+
+    settings.updated_at = 0;
+    settings.languagesInfo = [];
+    this.setState({settings: settings, totalSongsCached: 0});
+
+    db.references.clear().then(() => {
+      db.songs.clear().then(() => {
+        db.books.clear().then(() => {
+          app.fetchData();
+        });
+      });
+    });
   }
 
   setSettings(settings) {
@@ -455,6 +478,8 @@ class SongApp extends React.Component {
             settings={this.state.settings}
             toggleSettingsPage={this.toggleSettingsPage}
             setTheme={this.setTheme}
+            cachedSongCount={this.state.totalSongsCached}
+            resetCache={this.resetCache}
           />
         );
         break;

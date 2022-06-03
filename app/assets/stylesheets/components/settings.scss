@@ -11,12 +11,43 @@
   padding-top: 3em;
 }
 
+.reset-cache-container {
+  margin-left: 20px;
+
+  button {
+    padding-bottom: 8px;
+    padding-top: 8px;
+    margin-bottom: 12px;
+    margin-top: 12px;
+    color: black;
+    background-color: white;
+    width: 100px;
+    text-align: center;
+    border: 1px grey solid;
+    border-radius: 8px;
+
+    &:hover {
+      cursor: pointer;
+    }
+    &:active {
+      background-color: lightgrey;
+    }
+  }
+
+  .counter {
+    color: grey;
+  }
+}
+
 .radio-btns {
   margin-left: 20px;
   input {
     display: none;
   }
   label {
+    &:hover {
+      cursor: pointer;
+    }
     display: inline-block;
     width: 100px;
     text-align: center;
