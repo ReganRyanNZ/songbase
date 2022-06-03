@@ -41,6 +41,10 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 - allow urls with books and songs to navigate on load, e.g. `songbase.life/123` or `songbase.life/english_hymnal/i` or `songbase.life/english_hymnal/1330`
 
+### Cheaper fetching
+
+- compress api data for smaller downloads, would need to uncompress on client end
+
 ### CRUD books
 
 - Add a local book by default called "My Favorites"
