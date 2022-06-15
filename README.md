@@ -29,6 +29,7 @@ This was first a Rails app, now it uses React to allow state management and offl
 - Backend users can enter new songs and edit songs
 - Infinite scrolling to speed up search loading.
 - References at the end of a song bring the user to the index of that book
+- Fully offline! After initial load, clients should be able to later load songbase even without internet connection (it's patchy, confirmed working on chrome for android)
 
 
 # TODO
@@ -36,10 +37,6 @@ This was first a Rails app, now it uses React to allow state management and offl
 ### search
 
 - app search (and admin I suppose) should ignore any non letters. e.g. 'glory-crowned' and 'glory crowned' should be the same
-
-### Offline app
-
-- allow urls with books and songs to navigate on load, e.g. `songbase.life/123` or `songbase.life/english_hymnal/i` or `songbase.life/english_hymnal/1330`
 
 ### Cheaper fetching
 
