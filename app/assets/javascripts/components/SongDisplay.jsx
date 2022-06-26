@@ -25,7 +25,8 @@ const regex = {
   italicText: /\*(.+?)\*/g,
   html_safety: /.*[<>`].*/,
   verseNumber: /(^|\n)([0-9]+)\n/gm, // numbers by themselves on a line are verse numbers
-  chordCore: /([A-G]#?b?)([^A-G]*)/g
+  chordCore: /([A-G]#?b?)([^A-G]*)/g,
+  invisableUnicodeCharacters: /[\r\u2028\u2029]/g
 };
 
 function mod(n, m) {
@@ -137,7 +138,7 @@ class SongDisplay extends React.Component {
       return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";
     }
 
-    lyrics = lyrics.replace(/[\r\u2028\u2029]/g, ""); // get rid of sketchy invisable unicode chars
+    lyrics = lyrics.replace(regex.invisableUnicodeCharacters, "");
     lyrics = this.formatVerseNumbers(lyrics);
     lyrics = this.formatChorus(lyrics);
 
