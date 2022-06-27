@@ -59,7 +59,7 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 ### Cheaper fetching
 
-- compress api data for smaller downloads, would need to uncompress on client end
+- Language-specific fetches need to only get references for that language (seems to be grabbing everything)
 
 ### CRUD books
 

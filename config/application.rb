@@ -18,5 +18,8 @@ module Songbase
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Compress requests with gzip, very important for giant api requests
+    config.middleware.use Rack::Deflater
   end
 end
