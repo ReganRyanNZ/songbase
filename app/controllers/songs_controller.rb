@@ -11,6 +11,7 @@ class SongsController < ApplicationController
   # still loading via api.
   def app
     @book_slug = params[:book]
+    @preloaded_current_book = Book.find_by(slug: @book_slug)&.app_entry if @book_slug.present?
     if(params[:s] =~ /\d+/)
       if @book_slug.present?
         @ref = SongBook
@@ -23,7 +24,6 @@ class SongsController < ApplicationController
         @title = song.title
         @song_id = song.id
         @preloaded_song = song.app_entry
-        @preloaded_current_book = Book.find_by(slug: @book_slug)&.app_entry
         @preloaded_books = song.app_entry(:books)
         @preloaded_references = song.app_entry(:references)
       end
