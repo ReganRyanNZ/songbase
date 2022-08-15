@@ -11,8 +11,7 @@ gem 'puma'
 gem 'rack-mini-profiler', require: false
 # Use SCSS for stylesheets
 gem 'sassc-rails'
-# Use Uglifier as compressor for JavaScript assets
-gem 'uglifier'
+gem 'terser'
 
 gem 'react-rails'
 
