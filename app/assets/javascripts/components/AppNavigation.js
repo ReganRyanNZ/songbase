@@ -16,7 +16,6 @@ class AppNavigation {
   }
 
   toPreviousPageInHistory(e) {
-    console.log(e.state);
     if (e.state.page) {
       e.preventDefault(); // stop request to server for new html
       e.stopPropagation();
