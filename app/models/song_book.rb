@@ -2,7 +2,8 @@ class SongBook < ApplicationRecord
   belongs_to :book
   belongs_to :song
   scope :for_books, ->(books) { books.present? ? where(book_id: books.map(&:id)) : all }
-
+  scope :deleted_after, ->(time) { where(song_id: Song.deleted_after(time).select(:id))
+                                    .or(where('deleted_at > ?', time)) }
   def app_entry
     {
       id: id,

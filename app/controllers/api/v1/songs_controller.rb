@@ -24,16 +24,35 @@ class Api::V1::SongsController < ApplicationController
   end
 
   def admin_songs
-    duplicates = super_admin ? sort_songs(Song.search(params[:search]).duplicates.includes(books: :song_books).map(&:admin_entry)) : []
-    changed = sort_songs(Song.search(params[:search]).recently_changed.includes(books: :song_books).map(&:admin_entry)) - duplicates
-    unchanged = sort_songs(Song.search(params[:search]).includes(books: :song_books).limit(100).map(&:admin_entry)) - duplicates - changed
-
-    render json: {songs: {duplicates:duplicates,
-                          changed: changed,
-                          unchanged: unchanged}}, status: 200
+    render json: {songs: {duplicates: duplicate_songs,
+                          changed: recently_changed_songs - duplicate_songs,
+                          unchanged: songs_for_admin - recently_changed_songs - duplicate_songs}}, status: 200
   end
 
   private
+
+  def duplicate_songs
+    return [] unless super_admin
+
+    @duplicate_songs ||= sort_songs(Song.search(params[:search])
+                                        .duplicates
+                                        .includes(books: :song_books)
+                                        .map(&:admin_entry))
+  end
+
+  def recently_changed_songs
+    @recently_changed_songs ||= sort_songs(Song.search(params[:search])
+                                               .recently_changed
+                                               .includes(books: :song_books)
+                                               .map(&:admin_entry))
+  end
+
+  def songs_for_admin
+    sort_songs(Song.search(params[:search])
+                   .includes(books: :song_books)
+                   .limit(100)
+                   .map(&:admin_entry))
+  end
 
   def client_updated_at
     return @client_updated_at if @client_updated_at.present?
