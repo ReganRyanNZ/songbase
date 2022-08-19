@@ -233,7 +233,10 @@ class DatabaseSetupAndSync {
 
           var settings = app.state.settings;
           settings['languagesInfo'] = settings['languagesInfo'].filter(info => info[0] != language); // remove previous value
-          settings['languagesInfo'].push([language, response.data.songCount]); // add new value
+
+          if(response.data.songCount > 0) {
+            settings['languagesInfo'].push([language, response.data.songCount]); // add new value
+          }
           app.setState({
             settings: settings
           });
