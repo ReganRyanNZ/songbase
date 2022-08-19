@@ -10,7 +10,7 @@ class Api::V1::SongsController < ApplicationController
       books: books_to_sync.app_data,
       references: references_to_sync.app_data,
       destroyed: { songs: dead_songs,
-                   references: SongBook.where(song_id: dead_songs).pluck(:id),
+                   references: SongBook.deleted_after(client_updated_at).pluck(:id),
                    books: Book.where('deleted_at > ?', client_updated_at).pluck(:id) },
       songCount: Song.for_language(params[:language]).count,
       },
