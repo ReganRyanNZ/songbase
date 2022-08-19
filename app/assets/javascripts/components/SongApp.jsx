@@ -186,7 +186,7 @@ class SongApp extends React.Component {
         break;
       case "books":
         content = (
-          <BookIndex
+          <IndexOfBooks
           books={this.state.books || []}
           goToBookIndex={this.navigate.goToBookIndex}
           />
