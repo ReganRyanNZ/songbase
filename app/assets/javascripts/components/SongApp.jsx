@@ -128,15 +128,8 @@ class SongApp extends React.Component {
   }
 
   setTheme(){
-    var theme = this.state.settings.cssTheme;
-
-    if(theme == "css-night") {
-      document.body.classList.add('css-night');
-      document.body.classList.remove('css-normal');
-    } else if(theme == "css-normal") {
-      document.body.classList.add('css-normal');
-      document.body.classList.remove('css-night');
-    }
+    document.body.removeAttribute('class');
+    document.body.classList.add(this.state.settings.cssTheme);
   }
 
   render() {
