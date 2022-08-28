@@ -9,6 +9,9 @@ gem 'pg', '~> 1.2'
 gem 'puma'
 # Speed profiler
 gem 'rack-mini-profiler', require: false
+
+gem 'mini_racer'
+
 # Use SCSS for stylesheets
 gem 'sassc-rails'
 gem 'terser'
