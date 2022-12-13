@@ -14,6 +14,7 @@ class DatabaseSetupAndSync {
     this.fetchDataByLanguage = this.fetchDataByLanguage.bind(this);
     this.setSettings = this.setSettings.bind(this);
     this.log = this.log.bind(this);
+    this.axiosError = this.axiosError.bind(this);
   }
 
   log(string) {
@@ -21,19 +22,18 @@ class DatabaseSetupAndSync {
   }
 
   initialize() {
-    let app = this.app,
-        thisSyncTool = this;
+    let thisSyncTool = this;
     this.defineSchema();
 
     this.db.settings
       .get({ settingsType: "global" })
       .then(this.syncSettings)
-      .then(app.pushDBToState)
+      .then(this.pushDBToState)
       .then(function(response) {
-        if(app.state.logSyncData) { console.log("Fetching data from api..."); }
+        this.log("Fetching data from api...");
         thisSyncTool.fetchData();
       }).catch((e) => {
-        if(app.state.logSyncData) { console.log("Failed to fetch new data.", e); }
+        this.log("Failed to fetch new data.", e);
       });
   }
 
@@ -85,7 +85,7 @@ class DatabaseSetupAndSync {
 
 
   pushDBToState() {
-    if(this.state.logSyncData) { console.log("Fetching songs from offline storage..."); }
+    this.log("Fetching songs from offline storage...");
     var app = this.app;
     var db = this.db;
     var langs = app.state.settings.languages;
@@ -145,6 +145,25 @@ class DatabaseSetupAndSync {
     }
   }
 
+  axiosError(error) {
+    this.log('Error trying to connect to songbase API, perhaps we are offline?');
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      this.log(error.response.data);
+      this.log(error.response.status);
+      this.log(error.response.headers);
+    } else if (error.request) {
+      // The request was made but no response was received
+      // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+      // http.ClientRequest in node.js
+      this.log(error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      this.log('Error', error.message);
+    }
+    this.log(error.config);
+  }
 
   fetchData() {
     // fetch a list of languages
@@ -173,7 +192,7 @@ class DatabaseSetupAndSync {
       languages.forEach((language) => {
         thisSyncTool.fetchDataByLanguage(language, lastUpdatedAt)
       })
-    }).then(function() {
+    }).then(function updateLastUpdatedAt() {
       db.transaction(
         "rw",
         db.settings,
@@ -186,7 +205,7 @@ class DatabaseSetupAndSync {
           db.settings.put(settings);
         }
       )
-    });
+    }).catch(this.axiosError);
     if(app.state.logSyncData) { console.log("Fetch completed."); }
   }
 
