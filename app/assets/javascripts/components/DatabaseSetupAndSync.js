@@ -22,17 +22,14 @@ class DatabaseSetupAndSync {
   }
 
   initialize() {
-    let thisSyncTool = this;
     this.defineSchema();
 
     this.db.settings
       .get({ settingsType: "global" })
       .then(this.syncSettings)
       .then(this.pushDBToState)
-      .then(function(response) {
-        this.log("Fetching data from api...");
-        thisSyncTool.fetchData();
-      }).catch((e) => {
+      .then(this.fetchData)
+      .catch((e) => {
         this.log("Failed to fetch new data.", e);
       });
   }
@@ -114,7 +111,6 @@ class DatabaseSetupAndSync {
           .toArray(songs => {
             songs.sort(this.sortSongsByTitle);
             app.setState({ songs: songs, loadingData: songs.length == 0 });
-            if(app.state.logSyncData) { console.log("Fetching complete."); }
           });
       })
       .then(result => {
@@ -126,13 +122,14 @@ class DatabaseSetupAndSync {
       })
       .then(result => {
         db.songs.count(songCount => { app.setState({totalSongsCached: songCount}) });
+        if(app.state.logSyncData) { console.log("Finished offline storage fetch."); }
       });
+    return true
   }
 
   sortSongsByTitle(a, b) {
     var title = str => {
-      // TODO: do not strip fancy letters like ô
-      return str.title.toUpperCase().replace(/[^A-Z]/g, "");
+      return str.title.toUpperCase().replace(/[^[:alpha:]]/g, "");
     };
     var titleA = title(a);
     var titleB = title(b);
@@ -174,6 +171,8 @@ class DatabaseSetupAndSync {
         thisSyncTool = this,
         lastUpdatedAt = app.state.settings.updated_at || "",
         newUpdateTime = new Date().getTime();
+
+    this.log("Fetching data from api...");
 
     axios({
       method: "GET",
