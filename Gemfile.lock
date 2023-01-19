@@ -97,7 +97,7 @@ GEM
     faraday-net_http (3.0.0)
     ffi (1.15.5)
     formatador (1.1.0)
-    globalid (1.0.0)
+    globalid (1.0.1)
       activesupport (>= 5.0)
     google-id-token (1.4.2)
       jwt (>= 1)
@@ -140,7 +140,7 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     mini_portile2 (2.8.0)
-    minitest (5.16.2)
+    minitest (5.17.0)
     minitest-rails (6.1.0)
       minitest (~> 5.10)
       railties (~> 6.1.0)
@@ -267,7 +267,7 @@ GEM
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    zeitwerk (2.6.0)
+    zeitwerk (2.6.6)
 
 PLATFORMS
   ruby
