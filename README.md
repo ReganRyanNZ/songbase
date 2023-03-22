@@ -74,3 +74,47 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 - [done] First stage is to get a single song with chords in a copy-paste format.
 - Second stage is to get the whole book as back-to-back copy-paste songs. This is probably the best state because people still want to edit and move things around.
+
+### Duplicates
+
+- Warn of duplicates before saving
+- Improve language code so we don't have duplicate languages stored
+
+### Loading bar
+
+- Loading bar to show progress when syncing, so it doesn't just look stuck
+
+### Related songs linking
+
+- Along with links to book indices, we also want links to e.g. same song in another language, or commonly joined songs (e.g. Therefore with joy + drinking at the fountain)
+- Will need a script to create all the hymnal language links
+
+### Add languages
+
+- Portuguese
+- Chinese (+ pinyin if we can find a good tool to generate it)
+
+### Investigate errors
+
+- 30
+- 881
+- 1271
+
+### Tabs for alternate versions/tunes
+
+- Instead of using different verses for different tunes, make a separate tab for each tune or version
+- This lets us modify song structure/add bonus verses without messing with the original etc
+- Client should remember which tab was last used so after the first time switching it's automatically on their preferred version
+
+### Better analytics
+
+- If a user stays on a song for more than 30 seconds, add to list of sung songs. Periodically sync that list with the server so we have records of what songs are sung.
+- This is useful to know which songs are popular, e.g. for camp songbooks
+- Homepage could be a list of popular songs, instead of all songs starting with A
+- Instead of syncing a new list of popular songs, could add a rank to songs? Although popular by region would be cool.
+- Also useful to see orphaned songs, that are no longer sung and are just clutter
+
+### No chords mode
+
+- Remove chords from sight
+
