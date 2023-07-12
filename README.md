@@ -100,6 +100,11 @@ This was first a Rails app, now it uses React to allow state management and offl
 - 881
 - 1271
 
+## Fixing mistakes
+
+- Add better duplicate-finding solutions
+- Allow creators to remove created songs (within that session?)
+
 ### Tabs for alternate versions/tunes
 
 - Instead of using different verses for different tunes, make a separate tab for each tune or version
