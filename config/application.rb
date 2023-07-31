@@ -9,7 +9,8 @@ Bundler.require(*Rails.groups)
 module Songbase
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.0
+    # config.load_defaults 5.0
+    config.active_record.legacy_connection_handling = false
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -21,5 +22,6 @@ module Songbase
 
     # Compress requests with gzip, very important for giant api requests
     config.middleware.use Rack::Deflater
+
   end
 end

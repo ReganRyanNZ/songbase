@@ -1,12 +1,18 @@
-ruby '2.6.6'
+ruby '3.2.2'
 
 source 'https://rubygems.org'
 
-gem 'rails', '~> 6.1'
+gem 'rails', '~> 7.0'
 # Use postgres as the database for Active Record
-gem 'pg', '~> 1.2'
+gem 'pg', '~> 1.5'
 # Use Puma as the app server
 gem 'puma'
+
+# Heroku will timeout after 30s, but while the client gets an error, puma will
+# not realize the request has been terminated, and will continue the process.
+# This gem allows us to set a timeout for puma.
+gem "rack-timeout"
+
 # Speed profiler
 gem 'rack-mini-profiler', require: false
 # Use SCSS for stylesheets
@@ -21,7 +27,7 @@ gem 'google_sign_in'
 gem 'active_model_serializers'
 gem 'jbuilder'
 
-gem 'serviceworker-rails'
+gem 'serviceworker-rails' # Offline page loading
 
 group :development, :test do
   gem 'byebug', platform: :mri
