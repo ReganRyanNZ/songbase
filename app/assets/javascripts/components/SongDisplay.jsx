@@ -66,8 +66,6 @@ class SongDisplay extends React.Component {
     this.formatComment = this.formatComment.bind(this);
     this.formatTextLine = this.formatTextLine.bind(this);
     this.changeKey = this.changeKey.bind(this);
-    this.upHalfStep = this.upHalfStep.bind(this);
-    this.downHalfStep = this.downHalfStep.bind(this);
     this.toggleTransposePreset = this.toggleTransposePreset.bind(this);
     this.addTransposeListeners = this.addTransposeListeners.bind(this);
   }
