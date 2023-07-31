@@ -14,6 +14,20 @@ const scales = {
   G: ["G", "A", "B", "C", "D", "E", "F", "F#"],
   Ab: ["Ab", "Bb", "C", "Db", "Eb", "F", "Gb", "G"]
 };
+const keyCommonChords = {
+  A: ["A", "Bm", "C#m", "D", "E", "F#m"],
+  Bb: ["Bb", "Cm", "Dm", "Eb", "F", "Gm"],
+  B: ["B", "C#m", "D#m", "E", "F#", "G#m"],
+  C: ["C", "Dm", "Em", "F", "G", "Am"],
+  Db: ["Db", "Ebm", "Fm", "Gb", "Ab", "Bbm"],
+  D: ["D", "Em", "F#m", "G", "A", "Bm"],
+  Eb: ["Eb", "Fm", "Gm", "Ab", "Bb", "Cm"],
+  E: ["E", "F#m", "G#m", "A", "B", "C#m"],
+  F: ["F", "Gm", "Am", "Bb", "C", "Dm"],
+  Gb: ["Gb", "Abm", "Bbm", "Cb", "Db", "Ebm"],
+  G: ["G", "Am", "Bm", "C", "D", "Em"],
+  Ab: ["Ab", "Bbm", "Cm", "Db", "Eb", "Fm"]
+}
 const regex = {
   capo: /.*capo (\d+).*/i,
   comment: /^\# ?(.*)/, // everything after a '#'
@@ -25,7 +39,7 @@ const regex = {
   italicText: /\*(.+?)\*/g,
   html_safety: /.*[<>`].*/,
   verseNumber: /(^|\n)([0-9]+)\n/gm, // numbers by themselves on a line are verse numbers
-  chordCore: /([A-G]#?b?)([^A-G]*)/g,
+  chordCore: /([A-G][b#]?)([^A-G]*)/g,
   invisableUnicodeCharacters: /[\r\u2028\u2029]/g
 };
 
@@ -37,15 +51,10 @@ class SongDisplay extends React.Component {
   constructor(props) {
     super(props);
 
-    var keyFromChordRegex = /\[([A-G]b*#*).*?\]/gm;
-    var keyMatch = props.lyrics.match(keyFromChordRegex);
-    var key = keyMatch ? keyMatch[0].replace(keyFromChordRegex, "$1") : "C";
-    var transpose = props.transpose || 0;
-
     this.state = {
       showChords: true,
-      transpose: transpose,
-      key: key
+      transpose: props.transpose || 0,
+      originalKey: this.getKeyFromChords(props.lyrics)
     };
 
     this.transpose = this.transpose.bind(this);
@@ -59,7 +68,7 @@ class SongDisplay extends React.Component {
     this.changeKey = this.changeKey.bind(this);
     this.upHalfStep = this.upHalfStep.bind(this);
     this.downHalfStep = this.downHalfStep.bind(this);
-    this.transposePresetKey = this.transposePresetKey.bind(this);
+    this.toggleTransposePreset = this.toggleTransposePreset.bind(this);
     this.addTransposeListeners = this.addTransposeListeners.bind(this);
   }
   componentDidMount() {
@@ -73,36 +82,48 @@ class SongDisplay extends React.Component {
     if(/\[/.test(this.props.lyrics)) {
       var presetElement = document.getElementById("transpose-preset")
       if(presetElement) {
-        presetElement.addEventListener("click", this.transposePresetKey);
+        presetElement.addEventListener("click", this.toggleTransposePreset);
       }
       var tUpElement = document.getElementById("transpose-up")
       if(tUpElement) {
-        tUpElement.addEventListener("click", this.upHalfStep);
+        tUpElement.addEventListener("click", (e) => { this.changeKey(1) });
       }
       var tDownElement = document.getElementById("transpose-down")
       if(tDownElement) {
-        tDownElement.addEventListener("click", this.downHalfStep);
+        tDownElement.addEventListener("click", (e) => { this.changeKey(-1) });
       }
     }
   }
 
-  transposePresetKey(e) {
+  getKeyFromChords(lyrics) {
+    let songChordsRegex = /\[([A-G][b#]?m?).*?\]/g; // turns e.g. F#m9 into F#m, and gathers all chords from the song
+    let songChords = Array.from(lyrics.matchAll(songChordsRegex), m => m[1]); // e.g. ['F#m', 'D', 'A', 'D']
+    let lastChord = songChords.slice(-1).pop();
+    let key;
+    if(songChords[0] == lastChord) { // Key is confirmed if song starts and ends with the same chord
+      key = lastChord;
+
+      // If the key is a minor, bump it by 3 to its relative major. This is a nifty workaround to handle minor keys, as e.g. D minor key uses the same notes as F major
+      if(key.slice(-1)[0] == 'm') {
+        let strippedKey = key.substr(0, key.length-1); // without 'm'
+        key = keys[mod(keys.indexOf(strippedKey) + 3, 12)];
+      }
+    } else {
+      let keysByChordCount = keys.map(k => songChords.filter(chord => keyCommonChords[k].includes(chord)).length);
+      const bestMatch = Math.max(...keysByChordCount);
+      key = keys[keysByChordCount.indexOf(bestMatch)]
+    }
+
+    return key;
+  }
+
+  // if a song has "capo 2" in a comment, then clicking will toggle between capo 2 and 0
+  toggleTransposePreset(e) {
     if(regex.capo.test(this.props.lyrics)) {
       var presetTranspose = this.props.lyrics.match(regex.capo)[1];
-      var newTranspose = 0;
-      if(this.state.transpose != presetTranspose) {
-        newTranspose = presetTranspose;
-      }
+      let newTranspose = this.state.transpose != presetTranspose ? presetTranspose : 0;
       this.setState({transpose: parseInt(newTranspose)});
     }
-  }
-
-  upHalfStep(e) {
-    this.changeKey(1);
-  }
-
-  downHalfStep(e) {
-    this.changeKey(-1);
   }
 
   changeKey(step) {
@@ -117,17 +138,13 @@ class SongDisplay extends React.Component {
       return chord;
     }
 
-    var ogKey = this.state.key;
-    var newKey = keys[mod((keys.indexOf(ogKey) + this.state.transpose), 12)];
+    let newKey = keys[mod((keys.indexOf(this.state.originalKey) + this.state.transpose), 12)]; // move down the list of keys, by transpose number
 
-    return chord.replace(regex.chordCore, (match, chordCore, trailingChars) => {
-      // whatever the chord is for original scale, put that chord on the new scale
-      // if the scale doesn't make sense, try the bestGuess™ scale
-      return (
-        scales[newKey][scales[ogKey].indexOf(chordCore)] ||
-        bestGuessScale[mod(bestGuessScale.indexOf(chordCore)+this.state.transpose, 12)] ||
-        '?'
-      ) + trailingChars
+    return chord.replace(regex.chordCore, (_match, chordCore, trailingChars) => {
+      let transposedCore;
+      try { transposedCore = scales[newKey][scales[this.state.originalKey].indexOf(chordCore)] } catch(err) { transposedCore = false };
+
+      return (transposedCore || '?') + trailingChars
     })
   }
 
