@@ -94,24 +94,25 @@ class SongDisplay extends React.Component {
   }
 
   getKeyFromChords(lyrics) {
+    let key;
     let songChordsRegex = /\[([A-G][b#]?m?).*?\]/g; // turns e.g. F#m9 into F#m, and gathers all chords from the song
     let songChords = Array.from(lyrics.matchAll(songChordsRegex), m => m[1]); // e.g. ['F#m', 'D', 'A', 'D']
-    let lastChord = songChords.slice(-1).pop();
-    let key;
-    if(!!lastChord && songChords[0] == lastChord) { // Key is confirmed if song starts and ends with the same chord
-      key = lastChord;
+    if(songChords.length > 0) {
+      let lastChord = songChords.slice(-1).pop();
+      if(songChords[0] == lastChord) { // Key is confirmed if song starts and ends with the same chord
+        key = lastChord;
 
-      // If the key is a minor, bump it by 3 to its relative major. This is a nifty workaround to handle minor keys, as e.g. D minor key uses the same notes as F major
-      if(key.slice(-1)[0] == 'm') {
-        let strippedKey = key.substr(0, key.length-1); // without 'm'
-        key = keys[mod(keys.indexOf(strippedKey) + 3, 12)];
+        // If the key is a minor, bump it by 3 to its relative major. This is a nifty workaround to handle minor keys, as e.g. D minor key uses the same notes as F major
+        if(key.slice(-1)[0] == 'm') {
+          let strippedKey = key.substr(0, key.length-1); // without 'm'
+          key = keys[mod(keys.indexOf(strippedKey) + 3, 12)];
+        }
+      } else {
+        let keysByChordCount = keys.map(k => songChords.filter(chord => keyCommonChords[k].includes(chord)).length);
+        const bestMatch = Math.max(...keysByChordCount);
+        key = keys[keysByChordCount.indexOf(bestMatch)]
       }
-    } else {
-      let keysByChordCount = keys.map(k => songChords.filter(chord => keyCommonChords[k].includes(chord)).length);
-      const bestMatch = Math.max(...keysByChordCount);
-      key = keys[keysByChordCount.indexOf(bestMatch)]
     }
-
     return key;
   }
 
