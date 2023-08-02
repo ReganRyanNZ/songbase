@@ -98,7 +98,7 @@ class SongDisplay extends React.Component {
     let songChords = Array.from(lyrics.matchAll(songChordsRegex), m => m[1]); // e.g. ['F#m', 'D', 'A', 'D']
     let lastChord = songChords.slice(-1).pop();
     let key;
-    if(songChords[0] == lastChord) { // Key is confirmed if song starts and ends with the same chord
+    if(!!lastChord && songChords[0] == lastChord) { // Key is confirmed if song starts and ends with the same chord
       key = lastChord;
 
       // If the key is a minor, bump it by 3 to its relative major. This is a nifty workaround to handle minor keys, as e.g. D minor key uses the same notes as F major
