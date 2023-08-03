@@ -8,7 +8,7 @@ class SongIndex extends React.Component {
     window.addEventListener('scroll', this.props.infiniteScrolling);
   }
 
-  componentWillUnmount(){
+  componentWillUnmount() {
     window.removeEventListener('scroll', this.props.infiniteScrolling);
   }
 
@@ -26,19 +26,19 @@ class SongIndex extends React.Component {
   }
 
   getSearchResults() {
-    var stripString = function(str) {
-      str = str.replace(/\_/g, " ");
-      return str.normalize("NFD").toUpperCase().replace(/(\[.+?\])|[’'",“\-—–!?()\[\]]|[\u0300-\u036f]/g, "");
+    var stripString = function (str) {
+      str = str.replace(/[\_\-—–]/g, " ");
+      return str.normalize("NFD").toUpperCase().replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "");
     };
     var songs = this.props.songs;
     var references = this.props.references;
 
-    if(songs.length === 0) {
+    if (songs.length === 0) {
       return [];
     }
 
     // scope songs to the current selected book
-    if(this.props.currentBook != null) {
+    if (this.props.currentBook != null) {
       references = references.filter(ref => ref.book_id === this.props.currentBook.id)
       var song_ids = references.map(ref => ref.song_id);
       songs = songs.filter(song => song_ids.includes(song.id));
@@ -86,7 +86,7 @@ class SongIndex extends React.Component {
           };
         });
 
-      if(this.props.currentBook && this.props.orderIndexBy == 'number') {
+      if (this.props.currentBook && this.props.orderIndexBy == 'number') {
         searchResults.sort((a, b) => {
           var index_a = references.find((ref) => (ref.song_id == a.song.id)).index;
           var index_b = references.find((ref) => (ref.song_id == b.song.id)).index;
@@ -122,13 +122,13 @@ class SongIndex extends React.Component {
   }
 
   render() {
-    getKeysByValue = function(object, value) {
+    getKeysByValue = function (object, value) {
       return Object.keys(object).filter(key => object[key] === value);
     };
 
     return (
       <div className="song-index" key="song-index">
-        <BookButton toggleBookIndex={this.props.toggleBookIndex} inBook={!!this.props.currentBook}/>
+        <BookButton toggleBookIndex={this.props.toggleBookIndex} inBook={!!this.props.currentBook} />
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
           <SettingsIcon />
         </div>
@@ -158,11 +158,11 @@ class SongIndex extends React.Component {
           {!!this.props.loadingData ? (
             <div className="loading">Loading song data...</div>
           ) : (
-            this.getSearchResults().map(function(result, i) {
+            this.getSearchResults().map(function (result, i) {
               var id = result.song.id,
-                  index_tag = '';
+                index_tag = '';
 
-              if(!!this.props.currentBook) {
+              if (!!this.props.currentBook) {
                 id = this.props.references.find(ref =>
                   ref.song_id === result.song.id &&
                   ref.book_id === this.props.currentBook.id
