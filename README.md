@@ -1,4 +1,5 @@
 # songbase
+
 Song sheet database for psalms, hymns, and spiritual songs
 
 ## Getting Started
@@ -14,6 +15,7 @@ You might need to install postgres, the easiest way is to download and run postg
 If you don't have heroku access, send an email to songbase.brothers@gmail.com to request a DB dump (I think the app won't run without data in the db).
 
 ## Backstory
+
 If you want a bit of a backstory on songbase: I was in a high school church meeting one time, seeing some new ones from a very poor background. Someone was showing them isilo and trying to convince them to pay something like $20 for an app decades behind the times, just so they can get the song lyrics on their phone. It made me angry that there was such a high barrier. I also noticed that we produce new songbooks for the young people all the time—and within a year there are new songs they want to sing that aren't in those books. So we try adding to the back of them, or printing new books. Eventually with some help I created songbase with the following goals:
 
 - Continually (and crowd-sourced) updated songs—even within a meeting I can fix a typo or add a new song.
@@ -23,10 +25,11 @@ If you want a bit of a backstory on songbase: I was in a high school church meet
 ​There are a lot of other features, but these are the ones that I love.
 
 ## Using the API
+
 A few people have reached out about making a similar project, but using the data from songbase. This is great! May we all find ways to help one another serve our God and His people. My best recommendation here is to use songbase's api, either directly from the client or at least regularly syncing to your db. Here are the endpoints:
 
 - `https://songbase.life/api/v1/app_data` grabs all the data for songs and songbooks, this might be good for a giant refresh.
-​- `https://songbase.life/api/v1/languages` gets a list of all the languages in the db.
+  ​- `https://songbase.life/api/v1/languages` gets a list of all the languages in the db.
 - `https://songbase.life/api/v1/app_data?language=english` grabs all the data only for english songs (and so on for each language)​. If you get the languages first, and then fetch each language at the same time, you can download everything much faster, and have some songs loading before everything has finished.
 - ​`https://songbase.life/api/v1/app_data?updated_at=1655130159689` gets a list of data--but only what has changed after the `updated_at` timestamp. Songbase sends this with `updated_at` being the result of `new Date().getTime()` (in JS) to only get new data, instead of redownloading the entire db every time you load the site. This is pretty important if the client is fetching the API, since the full download will be several mb in size.
 
@@ -37,6 +40,7 @@ If you are interested in the api for creating your own software, I would recomme
 This was first a Rails app, now it uses React to allow state management and offline navigation. Instead of maintaining two separate apps, the frontend and backend are (somewhat mashed) together in this project. The main difference is that React is served through a Rails gem, and importing/exporting JS components doesn't work like a regular React project.
 
 ## Features
+
 - Users can view lyrics and chords to songs
 - Languages can be toggled
 - Any song/book navigation is offline (after first visiting the site)
@@ -50,12 +54,7 @@ This was first a Rails app, now it uses React to allow state management and offl
 - References at the end of a song bring the user to the index of that book
 - Fully offline! After initial load, clients should be able to later load songbase even without internet connection (it's patchy, confirmed working on chrome for android)
 
-
 # TODO
-
-### search
-
-- app search (and admin I suppose) should ignore any non letters. e.g. 'glory-crowned' and 'glory crowned' should be the same
 
 ### Cheaper fetching
 
@@ -100,11 +99,6 @@ This was first a Rails app, now it uses React to allow state management and offl
 - 881
 - 1271
 
-## Fixing mistakes
-
-- Add better duplicate-finding solutions
-- Allow creators to remove created songs (within that session?)
-
 ### Tabs for alternate versions/tunes
 
 - Instead of using different verses for different tunes, make a separate tab for each tune or version
@@ -122,4 +116,3 @@ This was first a Rails app, now it uses React to allow state management and offl
 ### No chords mode
 
 - Remove chords from sight
-

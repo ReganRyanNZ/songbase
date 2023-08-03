@@ -21,5 +21,6 @@
   <div class="actions text-center">
     <%= f.submit class: "btn btn-update" %>
 <% end %>
-    <%= button_to 'Remove', song_path(song), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-delete" if super_admin && song.persisted? %>
+    <%= button_to 'Remove', song_path(song), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-delete" if song.persisted? && (super_admin || song.created_at > 7.days.ago) %>
   </div>
+  

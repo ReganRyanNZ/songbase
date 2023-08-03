@@ -10,13 +10,12 @@ class User < ApplicationRecord
     user
   end
 
-  def self.test_user
-    role = :user
-    role = :admin
-
+  def self.test_user(role = :admin)
+    emails = {admin: "regan.ryan.nz@gmail.com", user: "test@example.com"}
+    names = {admin: 'Test Admin User', user: "Test User"}
     user = find_or_initialize_by(provider: "localhost", uid: "abcde12345")
-    user.email = {admin: "regan.ryan.nz@gmail.com", user: "test@example.com"}[role]
-    user.name = {admin: 'Test Admin User', user: "Test User"}[role]
+    user.email = emails[role]
+    user.name = names[role]
     user.save!
     user
   end
