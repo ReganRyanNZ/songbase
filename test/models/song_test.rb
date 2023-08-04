@@ -1,33 +1,6 @@
 require 'test_helper'
 
 class SongTest < ActiveSupport::TestCase
-  test ".guess_title returns the first line of the song" do
-    song = FactoryBot.create(:song, lyrics: "
-# Revelation 5:12-13
-1
-Blessing and honor and glory be Thine,
-And glory be Thine,
-And glory be Thine.
-Blessing and honor and glory be Thine,
-Both now and evermore.
-Praise Him! Praise Him!
-All ye saints adore Him.
-Praise Him! Praise Him!
-Both now and evermore.
-Hallelujah!
-Blessing and honor and glory be Thine,
-And glory be Thine,
-And glory be Thine.
-Blessing and honor and glory be Thine,
-Both now and evermore."
-    )
-    assert_equal "Blessing and honor and glory be Thine", song.guess_title
-  end
-
-  test ".guess_chorus_title returns the first line of the chorus" do
-    song = FactoryBot.create(:song)
-    assert_equal "Now my eyes begin to see", song.guess_chorus_title
-  end
 
   test ".merge! keeps indicies of old song and destroys old song" do
     book = FactoryBot.create(:book)
@@ -41,11 +14,11 @@ Both now and evermore."
     assert_equal song1.lyrics[15..-1], song2.lyrics
   end
 
-  test "#duplicates returns duplicate songs" do
+  test "#duplicate_titles returns duplicate songs" do
     title ="From the time I spoke Your Name"
     song1 = FactoryBot.create(:song, title: title)
     song2 = FactoryBot.create(:song, title: title)
-    assert_equal [song1, song2], Song.duplicates
+    assert_equal [song1, song2], Song.duplicate_titles
   end
 
   test "#recently_changed returns recently changed songs" do

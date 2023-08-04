@@ -8,6 +8,8 @@ gem 'pg', '~> 1.5'
 # Use Puma as the app server
 gem 'puma'
 
+gem 'dotenv-rails', require: 'dotenv/rails-now', groups: [:development, :test]
+
 # Heroku will timeout after 30s, but while the client gets an error, puma will
 # not realize the request has been terminated, and will continue the process.
 # This gem allows us to set a timeout for puma.
@@ -35,7 +37,6 @@ group :development, :test do
   gem 'minitest-reporters'
   gem 'guard-rspec'
   gem 'factory_bot_rails'
-  gem 'dotenv-rails'
 end
 
 group :development do

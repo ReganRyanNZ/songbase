@@ -35,7 +35,7 @@ class Api::V1::SongsController < ApplicationController
     return [] unless super_admin
 
     @duplicate_songs ||= sort_songs(Song.search(params[:search])
-                                        .duplicates
+                                        .duplicate_titles
                                         .includes(books: :song_books)
                                         .map(&:admin_entry))
   end

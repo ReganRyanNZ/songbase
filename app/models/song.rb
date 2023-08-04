@@ -12,7 +12,7 @@ class Song < ApplicationRecord
   scope :deleted_after, ->(last_updated_at) { unscoped.where('deleted_at >= ?', last_updated_at).where('created_at < ?', last_updated_at) }
 
   scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
-  scope :duplicates, -> {
+  scope :duplicate_titles, -> {
     where(
       title: Song.select(:title)
         .group(:title) # group songs into buckets of the same title
@@ -27,20 +27,6 @@ class Song < ApplicationRecord
     where("lyrics ~* ?", wildcard_search).or(where("title ~* ?", wildcard_search))
   }
   scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
-
-  def guess_title
-    strip_line(/^[^#\r\n0-9].*/.match(lyrics)[0])
-  end
-
-  def guess_chorus_title
-    chorus_title_regex = /^  ([^ ].*)/
-    return nil unless chorus_title_regex.match(lyrics)
-    strip_line(chorus_title_regex.match(lyrics)[1])
-  end
-
-  def book_indices
-    self.song_books.map {|sb| [sb.book_id, sb.index] }.to_h
-  end
 
   def merge! old_song
     # allow either Song or id as param
@@ -137,10 +123,14 @@ class Song < ApplicationRecord
     tabbed_lines.gsub(verse_number_regex, '\1')
   end
 
+  def duplicate
+    remove_windows_carriage_returns
+    Song.find_by(lyrics: lyrics, title: title)
+  end
+
   private
 
-  def strip_line line
-    # strip chords, newlines, trailing punctuation
+  def strip_line(line) # strip chords, newlines, trailing punctuation
     line.gsub( /\[[^\]]*\]/, "" ) # chords
         .gsub(/\n|\r/, "") # new lines
         .gsub(/\A[,;: .!]*/, "") # leading punctuation
@@ -149,5 +139,9 @@ class Song < ApplicationRecord
 
   def remove_windows_carriage_returns
     self.lyrics = self.lyrics.gsub(/[\r\u2028\u2029]/, "")
+  end
+
+  def book_indices
+    self.song_books.map {|sb| [sb.book_id, sb.index] }.to_h
   end
 end

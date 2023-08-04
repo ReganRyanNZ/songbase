@@ -54,22 +54,20 @@ class SongsController < ApplicationController
   def create
     @song = Song.new(song_params)
 
-    respond_to do |format|
-      if @song.save
-        Audit.create(user: current_user, song: @song, time: Time.zone.now)
-        format.html { redirect_to admin_path, notice: "Song was successfully created. #{view_context.link_to 'Click here', song_path(@song), class: 'flash_link'} to view in app." }
-        format.json { render :show, status: :created, location: @song }
-      else
-        format.html { render :new }
-        format.json { render json: @song.errors, status: :unprocessable_entity }
-      end
+    if @song.duplicate.present?
+      redirect_to admin_path, notice: "Song was successfully created. #{song_flash_link(@song.duplicate)} to view in app."
+    elsif @song.save
+      Audit.create(user: current_user, song: @song, time: Time.zone.now)
+      redirect_to admin_path, notice: "Song was successfully created. #{song_flash_link(@song)} to view in app."
+    else
+      render :new
     end
   end
 
   def update
     if @song.update(song_params)
       Audit.create(user: current_user, song: @song, time: Time.zone.now)
-      redirect_to admin_path, notice: "Song was successfully updated. #{view_context.link_to 'Click here', song_path(@song), class: 'flash_link'} to view in app."
+      redirect_to admin_path, notice: "Song was successfully updated. #{song_flash_link(@song)} to view in app."
     else
       render :edit
     end
@@ -84,6 +82,10 @@ class SongsController < ApplicationController
   end
 
   private
+
+  def song_flash_link(song)
+    view_context.link_to 'Click here', song_path(song), class: 'flash_link'
+  end
 
   def adjust_lang_params
     if params[:song][:lang] == "new_lang"

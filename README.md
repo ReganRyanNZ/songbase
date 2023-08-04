@@ -76,7 +76,7 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 ### Duplicates
 
-- Warn of duplicates before saving
+- Exact duplicates will no longer be created (by some previous double-submitting bug). Near duplicates (e.g. one version without chords, one with) are tricky to catch. The best solution I can think of is to use Postgres's Levenshtein function to match string similarity, but that has a 255 byte max, so we'd need to combine it with a LEFT function to get the first 60 characters (assuming the worst case is all characters are 4 bytes), and possibly some kind of regex to remove chords from the comparison. Would be cool, but it's technically challenging enough that manual finding/fixing is sufficient for now.
 - Improve language code so we don't have duplicate languages stored
 
 ### Loading bar
