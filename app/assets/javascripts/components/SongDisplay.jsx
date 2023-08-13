@@ -66,6 +66,8 @@ class SongDisplay extends React.Component {
     this.formatComment = this.formatComment.bind(this);
     this.formatTextLine = this.formatTextLine.bind(this);
     this.changeKey = this.changeKey.bind(this);
+    this.goUpOneKey = this.goUpOneKey.bind(this);
+    this.goDownOneKey = this.goDownOneKey.bind(this);
     this.toggleTransposePreset = this.toggleTransposePreset.bind(this);
     this.addTransposeListeners = this.addTransposeListeners.bind(this);
   }
@@ -84,11 +86,11 @@ class SongDisplay extends React.Component {
       }
       var tUpElement = document.getElementById("transpose-up")
       if(tUpElement) {
-        tUpElement.addEventListener("click", (e) => { this.changeKey(1) });
+        tUpElement.addEventListener("click", this.goUpOneKey);
       }
       var tDownElement = document.getElementById("transpose-down")
       if(tDownElement) {
-        tDownElement.addEventListener("click", (e) => { this.changeKey(-1) });
+        tDownElement.addEventListener("click", this.goDownOneKey);
       }
     }
   }
@@ -124,6 +126,9 @@ class SongDisplay extends React.Component {
       this.setState({transpose: parseInt(newTranspose)});
     }
   }
+
+  goUpOneKey() { this.changeKey(1); }
+  goDownOneKey() { this.changeKey(-1); }
 
   changeKey(step) {
     var key = parseInt(this.state.transpose);
