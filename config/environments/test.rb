@@ -30,8 +30,10 @@ Rails.application.configure do
   # Raise exceptions instead of rendering exception templates.
   config.action_dispatch.show_exceptions = false
 
-  # Disable request forgery protection in test environment.
-  config.action_controller.allow_forgery_protection = false
+  # ENABLE request forgery protection in test environment.
+  # Usually this is set to false, but our api calling references a CSRF token
+  # in the html that is only generated if this is set to true, so we need it on
+  config.action_controller.allow_forgery_protection = true
 
   config.action_mailer.perform_caching = false
 
@@ -48,6 +50,8 @@ Rails.application.configure do
 
   # Tell Active Support which deprecation messages to disallow.
   config.active_support.disallowed_deprecation_warnings = []
+
+  config.log_level = :debug
 
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true

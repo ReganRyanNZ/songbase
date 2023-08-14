@@ -91,6 +91,7 @@ class DatabaseSetupAndSync {
       .anyOf(langs)
       .toArray(books => {
         app.setState({ books: books });
+        this.log('Updating state with ' + books.length + ' books');
         return books;
       })
       .then(books => {
@@ -101,6 +102,7 @@ class DatabaseSetupAndSync {
           .where("book_id")
           .anyOf(book_ids)
           .toArray(references => {
+          this.log('Updating state with ' + references.length + ' references');
             app.setState({ references: references });
           });
       })

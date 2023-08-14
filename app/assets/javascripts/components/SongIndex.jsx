@@ -4,6 +4,7 @@ class SongIndex extends React.Component {
 
     this.searchInputChange = this.searchInputChange.bind(this);
     this.getSearchResults = this.getSearchResults.bind(this);
+    this.songIndexRow = this.songIndexRow.bind(this);
 
     window.addEventListener('scroll', this.props.infiniteScrolling);
   }
@@ -121,6 +122,37 @@ class SongIndex extends React.Component {
     return searchResults.slice(0, this.props.rowLimit);
   }
 
+  songIndexRow (result, i) {
+    var id = result.song.id,
+        index_tag = '';
+
+    if (!!this.props.currentBook) {
+      id = this.props.references.find(ref =>
+        ref.song_id === result.song.id &&
+        ref.book_id === this.props.currentBook.id
+      ).index
+      index_tag = <div className="index_row_book_index">{id}</div>;
+      result.tag = '';
+    }
+    return (
+      <div
+        className="index_row"
+        key={i}
+        id={id}
+        onClick={this.props.setSong}
+      >
+        <div className="index_row_title">
+          {result.song.title}
+          {index_tag}
+        </div>
+        <div
+          className="index_row_tag"
+          dangerouslySetInnerHTML={{ __html: result.tag }}
+        />
+      </div>
+    );
+  }
+
   render() {
     getKeysByValue = function (object, value) {
       return Object.keys(object).filter(key => object[key] === value);
@@ -158,36 +190,7 @@ class SongIndex extends React.Component {
           {!!this.props.loadingData ? (
             <div className="loading">Loading song data...</div>
           ) : (
-            this.getSearchResults().map(function (result, i) {
-              var id = result.song.id,
-                index_tag = '';
-
-              if (!!this.props.currentBook) {
-                id = this.props.references.find(ref =>
-                  ref.song_id === result.song.id &&
-                  ref.book_id === this.props.currentBook.id
-                ).index
-                index_tag = <div className="index_row_book_index">{id}</div>;
-                result.tag = '';
-              }
-              return (
-                <div
-                  className="index_row"
-                  key={i}
-                  id={id}
-                  onClick={this.props.setSong}
-                >
-                  <div className="index_row_title">
-                    {result.song.title}
-                    {index_tag}
-                  </div>
-                  <div
-                    className="index_row_tag"
-                    dangerouslySetInnerHTML={{ __html: result.tag }}
-                  />
-                </div>
-              );
-            }, this)
+            this.getSearchResults().map(this.songIndexRow, this)
           )}
         </div>
       </div>
