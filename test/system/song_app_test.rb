@@ -112,6 +112,10 @@ class SongAppTest < ApplicationSystemTestCase
     # Reference is a link that brings up book index sorted by index:
     find('div.song-reference', text: 'Test Book: #2').click
     assert_book_titles(sort_by: :index)
+
+    # Clicking book icon will exit out of current book:
+    find('div.book-icon').click
+    assert_index_titles(only: @all_songs)
   end
 
   private
