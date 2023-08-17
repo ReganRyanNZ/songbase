@@ -10,8 +10,8 @@ class Song < ApplicationRecord
   # We want to know songs that have been deleted since the client's last update
   # but if it was already _created_ (and then deleted) since the last update then we can completely ignore it.
   scope :deleted_after, ->(last_updated_at) { unscoped.where('deleted_at >= ?', last_updated_at).where('created_at < ?', last_updated_at) }
-
   scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
+
   scope :duplicate_titles, -> {
     where(
       title: Song.select(:title)

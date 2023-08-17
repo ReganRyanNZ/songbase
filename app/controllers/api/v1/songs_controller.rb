@@ -7,15 +7,14 @@ class Api::V1::SongsController < ApplicationController
   def app_data
     songs_to_sync = Song.where('updated_at > ?', client_updated_at).for_language(params[:language])
     books_to_sync = Book.where('updated_at > ?', client_updated_at).for_language(params[:language])
-    references_to_sync = SongBook.where('updated_at > ?', client_updated_at).for_books(books_to_sync)
     render json: {
-      deprecation_warning: 'WARNING: This api version is deprecated. Please use v2 instead, as v1 is no longer supported. Changes to db song data might not appear on v1',
+      deprecation_warning: 'WARNING: This api version is deprecated. Please use v2 instead, as v1 is no longer supported. Song data will still come through, but book data has been removed.',
       songs: songs_to_sync.app_data,
-      books: books_to_sync.app_data,
-      references: references_to_sync.app_data,
+      books: [],
+      references: [],
       destroyed: { songs: dead_songs,
-                   references: SongBook.deleted_after(client_updated_at).pluck(:id),
-                   books: Book.where('deleted_at > ?', client_updated_at).pluck(:id) },
+                   references: [],
+                   books: [] },
       songCount: Song.for_language(params[:language]).count,
       },
       status: 200
@@ -23,14 +22,17 @@ class Api::V1::SongsController < ApplicationController
 
   def languages
     render json: {
+      deprecation_warning: 'WARNING: This api version is deprecated. Please use v2 instead, as v1 is no longer supported. Song data will still come through, but book data has been removed.',
       languages: Song.distinct.pluck(:lang).without('english').prepend('english')
     }
   end
 
   def admin_songs
-    render json: {songs: {duplicates: duplicate_songs,
-                          changed: recently_changed_songs - duplicate_songs,
-                          unchanged: songs_for_admin - recently_changed_songs - duplicate_songs}}, status: 200
+    render json: {
+      deprecation_warning: 'WARNING: This api version is deprecated. Please use v2 instead, as v1 is no longer supported. Song data will still come through, but book data has been removed.',
+      songs: {duplicates: duplicate_songs,
+              changed: recently_changed_songs - duplicate_songs,
+              unchanged: songs_for_admin - recently_changed_songs - duplicate_songs}}, status: 200
   end
 
   private

@@ -77,15 +77,22 @@ Notes from 17 Aug 2023:
 - Add link icon in book index to get shareable link
   - Book's index url should also be a shareable link
 - Song form should not use Book.app_data, find a better way to query references
+- IDEA:
+  - Books are created locally
+  - When a share link is clicked, the booked is synced to server
+  - After 1 month, book is taken down? Nah but if it's just one record, seems fine to keep up.. What about 10k useless lost user books? Hmm maybe after 6 months of no updating, remove it? Seems like a task for 6 months later...
 
 Steps:
 
-- Create new field in books
-- Migrate data from song_books to books
-- Figure out whether client needs to parse books back to references or just change its ways (done, I want to change ways)
-- Keep v1 api, build v2 separate, email people about v2 when its in prod
-- Change client to ignore song_books, and still pass the system tests
-- Change admin to ignore song_books, create system tests
+- [done]Create new field in books
+- [done]Migrate data from song_books to books
+- [done]Figure out whether client needs to parse books back to references or just change its ways (done, I want to change ways)
+- [done]Keep v1 api but only returning song data
+- Build v2 separate
+  - Create v2 controller, with tests
+  - SongApp to ping new api endpoint, and use the new data structure
+  - Admin side to use new controller, create tests
+  - Email people about v2 when its in prod
 - Test preloaded props songs and books are working
 - Remove song_books from db and code
 - General refactor
