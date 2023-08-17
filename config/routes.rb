@@ -27,4 +27,12 @@ Rails.application.routes.draw do
       get 'admin_songs', to: 'songs#admin_songs'
     end
   end
+
+  namespace :api do
+    namespace :v2 do
+      get 'app_data', to: 'songs#app_data'
+      get 'languages', to: 'songs#languages'
+      get 'admin_songs', to: 'songs#admin_songs'
+    end
+  end
 end
