@@ -56,11 +56,37 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 # TODO
 
-### Cheaper fetching
+### System Tests
 
-- Language-specific fetches need to only get references for that language (seems to be grabbing everything)
+- [done] App usage
+- Admin usage
 
 ### CRUD books
+
+Notes from 17 Aug 2023:
+
+- song_books joins table will get too big (10k books, each with 100 songs, = 1 million rows), so we need to restructure the books db setup:
+  - Book records will have a single column with all song references, probably as a JSON encoded hash
+  - Postgres's text type can have infinite length (woo!)
+  - On the frontend, we can explore whether we can store it the same, or whether to unpack to the current references structure after fetch #TODO
+  - merge! needs to be updated and tested that book indices would change
+  - book.songs needs to be a custom method, not a has_many rails type thing
+- Sync should be simpler, just replace any book that has been updated later than the last sync date
+  - Languages for books are still needed, but should be multi-choice, and stored as CSV in the db, with a LIKE query to fetch the right books
+- Books need a csv field of email addresses allowed to edit the song. Users need to log in via gmail, and then their email is checked against this value. This feels like the best compromise between avoiding user signup and privilege-based access.
+- Creating/editing books is still a question of UI
+- Add link icon in book index to get shareable link
+  - Book's index url should also be a shareable link
+- Song form should not use Book.app_data, find a better way to query references
+
+Steps:
+
+- Create new field in books
+- Migrate data from song_books to books
+- Figure out whether client needs to parse books back to references or just change its ways
+
+
+Past notes:
 
 - Add a local book by default called "My Favorites"
 - At the bottom of songs, where the book refs are, add a "+ [book name]" for every local-owned book
