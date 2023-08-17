@@ -52,14 +52,14 @@ class Api::V2::SongsController < ApplicationController
   #                  .map(&:admin_entry))
   # end
 
-  # def client_updated_at
-  #   return @client_updated_at if @client_updated_at.present?
+  def client_updated_at
+    return @client_updated_at if @client_updated_at.present?
 
-  #   updated_at = params[:updated_at].presence&.to_i || 0
-  #   seconds = updated_at / 1000
-  #   milliseconds = updated_at % 1000
-  #   @client_updated_at = Time.at(seconds, milliseconds, :millisecond).utc
-  # end
+    updated_at = params[:updated_at].presence&.to_i || 0
+    seconds = updated_at / 1000
+    milliseconds = updated_at % 1000
+    @client_updated_at = Time.at(seconds, milliseconds, :millisecond).utc
+  end
 
   # def sort_songs(songs)
   #   return songs unless songs.present?

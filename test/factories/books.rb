@@ -4,11 +4,12 @@ FactoryBot.define do
     slug { name.parameterize.underscore }
     lang { 'english' }
     trait :with_songs do
-      after(:create) do |book|
-        [nil, :accord_to_my_earnest, :abba_father].each { |song|
-          FactoryBot.create(:song, song, books: [book])
+      songs {
+        {
+          FactoryBot.create(:song, :accord_to_my_earnest).id => '1',
+          FactoryBot.create(:song, :abba_father).id => '2'
         }
-      end
+      }
     end
   end
 end

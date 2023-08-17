@@ -19,15 +19,6 @@ class Book < ApplicationRecord
       id: id,
       name: name,
       lang: lang,
-      slug: slug
-    }
-  end
-
-  def app_entry_v2
-    {
-      id: id,
-      name: name,
-      lang: lang,
       slug: slug,
       songs: songs,
       languages: languages
