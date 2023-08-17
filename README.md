@@ -85,6 +85,7 @@ Steps:
 - Figure out whether client needs to parse books back to references or just change its ways
 - Change client to ignore song_books, and still pass the system tests
 - Change admin to ignore song_books, create system tests
+- Test preloaded props songs and books are working
 - Remove song_books from db and code
 - General refactor
 

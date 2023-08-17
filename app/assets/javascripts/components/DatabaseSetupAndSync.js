@@ -81,6 +81,7 @@ class DatabaseSetupAndSync {
   }
 
 
+  // Push data from indexedDB to React's state
   pushDBToState() {
     this.log("Fetching songs from offline storage...");
     var app = this.app;
@@ -115,16 +116,16 @@ class DatabaseSetupAndSync {
             app.setState({ songs: songs, loadingData: songs.length == 0 });
           });
       })
-      .then(result => {
+      .then(() => {
         if(app.props.book_slug && app.state.books.length > 0) {
           app.setState({
             currentBook: app.state.books.find(book => book.slug === app.props.book_slug)
           })
         }
       })
-      .then(result => {
+      .then(() => {
         db.songs.count(songCount => { app.setState({totalSongsCached: songCount}) });
-        if(app.state.logSyncData) { console.log("Finished offline storage fetch."); }
+        this.log("Finished offline storage fetch.");
       });
     return true
   }
@@ -182,18 +183,18 @@ class DatabaseSetupAndSync {
       headers: {
         "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content
       }
-    }).then(function(response) {
+    }).then((response) => {
       var myLanguages = app.state.settings.languages;
       var hiddenLanguages = response.data.languages.filter(lang => !myLanguages.includes(lang));
       var languages = myLanguages.concat(hiddenLanguages);
 
-      if(app.state.logSyncData) { console.log('myLanguages: ' + myLanguages); }
-      if(app.state.logSyncData) { console.log('hiddenLanguages: ' + hiddenLanguages); }
+      thisSyncTool.log('myLanguages: ' + myLanguages);
+      thisSyncTool.log('hiddenLanguages: ' + hiddenLanguages);
 
       languages.forEach((language) => {
         thisSyncTool.fetchDataByLanguage(language, lastUpdatedAt)
       })
-    }).then(function updateLastUpdatedAt() {
+    }).then(() => {
       db.transaction(
         "rw",
         db.settings,
@@ -207,7 +208,7 @@ class DatabaseSetupAndSync {
         }
       )
     }).catch(this.axiosError);
-    if(app.state.logSyncData) { console.log("Fetch completed."); }
+    thisSyncTool.log("Fetch completed.");
   }
 
   fetchDataByLanguage(language, lastUpdatedAt) {
@@ -215,10 +216,7 @@ class DatabaseSetupAndSync {
         db = this.db,
         thisSyncTool = this;
 
-
-    if(app.state.logSyncData) { console.log(
-      "Fetching " + language + " songs"
-    );}
+    thisSyncTool.log("Fetching " + language + " songs");
     axios({
       method: "GET",
       url: "/api/v1/app_data",
@@ -231,9 +229,7 @@ class DatabaseSetupAndSync {
       }
     })
     .then(function(response) {
-      if(app.state.logSyncData) { console.log(
-        "Syncing " + response.data.songs.length + " " + language + " songs with indexedDB..."
-      );}
+      thisSyncTool.log("Syncing " + response.data.songs.length + " " + language + " songs with indexedDB...");
       // run this all in a transaction, to stop mid-sync cut outs from wrecking everything.
       // if I'm fetching by language, things could still break if there's a song or book referring to multiple languages
       // I guess we'll see...
@@ -265,7 +261,7 @@ class DatabaseSetupAndSync {
       );
     })
     .then(function(data) {
-      if(app.state.logSyncData) { console.log("Syncing " + language + " completed."); }
+      thisSyncTool.log("Syncing " + language + " completed.");
       thisSyncTool.pushDBToState();
     });
   }

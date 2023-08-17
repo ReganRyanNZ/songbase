@@ -28,7 +28,7 @@ class Song < ApplicationRecord
   scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
 
   def books
-    Book.where("songs ? :id", id: self.id.to_string)
+    Book.where("songs ? :id", id: self.id.to_s)
   end
 
   # TODO FIX ME FOR NEW STRUCTURE
