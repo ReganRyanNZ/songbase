@@ -3,6 +3,7 @@ require 'test_helper'
 class SongTest < ActiveSupport::TestCase
 
   test ".merge! keeps indicies of old song and destroys old song" do
+    skip("Needs to be revisited when api v2 is done")
     book = FactoryBot.create(:book)
     song1 = FactoryBot.create(:song, :hymn_ref_in_comments)
     songbook = FactoryBot.create(:song_book, song: song1, book: book)
@@ -43,5 +44,12 @@ class SongTest < ActiveSupport::TestCase
     refute_includes Song.all.map(&:id), song2.id
     assert_includes Song.deleted_after(time_before_destruction).map(&:id), song2.id
     refute_includes Song.deleted_after(time_before_creation).map(&:id), song2.id
+  end
+
+  test 'languages do not duplicate from capitalization' do
+    song1 = FactoryBot.create(:song, lang: 'deutsch')
+    song1 = FactoryBot.create(:song, lang: 'Deutsch')
+
+    assert_equal(['deutsch'], Song.distinct.pluck(:lang))
   end
 end

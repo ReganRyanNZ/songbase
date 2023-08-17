@@ -4,6 +4,7 @@ class Song < ApplicationRecord
   validates :title, presence: true
 
   before_save :remove_windows_carriage_returns
+  before_save :sanitize_lang
 
   default_scope -> { where(deleted_at: nil) }
   # We want to know songs that have been deleted since the client's last update
@@ -27,6 +28,9 @@ class Song < ApplicationRecord
   }
   scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
 
+  # Many-to-many relationship, but stored in JSON in the db, so the query is a
+  # bit different.
+  # The ? in this means "any top-level key in the json data is equal to"
   def books
     Book.where("songs ? :id", id: self.id.to_s)
   end
@@ -149,5 +153,9 @@ class Song < ApplicationRecord
   # TODO IS THIS USED ITS A BAD IDEA
   def book_indices
     self.song_books.map {|sb| [sb.book_id, sb.index] }.to_h
+  end
+
+  def sanitize_lang
+    self.lang = self.lang.to_s.downcase
   end
 end
