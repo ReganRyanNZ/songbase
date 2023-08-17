@@ -1,6 +1,5 @@
 class Song < ApplicationRecord
   has_many :song_books, dependent: :destroy
-  has_many :books, through: :song_books
   has_many :audits, dependent: :destroy
   validates :title, presence: true
 
@@ -28,6 +27,11 @@ class Song < ApplicationRecord
   }
   scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
 
+  def books
+    Book.where("songs ? :id", id: self.id.to_string)
+  end
+
+  # TODO FIX ME FOR NEW STRUCTURE
   def merge! old_song
     # allow either Song or id as param
     old_song = Song.find(old_song) if old_song.class == Integer
@@ -51,6 +55,7 @@ class Song < ApplicationRecord
     old_song.reload.destroy_with_audit(User.system_user)
   end
 
+  # TODO DOES THE TYPE EVER EQUAL BOOKS AND REFERENCES THIS SEEM SLIKE A BAD IDEA
   def app_entry(type=nil)
     case type
     when :books
@@ -141,6 +146,7 @@ class Song < ApplicationRecord
     self.lyrics = self.lyrics.gsub(/[\r\u2028\u2029]/, "")
   end
 
+  # TODO IS THIS USED ITS A BAD IDEA
   def book_indices
     self.song_books.map {|sb| [sb.book_id, sb.index] }.to_h
   end

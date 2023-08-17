@@ -67,10 +67,9 @@ Notes from 17 Aug 2023:
 
 - song_books joins table will get too big (10k books, each with 100 songs, = 1 million rows), so we need to restructure the books db setup:
   - Book records will have a single column with all song references, probably as a JSON encoded hash
-  - Postgres's text type can have infinite length (woo!)
+  - Postgres's text type can have infinite length (woo!) UPDATE postgres is way better than I realised. It has jsonb which stores json in an indexible way, and arrays, so I can use faster queries than wildcards to search for books with a particular language.
   - On the frontend, we can explore whether we can store it the same, or whether to unpack to the current references structure after fetch #TODO
-  - merge! needs to be updated and tested that book indices would change
-  - book.songs needs to be a custom method, not a has_many rails type thing
+  - merge! and song deletion needs to be updated and tested that book indices would change
 - Sync should be simpler, just replace any book that has been updated later than the last sync date
   - Languages for books are still needed, but should be multi-choice, and stored as CSV in the db, with a LIKE query to fetch the right books
 - Books need a csv field of email addresses allowed to edit the song. Users need to log in via gmail, and then their email is checked against this value. This feels like the best compromise between avoiding user signup and privilege-based access.
@@ -84,6 +83,10 @@ Steps:
 - Create new field in books
 - Migrate data from song_books to books
 - Figure out whether client needs to parse books back to references or just change its ways
+- Change client to ignore song_books, and still pass the system tests
+- Change admin to ignore song_books, create system tests
+- Remove song_books from db and code
+- General refactor
 
 
 Past notes:

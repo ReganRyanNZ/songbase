@@ -1,7 +1,11 @@
 class Book < ApplicationRecord
   has_many :song_books, dependent: :destroy
-  has_many :songs, through: :song_books
   scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
+
+  # Keeping this commented code as a reference for querying "does this
+  # top-level key exist in this jsonb field", very useful:
+  #
+  # scope :with_song, ->(song) { Book.where("songs ? :id", id: '9') }
 
   def app_entry
     {
