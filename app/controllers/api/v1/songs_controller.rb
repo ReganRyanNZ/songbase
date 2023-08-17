@@ -1,3 +1,6 @@
+# DEPRECATED
+# This version is no longer supported
+
 class Api::V1::SongsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
@@ -6,6 +9,7 @@ class Api::V1::SongsController < ApplicationController
     books_to_sync = Book.where('updated_at > ?', client_updated_at).for_language(params[:language])
     references_to_sync = SongBook.where('updated_at > ?', client_updated_at).for_books(books_to_sync)
     render json: {
+      deprecation_warning: 'WARNING: This api version is deprecated. Please use v2 instead, as v1 is no longer supported. Changes to db song data might not appear on v1',
       songs: songs_to_sync.app_data,
       books: books_to_sync.app_data,
       references: references_to_sync.app_data,

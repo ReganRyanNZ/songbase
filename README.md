@@ -82,7 +82,8 @@ Steps:
 
 - Create new field in books
 - Migrate data from song_books to books
-- Figure out whether client needs to parse books back to references or just change its ways
+- Figure out whether client needs to parse books back to references or just change its ways (done, I want to change ways)
+- Keep v1 api, build v2 separate, email people about v2 when its in prod
 - Change client to ignore song_books, and still pass the system tests
 - Change admin to ignore song_books, create system tests
 - Test preloaded props songs and books are working

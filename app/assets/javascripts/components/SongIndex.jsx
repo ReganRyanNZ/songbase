@@ -2,9 +2,9 @@ class SongIndex extends React.Component {
   constructor(props) {
     super(props);
 
-    this.searchInputChange = this.searchInputChange.bind(this);
     this.getSearchResults = this.getSearchResults.bind(this);
     this.songIndexRow = this.songIndexRow.bind(this);
+    this.resultsForNumericalSearch = this.resultsForNumericalSearch.bind(this);
 
     window.addEventListener('scroll', this.props.infiniteScrolling);
   }
@@ -13,51 +13,42 @@ class SongIndex extends React.Component {
     window.removeEventListener('scroll', this.props.infiniteScrolling);
   }
 
-  searchInputChange(event) {
-    switch (event.target.id) {
-      case "index_search":
-        this.props.setSearch(event.target.value);
-        break;
-    }
-  }
-
+  // If the search is a number, we can look for book indices instead of
+  // title/lyric matches
   searchIsNumber() {
-    var isNumberRegex = new RegExp("^[0-9]+$", "i");
+    let isNumberRegex = new RegExp("^[0-9]+$", "i");
     return isNumberRegex.test(this.props.search);
   }
 
   getSearchResults() {
-    var stripString = function (str) {
-      str = str.replace(/[\_\-—–]/g, " ");
-      return str.normalize("NFD").toUpperCase().replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "");
-    };
-    var songs = this.props.songs;
-    var references = this.props.references;
+    if (this.props.songs.length === 0) { return [] }
 
-    if (songs.length === 0) {
-      return [];
-    }
+    let stripString = (str) => {
+      return str.replace(/[\_\-—–]/g, " ")
+                .normalize("NFD")
+                .toUpperCase()
+                .replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "")
+    };
+    let songs = this.props.songs;
+    let references = this.props.references;
 
     // scope songs to the current selected book
     if (this.props.currentBook != null) {
+      // #TODO REFERENCES
       references = references.filter(ref => ref.book_id === this.props.currentBook.id)
-      var song_ids = references.map(ref => ref.song_id);
+      let song_ids = references.map(ref => ref.song_id);
       songs = songs.filter(song => song_ids.includes(song.id));
     }
 
-    var strippedSearch = stripString(this.props.search);
-    var searchResults = [];
+    let strippedSearch = stripString(this.props.search);
+    let searchResults = [];
 
-    // filter songs by language settings
-    // This is no longer needed while songs in state are set by language
-    // songs = songs.filter(function(song) {
-    //   return this.props.settings.languages.includes(song.lang);
-    // }, this);
     if (this.searchIsNumber()) {
-      var search = parseInt(this.props.search);
-      var refs = references.filter(ref => ref.index == search);
+      let search = parseInt(this.props.search);
+      // #TODO REFERENCES
+      let refs = references.filter(ref => ref.index == search);
       searchResults = refs.map(ref => {
-        var book = this.props.books.find(book => book.id == ref.book_id);
+        let book = this.props.books.find(book => book.id == ref.book_id);
         return {
           song: songs.find(song => song.id == ref.song_id),
           tag:
@@ -69,15 +60,17 @@ class SongIndex extends React.Component {
         };
       });
       return searchResults;
+
+      // return this.resultsForNumericalSearch(parseInt(this.props.search))
     } else {
-      var titleStartRegex = new RegExp("^" + strippedSearch, "i");
-      var titleMatchRegex = new RegExp(strippedSearch, "i");
-      var lyricsMatchRegex = new RegExp(strippedSearch, "i");
+      let titleStartRegex = new RegExp("^" + strippedSearch, "i");
+      let titleMatchRegex = new RegExp(strippedSearch, "i");
+      let lyricsMatchRegex = new RegExp(strippedSearch, "i");
 
       searchResults = songs
         .filter(song => {
-          var title = stripString(song.title);
-          var lyrics = stripString(song.lyrics);
+          let title = stripString(song.title);
+          let lyrics = stripString(song.lyrics);
           return titleMatchRegex.test(title) || lyricsMatchRegex.test(lyrics);
         }, this)
         .map(song => {
@@ -89,15 +82,15 @@ class SongIndex extends React.Component {
 
       if (this.props.currentBook && this.props.orderIndexBy == 'number') {
         searchResults.sort((a, b) => {
-          var index_a = references.find((ref) => (ref.song_id == a.song.id)).index;
-          var index_b = references.find((ref) => (ref.song_id == b.song.id)).index;
+          let index_a = references.find((ref) => (ref.song_id == a.song.id)).index;
+          let index_b = references.find((ref) => (ref.song_id == b.song.id)).index;
           return parseInt(index_a) > parseInt(index_b) ? 1 : -1;
         });
       } else {
         // sort the results, making title matches appear higher than lyrics matches
         searchResults.sort((a, b) => {
-          var titles = [stripString(a.song.title), stripString(b.song.title)];
-          var titlesImportance = titles.map(title => {
+          let titles = [stripString(a.song.title), stripString(b.song.title)];
+          let titlesImportance = titles.map(title => {
             if (titleStartRegex.test(title)) {
               return 2;
             } else if (titleMatchRegex.test(title)) {
@@ -122,8 +115,27 @@ class SongIndex extends React.Component {
     return searchResults.slice(0, this.props.rowLimit);
   }
 
+  resultsForNumericalSearch(searchTerm) {
+    // #TODO REFERENCES
+    let refs = references.filter(ref => ref.index == searchTerm);
+    searchResults = refs.map(ref => {
+      let book = this.props.books.find(book => book.id == ref.book_id);
+      return {
+        song: songs.find(song => song.id == ref.song_id),
+        tag:
+          '<span class="search_tag">' +
+          book.name +
+          ": #" +
+          ref.index +
+          "</span>"
+      };
+    });
+    return searchResults;
+  }
+
+  // html component for a row on the index page
   songIndexRow (result, i) {
-    var id = result.song.id,
+    let id = result.song.id,
         index_tag = '';
 
     if (!!this.props.currentBook) {
@@ -154,9 +166,7 @@ class SongIndex extends React.Component {
   }
 
   render() {
-    getKeysByValue = function (object, value) {
-      return Object.keys(object).filter(key => object[key] === value);
-    };
+    let searchInputChange = (event) => { this.props.setSearch(event.target.value); }
 
     return (
       <div className="song-index" key="song-index">
@@ -169,7 +179,7 @@ class SongIndex extends React.Component {
             id="index_search"
             autoComplete="off"
             value={this.props.search}
-            onChange={this.searchInputChange}
+            onChange={searchInputChange}
             name="song[search]"
             className="index_search"
             placeholder="search..."
