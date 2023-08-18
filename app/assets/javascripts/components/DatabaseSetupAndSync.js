@@ -40,7 +40,7 @@ class DatabaseSetupAndSync {
     this.db.version(5).stores({
       settings: "settingsType",
       songs: "id, title, lang",
-      books: "id, slug, languages",
+      books: "id, slug, *languages",
       references: null
     });
     this.db.version(4).stores({
@@ -96,7 +96,10 @@ class DatabaseSetupAndSync {
     db.books
       .where("languages")
       .anyOf(languages)
+      .distinct()
       .toArray(books => {
+        this.log('Pushing books to state:');
+        this.log(books);
         app.setState({ books: books });
         return books;
       })

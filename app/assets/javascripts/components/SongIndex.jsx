@@ -4,7 +4,11 @@ class SongIndex extends React.Component {
 
     this.getSearchResults = this.getSearchResults.bind(this);
     this.songIndexRow = this.songIndexRow.bind(this);
-    this.resultsForNumericalSearch = this.resultsForNumericalSearch.bind(this);
+    this.songs = this.songs.bind(this);
+    this.strip = this.strip.bind(this);
+    this.rowDataForNumericalSearch = this.rowDataForNumericalSearch.bind(this);
+    this.getSongIdByIndex = this.getSongIdByIndex.bind(this);
+    this.sortRowData = this.sortRowData.bind(this);
 
     window.addEventListener('scroll', this.props.infiniteScrolling);
   }
@@ -20,132 +24,121 @@ class SongIndex extends React.Component {
     return isNumberRegex.test(this.props.search);
   }
 
-  getSearchResults() {
-    if (this.props.songs.length === 0) { return [] }
-
-    let stripString = (str) => {
-      return str.replace(/[\_\-—–]/g, " ")
-                .normalize("NFD")
-                .toUpperCase()
-                .replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "")
-    };
-    let songs = this.props.songs;
-    let references = this.props.references;
-
-    // scope songs to the current selected book
-    if (this.props.currentBook != null) {
-      // #TODO REFERENCES
-      references = references.filter(ref => ref.book_id === this.props.currentBook.id)
-      let song_ids = references.map(ref => ref.song_id);
-      songs = songs.filter(song => song_ids.includes(song.id));
-    }
-
-    let strippedSearch = stripString(this.props.search);
-    let searchResults = [];
-
-    if (this.searchIsNumber()) {
-      let search = parseInt(this.props.search);
-      // #TODO REFERENCES
-      let refs = references.filter(ref => ref.index == search);
-      searchResults = refs.map(ref => {
-        let book = this.props.books.find(book => book.id == ref.book_id);
-        return {
-          song: songs.find(song => song.id == ref.song_id),
-          tag:
-            '<span class="search_tag">' +
-            book.name +
-            ": #" +
-            ref.index +
-            "</span>"
-        };
-      });
-      return searchResults;
-
-      // return this.resultsForNumericalSearch(parseInt(this.props.search))
-    } else {
-      let titleStartRegex = new RegExp("^" + strippedSearch, "i");
-      let titleMatchRegex = new RegExp(strippedSearch, "i");
-      let lyricsMatchRegex = new RegExp(strippedSearch, "i");
-
-      searchResults = songs
-        .filter(song => {
-          let title = stripString(song.title);
-          let lyrics = stripString(song.lyrics);
-          return titleMatchRegex.test(title) || lyricsMatchRegex.test(lyrics);
-        }, this)
-        .map(song => {
-          return {
-            song: song,
-            tag: ""
-          };
-        });
-
-      if (this.props.currentBook && this.props.orderIndexBy == 'number') {
-        searchResults.sort((a, b) => {
-          let index_a = references.find((ref) => (ref.song_id == a.song.id)).index;
-          let index_b = references.find((ref) => (ref.song_id == b.song.id)).index;
-          return parseInt(index_a) > parseInt(index_b) ? 1 : -1;
-        });
-      } else {
-        // sort the results, making title matches appear higher than lyrics matches
-        searchResults.sort((a, b) => {
-          let titles = [stripString(a.song.title), stripString(b.song.title)];
-          let titlesImportance = titles.map(title => {
-            if (titleStartRegex.test(title)) {
-              return 2;
-            } else if (titleMatchRegex.test(title)) {
-              return 1;
-            } else {
-              return 0;
-            }
-          });
-
-          // sort alphabetically if they are in the same importance category
-          if (titlesImportance[0] == titlesImportance[1]) {
-            if (titles[0] < titles[1]) return -1;
-            if (titles[0] > titles[1]) return 1;
-            return 0;
-          } else {
-            return titlesImportance[1] - titlesImportance[0];
-          }
-        });
-      }
-    }
-
-    return searchResults.slice(0, this.props.rowLimit);
+  strip(string) {
+    return string.replace(/[\_\-—–]/g, " ")
+                 .normalize("NFD")
+                 .toUpperCase()
+                 .replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "");
   }
 
-  resultsForNumericalSearch(searchTerm) {
-    // #TODO REFERENCES
-    let refs = references.filter(ref => ref.index == searchTerm);
-    searchResults = refs.map(ref => {
-      let book = this.props.books.find(book => book.id == ref.book_id);
+  // Books stored songs as {song.id => index}
+  // so we need this method for a reverse lookup
+  getSongIdByIndex(book, index) {
+    return Object.keys(book).find(song_id => book[song_id] === index);
+  }
+
+  songs() {
+    let results = this.props.songs;
+
+    // scope songs to the current selected book
+    if(this.props.currentBook) {
+      results = results.filter(song => this.props.currentBook.songs[song.id]);
+    }
+    return results;
+  }
+
+  rowDataForNumericalSearch(number) {
+    let books = this.props.currentBook ? [this.props.currentBook] : this.props.books;
+    let booksWithIndex = books.map(book => {
+      let song_id = this.getSongIdByIndex(book.songs, number);
+      return song_id ? [book, song_id] : null;
+    }).filter(notNull=>notNull);
+
+    return booksWithIndex.map(bookAndSongId => {
+      let book = bookAndSongId[0];
+      let song_id = bookAndSongId[1];
+
       return {
-        song: songs.find(song => song.id == ref.song_id),
+        song: this.props.songs.find(song => song.id == song_id),
         tag:
           '<span class="search_tag">' +
           book.name +
           ": #" +
-          ref.index +
+          number +
           "</span>"
       };
     });
-    return searchResults;
+  }
+
+  getSearchResults() {
+    if (this.props.songs.length === 0) { return [] }
+
+    let strippedSearch = this.strip(this.props.search);
+    let rowData = [];
+
+    if (this.searchIsNumber()) {
+      rowData = this.rowDataForNumericalSearch(strippedSearch);
+    } else {
+      let containsSearchRegex = new RegExp(strippedSearch, "i");
+      let toRowData = (song) => { return {song: song, tag: ""} };
+      let songContainsSearch = (song) => {
+          let title = this.strip(song.title);
+          let lyrics = this.strip(song.lyrics);
+          return containsSearchRegex.test(title) || containsSearchRegex.test(lyrics);
+      };
+      let searchResults = this.songs().filter(songContainsSearch).map(toRowData);
+      rowData = searchResults;
+    }
+
+    return this.sortRowData(rowData, strippedSearch).slice(0, this.props.rowLimit);
+  }
+
+  sortRowData(rows, search) {
+    let titleStartRegex = new RegExp("^" + search, "i");
+    let titleMatchRegex = new RegExp(search, "i");
+
+    if (this.props.currentBook && this.props.orderIndexBy == 'number') {
+      return rows.sort((a, b) => {
+        let index_a = this.props.currentBook.songs[a.song.id];
+        let index_b = this.props.currentBook.songs[b.song.id];
+        return parseInt(index_a) > parseInt(index_b) ? 1 : -1;
+      });
+    } else {
+      return rows.sort((a, b) => {
+        let titles = [this.strip(a.song.title), this.strip(b.song.title)];
+        let titlesImportance = titles.map(title => {
+          if (titleStartRegex.test(title)) {
+            return 2; // Matching the start of the title
+          } else if (titleMatchRegex.test(title)) {
+            return 1; // Matching the title
+          } else {
+            return 0; // Matching the lyrics
+          }
+        });
+
+        // sort alphabetically if they are in the same importance category
+        if (titlesImportance[0] == titlesImportance[1]) {
+          if (titles[0] < titles[1]) return -1;
+          if (titles[0] > titles[1]) return 1;
+          return 0;
+        } else {
+          return titlesImportance[1] - titlesImportance[0];
+        }
+      });
+    }
   }
 
   // html component for a row on the index page
-  songIndexRow (result, i) {
-    let id = result.song.id,
-        index_tag = '';
+  songIndexRow (rowData, i) {
+    let bookIndex = this.props.currentBook ? this.props.currentBook.songs[rowData.song.id] : null
+    let id = bookIndex || rowData.song.id;
+    let bookIndexTag = '';
 
-    if (!!this.props.currentBook) {
-      id = this.props.references.find(ref =>
-        ref.song_id === result.song.id &&
-        ref.book_id === this.props.currentBook.id
-      ).index
-      index_tag = <div className="index_row_book_index">{id}</div>;
-      result.tag = '';
+    if (this.props.currentBook) {
+      bookIndexTag = <div className="index_row_book_index">{id}</div>;
+      rowData.tag = '';
     }
+
     return (
       <div
         className="index_row"
@@ -154,12 +147,12 @@ class SongIndex extends React.Component {
         onClick={this.props.setSong}
       >
         <div className="index_row_title">
-          {result.song.title}
-          {index_tag}
+          {rowData.song.title}
+          {bookIndexTag}
         </div>
         <div
           className="index_row_tag"
-          dangerouslySetInnerHTML={{ __html: result.tag }}
+          dangerouslySetInnerHTML={{ __html: rowData.tag }}
         />
       </div>
     );

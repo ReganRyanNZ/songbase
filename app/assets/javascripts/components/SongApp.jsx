@@ -21,7 +21,8 @@ class SongApp extends React.Component {
       orderIndexBy: 'alpha',
       scrollTo: null,
       rowLimit: 100,
-      logSyncData: true
+      logSyncData: true,
+      logSongApp: true
     };
 
     // bind all methods to this context (so we can use them)
@@ -32,6 +33,7 @@ class SongApp extends React.Component {
     this.setTheme = this.setTheme.bind(this);
     this.scrollToSong = this.scrollToSong.bind(this);
     this.infiniteScrolling = this.infiniteScrolling.bind(this);
+    this.log = this.log.bind(this);
 
     this.navigate = new AppNavigation(this);
     this.navigate.setupInitialHistoryState();
@@ -47,7 +49,7 @@ class SongApp extends React.Component {
 
   componentDidUpdate() {
     if(!!this.state.scrollTo && this.state.page == 'index') {
-      var element = document.getElementById(this.state.scrollTo);
+      let element = document.getElementById(this.state.scrollTo);
       if(element) {
         element.scrollIntoView({ block: 'center'});
       }
@@ -55,8 +57,12 @@ class SongApp extends React.Component {
     }
   }
 
+  log(string) {
+    if(this.state.logSongApp) { console.log(string) }
+  }
+
   infiniteScrolling(){
-    var pixelsBeforeTheEnd = 500,
+    let pixelsBeforeTheEnd = 500,
         currentScrollPoint = window.innerHeight + document.documentElement.scrollTop,
         maxScrollPoint = document.scrollingElement.scrollHeight;
     if (pixelsBeforeTheEnd + currentScrollPoint > maxScrollPoint) {
@@ -84,11 +90,11 @@ class SongApp extends React.Component {
 
     }
     songs = this.state.songs;
-    var song = null,
+    let song = null,
         ref_id = null;
     // If we are inside a book, the song's id will point to the song's index in that book
     if(!!this.state.currentBook) {
-      var ref = this.state.references.find(ref =>
+      let ref = this.state.references.find(ref =>
         ref.index == id &&
         ref.book_id == this.state.currentBook.id
       );
@@ -133,10 +139,10 @@ class SongApp extends React.Component {
   }
 
   render() {
-    var page = this.state.page;
-    var content;
-    var indexNumber;
-    var pageTitle = 'Songbase';
+    let page = this.state.page;
+    let content;
+    let indexNumber;
+    let pageTitle = 'Songbase';
     switch (page) {
       case "index":
         if(!!this.state.currentBook) {
@@ -151,7 +157,6 @@ class SongApp extends React.Component {
             toggleBookIndex={this.navigate.toggleBookIndex}
             books={this.state.books}
             currentBook={this.state.currentBook}
-            references={this.state.references}
             loadingData={this.state.loadingData}
             setSearch={this.setSearch}
             clearSearch={this.clearSearch}
@@ -178,6 +183,8 @@ class SongApp extends React.Component {
         );
         break;
       case "books":
+        this.log('[Navigation] Books page:');
+        this.log(this.state.books);
         content = (
           <IndexOfBooks
           books={this.state.books || []}
@@ -187,7 +194,7 @@ class SongApp extends React.Component {
         break;
 
       default: // display a song
-        var song = this.getSong(page);
+        let song = this.getSong(page);
         pageTitle = song.title;
         if(!!this.state.currentBook) {
           indexNumber = <div className="title-number">{window.location.pathname.split('/').pop()}</div>;
@@ -211,13 +218,15 @@ class SongApp extends React.Component {
 
     document.title = pageTitle;
 
+    let title = <h1 className="home-title" onClick={this.navigate.returnToIndex}>
+                  {!!this.state.currentBook ? this.state.currentBook.name : "Songbase"}
+                  {indexNumber}
+                </h1>;
+
     this.setTheme();
     return (
       <div className="song-app" key="song-app">
-        <h1 className="home-title" onClick={this.navigate.returnToIndex}>
-          {!!this.state.currentBook ? this.state.currentBook.name : "Songbase"}
-          {indexNumber}
-        </h1>
+        {title}
         {content}
       </div>
     );
