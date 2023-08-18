@@ -2,7 +2,7 @@ FactoryBot.define do
   factory :book do
     name { "my songbook" }
     slug { name.parameterize.underscore }
-    lang { 'english' }
+    languages { ['english'] }
     trait :with_songs do
       songs {
         {

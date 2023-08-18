@@ -9,6 +9,7 @@ class Book < ApplicationRecord
   #
   # scope :with_song, ->(song) { Book.where("songs ? :id", id: '9') }
 
+
   # For now (17 Aug 2023) we will not delete books from db. If it's a problem
   # ~12 months from now we can try a "delete everything that hasn't been
   # updated for 6 months except the important books" kinda thing
@@ -18,7 +19,6 @@ class Book < ApplicationRecord
     {
       id: id,
       name: name,
-      lang: lang,
       slug: slug,
       songs: songs,
       languages: languages

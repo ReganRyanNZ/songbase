@@ -134,7 +134,7 @@ class SongAppTest < ApplicationSystemTestCase
     FactoryBot.create(:song_book, song: @song_from_the_time, book: @test_book, index: 1)
     FactoryBot.create(:song_book, song: @song_abba_father, book: @test_book, index: 2)
     FactoryBot.create(:song_book, song: @song_according_to, book: @test_book, index: 3)
-    sleep(0.001)
+    travel 1.second
   end
 
   def assert_index_titles(only:)

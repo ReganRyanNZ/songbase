@@ -4,11 +4,7 @@ require 'test_helper'
 # We need to test that the api now returns books with the song references in the book record
 
 class SongsControllerTest < ActionDispatch::IntegrationTest
-  # app_data:
-  # - Returns a list of songs and books that have been updated (or destroyed)
-  #   since the client last synced.
-  # - Ignores records that were created then deleted again within the time gap
-  test "GET #app_data" do
+  test 'app_data returns song data according to the last sync timestamp vs songs updated_at timestamp' do
     song_to_delete = FactoryBot.create(:song) # created before client_last_updated_at, should not be in the list
 
     wait_a_tiny_bit
@@ -24,7 +20,7 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
 
     get api_v2_app_data_path, params: {updated_at: client_last_updated_at}
 
-    song_data = new_songs.map do |song|
+    expected_song_data = new_songs.map do |song|
       {
         title: song.title,
         lang: song.lang,
@@ -33,11 +29,12 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :success
-    assert_equal [song_to_delete.id], songs_response[:destroyed][:songs]
-    assert_equal song_data, songs_response[:songs].map{|song| song.except(:id)}
+    response_data = response_json
+    assert_equal [song_to_delete.id], response_data[:destroyed][:songs]
+    assert_equal expected_song_data, response_data[:songs].map{|song| song.except(:id)}
   end
 
-  test 'GET #app_data returns book data' do
+  test 'app_data returns book data' do
     FactoryBot.create(:book, name: "Ignored")
 
     wait_a_tiny_bit
@@ -51,8 +48,30 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
 
     get api_v2_app_data_path, params: {updated_at: client_last_updated_at}
 
+    expected_book_data = {name: "Kept",
+                          slug: "kept",
+                          songs: {song_1.id.to_s.to_sym=>"1", song_2.id.to_s.to_sym =>"2"},
+                          languages: ["english"]}
     assert_response :success
-    assert_equal({song_1.id.to_s.to_sym=>"1", song_2.id.to_s.to_sym =>"2"}, songs_response[:books].first[:songs])
+    assert_equal(expected_book_data, response_json[:books].first.except(:id))
+
+    wait_a_tiny_bit
+    client_last_updated_at = (Time.now.to_f*1000).to_i
+    wait_a_tiny_bit
+
+    # Already updated, wont send the data again:
+    get api_v2_app_data_path, params: {updated_at: client_last_updated_at}
+    assert_response :success
+    assert_equal([], response_json[:books])
+  end
+
+  test 'languages returns a list of distinct languages' do
+    FactoryBot.create(:song, :accord_to_my_earnest, lang: 'english')
+    FactoryBot.create(:song, :abba_father, lang: 'english')
+    FactoryBot.create(:song, :portuguese, lang: 'portuguese')
+
+    get api_v2_languages_path
+    assert_equal ['english', 'portuguese'], response_json[:languages]
   end
 
   test 'GET #admin_songs' do
@@ -71,11 +90,11 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
   private
 
   def wait_a_tiny_bit
-    sleep(0.001)
+    travel 1.second
   end
 
-  def songs_response
-    @songs_response ||= JSON.parse(response.body, symbolize_names: true)
+  def response_json
+    JSON.parse(response.body, symbolize_names: true)
   end
 
   def create_songs
