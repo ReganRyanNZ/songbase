@@ -2,7 +2,6 @@ class DatabaseSetupAndSync {
   constructor(app) {
     this.app = app;
     this.db = new Dexie("songbaseDB");
-    this.state = app.state;
 
     this.initialize = this.initialize.bind(this);
     this.defineSchema = this.defineSchema.bind(this);
@@ -15,17 +14,20 @@ class DatabaseSetupAndSync {
     this.setSettings = this.setSettings.bind(this);
     this.log = this.log.bind(this);
     this.axiosError = this.axiosError.bind(this);
+    this.migrateFromV1toV2 = this.migrateFromV1toV2.bind(this);
   }
 
   log(string) {
-    if(this.state.logSyncData) { console.log(string) }
+    if(this.app.state.logSyncData) { console.log(string) }
   }
 
   initialize() {
+    this.log('Initializing db sync...')
     this.defineSchema();
 
     this.db.settings.get({ settingsType: "global" }) // Fetch settings from indexedDB
                     .then(this.syncSettings) // Push settings to React state
+                    .then(this.migrateFromV1toV2)
                     .then(this.pushIndexedDBToState) // Push indexedDB data (scoped by settings) to React state
                     .then(this.fetchDataFromAPI) // Fetch data from API
                     .catch((e) => { this.log("Failed to fetch new data.", e); });
@@ -38,7 +40,8 @@ class DatabaseSetupAndSync {
     this.db.version(5).stores({
       settings: "settingsType",
       songs: "id, title, lang",
-      books: "id, slug, lang"
+      books: "id, slug, languages",
+      references: null
     });
     this.db.version(4).stores({
       settings: "settingsType",
@@ -46,15 +49,34 @@ class DatabaseSetupAndSync {
       books: "id, slug, lang",
       references: "id, song_id, book_id"
     });
+    this.log('Dexie schema defined');
   }
 
   syncSettings(settingsFromDb) {
     if(!!settingsFromDb) {
-      this.log("Settings via IndexedDB detected.");
+      this.log("Settings via IndexedDB detected:");
+      this.log(settingsFromDb);
       this.app.setState({ settings: settingsFromDb });
     } else {
       this.log("No settings found. Creating defaults...");
-      this.db.settings.add(this.state.settings);
+      this.db.settings.add(this.app.state.settings);
+    }
+  }
+
+  // v1 of the api included a separate references table.
+  // v2 puts the references into the books table.
+  // So we need to check if references exist in indexedDB,
+  // if it does we need a full reset.
+  migrateFromV1toV2() {
+    // MIGRATION_DATE is set a day after we actually deploy, so the overlap
+    // covers all timezones. This means for 1 day songbase will load slowly
+    // because it redownloads every session.
+    const MIGRATION_DATE = new Date('August 25, 2023 00:00:00').getTime();
+    this.log('Last updated at: ' + this.app.state.settings.updated_at);
+    this.log('MIGRATION_DATE: ' + MIGRATION_DATE);
+    if(this.app.state.settings.updated_at > 0 && this.app.state.settings.updated_at < MIGRATION_DATE){
+      this.log("Resetting DB for v2 API migration.")
+      this.resetDbData();
     }
   }
 
@@ -66,37 +88,25 @@ class DatabaseSetupAndSync {
 
   // Push data from indexedDB to React's state
   pushIndexedDBToState() {
-    this.log("Fetching songs from offline storage...");
+    this.log("Loading IndexedDB into state...");
     let app = this.app;
     let db = this.db;
-    let langs = app.state.settings.languages;
+    let languages = app.state.settings.languages;
+
     db.books
-      .where("lang")
-      .anyOf(langs)
+      .where("languages")
+      .anyOf(languages)
       .toArray(books => {
         app.setState({ books: books });
-        this.log('Updating state with ' + books.length + ' books');
         return books;
-      })
-      .then(books => {
-        let book_ids = books.map(book => {
-          return book.id;
-        });
-        db.references
-          .where("book_id")
-          .anyOf(book_ids)
-          .toArray(references => {
-          this.log('Updating state with ' + references.length + ' references');
-            app.setState({ references: references });
-          });
       })
       .then(() => {
         db.songs
           .where("lang")
-          .anyOf(langs)
+          .anyOf(languages)
           .toArray(songs => {
             songs.sort(this.sortSongsByTitle);
-            app.setState({ songs: songs, loadingData: songs.length == 0 });
+            app.setState({ songs: songs, loadingData: false });
           });
       })
       .then(() => {
@@ -108,7 +118,7 @@ class DatabaseSetupAndSync {
       })
       .then(() => {
         db.songs.count(songCount => { app.setState({totalSongsCached: songCount}) });
-        this.log("Finished offline storage fetch.");
+        this.log("IndexedDB loaded into state.");
       });
     return true
   }
@@ -170,7 +180,7 @@ class DatabaseSetupAndSync {
 
     axios({
       method: "GET",
-      url: "/api/v1/languages",
+      url: "/api/v2/languages",
       headers: {
         "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content
       }
@@ -200,6 +210,7 @@ class DatabaseSetupAndSync {
             settings: settings
           });
           db.settings.put(settings);
+          thisSyncTool.log('updated_at is now: ' + app.state.settings.updated_at);
         }
       )
     }).catch(this.axiosError);
@@ -214,7 +225,7 @@ class DatabaseSetupAndSync {
     thisSyncTool.log("Fetching " + language + " songs");
     axios({
       method: "GET",
-      url: "/api/v1/app_data",
+      url: "/api/v2/app_data",
       params: {
         updated_at: lastUpdatedAt,
         language: language
@@ -224,6 +235,9 @@ class DatabaseSetupAndSync {
       }
     })
     .then(function(response) {
+      thisSyncTool.log('Response from API: ');
+      thisSyncTool.log(response);
+
       thisSyncTool.log("Syncing " + response.data.songs.length + " " + language + " songs with indexedDB...");
       // run this all in a transaction, to stop mid-sync cut outs from wrecking everything.
       // if I'm fetching by language, things could still break if there's a song or book referring to multiple languages
@@ -232,14 +246,11 @@ class DatabaseSetupAndSync {
         "rw",
         db.songs,
         db.books,
-        db.references,
         db.settings,
         () => {
           db.songs.bulkPut(response.data.songs);
-          db.references.bulkPut(response.data.references);
           db.books.bulkPut(response.data.books);
           db.songs.bulkDelete(response.data.destroyed.songs);
-          db.references.bulkDelete(response.data.destroyed.references);
           db.books.bulkDelete(response.data.destroyed.books);
 
           let settings = app.state.settings;
@@ -263,18 +274,17 @@ class DatabaseSetupAndSync {
 
   // reset updated timestamp, wipe db tables, then call fetch
   resetDbData() {
-    let settings = this.state.settings,
+    let settings = this.app.state.settings,
     db = this.db;
 
+    this.log('RESETTING DB AND UPDATED AT TIMESTAMP');
     settings.updated_at = 0;
     settings.languagesInfo = [];
     this.app.setState({settings: settings, totalSongsCached: 0});
 
-    db.references.clear().then(() => {
-      db.songs.clear().then(() => {
-        db.books.clear().then(() => {
-          this.fetchDataFromAPI();
-        });
+    db.songs.clear().then(() => {
+      db.books.clear().then(() => {
+        this.fetchDataFromAPI();
       });
     });
   }

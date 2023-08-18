@@ -14,7 +14,7 @@ class SongApp extends React.Component {
       totalSongsCached: 0,
       currentBook: props.preloaded_current_book || null,
       songs: [],
-      references: props.preloaded_references || [],
+      references: [], // obsolete, but needed for sync migration
       books: props.preloaded_books || [],
       loadingData: false,
       search: "",

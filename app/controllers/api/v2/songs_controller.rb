@@ -4,13 +4,15 @@ class Api::V2::SongsController < ApplicationController
   def app_data
     songs_to_sync = Song.where('updated_at > ?', client_updated_at).for_language(params[:language])
     books_to_sync = Book.where('updated_at > ?', client_updated_at).for_language(params[:language])
+
     render json: {
       songs: songs_to_sync.app_data,
       books: books_to_sync.app_data,
       destroyed: { songs: Song.deleted_after(client_updated_at).pluck(:id),
                    books: Book.deleted_after(client_updated_at).pluck(:id) },
       songCount: Song.for_language(params[:language]).count,
-      },
+      data_updated_between: [client_updated_at, Time.now.utc]
+    },
       status: 200
   end
 
