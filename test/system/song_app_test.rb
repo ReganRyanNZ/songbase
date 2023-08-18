@@ -129,11 +129,10 @@ class SongAppTest < ApplicationSystemTestCase
                       @song_abba_father]
     @song_bendito = FactoryBot.create(:song, :portuguese)
     @all_songs = @english_songs + [@song_bendito]
-    @test_book = FactoryBot.create(:book, name: 'Test Book')
+    @test_book = FactoryBot.create(:book, name: 'Test Book', songs: {@song_from_the_time.id => '1',
+                                                                     @song_abba_father.id => '2',
+                                                                     @song_according_to.id => '3'})
     @book_songs = @english_songs
-    FactoryBot.create(:song_book, song: @song_from_the_time, book: @test_book, index: 1)
-    FactoryBot.create(:song_book, song: @song_abba_father, book: @test_book, index: 2)
-    FactoryBot.create(:song_book, song: @song_according_to, book: @test_book, index: 3)
     travel 1.second
   end
 
