@@ -28,6 +28,7 @@ class SongApp extends React.Component {
     // bind all methods to this context (so we can use them)
     this.getSong = this.getSong.bind(this);
     this.getSongIdFromBook = this.getSongIdFromBook.bind(this);
+    this.getBookReferencesForSong = this.getBookReferencesForSong.bind(this);
     this.setSearch = this.setSearch.bind(this);
     this.clearSearch = this.clearSearch.bind(this);
     this.toggleOrderIndexBy = this.toggleOrderIndexBy.bind(this);
@@ -131,9 +132,13 @@ class SongApp extends React.Component {
     });
   }
 
-  setTheme(){
+  setTheme() {
     document.body.removeAttribute('class');
     document.body.classList.add(this.state.settings.cssTheme);
+  }
+
+  getBookReferencesForSong(song) {
+    return this.state.books.map(book => {return book.songs[song.id] ? [book.slug, book.name, book.songs[song.id]] : null }).filter(notNull => notNull);
   }
 
   render() {
@@ -205,10 +210,7 @@ class SongApp extends React.Component {
               goToBookIndex={this.navigate.goToBookIndex}
               toggleOrderIndexBy={this.toggleOrderIndexBy}
               scrollToSong={this.scrollToSong}
-              references={this.state.references.filter(
-                ref => ref.song_id == song.id
-              )}
-              books={this.state.books}
+              references={this.getBookReferencesForSong(song)}
               loadingData={this.state.loadingData}
             />
           </div>
