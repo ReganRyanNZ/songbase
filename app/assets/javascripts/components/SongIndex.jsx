@@ -7,7 +7,6 @@ class SongIndex extends React.Component {
     this.songs = this.songs.bind(this);
     this.strip = this.strip.bind(this);
     this.rowDataForNumericalSearch = this.rowDataForNumericalSearch.bind(this);
-    this.getSongIdByIndex = this.getSongIdByIndex.bind(this);
     this.sortRowData = this.sortRowData.bind(this);
 
     window.addEventListener('scroll', this.props.infiniteScrolling);
@@ -31,11 +30,7 @@ class SongIndex extends React.Component {
                  .replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "");
   }
 
-  // Books stored songs as {song.id => index}
-  // so we need this method for a reverse lookup
-  getSongIdByIndex(book, index) {
-    return Object.keys(book).find(song_id => book[song_id] === index);
-  }
+
 
   songs() {
     let results = this.props.songs;
@@ -50,7 +45,7 @@ class SongIndex extends React.Component {
   rowDataForNumericalSearch(number) {
     let books = this.props.currentBook ? [this.props.currentBook] : this.props.books;
     let booksWithIndex = books.map(book => {
-      let song_id = this.getSongIdByIndex(book.songs, number);
+      let song_id = this.props.getSongIdFromBook(book, number);
       return song_id ? [book, song_id] : null;
     }).filter(notNull=>notNull);
 

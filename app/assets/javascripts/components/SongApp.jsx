@@ -27,6 +27,7 @@ class SongApp extends React.Component {
 
     // bind all methods to this context (so we can use them)
     this.getSong = this.getSong.bind(this);
+    this.getSongIdFromBook = this.getSongIdFromBook.bind(this);
     this.setSearch = this.setSearch.bind(this);
     this.clearSearch = this.clearSearch.bind(this);
     this.toggleOrderIndexBy = this.toggleOrderIndexBy.bind(this);
@@ -71,6 +72,7 @@ class SongApp extends React.Component {
   }
 
   getSong(id) {
+    // TODO FIX THIS PRELOAD STUFF
     // shortcut for preloaded song (load url with a song id) so user doesn't
     // wait for whole db to load.
     if (!!this.props.preloaded_song) {
@@ -87,22 +89,18 @@ class SongApp extends React.Component {
           return this.props.preloaded_song;
         }
       }
-
     }
-    songs = this.state.songs;
-    let song = null,
-        ref_id = null;
+
     // If we are inside a book, the song's id will point to the song's index in that book
-    if(!!this.state.currentBook) {
-      let ref = this.state.references.find(ref =>
-        ref.index == id &&
-        ref.book_id == this.state.currentBook.id
-      );
-      ref_id = ref.song_id;
-    }
-    song = songs.find(song => song.id == (ref_id || id));
+    let song_id = this.state.currentBook ? this.getSongIdFromBook(this.state.currentBook, id) : id;
 
-    return song || "couldn't find song";
+    return this.state.songs.find(song => song.id == song_id) || "couldn't find song";
+  }
+
+  // Books stored songs as {song.id => index}
+  // so we need this method for a reverse lookup
+  getSongIdFromBook(book, index) {
+    return Object.keys(book.songs).find(song_id => book.songs[song_id] === index);
   }
 
   setSearch(search) {
@@ -161,6 +159,7 @@ class SongApp extends React.Component {
             setSearch={this.setSearch}
             clearSearch={this.clearSearch}
             search={this.state.search}
+            getSongIdFromBook={this.getSongIdFromBook}
             orderIndexBy={this.state.orderIndexBy}
             toggleOrderIndexBy={this.toggleOrderIndexBy}
             scrollTo={this.state.scrollTo}
