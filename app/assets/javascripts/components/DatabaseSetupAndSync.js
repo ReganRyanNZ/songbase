@@ -71,7 +71,7 @@ class DatabaseSetupAndSync {
     // MIGRATION_DATE is set a day after we actually deploy, so the overlap
     // covers all timezones. This means for 1 day songbase will load slowly
     // because it redownloads every session.
-    const MIGRATION_DATE = new Date('August 25, 2023 00:00:00').getTime();
+    const MIGRATION_DATE = new Date('August 22, 2023 03:45:00').getTime();
     this.log('Last updated at: ' + this.app.state.settings.updated_at);
     this.log('MIGRATION_DATE: ' + MIGRATION_DATE);
     if(this.app.state.settings.updated_at > 0 && this.app.state.settings.updated_at < MIGRATION_DATE){
