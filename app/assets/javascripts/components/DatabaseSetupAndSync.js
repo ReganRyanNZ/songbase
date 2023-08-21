@@ -2,10 +2,10 @@ class DatabaseSetupAndSync {
   constructor(app) {
     this.app = app;
     this.db = new Dexie("songbaseDB");
+    this.migrating = false;
 
     this.initialize = this.initialize.bind(this);
     this.defineSchema = this.defineSchema.bind(this);
-    this.initialize = this.initialize.bind(this);
     this.syncSettings = this.syncSettings.bind(this);
     this.pushIndexedDBToState = this.pushIndexedDBToState.bind(this);
     this.fetchDataFromAPI = this.fetchDataFromAPI.bind(this);
@@ -24,13 +24,15 @@ class DatabaseSetupAndSync {
   initialize() {
     this.log('Initializing db sync...')
     this.defineSchema();
+    let thisSyncTool = this;
+    let skipPromise = () => {};
 
     this.db.settings.get({ settingsType: "global" }) // Fetch settings from indexedDB
-                    .then(this.syncSettings) // Push settings to React state
-                    .then(this.migrateFromV1toV2)
-                    .then(this.pushIndexedDBToState) // Push indexedDB data (scoped by settings) to React state
-                    .then(this.fetchDataFromAPI) // Fetch data from API
-                    .catch((e) => { this.log("Failed to fetch new data.", e); });
+                    .then(thisSyncTool.syncSettings) // Push settings to React state
+                    .then(thisSyncTool.migrateFromV1toV2)
+                    .then(thisSyncTool.migrating ? skipPromise : thisSyncTool.pushIndexedDBToState)
+                    .then(thisSyncTool.migrating ? skipPromise : thisSyncTool.fetchDataFromAPI)
+                    .catch((e) => { thisSyncTool.log("Failed to fetch new data.", e); });
   }
 
   defineSchema() {
@@ -77,6 +79,9 @@ class DatabaseSetupAndSync {
     if(this.app.state.settings.updated_at > 0 && this.app.state.settings.updated_at < MIGRATION_DATE){
       this.log("Resetting DB for v2 API migration.")
       this.resetDbData();
+      this.migrating = true;
+    } else {
+      this.log('No need to migrate this db');
     }
   }
 
@@ -275,20 +280,20 @@ class DatabaseSetupAndSync {
     });
   }
 
-  // reset updated timestamp, wipe db tables, then call fetch
+  // reset updated timestamp, wipe db, reinitialize then call fetch
   resetDbData() {
-    let settings = this.app.state.settings,
-    db = this.db;
-
     this.log('RESETTING DB AND UPDATED AT TIMESTAMP');
+
+    let settings = this.app.state.settings;
     settings.updated_at = 0;
     settings.languagesInfo = [];
     this.app.setState({settings: settings, totalSongsCached: 0});
+    let thisSyncTool = this;
 
-    db.songs.clear().then(() => {
-      db.books.clear().then(() => {
-        this.fetchDataFromAPI();
-      });
+    this.db.delete().then(() => {
+      thisSyncTool.db = new Dexie("songbaseDB");
+      thisSyncTool.defineSchema();
+      thisSyncTool.fetchDataFromAPI();
     });
   }
 }

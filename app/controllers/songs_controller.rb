@@ -12,7 +12,7 @@ class SongsController < ApplicationController
   def app
     @book_slug = params[:book]
     @book_from_url = Book.find_by(slug: @book_slug) if @book_slug.present?
-    if(params[:s].present?)
+    if(params[:s].present? && params[:s] != 'i')
 
       # If a book's slug is in the url, then the id param will be the book's
       # index, so we need to convert it to the song's id:
