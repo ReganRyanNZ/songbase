@@ -13,12 +13,11 @@ class Song < ApplicationRecord
   scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
 
   scope :duplicate_titles, -> {
-    where(
-      title: Song.select(:title)
-        .group(:title) # group songs into buckets of the same title
-        .having("count(*) > 1") # bucket has more than one song
-        .select(:title) # get firstline from these buckets
-    ).where("updated_at > ?", 3.months.ago) # old duplicates can be considered checked and ignored
+    where(title: Song.select(:title)
+                     .group(:title) # group songs into buckets of the same title
+                     .having("count(*) > 1") # bucket has more than one song
+                     .select(:title) # get firstline from these buckets
+    )
   }
   scope :search, ->(search_term) {
     search_term ||= ''
@@ -28,6 +27,10 @@ class Song < ApplicationRecord
   }
   scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
 
+  def self.languages
+    distinct.pluck(:lang).map(&:downcase).sort.without('english').prepend('english')
+  end
+
   # Many-to-many relationship, but stored in JSON in the db, so the query is a
   # bit different.
   # The ? in this means "any top-level key in the json data is equal to"
@@ -35,58 +38,65 @@ class Song < ApplicationRecord
     Book.where("songs ? :id", id: self.id.to_s)
   end
 
-  # TODO FIX ME FOR NEW STRUCTURE
-  def merge! old_song
+  def merge!(old_song)
     # allow either Song or id as param
     old_song = Song.find(old_song) if old_song.class == Integer
 
     # keep indicies of old songs' books
-    existing_books = self.books.map(&:id)
-    old_song.song_books.each do |song_book|
-      song_book.update(song_id: self.id) unless existing_books.include?(song_book.book_id)
+    old_song.books.each do |book|
+      songs = book.songs
+
+      songs[self.id.to_s] = songs[old_song.id.to_s] # insert new song into book
+      songs.delete(old_song.id.to_s) # remove old song from book
+
+      book.update(songs: songs)
     end
 
     # choose the lyrics that has chords
-    if old_song.lyrics =~ /\[/ && !(self.lyrics =~ /\[/)
-      self.update(lyrics: old_song.lyrics)
+    lyrics = self.lyrics
+    has_chords = /\[/
+    if old_song.lyrics =~ has_chords && !(lyrics =~ has_chords)
+      lyrics = old_song.lyrics
     end
 
+    # Remove comment with hymnal reference (obsolete now?)
     hymn_ref_regex = /.*[Hh]ymns.*[0-9]+\n+/
+    lyrics = lyrics.gsub(hymn_ref_regex, "") if self.lyrics =~ hymn_ref_regex
+    self.update(lyrics: lyrics) if self.lyrics != lyrics
 
-    self.update(lyrics: self.lyrics.gsub(hymn_ref_regex, "")) if self.lyrics =~ hymn_ref_regex
-
-    # reload to refresh song_book associations
-    old_song.reload.destroy_with_audit(User.system_user)
+    old_song.destroy_with_audit(User.system_user)
   end
 
   # TODO DOES THE TYPE EVER EQUAL BOOKS AND REFERENCES THIS SEEM SLIKE A BAD IDEA
   def app_entry(type=nil)
-    case type
-    when :books
-      books.map(&:app_entry)
-    when :references
-      song_books.map(&:app_entry)
-    else
-      {
-        id: id,
-        title: title,
-        lang: lang,
-        lyrics: lyrics
-      }
-    end
+    {
+      id: id,
+      title: title,
+      lang: lang,
+      lyrics: lyrics
+    }
   end
 
+  # TODO This should be selected via SQL to avoid n+1 my friend
+  # Except for the edit timestamp, that can be post processed
+  # The problem is selecting [book.id, book.songs[song.id]] from
+  # some kind of joins table without foreign keys...
   def admin_entry
     {
       title: title,
       id: id,
       books: book_indices,
       lang: lang,
-      references: book_indices,
       lyrics: lyrics,
       edit_timestamp: ApplicationController.helpers.time_ago_in_words(updated_at || created_at) + ' ago',
       last_editor: last_editor || "System"
     }
+  end
+
+  def book_indices
+    Book.with_song(self)
+        .map { |book| [book.id, book.songs[id]] }
+        .to_h
   end
 
   def destroy_with_audit(user=nil)
@@ -132,7 +142,7 @@ class Song < ApplicationRecord
     tabbed_lines.gsub(verse_number_regex, '\1')
   end
 
-  def duplicate
+  def duplicate?
     remove_windows_carriage_returns
     Song.find_by(lyrics: lyrics, title: title)
   end
@@ -148,11 +158,6 @@ class Song < ApplicationRecord
 
   def remove_windows_carriage_returns
     self.lyrics = self.lyrics.gsub(/[\r\u2028\u2029]/, "")
-  end
-
-  # TODO IS THIS USED ITS A BAD IDEA
-  def book_indices
-    self.song_books.map {|sb| [sb.book_id, sb.index] }.to_h
   end
 
   def sanitize_lang

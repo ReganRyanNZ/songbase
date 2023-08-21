@@ -9,6 +9,6 @@
   'AdminSongList',
   superAdmin: super_admin,
   settings: {
-    languages: Song.distinct.pluck(:lang)
+    languages: Song.languages
   })
 %>

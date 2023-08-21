@@ -12,16 +12,12 @@ class AdminSongList extends React.Component {
   }
 
   componentDidMount() {
-    var value = document.getElementById('admin_search').value
+    let value = document.getElementById('admin_search').value
     this.updateSongList(value || '');
   }
 
   handleChange(event) {
-    switch (event.target.id) {
-      case "admin_search":
-        this.updateSongList(event.target.value);
-        break;
-    }
+    this.updateSongList(event.target.value);
   }
 
   linkClassName(reviewType) {
@@ -35,11 +31,11 @@ class AdminSongList extends React.Component {
   }
 
   updateSongList(search) {
-    var app = this;
+    let app = this;
 
     axios({
       method: "GET",
-      url: "/api/v1/admin_songs",
+      url: "/api/v2/admin_songs",
       params: { search: search },
       headers: { "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content }
     }).then(function(response) {
@@ -49,35 +45,37 @@ class AdminSongList extends React.Component {
   }
 
   render() {
-    var list = Object.keys(this.state.songs).map(function(reviewType) {
+    let editClassNames = {"duplicates": "requires-review-duplicate",
+                          "changed": "requires-review-changed",
+                          "unchanged": ""}
+    let reviewTypes = Object.keys(this.state.songs);
+    let list = reviewTypes.map((reviewType) => {
       return [].concat.apply([],
-        this.state.songs[reviewType].map(
-          function(obj) {
-            var editClass = "edit_song_link " + this.linkClassName(reviewType);
-            var editRef = "/songs/" + obj.id + "/edit";
-            var removeLink = "";
+        this.state.songs[reviewType].map((song) => {
+            let editClass = "edit_song_link " + editClassNames[reviewType];
+            let editRef = "/songs/" + song.id + "/edit";
+            let removeLink = "";
 
             return (
-              <tr key={obj.id}>
+              <tr key={song.id}>
                 <td>
                   <a className={editClass} href={editRef}>
-                    {obj.title}
+                    {song.title}
                   </a>
                 </td>
                 <td>{removeLink}</td>
                 <td>
-                  <div className="last_edited">{obj.last_editor}</div>
+                  <div className="last_edited">{song.last_editor}</div>
                 </td>
                 <td>
-                  <div className="edit_timestamp">{obj.edit_timestamp}</div>
+                  <div className="edit_timestamp">{song.edit_timestamp}</div>
                 </td>
               </tr>
             );
-          },
-          this
+          }
         )
       );
-    }, this);
+    });
 
     return (
       <div className="admin_list">

@@ -11,21 +11,21 @@ class SongsController < ApplicationController
   # still loading via api.
   def app
     @book_slug = params[:book]
-    @preloaded_current_book = Book.find_by(slug: @book_slug)&.app_entry if @book_slug.present?
-    if(params[:s] =~ /\d+/)
+    @book_from_url = Book.find_by(slug: @book_slug) if @book_slug.present?
+    if(params[:s].present?)
+
+      # If a book's slug is in the url, then the id param will be the book's
+      # index, so we need to convert it to the song's id:
       if @book_slug.present?
-        @ref = SongBook
-          .joins(:book)
-          .where(books: {slug: @book_slug}, index: params[:s])
-          .first
+        @song_id = @book_from_url&.song_id_from_index(params[:s])
       end
-      song = Song.find(@ref&.song_id || params[:s])
+
+      song = Song.find(@song_id || params[:s])
       if song.present?
-        @title = song.title
-        @song_id = song.id
+        @title = song.title # sets page title in application.html.erb
+        @song_id = params[:s]
         @preloaded_song = song.app_entry
-        @preloaded_books = song.app_entry(:books)
-        @preloaded_references = song.app_entry(:references)
+        @preloaded_book_refs = Book.with_song(song).book_refs_for(song)
       end
     end
   end
@@ -54,7 +54,7 @@ class SongsController < ApplicationController
   def create
     @song = Song.new(song_params)
 
-    if @song.duplicate.present?
+    if @song.duplicate?
       redirect_to admin_path, notice: "Song was successfully created. #{song_flash_link(@song.duplicate)} to view in app."
     elsif @song.save
       Audit.create(user: current_user, song: @song, time: Time.zone.now)

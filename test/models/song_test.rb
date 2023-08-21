@@ -3,16 +3,27 @@ require 'test_helper'
 class SongTest < ActiveSupport::TestCase
 
   test ".merge! keeps indicies of old song and destroys old song" do
-    skip("Needs to be revisited when api v2 is done")
-    book = FactoryBot.create(:book)
-    song1 = FactoryBot.create(:song, :hymn_ref_in_comments)
-    songbook = FactoryBot.create(:song_book, song: song1, book: book)
+    # Updates book index:
+    old_song = FactoryBot.create(:song, :hymn_ref_in_comments)
+    book = FactoryBot.create(:book, songs: {old_song.id => '7'})
+    new_song = FactoryBot.create(:song)
+    assert_equal('7', book.songs[old_song.id.to_s])
+    assert_equal(nil, book.songs[new_song.id.to_s])
+
+    new_song.merge!(old_song)
+
+    assert_equal(nil, book.reload.songs[old_song.id.to_s])
+    assert_equal('7', book.songs[new_song.id.to_s])
+    assert(old_song.deleted_at)
+
+
+    # Prefer lyrics that contain chords:
+    song1 = FactoryBot.create(:song)
     song2 = FactoryBot.create(:song, :no_chords)
     song2.merge!(song1)
-    assert song2.reload.books.include?(book)
     assert song1.deleted_at?
     refute song2.deleted_at?
-    assert_equal song1.lyrics[15..-1], song2.lyrics
+    assert_equal song1.lyrics, song2.lyrics
   end
 
   test "#duplicate_titles returns duplicate songs" do
@@ -46,10 +57,12 @@ class SongTest < ActiveSupport::TestCase
     refute_includes Song.deleted_after(time_before_creation).map(&:id), song2.id
   end
 
-  test 'languages do not duplicate from capitalization' do
-    song1 = FactoryBot.create(:song, lang: 'deutsch')
-    song1 = FactoryBot.create(:song, lang: 'Deutsch')
+  test 'languages gets a distinct list of languages, sorted but with english first' do
+    FactoryBot.create(:song, lang: 'english')
+    FactoryBot.create(:song, lang: 'Afrikaans')
+    FactoryBot.create(:song, lang: 'deutsch')
+    FactoryBot.create(:song, lang: 'Deutsch')
 
-    assert_equal(['deutsch'], Song.distinct.pluck(:lang))
+    assert_equal(['english', 'afrikaans', 'deutsch'], Song.languages)
   end
 end

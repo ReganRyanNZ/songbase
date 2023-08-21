@@ -74,17 +74,14 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
     assert_equal ['english', 'portuguese'], response_json[:languages]
   end
 
-  test 'GET #admin_songs' do
+  test 'admin_songs' do
+    create_songs
+    get api_v2_admin_songs_path, params: {search: ''}
 
-    skip("Needs to be revisited when api v2 is done")
+    assert_equal 2, response_json[:songs][:changed].count
 
-    # create_songs
-    # get api_v1_admin_songs_path, params: {search: ''}
-
-    # assert_equal 2, songs_response[:songs][:changed].count
-
-    # song_data = {:title=>"Another song", :books=>{}, :lang=>"en", :references=>{}, :lyrics=>"Different words[G]", :edit_timestamp=>"less than a minute ago", :last_editor=>"System"}
-    # assert_equal song_data, songs_response[:songs][:changed].first.except(:id)
+    song_data = {:title=>"Another song", :books=>{}, :lang=>"english", :lyrics=>"Different words[G]", :edit_timestamp=>"less than a minute ago", :last_editor=>"System"}
+    assert_equal song_data, response_json[:songs][:changed].first.except(:id)
   end
 
   private

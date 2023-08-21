@@ -17,42 +17,36 @@ class Api::V2::SongsController < ApplicationController
   end
 
   def languages
-    render json: {
-      languages: Song.distinct.pluck(:lang).without('english').prepend('english')
-    }
+    render json: { languages: Song.languages }
   end
 
   def admin_songs
-    raise "implement me!"
-    # render json: {songs: {duplicates: duplicate_songs,
-    #                       changed: recently_changed_songs - duplicate_songs,
-    #                       unchanged: songs_for_admin - recently_changed_songs - duplicate_songs}}, status: 200
+    render json: {songs: {duplicates: duplicate_songs,
+                          changed: recently_changed_songs - duplicate_songs,
+                          unchanged: songs_for_admin - recently_changed_songs - duplicate_songs}}, status: 200
   end
 
   private
 
-  # def duplicate_songs
-  #   return [] unless super_admin
+  def duplicate_songs
+    return [] unless super_admin
 
-  #   @duplicate_songs ||= sort_songs(Song.search(params[:search])
-  #                                       .duplicate_titles
-  #                                       .includes(books: :song_books)
-  #                                       .map(&:admin_entry))
-  # end
+    @duplicate_songs ||= sort_songs(Song.search(params[:search])
+                                        .duplicate_titles
+                                        .map(&:admin_entry))
+  end
 
-  # def recently_changed_songs
-  #   @recently_changed_songs ||= sort_songs(Song.search(params[:search])
-  #                                              .recently_changed
-  #                                              .includes(books: :song_books)
-  #                                              .map(&:admin_entry))
-  # end
+  def recently_changed_songs
+    @recently_changed_songs ||= sort_songs(Song.search(params[:search])
+                                               .recently_changed
+                                               .map(&:admin_entry))
+  end
 
-  # def songs_for_admin
-  #   sort_songs(Song.search(params[:search])
-  #                  .includes(books: :song_books)
-  #                  .limit(100)
-  #                  .map(&:admin_entry))
-  # end
+  def songs_for_admin
+    sort_songs(Song.search(params[:search])
+                   .limit(100)
+                   .map(&:admin_entry))
+  end
 
   def client_updated_at
     return @client_updated_at if @client_updated_at.present?
@@ -63,20 +57,20 @@ class Api::V2::SongsController < ApplicationController
     @client_updated_at = Time.at(seconds, milliseconds, :millisecond).utc
   end
 
-  # def sort_songs(songs)
-  #   return songs unless songs.present?
+  def sort_songs(songs)
+    return songs unless songs.present?
 
-  #   search = params[:search].downcase
-  #   songs.sort_by do |s|
-  #     title = clean_for_sorting(s[:title])
-  #     [title.downcase.index(search) || 99, title]
-  #   end
-  # end
+    search = params[:search].to_s.downcase
+    songs.sort_by do |s|
+      title = clean_for_sorting(s[:title])
+      [title.downcase.index(search) || 99, title] # Prioritize title matches
+    end
+  end
 
-  # def clean_for_sorting(str)
-  #   return '' unless str.present?
+  def clean_for_sorting(str)
+    return '' unless str.present?
 
-  #   str.gsub(/[’'",“\-—–!?()]/, "").upcase
-  # end
+    str.gsub(/[’'",“\-—–!?()]/, "").upcase
+  end
 
 end

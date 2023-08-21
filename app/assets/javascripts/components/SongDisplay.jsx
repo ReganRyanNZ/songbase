@@ -96,6 +96,7 @@ class SongDisplay extends React.Component {
   }
 
   getKeyFromChords(lyrics) {
+    if(!lyrics) { return '' }
     let key;
     let songChordsRegex = /\[([A-G][b#]?m?).*?\]/g; // turns e.g. F#m9 into F#m, and gathers all chords from the song
     let songChords = Array.from(lyrics.matchAll(songChordsRegex), m => m[1]); // e.g. ['F#m', 'D', 'A', 'D']

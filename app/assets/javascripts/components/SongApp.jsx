@@ -15,7 +15,7 @@ class SongApp extends React.Component {
       currentBook: props.preloaded_current_book || null,
       songs: [],
       references: [], // obsolete, but needed for sync migration
-      books: props.preloaded_books || [],
+      books: [props.preloaded_current_book].filter(notNull => notNull),
       loadingData: false,
       search: "",
       orderIndexBy: 'alpha',
@@ -76,13 +76,12 @@ class SongApp extends React.Component {
     // TODO FIX THIS PRELOAD STUFF
     // shortcut for preloaded song (load url with a song id) so user doesn't
     // wait for whole db to load.
-    if (!!this.props.preloaded_song) {
-      if (!!this.props.preloaded_current_book) {
+
+    if (this.props.preloaded_song) {
+      if (this.props.preloaded_current_book) {
         // If we are inside a book, the song's id will point to the song's index in that book
-        if (this.props.preloaded_references.find(ref =>
-          ref.book_id == this.props.preloaded_current_book.id &&
-          ref.song_id == id)
-        ) {
+        // So we need to check if a preloaded book_ref includes id as its index
+        if (this.props.preloaded_book_refs.find(book_ref => book_ref[2] == id)) {
           return this.props.preloaded_song;
         }
       } else {
@@ -210,7 +209,7 @@ class SongApp extends React.Component {
               goToBookIndex={this.navigate.goToBookIndex}
               toggleOrderIndexBy={this.toggleOrderIndexBy}
               scrollToSong={this.scrollToSong}
-              references={this.getBookReferencesForSong(song)}
+              bookRefs={(this.state.loadingData && this.props.preloaded_book_refs) || this.getBookReferencesForSong(song)}
               loadingData={this.state.loadingData}
             />
           </div>

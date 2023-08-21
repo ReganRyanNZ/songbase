@@ -5,6 +5,6 @@
 <%= react_component(
     'SongForm',
     song: @song,
-    languages: Song.distinct.pluck(:lang),
+    languages: Song.languages,
     references: @song.app_entry(:references),
     books: Book.app_data) %>

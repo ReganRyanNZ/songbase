@@ -49,8 +49,8 @@ class AdminSongEditingTest < ApplicationSystemTestCase
 
     click_button 'Update Song'
 
-    assert_content new_title
     assert_content 'Song was successfully updated'
+    assert_content new_title
     click_link 'Click here'
     assert_content "And that really, Jesus, You're alive!"
     assert_content "adding a new line woo"

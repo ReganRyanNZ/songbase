@@ -6,8 +6,7 @@ class SongForm extends React.Component {
       lyrics: this.props.song.lyrics || "",
       title: this.props.song.title || "",
       lang: this.props.song.lang || "english",
-      references: this.props.references || {},
-      books: this.props.books
+      book_refs: this.props.book_refs
     };
     this.handleChange = this.handleChange.bind(this);
   }
@@ -72,8 +71,7 @@ class SongForm extends React.Component {
         <div className="preview">
           <SongDisplay lyrics={this.state.lyrics} />
           <SongReferences
-            references={this.state.references}
-            books={this.state.books}
+            bookRefs={this.props.bookRefs}
           />
         </div>
         <div className="titles">

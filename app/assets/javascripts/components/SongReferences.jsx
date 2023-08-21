@@ -1,6 +1,9 @@
+// Key thing here is the prop "bookRefs",
+// Which is an array of [book_slug, book_name, book_index]
+
 const SongReferences = ({
   loadingData,
-  references,
+  bookRefs,
   goToBookIndex,
   toggleOrderIndexBy,
   scrollToSong,
@@ -13,11 +16,11 @@ const SongReferences = ({
     toggleOrderIndexBy('number');
     scrollToSong(e.target.dataset.songindex);
   };
-  // console.log('Loading references:');
-  // console.log(references);
+  // console.log('Loading bookRefs:');
+  // console.log(bookRefs);
   return (
     <div className="song-references">
-      {references.map((ref) => {
+      {bookRefs.map((ref) => {
         let slug = ref[0];
         let name = ref[1];
         let index = ref[2];

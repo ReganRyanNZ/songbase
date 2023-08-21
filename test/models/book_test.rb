@@ -14,4 +14,20 @@ class BookTest < ActiveSupport::TestCase
     # Portuguese is only in one book:
     assert_equal [book_1], Book.for_language("portuguese")
   end
+
+  test 'with_song scope' do
+    song = FactoryBot.create(:song, :abba_father)
+    FactoryBot.create(:song, :accord_to_my_earnest)
+    FactoryBot.create(:book, name: 'Test Book', songs: {song.id => '1'})
+
+    assert_equal ['Test Book'], Book.with_song(song).pluck(:name)
+  end
+
+  test 'book_refs_for' do
+    song = FactoryBot.create(:song, :abba_father)
+    FactoryBot.create(:song, :accord_to_my_earnest)
+    FactoryBot.create(:book, name: 'Test Book', songs: {song.id => '1'})
+
+    assert_equal [['test_book', 'Test Book', '1']], Book.with_song(song).book_refs_for(song)
+  end
 end

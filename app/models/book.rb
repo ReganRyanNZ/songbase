@@ -8,7 +8,7 @@ class Book < ApplicationRecord
   # Keeping this commented code as a reference for querying "does this
   # top-level key exist in this jsonb field", very useful:
   #
-  # scope :with_song, ->(song) { Book.where("songs ? :id", id: '9') }
+  scope :with_song, ->(song) { Book.where("songs ? ':id'", id: song.id) }
 
 
   # For now (17 Aug 2023) we will not delete books from db. If it's a problem
@@ -26,6 +26,10 @@ class Book < ApplicationRecord
     }
   end
 
+  def self.book_refs_for(song)
+    all.map { |book| [book.slug, book.name, book.songs[song.id.to_s]] }
+  end
+
   def self.find(param)
     if param =~ /[^0-9]/
       self.find_by(slug: param)
@@ -36,5 +40,9 @@ class Book < ApplicationRecord
 
   def self.app_data
     self.all.map(&:app_entry)
+  end
+
+  def song_id_from_index(index)
+    songs.key(index.to_s)
   end
 end
