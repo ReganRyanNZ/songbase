@@ -1,5 +1,6 @@
 const keys = ["A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab"];
-const bestGuessScale = ["A", "Bb", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
+const guessingScaleSharps = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+const guessingScaleFlats = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab'];
 const scales = {
   A: ["A", "B", "C#", "D", "E", "F#", "G", "G#"],
   Bb: ["Bb", "C", "D", "Eb", "F", "G", "G#", "A"],
@@ -28,6 +29,11 @@ const keyCommonChords = {
   G: ["G", "Am", "Bm", "C", "D", "Em"],
   Ab: ["Ab", "Bbm", "Cm", "Db", "Eb", "Fm"]
 }
+// When transposing is going badly, we'll guess whether it's e.g. Ab or G#
+// based on whether the key has flats or sharps in it. Keys like C with no
+// natural sharps or flats, we are just wildly guessing.
+const keySharpness = {A: 'sharp', Bb: 'flat', B: 'sharp', C: 'sharp', Db: 'flat', D: 'sharp', Eb: 'flat', E: 'sharp', F: 'flat', Gb: 'flat', G: 'sharp', Ab: 'flat'}
+
 const regex = {
   capo: /.*capo (\d+).*/i,
   comment: /^\# ?(.*)/, // everything after a '#'
@@ -148,8 +154,17 @@ class SongDisplay extends React.Component {
     return chord.replace(regex.chordCore, (_match, chordCore, trailingChars) => {
       let transposedCore;
       try { transposedCore = scales[newKey][scales[this.state.originalKey].indexOf(chordCore)] } catch(err) { transposedCore = false };
+      if (transposedCore) {
+        return transposedCore + trailingChars
+      } else {
+        // Fancy transposing failed, let's build this chord
+        let movement = mod(this.state.transpose, 12);
+        let chordCoreIndex = Math.max(guessingScaleFlats.indexOf(chordCore), guessingScaleSharps.indexOf(chordCore));
+        let newChordCoreIndex = mod(chordCoreIndex + movement, 12);
+        let newChordCore = keySharpness[newKey] == 'sharp' ? guessingScaleSharps[newChordCoreIndex] : guessingScaleFlats[newChordCoreIndex];
 
-      return (transposedCore || '?') + trailingChars
+        return newChordCore + trailingChars;
+      }
     })
   }
 

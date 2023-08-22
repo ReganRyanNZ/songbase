@@ -21,8 +21,8 @@ class SongApp extends React.Component {
       orderIndexBy: 'alpha',
       scrollTo: null,
       rowLimit: 100,
-      logSyncData: true,
-      logSongApp: true
+      logSyncData: false,
+      logSongApp: false
     };
 
     // bind all methods to this context (so we can use them)
