@@ -2,8 +2,8 @@ class Api::V2::SongsController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def app_data
-    songs_to_sync = Song.where('updated_at > ?', client_updated_at).for_language(params[:language])
-    books_to_sync = Book.where('updated_at > ?', client_updated_at).for_language(params[:language])
+    songs_to_sync = Song.where('updated_at >= ?', client_updated_at).for_language(params[:language])
+    books_to_sync = Book.where('updated_at >= ?', client_updated_at).for_language(params[:language])
 
     render json: {
       songs: songs_to_sync.app_data,

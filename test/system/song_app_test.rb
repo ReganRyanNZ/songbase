@@ -11,6 +11,13 @@ class SongAppTest < ApplicationSystemTestCase
     # Songs load from API:
     assert_index_titles(only: @english_songs)
 
+    # Reset cache:
+    find('div.settings-btn').click
+    find('button', text: 'Reset cache').click
+    assert_content 'Cached songs: 0'
+    assert_content "Cached songs: #{@all_songs.count}" # capybara will wait for it to sync again
+    find('h1', text: 'Songbase').click
+
     # Typing in search scopes the songs:
     fill_in 'index_search', with: 'magnified in my body'
     assert_index_titles(only: @song_according_to)
@@ -38,13 +45,12 @@ class SongAppTest < ApplicationSystemTestCase
     find('div.btn_clear_search').click
     assert_index_titles(only: @english_songs)
 
-
     # Selecting languages in settings scopes the index to those languages:
     find('div.settings-btn').click
     assert_selector 'h2', text: 'Languages'
 
     check 'Portuguese'
-    find('div.settings-btn').click
+    find('h1', text: 'Songbase').click
     assert_index_titles(only: @all_songs)
 
     find('div.settings-btn').click
@@ -61,17 +67,7 @@ class SongAppTest < ApplicationSystemTestCase
     refute_selector 'body.css-night'
     assert_selector 'body.css-normal'
 
-
-    # Reset cache:
-    assert_content "Cached songs: #{@all_songs.count}"
-    find('button', text: 'Reset cache').click
-    assert_content 'Cached songs: 0'
-    assert_content "Cached songs: #{@all_songs.count}" # capybara will wait for it to sync again
-    find('h1', text: 'Songbase').click
-
-
     # Selecting a book:
-    find('div.settings-btn').click
     check 'English'
     check 'Portuguese'
     find('h1', text: 'Songbase').click
@@ -116,5 +112,9 @@ class SongAppTest < ApplicationSystemTestCase
     # Clicking book icon will exit out of current book:
     find('div.book-icon').click
     assert_index_titles(only: @all_songs)
+
+    # Test preloaded pages
+    visit @song_abba_father.id.to_s
+    assert_content(@song_abba_father.title)
   end
 end
