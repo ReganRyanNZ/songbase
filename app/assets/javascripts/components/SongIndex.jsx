@@ -122,7 +122,39 @@ class SongIndex extends React.Component {
       });
     }
   }
+  keyNavigate(e) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      let nextSibling = e.currentTarget.nextSibling;
+      if (nextSibling && nextSibling.tagName == 'BUTTON') {
+        nextSibling.focus();
+      } else {
+        if (e.currentTarget.tagName == 'BUTTON') {
+          document.querySelector("#index_search").focus();
+        } else {
+          document.querySelector(".title-list > button:first-of-type").focus();
+        }
+      }
+    }
 
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      let previousSibling = e.currentTarget.previousSibling;
+      if (previousSibling && previousSibling.tagName == 'BUTTON') {
+        previousSibling.focus();
+      } else {
+        if (e.currentTarget.tagName == 'BUTTON') {
+          document.querySelector("#index_search").focus();
+        } else {
+          document.querySelector(".title-list > button:last-of-type").focus();
+        }
+      }
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      e.currentTarget.previousSibling && e.currentTarget.previousSibling.focus();
+    }
+  }
   // html component for a row on the index page
   songIndexRow (rowData, i) {
     let bookIndex = this.props.currentBook ? this.props.currentBook.songs[rowData.song.id] : null
@@ -135,11 +167,12 @@ class SongIndex extends React.Component {
     }
 
     return (
-      <div
+      <button
         className="index_row"
         key={i}
         id={id}
         onClick={this.props.setSong}
+        onKeyDown={this.keyNavigate}
       >
         <div className="index_row_title">
           {rowData.song.title}
@@ -149,7 +182,7 @@ class SongIndex extends React.Component {
           className="index_row_tag"
           dangerouslySetInnerHTML={{ __html: rowData.tag }}
         />
-      </div>
+      </button>
     );
   }
 
@@ -162,7 +195,7 @@ class SongIndex extends React.Component {
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
           <SettingsIcon />
         </div>
-        <div className="search-form form" key="search-form">
+        <div className="search-form form" key="search-form" onKeyDown={this.keyNavigate}>
           <input
             id="index_search"
             autoComplete="off"
