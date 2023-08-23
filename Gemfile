@@ -33,11 +33,11 @@ gem 'serviceworker-rails' # Offline page loading
 
 group :development, :test do
   gem 'byebug', platform: :mri
+  gem 'capybara'
   gem 'factory_bot_rails'
 end
 
 group :test do
-  gem 'capybara'
   gem 'minitest-rails'
   gem 'minitest-reporters'
   gem 'selenium-webdriver'
