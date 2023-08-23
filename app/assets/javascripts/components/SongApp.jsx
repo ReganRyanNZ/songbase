@@ -198,16 +198,18 @@ class SongApp extends React.Component {
 
       default: // display a song
         let song = this.getSong(page);
+        let songWasPreloaded = this.props.preloaded_song && this.props.preloaded_song.title == song.title;
         pageTitle = song.title;
         if(!!this.state.currentBook) {
           indexNumber = <div className="title-number">{window.location.pathname.split('/').pop()}</div>;
         }
+
         content = (
           <div className="song-container">
             <SongDisplay
               title={song.title}
               lyrics={song.lyrics}
-              analyticsPath={window.location.href} />
+              analyticsPath={songWasPreloaded ? null : window.location.href} />
             <SongReferences
               goToBookIndex={this.navigate.goToBookIndex}
               toggleOrderIndexBy={this.toggleOrderIndexBy}
