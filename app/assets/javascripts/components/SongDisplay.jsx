@@ -61,7 +61,7 @@ class SongDisplay extends React.Component {
       showChords: true,
       transpose: props.transpose || 0,
       originalKey: this.getKeyFromChords(props.lyrics),
-      logSongDisplay: false
+      logSongDisplay: true
     };
 
     this.transpose = this.transpose.bind(this);
