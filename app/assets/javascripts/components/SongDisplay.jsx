@@ -60,7 +60,8 @@ class SongDisplay extends React.Component {
     this.state = {
       showChords: true,
       transpose: props.transpose || 0,
-      originalKey: this.getKeyFromChords(props.lyrics)
+      originalKey: this.getKeyFromChords(props.lyrics),
+      logSongDisplay: false
     };
 
     this.transpose = this.transpose.bind(this);
@@ -76,12 +77,42 @@ class SongDisplay extends React.Component {
     this.goDownOneKey = this.goDownOneKey.bind(this);
     this.toggleTransposePreset = this.toggleTransposePreset.bind(this);
     this.addTransposeListeners = this.addTransposeListeners.bind(this);
+    this.log = this.log.bind(this);
+
+    this.setAnalyticsTimer();
   }
   componentDidMount() {
     this.addTransposeListeners();
   }
   componentDidUpdate() {
     this.addTransposeListeners();
+  }
+
+  log(str) {
+    if (this.state.logSongDisplay) {
+      console.log(str);
+    }
+  }
+
+  // StatCounter records pageviews, but only when app.html is first loaded,
+  // because all navigation after that is intercepted for us to have offline
+  // navigation. So we manually trigger a pageview here. However, to make the
+  // analytics more useful, we don't log every song, only the ones that the
+  // user stays on for a minimum length of time. This filters out a user
+  // checking a song, realizing it's the wrong one, and exiting it.
+  setAnalyticsTimer() {
+    let longEnoughToCountAsSung = 20 * 1000;
+    if (this.props.analyticsPath) {
+      this.log('"' + this.props.title + '" rendered with analytics prop');
+      setTimeout((currentPath, title) => {
+        if (window.location.href == currentPath) {
+          this.log('"' + title + '" still present after timer, logging to StatCounter');
+          _statcounter.record_pageview();
+        } else {
+          this.log('"' + title + '" exited before timer, ignoring song for StatCounter analytics');
+        }
+      }, longEnoughToCountAsSung, this.props.analyticsPath, this.props.title);
+    }
   }
 
   addTransposeListeners() {
