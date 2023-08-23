@@ -204,7 +204,10 @@ class SongApp extends React.Component {
         }
         content = (
           <div className="song-container">
-            <SongDisplay lyrics={song.lyrics} />
+            <SongDisplay
+              title={song.title}
+              lyrics={song.lyrics}
+              analyticsPath={window.location.href} />
             <SongReferences
               goToBookIndex={this.navigate.goToBookIndex}
               toggleOrderIndexBy={this.toggleOrderIndexBy}
