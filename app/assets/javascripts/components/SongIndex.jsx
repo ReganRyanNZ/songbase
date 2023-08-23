@@ -8,6 +8,7 @@ class SongIndex extends React.Component {
     this.strip = this.strip.bind(this);
     this.rowDataForNumericalSearch = this.rowDataForNumericalSearch.bind(this);
     this.sortRowData = this.sortRowData.bind(this);
+    this.keyNavigate = this.keyNavigate.bind(this);
 
     window.addEventListener('scroll', this.props.infiniteScrolling);
   }
@@ -36,7 +37,7 @@ class SongIndex extends React.Component {
     let results = this.props.songs;
 
     // scope songs to the current selected book
-    if(this.props.currentBook) {
+    if (this.props.currentBook) {
       results = results.filter(song => this.props.currentBook.songs[song.id]);
     }
     return results;
@@ -47,7 +48,7 @@ class SongIndex extends React.Component {
     let booksWithIndex = books.map(book => {
       let song_id = this.props.getSongIdFromBook(book, number);
       return song_id ? [book, song_id] : null;
-    }).filter(notNull=>notNull);
+    }).filter(notNull => notNull);
 
     return booksWithIndex.map(bookAndSongId => {
       let book = bookAndSongId[0];
@@ -75,11 +76,11 @@ class SongIndex extends React.Component {
       rowData = this.rowDataForNumericalSearch(strippedSearch);
     } else {
       let containsSearchRegex = new RegExp(strippedSearch, "i");
-      let toRowData = (song) => { return {song: song, tag: ""} };
+      let toRowData = (song) => { return { song: song, tag: "" } };
       let songContainsSearch = (song) => {
-          let title = this.strip(song.title);
-          let lyrics = this.strip(song.lyrics);
-          return containsSearchRegex.test(title) || containsSearchRegex.test(lyrics);
+        let title = this.strip(song.title);
+        let lyrics = this.strip(song.lyrics);
+        return containsSearchRegex.test(title) || containsSearchRegex.test(lyrics);
       };
       let searchResults = this.songs().filter(songContainsSearch).map(toRowData);
       rowData = searchResults;
@@ -156,7 +157,7 @@ class SongIndex extends React.Component {
     }
   }
   // html component for a row on the index page
-  songIndexRow (rowData, i) {
+  songIndexRow(rowData, i) {
     let bookIndex = this.props.currentBook ? this.props.currentBook.songs[rowData.song.id] : null
     let id = bookIndex || rowData.song.id;
     let bookIndexTag = '';
