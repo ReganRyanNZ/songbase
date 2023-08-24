@@ -60,11 +60,11 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 - [done]App
 - [done]Admin
-- Example
+- [done]Example
 
 ### Styling
 
-- Settings buttons should lift up a lil on hover, or maybe just have a shadow in general
+- [done]Settings buttons should lift up a lil on hover, or maybe just have a shadow in general
 
 ### CRUD books
 
