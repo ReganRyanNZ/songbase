@@ -31,16 +31,19 @@ gem 'jbuilder'
 
 gem 'serviceworker-rails' # Offline page loading
 
+# We use capybara to scrape some song data outside of tests, so we need it
+# available in every environment
+gem 'capybara'
+gem 'selenium-webdriver'
+
 group :development, :test do
   gem 'byebug', platform: :mri
-  gem 'capybara'
   gem 'factory_bot_rails'
 end
 
 group :test do
   gem 'minitest-rails'
   gem 'minitest-reporters'
-  gem 'selenium-webdriver'
 end
 
 group :development do
