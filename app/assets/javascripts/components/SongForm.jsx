@@ -26,9 +26,9 @@ class SongForm extends React.Component {
   }
 
   render() {
-    language_options = [];
-    langs = this.props.languages;
-    for (var i = 0; i < langs.length; i++) {
+    let language_options = [];
+    let langs = this.props.languages;
+    for (let i = 0; i < langs.length; i++) {
       language_options.push(
         <option value={langs[i]} key={langs[i]}>
           {langs[i][0].toUpperCase() + langs[i].slice(1)}
@@ -41,7 +41,7 @@ class SongForm extends React.Component {
       </option>
     );
 
-    var new_lang;
+    let new_lang;
     if (this.state.lang == "new_lang") {
       new_lang = (
         <input
@@ -55,6 +55,35 @@ class SongForm extends React.Component {
     } else {
       new_lang = null;
     }
+
+    let titleComponent = (<div className="titles">
+                            <h2>Index title</h2>
+                            <p className="admin-comment">
+                              This title will appear on a songbook's index page.
+                            </p>
+                            <input
+                              id="song_title"
+                              placeholder="Title (usually the first line)"
+                              className="song-form-title"
+                              type="text"
+                              value={this.state.title}
+                              name="song[title]"
+                              onChange={this.handleChange}
+                            />
+                          </div>);
+
+    let languageComponent = (<div className="languages">
+                               <h2>Language</h2>
+                               <select
+                                 id="song_lang"
+                                 name="song[lang]"
+                                 onChange={this.handleChange}
+                                 value={this.state.lang}
+                               >
+                                 {language_options}
+                                </select>
+                                <div className="new_lang">{new_lang}</div>
+                              </div>);
 
     return (
       <div className="song-form">
@@ -74,33 +103,9 @@ class SongForm extends React.Component {
             bookRefs={this.props.bookRefs}
           />
         </div>
-        <div className="titles">
-          <h2>Index title</h2>
-          <p className="admin-comment">
-            This title will appear on a songbook's index page.
-          </p>
-          <input
-            id="song_title"
-            placeholder="Title (usually the first line)"
-            className="song-form-title"
-            type="text"
-            value={this.state.title}
-            name="song[title]"
-            onChange={this.handleChange}
-          />
-        </div>
-        <div className="languages">
-          <h2>Language</h2>
-          <select
-            id="song_lang"
-            name="song[lang]"
-            onChange={this.handleChange}
-            value={this.state.lang}
-          >
-            {language_options}
-          </select>
-          <div className="new_lang">{new_lang}</div>
-        </div>
+
+        {this.props.exampleForm ? '' : titleComponent}
+        {this.props.exampleForm ? '' : languageComponent}
       </div>
     );
   }

@@ -94,8 +94,11 @@ class SongAppTest < ApplicationSystemTestCase
     find('div.btn-sort').click
     assert_book_titles(sort_by: :alphabetical)
 
+    # Keyboard navigation:
+    find('#index_search').click
+    page.driver.browser.action.send_keys([:down,:return]).perform
+
     # A book's song has a reference to that book in the song's display:
-    find('.index_row_title', text: @song_abba_father.title).click
     assert_content 'Here at the table with the saints'
     assert_content 'Test Book: #2'
 
