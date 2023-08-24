@@ -56,10 +56,15 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 # TODO
 
-### System Tests
+### System tests
 
-- [done] App usage
-- Admin usage
+- [done]App
+- [done]Admin
+- Example
+
+### Styling
+
+- Settings buttons should lift up a lil on hover, or maybe just have a shadow in general
 
 ### CRUD books
 
@@ -88,12 +93,12 @@ Steps:
 - [done]Migrate data from song_books to books
 - [done]Figure out whether client needs to parse books back to references or just change its ways (done, I want to change ways)
 - [done]Keep v1 api but only returning song data
-- Build v2 separate
-  - Create v2 controller, with tests
-  - SongApp to ping new api endpoint, and use the new data structure
-  - Admin side to use new controller, create tests
+- [done]Build v2 separate
+  - [done]Create v2 controller, with tests
+  - [done]SongApp to ping new api endpoint, and use the new data structure
+  - [done]Admin side to use new controller, create tests
   - Email people about v2 when its in prod
-- Test preloaded props songs and books are working
+- [done]Test preloaded props songs and books are working
 - Remove song_books from db and code
 - General refactor
 
@@ -115,6 +120,7 @@ Past notes:
 ### Duplicates
 
 - Exact duplicates will no longer be created (by some previous double-submitting bug). Near duplicates (e.g. one version without chords, one with) are tricky to catch. The best solution I can think of is to use Postgres's Levenshtein function to match string similarity, but that has a 255 byte max, so we'd need to combine it with a LEFT function to get the first 60 characters (assuming the worst case is all characters are 4 bytes), and possibly some kind of regex to remove chords from the comparison. Would be cool, but it's technically challenging enough that manual finding/fixing is sufficient for now.
+- What if I strip lyrics of all chords and non-chars, downcase, then compare the first 100 chars? Would have to be a script, because it's O(n^2).
 - Improve language code so we don't have duplicate languages stored
 
 ### Loading bar
@@ -128,7 +134,7 @@ Past notes:
 
 ### Add languages
 
-- Portuguese
+- Portuguese (scrape data from hinario)
 - Chinese (+ pinyin if we can find a good tool to generate it)
 
 ### Investigate errors
@@ -148,8 +154,8 @@ Past notes:
 - If a user stays on a song for more than 30 seconds, add to list of sung songs. Periodically sync that list with the server so we have records of what songs are sung.
 - This is useful to know which songs are popular, e.g. for camp songbooks
 - Homepage could be a list of popular songs, instead of all songs starting with A
-- Instead of syncing a new list of popular songs, could add a rank to songs? Although popular by region would be cool.
 - Also useful to see orphaned songs, that are no longer sung and are just clutter
+- Build a hash of {song_id: sing_count} to add to next sync. Controller can add those counts to songs (will that ddos the server with too many db calls?). Timestamps and things can be left to statcounter, but at least we can have a running total (or should we bump in a new column every year or something? probs not)
 
 ### No chords mode
 
