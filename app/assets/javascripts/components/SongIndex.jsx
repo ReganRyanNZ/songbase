@@ -131,12 +131,12 @@ class SongIndex extends React.Component {
       let sibling;
 
       if (e.key === 'ArrowDown') {
-        const listEdge = document.querySelector(".title-list > button:first-of-type");
-        sibling = insideSearch ? listEdge : e.currentTarget.nextSibling;
+        const listTop = document.querySelector(".title-list > button:first-of-type");
+        sibling = insideSearch ? listTop : e.currentTarget.nextSibling;
       }
       if (e.key === 'ArrowUp') {
-        const listEdge = document.querySelector(".title-list > button:last-of-type");
-        sibling = insideSearch ? listEdge : e.currentTarget.previousSibling;
+        const listBottom = document.querySelector(".title-list > button:last-of-type");
+        sibling = insideSearch ? listBottom : e.currentTarget.previousSibling;
       }
 
       if (sibling) {
