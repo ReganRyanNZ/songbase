@@ -66,3 +66,8 @@
     }
   }
 }
+
+.app-settings-btn:hover {
+  box-shadow: 2px 2px gray;
+  transition: box-shadow 0.3s ease;
+}
