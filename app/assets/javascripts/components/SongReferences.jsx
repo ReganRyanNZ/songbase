@@ -8,7 +8,7 @@ const SongReferences = ({
   toggleOrderIndexBy,
   scrollToSong,
 }) => {
-  if (loadingData) {
+  if (loadingData || !bookRefs) {
     return null;
   }
   let handleClick = (e) => {

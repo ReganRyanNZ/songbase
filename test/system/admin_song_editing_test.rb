@@ -54,5 +54,14 @@ class AdminSongEditingTest < ApplicationSystemTestCase
     click_link 'Click here'
     assert_content "And that really, Jesus, You're alive!"
     assert_content "adding a new line woo"
+
+    # Example formatting
+    visit admin_path
+    click_link('New Song')
+    new_tab = window_opened_by { click_link('How do I format this?') }
+    within_window new_tab do
+      assert_selector('h1', text: 'Example Song')
+      assert_content("Stanza numbers go above the\nFirst line of the stanza", count: 2)
+    end
   end
 end
