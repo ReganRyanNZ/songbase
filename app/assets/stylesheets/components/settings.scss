@@ -7,6 +7,11 @@
   user-select: none;          /* Likely future */
 }
 
+.lang-label:hover {
+  font-size: 1.05rem;
+  cursor: pointer;
+}
+
 .contact-footer {
   padding-top: 3em;
 }
@@ -65,4 +70,8 @@
       color: white;
     }
   }
+}
+
+.app-settings-btn:hover {
+  font-size: 1.05rem;
 }

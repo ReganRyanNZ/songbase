@@ -41,11 +41,11 @@ class UserSettings extends React.Component {
       <div className='radio-btns' onChange={this.updateTheme}>
         <div>
           <input type='radio' id='css-normal' name='theme' value='css-normal'/>
-          <label htmlFor='css-normal' className='demo-css-normal'>Normal</label>
+          <label htmlFor='css-normal' className='demo-css-normal app-settings-btn'>Normal</label>
         </div>
         <div>
           <input type='radio' id='css-night' name='theme' value='css-night'/>
-          <label htmlFor='css-night' className='demo-css-night'>Night</label>
+          <label htmlFor='css-night' className='demo-css-night app-settings-btn'>Night</label>
         </div>
       </div>
     );
@@ -53,7 +53,7 @@ class UserSettings extends React.Component {
     var resetCacheBtn = (
       <div className="reset-cache-container">
         If songs are not loading properly, you can reset the cache and download them again:
-        <button type='button' id='reset-cache' onClick={this.props.resetCache}>Reset cache</button>
+        <button type='button' className="app-settings-btn" id='reset-cache' onClick={this.props.resetCache}>Reset cache</button>
         <div className="counter">Cached songs: {this.props.cachedSongCount}</div>
       </div>
     );
