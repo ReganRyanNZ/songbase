@@ -20,22 +20,20 @@ end
 
 namespace :scraper do
   task portuguese: :environment do |args|
+    ids_to_search = [76,330,437,764,765,766,767,768,769,770,771,772,773,774,775,776,777,778,779,780,781,782,783,1222,1258,1340,1373,1466,1492].map(&:to_s)
     WHITESPACE_AT_START_OF_LINE = /^[[:space:]]+/
     WHITESPACE_AT_END_OF_LINE = /[[:space:]]+$/
     page = Capybara.current_session
     browser = page.driver.browser
 
-    page.visit "http://hinario.org/number.php"
-    page.click_link('Demos glória a Deus Pai')
-    page.assert_text('Contemplando a natureza')
-
-    # page.visit "https://hinario.org/detail.php?id=1565"
-    # page.assert_selector('.hym-title h4', text: 1483)
-
+    console_data = []
     songs = {}
 
-    finished_scraping = false
-    while(!finished_scraping) do
+    ids_to_search.each do |id|
+      page.visit("https://hinario.org/number.php?search=#{id}")
+      page.find('#finaldata tbody tr:first-of-type td a').click
+      page.assert_selector('.hym-title h4', text: id)
+
       doc = Nokogiri::HTML(browser.page_source)
       raw_stanzas = doc.css('#hymntextdata p,#hymntextdata > h5 > div')
 
@@ -52,31 +50,22 @@ namespace :scraper do
         end
       end.compact
 
-      title = doc.at_css('span.colr h4').text
-      title = get_title_from_first_line(raw_stanzas.first.text.split("\n").first) unless title.present?
       index = doc.at_css('.hym-title h4').text
       lyrics = stanzas.join("\n\n")
       lyrics = remove_excess_newlines(lyrics)
       lyrics = fix_quotes(lyrics)
+      title = doc.at_css('span.colr h4').text
+      title = get_title_from_first_line(lyrics) unless title.present?
 
+      console_data << [title, lyrics, nil, index]
       song = Song.find_or_create_by(title: title, lyrics: lyrics, lang: 'português')
       songs[song.id.to_s] = index
 
       puts "Created: [#{index}] #{title}"
-
-      page.find('#rightarrowid').click # go to next song
-      begin
-        page.assert_selector('.hym-title h4', text: index.to_i + 1)
-      rescue Capybara::ExpectationNotMet => e
-        puts "Reached the end at #{index}"
-        finished_scraping = true
-      end
     end
 
-    hymnal = Book.find_or_create_by(name: 'Hinos',
-      slug: 'hinos',
-      languages: ['português'])
-
+    puts console_data
+    hymnal = Book.find_or_create_by(name: 'Hinos', slug: 'hinos', languages: ['português'])
     hymnal.songs = songs
     hymnal.save
   end
