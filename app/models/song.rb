@@ -13,7 +13,9 @@ class Song < ApplicationRecord
   scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
 
   scope :duplicate_titles, -> {
-    where("(SELECT COUNT(*) FROM songs AS songs1 WHERE songs1.title LIKE (songs.title || '%')) > 1")
+    where("(SELECT COUNT(*) FROM songs AS songs1
+                            WHERE songs1.title LIKE (songs.title || '%')
+                            AND songs1.deleted_at IS NULL) > 1")
   }
 
   scope :search, ->(search_term) {
@@ -25,7 +27,7 @@ class Song < ApplicationRecord
                                  .join(chord_or_non_char_or_newline_regex)
 
     # ~* means case-insensitive regex matching
-    where("lyrics ~* ?", wildcard_search).or(where("title ~* ?", wildcard_search))
+    where("title ~* ?", wildcard_search).or(where("lyrics ~* ?", wildcard_search))
   }
   scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
 

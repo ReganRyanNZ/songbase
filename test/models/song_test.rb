@@ -31,6 +31,10 @@ class SongTest < ActiveSupport::TestCase
     song1 = FactoryBot.create(:song, title: title)
     song2 = FactoryBot.create(:song, title: title)
     song3 = FactoryBot.create(:song, title: title[0..-4])
+
+    song4 = FactoryBot.create(:song, title: 'hmmm')
+    song5 = FactoryBot.create(:song, title: 'hmmm')
+    song5.destroy_with_audit
     assert_equal [song1, song2, song3], Song.duplicate_titles
   end
 
