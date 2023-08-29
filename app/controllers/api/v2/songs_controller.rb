@@ -29,9 +29,10 @@ class Api::V2::SongsController < ApplicationController
   private
 
   def duplicate_songs
-    return [] unless (super_admin && !params[:search].present? && Rails.env.development?)
+    return [] unless (super_admin && !params[:search].present?)
 
-    @duplicate_songs ||= sort_songs(Song.search(params[:search])
+    recently_changed_ids = Song.search(params[:search]).recently_changed.pluck(:id) # only query recent songs to speed things up
+    @duplicate_songs ||= sort_songs(Song.where(id: recently_changed_ids)
                                         .duplicate_titles
                                         .map(&:admin_entry))
   end
