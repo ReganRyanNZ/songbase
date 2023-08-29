@@ -29,7 +29,7 @@ class Api::V2::SongsController < ApplicationController
   private
 
   def duplicate_songs
-    return [] unless (super_admin && !params[:search].present?)
+    return [] unless (super_admin && !params[:search].present? && Rails.env.development?)
 
     @duplicate_songs ||= sort_songs(Song.search(params[:search])
                                         .duplicate_titles
