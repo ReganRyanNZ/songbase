@@ -61,14 +61,13 @@ class Song < ApplicationRecord
 
     # Remove comment with hymnal reference (obsolete now?)
     hymn_ref_regex = /.*[Hh]ymns.*[0-9]+\n+/
-    lyrics = lyrics.gsub(hymn_ref_regex, "") if self.lyrics =~ hymn_ref_regex
+    lyrics = lyrics.gsub(hymn_ref_regex, "")
     self.update(lyrics: lyrics) if self.lyrics != lyrics
 
     old_song.destroy_with_audit(User.system_user)
   end
 
-  # TODO DOES THE TYPE EVER EQUAL BOOKS AND REFERENCES THIS SEEM SLIKE A BAD IDEA
-  def app_entry(type=nil)
+  def app_entry
     {
       id: id,
       title: title,
