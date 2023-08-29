@@ -137,12 +137,6 @@ Past notes:
 - Portuguese (scrape data from hinario)
 - Chinese (+ pinyin if we can find a good tool to generate it)
 
-### Investigate errors
-
-- 30
-- 881
-- 1271
-
 ### Tabs for alternate versions/tunes
 
 - Instead of using different verses for different tunes, make a separate tab for each tune or version
