@@ -80,7 +80,7 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal 2, response_json[:songs][:changed].count
 
-    song_data = {:title=>"Another song", :books=>{}, :lang=>"english", :lyrics=>"Different words[G]", :edit_timestamp=>"less than a minute ago", :last_editor=>"System"}
+    song_data = {:title=>"Another song", :lang=>"english", :lyrics=>"Different words[G]", :edit_timestamp=>"less than a minute ago", :last_editor=>"System"}
     assert_equal song_data, response_json[:songs][:changed].first.except(:id)
   end
 

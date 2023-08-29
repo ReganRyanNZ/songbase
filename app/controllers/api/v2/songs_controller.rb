@@ -29,7 +29,7 @@ class Api::V2::SongsController < ApplicationController
   private
 
   def duplicate_songs
-    return [] unless super_admin
+    return [] unless (super_admin && !params[:search].present?)
 
     @duplicate_songs ||= sort_songs(Song.search(params[:search])
                                         .duplicate_titles
@@ -37,6 +37,8 @@ class Api::V2::SongsController < ApplicationController
   end
 
   def recently_changed_songs
+    return [] if params[:search].present?
+
     @recently_changed_songs ||= sort_songs(Song.search(params[:search])
                                                .recently_changed
                                                .map(&:admin_entry))
@@ -60,17 +62,24 @@ class Api::V2::SongsController < ApplicationController
   def sort_songs(songs)
     return songs unless songs.present?
 
-    search = params[:search].to_s.downcase
+    search = clean_for_sorting(params[:search].to_s)
     songs.sort_by do |s|
       title = clean_for_sorting(s[:title])
-      [title.downcase.index(search) || 99, title] # Prioritize title matches
+
+      case
+      when title.match?(/^#{search}/) # If search is the start of the title, top priority
+        "0#{title}"
+      when title.match?(search) # If title contains search, next priority
+        "1#{title}"
+      else
+        "2#{title}" # Else just sort by title
+      end
     end
   end
 
   def clean_for_sorting(str)
     return '' unless str.present?
 
-    str.gsub(/[’'",“\-—–!?()]/, "").upcase
+    str.gsub(/[[:punct]]/, "").downcase
   end
-
 end

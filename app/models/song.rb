@@ -13,16 +13,18 @@ class Song < ApplicationRecord
   scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
 
   scope :duplicate_titles, -> {
-    where(title: Song.select(:title)
-                     .group(:title) # group songs into buckets of the same title
-                     .having("count(*) > 1") # bucket has more than one song
-                     .select(:title) # get firstline from these buckets
-    )
+    where("(SELECT COUNT(*) FROM songs AS songs1 WHERE songs1.title LIKE (songs.title || '%')) > 1")
   }
+
   scope :search, ->(search_term) {
     search_term ||= ''
-    chord_or_non_char_or_newline_regex = "(?:(?:\\[[^\\]]*\\])|[.,?'\"!@#$%^&*();:-—]|\\n)*"
-    wildcard_search = search_term.split('').join(chord_or_non_char_or_newline_regex)
+    chord_regex = "(?:\\[[^\\]]*\\])"
+    chord_or_non_char_or_newline_regex = "(?:#{chord_regex}|[[:punct:]]|[[:space:]])*"
+    wildcard_search = search_term.gsub(/\s/, '')
+                                 .split('')
+                                 .join(chord_or_non_char_or_newline_regex)
+
+    # ~* means case-insensitive regex matching
     where("lyrics ~* ?", wildcard_search).or(where("title ~* ?", wildcard_search))
   }
   scope :for_language, ->(language) { language.present? ? where(lang: language) : all }
@@ -76,15 +78,10 @@ class Song < ApplicationRecord
     }
   end
 
-  # TODO This should be selected via SQL to avoid n+1 my friend
-  # Except for the edit timestamp, that can be post processed
-  # The problem is selecting [book.id, book.songs[song.id]] from
-  # some kind of joins table without foreign keys...
   def admin_entry
     {
       title: title,
       id: id,
-      books: book_indices,
       lang: lang,
       lyrics: lyrics,
       edit_timestamp: ApplicationController.helpers.time_ago_in_words(updated_at || created_at) + ' ago',
