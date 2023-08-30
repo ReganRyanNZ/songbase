@@ -22,6 +22,3 @@
 <% end %>
     <%= button_to 'Remove', song_path(song), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-delete" if song.persisted? && (super_admin || song.created_at > 7.days.ago) %>
   </div>
-
-
-<%#  TODO try load the edit page and see how references are undefined. bookRefsFor may be returning nil values? %>

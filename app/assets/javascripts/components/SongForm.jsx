@@ -56,10 +56,19 @@ class SongForm extends React.Component {
       new_lang = null;
     }
 
+    let songTitleBeef = "\n\
+    Dear saints, for the sake of uniformity and usability, please consider the following:\n\
+    - If you have a custom title (e.g. \"Hebrews Medley\"), you can put it after the first line: \"Christ our High Priest (Hebrews Medley)\"\n\
+    - Likewise for a verse reference (e.g. \"Matthew 16:18-19\"), better to put it after the first line: \"And I also say to you that you are Peter (Matthew 16:18-19)\"\n\
+    - Do not duplicate an existing title\n\
+    - Do not put a conference or event in the title (e.g. \"As the Spirit God came - SSOT14—Two Spirits\"). It is better to put this in a comment within the song.\n\
+    - Do not use all-caps (e.g. FOR THE BREAD AND FOR THE WINE), it's much better to write the title as a sentence: \"For the bread and for the wine\"\n\
+    "
+
     let titleComponent = (<div className="titles">
                             <h2>Index title</h2>
                             <p className="admin-comment">
-                              This title will appear on a songbook's index page.
+                              {songTitleBeef}
                             </p>
                             <input
                               id="song_title"
