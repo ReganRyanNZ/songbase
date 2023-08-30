@@ -43,6 +43,10 @@ a.btn-help {
   margin-left: 25px;
 }
 
+.edit_timestamp {
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
   .edit_timestamp {
     display: none;
