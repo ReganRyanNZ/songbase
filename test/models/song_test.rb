@@ -64,8 +64,8 @@ class SongTest < ActiveSupport::TestCase
 
   test 'destroying a song (with audit or not) should remove any reference in books to that song' do
     book = FactoryBot.create(:book, :with_songs)
-    song1 = Song.find(book.songs.keys.first)
-    song2 = Song.find(book.songs.keys.last)
+    song1 = book.song_records.first
+    song2 = book.song_records.last
 
     song1.destroy_with_audit
     song2.destroy
