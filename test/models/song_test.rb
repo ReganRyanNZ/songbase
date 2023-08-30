@@ -62,6 +62,17 @@ class SongTest < ActiveSupport::TestCase
     refute_includes Song.deleted_after(time_before_creation).map(&:id), song2.id
   end
 
+  test 'destroying a song (with audit or not) should remove any reference in books to that song' do
+    book = FactoryBot.create(:book, :with_songs)
+    song1 = Song.find(book.songs.keys.first)
+    song2 = Song.find(book.songs.keys.last)
+
+    song1.destroy_with_audit
+    song2.destroy
+
+    assert_equal({}, book.songs)
+  end
+
   test 'languages gets a distinct list of languages, sorted but with english first' do
     FactoryBot.create(:song, lang: 'english')
     FactoryBot.create(:song, lang: 'Afrikaans')

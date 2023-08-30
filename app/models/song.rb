@@ -1,5 +1,4 @@
 class Song < ApplicationRecord
-  has_many :song_books, dependent: :destroy
   has_many :audits, dependent: :destroy
   validates :title, presence: true
 

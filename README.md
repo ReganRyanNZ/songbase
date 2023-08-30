@@ -154,3 +154,7 @@ Past notes:
 ### No chords mode
 
 - Remove chords from sight
+
+### Destroying a song should update related books
+
+- With audit or just via rails destroy, we don't want any dangling id references pointing to a nothing-burger

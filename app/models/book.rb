@@ -1,5 +1,4 @@
 class Book < ApplicationRecord
-  has_many :song_books, dependent: :destroy
   default_scope -> { where(deleted_at: nil) }
 
   # The weird syntax is for postgres Array types

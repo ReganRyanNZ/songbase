@@ -12,7 +12,7 @@ class Api::V1::SongsController < ApplicationController
       songs: songs_to_sync.app_data,
       books: [],
       references: [],
-      destroyed: { songs: dead_songs,
+      destroyed: { songs: [],
                    references: [],
                    books: [] },
       songCount: Song.for_language(params[:language]).count,
@@ -27,38 +27,7 @@ class Api::V1::SongsController < ApplicationController
     }
   end
 
-  def admin_songs
-    render json: {
-      deprecation_warning: 'WARNING: This api version is deprecated. Please use v2 instead, as v1 is no longer supported. Song data will still come through, but book data has been removed.',
-      songs: {duplicates: duplicate_songs,
-              changed: recently_changed_songs - duplicate_songs,
-              unchanged: songs_for_admin - recently_changed_songs - duplicate_songs}}, status: 200
-  end
-
   private
-
-  def duplicate_songs
-    return [] unless super_admin
-
-    @duplicate_songs ||= sort_songs(Song.search(params[:search])
-                                        .duplicate_titles
-                                        .includes(books: :song_books)
-                                        .map(&:admin_entry))
-  end
-
-  def recently_changed_songs
-    @recently_changed_songs ||= sort_songs(Song.search(params[:search])
-                                               .recently_changed
-                                               .includes(books: :song_books)
-                                               .map(&:admin_entry))
-  end
-
-  def songs_for_admin
-    sort_songs(Song.search(params[:search])
-                   .includes(books: :song_books)
-                   .limit(100)
-                   .map(&:admin_entry))
-  end
 
   def client_updated_at
     return @client_updated_at if @client_updated_at.present?
@@ -68,25 +37,4 @@ class Api::V1::SongsController < ApplicationController
     milliseconds = updated_at % 1000
     @client_updated_at = Time.at(seconds, milliseconds, :millisecond).utc
   end
-
-  def dead_songs
-    @dead_songs ||= Song.deleted_after(client_updated_at).pluck(:id)
-  end
-
-  def sort_songs(songs)
-    return songs unless songs.present?
-
-    search = params[:search].downcase
-    songs.sort_by do |s|
-      title = clean_for_sorting(s[:title])
-      [title.downcase.index(search) || 99, title]
-    end
-  end
-
-  def clean_for_sorting(str)
-    return '' unless str.present?
-
-    str.gsub(/[’'",“\-—–!?()]/, "").upcase
-  end
-
 end
