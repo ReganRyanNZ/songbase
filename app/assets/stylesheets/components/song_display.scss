@@ -130,3 +130,25 @@ div[data-react-class='SongDisplay'] {
 [data-uncopyable-text]::after {
   content: attr(data-uncopyable-text);
 }
+
+// For reference, SVGs are tricky to scale, the best way is to set these
+// properties in the element itself:
+//
+//   viewBox="0 0 100 100" preserveAspectRatio="none"
+//
+// And then set the height/width via css to control the size.
+.show-music-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid lightgrey;
+  border-radius: 4px;
+  & svg {
+    fill: lightgrey;
+    fill-rule:evenodd;
+    stroke: lightgrey;
+    height: 30px;
+  }
+}

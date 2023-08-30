@@ -21,15 +21,19 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     @song_from_the_time = FactoryBot.create(:song)
     @song_according_to = FactoryBot.create(:song, :accord_to_my_earnest)
     @song_abba_father = FactoryBot.create(:song, :abba_father)
+    @song_now_unto = FactoryBot.create(:song, :now_unto)
     @english_songs = [@song_from_the_time,
                       @song_according_to,
-                      @song_abba_father]
+                      @song_abba_father,
+                      @song_now_unto]
     @song_bendito = FactoryBot.create(:song, :portuguese)
     @all_songs = @english_songs + [@song_bendito]
     @test_book = FactoryBot.create(:book, name: 'Test Book', songs: {@song_from_the_time.id => '1',
                                                                      @song_abba_father.id => '2',
                                                                      @song_according_to.id => '3'})
-    @book_songs = @english_songs
+    @book_songs = [@song_from_the_time,
+                   @song_abba_father,
+                   @song_according_to]
     travel 1.second
   end
 

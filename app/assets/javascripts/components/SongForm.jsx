@@ -107,7 +107,7 @@ class SongForm extends React.Component {
           />
         </div>
         <div className="preview">
-          <SongDisplay lyrics={this.state.lyrics} />
+          <SongDisplay lyrics={this.state.lyrics} showChords={true} editMode={true}/>
           <SongReferences
             bookRefs={this.props.bookRefs}
           />

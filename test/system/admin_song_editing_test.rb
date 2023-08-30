@@ -44,6 +44,8 @@ class AdminSongEditingTest < ApplicationSystemTestCase
       assert_content "adding a new line woo"
     end
 
+    refute_selector('#show-music-controls') # Toggle music button doesnt show for admin
+
     new_title = 'From the time I spoke Your Name, Lord my life...'
     fill_in('song_title', with: new_title)
 
