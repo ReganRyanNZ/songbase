@@ -1,6 +1,7 @@
 class SongApp extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
       page: props.song_id || "index",
       settings: {
@@ -22,7 +23,8 @@ class SongApp extends React.Component {
       scrollTo: null,
       rowLimit: 100,
       logSyncData: false,
-      logSongApp: false
+      logSongApp: false,
+      showChords: localStorage.getItem('showChords') == 'false' ? false : true, // Local storage to load faster than indexedDB, and synchronously
     };
 
     // bind all methods to this context (so we can use them)
@@ -36,6 +38,7 @@ class SongApp extends React.Component {
     this.scrollToSong = this.scrollToSong.bind(this);
     this.infiniteScrolling = this.infiniteScrolling.bind(this);
     this.log = this.log.bind(this);
+    this.toggleMusic = this.toggleMusic.bind(this);
 
     this.navigate = new AppNavigation(this);
     this.navigate.setupInitialHistoryState();
@@ -61,6 +64,12 @@ class SongApp extends React.Component {
 
   log(string) {
     if(this.state.logSongApp) { console.log(string) }
+  }
+
+  toggleMusic() {
+    let showChords = !this.state.showChords;
+    this.setState({showChords: showChords});
+    localStorage.setItem('showChords', showChords);
   }
 
   infiniteScrolling(){
@@ -209,7 +218,9 @@ class SongApp extends React.Component {
             <SongDisplay
               title={song.title}
               lyrics={song.lyrics}
-              analyticsPath={songWasPreloaded ? null : window.location.href} />
+              analyticsPath={songWasPreloaded ? null : window.location.href}
+              showChords={this.state.showChords}
+              toggleMusic={this.toggleMusic}/>
             <SongReferences
               goToBookIndex={this.navigate.goToBookIndex}
               toggleOrderIndexBy={this.toggleOrderIndexBy}

@@ -19,7 +19,7 @@ class SongTest < ActiveSupport::TestCase
 
     # Prefer lyrics that contain chords:
     song1 = FactoryBot.create(:song)
-    song2 = FactoryBot.create(:song, :no_chords)
+    song2 = FactoryBot.create(:song, lyrics: 'Uh oh, no chords here')
     song2.merge!(song1)
     assert song1.deleted_at?
     refute song2.deleted_at?

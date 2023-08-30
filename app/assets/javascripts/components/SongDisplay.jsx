@@ -36,6 +36,8 @@ const keySharpness = {A: 'sharp', Bb: 'flat', B: 'sharp', C: 'sharp', Db: 'flat'
 
 const regex = {
   capo: /.*capo (\d+).*/i,
+  capoComment: /.*capo (\d+).*\n/ig,
+  tuneComment: /\#.*tune.*\n/ig,
   comment: /^\# ?(.*)/, // everything after a '#'
   chordWords: /([^\>\s]*\[[^\]]*?\][^\s<]*)/g, // a word with a chord in it
   chords: /\[(.*?)\]/g, // anything inside square brackets
@@ -58,34 +60,28 @@ class SongDisplay extends React.Component {
     super(props);
 
     this.state = {
-      showChords: true,
       transpose: props.transpose || 0,
       originalKey: this.getKeyFromChords(props.lyrics),
       logSongDisplay: true
     };
 
     this.transpose = this.transpose.bind(this);
-    this.transposeControls = this.transposeControls.bind(this);
     this.controls = this.controls.bind(this);
-    this.formatVerseNumbers = this.formatVerseNumbers.bind(this);
-    this.formatChorus = this.formatChorus.bind(this);
-    this.formatChords = this.formatChords.bind(this);
-    this.formatComment = this.formatComment.bind(this);
-    this.formatTextLine = this.formatTextLine.bind(this);
     this.changeKey = this.changeKey.bind(this);
     this.goUpOneKey = this.goUpOneKey.bind(this);
     this.goDownOneKey = this.goDownOneKey.bind(this);
     this.toggleTransposePreset = this.toggleTransposePreset.bind(this);
-    this.addTransposeListeners = this.addTransposeListeners.bind(this);
+    this.addListeners = this.addListeners.bind(this);
+    this.chordsExist = this.chordsExist.bind(this);
     this.log = this.log.bind(this);
 
     this.setAnalyticsTimer();
   }
   componentDidMount() {
-    this.addTransposeListeners();
+    this.addListeners();
   }
   componentDidUpdate() {
-    this.addTransposeListeners();
+    this.addListeners();
   }
 
   log(str) {
@@ -115,21 +111,24 @@ class SongDisplay extends React.Component {
     }
   }
 
-  addTransposeListeners() {
-    if(/\[/.test(this.props.lyrics)) {
-      var presetElement = document.getElementById("transpose-preset")
-      if(presetElement) {
-        presetElement.addEventListener("click", this.toggleTransposePreset);
-      }
-      var tUpElement = document.getElementById("transpose-up")
-      if(tUpElement) {
-        tUpElement.addEventListener("click", this.goUpOneKey);
-      }
-      var tDownElement = document.getElementById("transpose-down")
-      if(tDownElement) {
-        tDownElement.addEventListener("click", this.goDownOneKey);
-      }
+  addListeners() {
+    if(this.chordsExist()) {
+      let presetElements = document.getElementsByClassName("transpose-preset");
+      if(presetElements) { [...presetElements].forEach((el) => el.addEventListener("click", this.toggleTransposePreset), this) }
+
+      let tUpElement = document.getElementById("transpose-up")
+      if(tUpElement) { tUpElement.addEventListener("click", this.goUpOneKey) }
+
+      let tDownElement = document.getElementById("transpose-down")
+      if(tDownElement) { tDownElement.addEventListener("click", this.goDownOneKey) }
+
+      let toggleMusicElement = document.getElementById("show-music-controls");
+      if(toggleMusicElement) { toggleMusicElement.addEventListener("click", this.props.toggleMusic) }
     }
+  }
+
+  chordsExist() {
+    return /\[/.test(this.props.lyrics);
   }
 
   getKeyFromChords(lyrics) {
@@ -158,18 +157,19 @@ class SongDisplay extends React.Component {
 
   // if a song has "capo 2" in a comment, then clicking will toggle between capo 2 and 0
   toggleTransposePreset(e) {
-    if(regex.capo.test(this.props.lyrics)) {
-      var presetTranspose = this.props.lyrics.match(regex.capo)[1];
+    let presetTranspose = e.target.dataset.capo;
+    if(presetTranspose) {
       let newTranspose = this.state.transpose != presetTranspose ? presetTranspose : 0;
       this.setState({transpose: parseInt(newTranspose)});
     }
   }
 
+
   goUpOneKey() { this.changeKey(1); }
   goDownOneKey() { this.changeKey(-1); }
 
   changeKey(step) {
-    var key = parseInt(this.state.transpose);
+    let key = parseInt(this.state.transpose);
     this.setState({
       transpose: key + step
     });
@@ -200,6 +200,50 @@ class SongDisplay extends React.Component {
   }
 
   getLyricsHTML() {
+    let formatTextBoldItalic = (text) => {
+      text = text.replace(regex.boldText, "<b>$1</b>");
+      text = text.replace(regex.italicText, "<i>$1</i>");
+      return text
+    }
+
+    let formatMusicalTies = (lyrics) => {
+      // convert _ to musical tie for spanish songs
+      return lyrics.replace(/_/g, "<span class='musical-tie'>‿</span>");
+    }
+
+    let formatVerseNumbers = (lyrics) => {
+      return lyrics.replace(regex.verseNumber, `$1<div class='verse-number' data-uncopyable-text='$2'></div>`);
+    }
+
+    let formatChorus = (lyrics) => {
+      return lyrics.replace(regex.chorus, `$1<div class='chorus'>$2</div>`);
+    }
+
+    let removeMusicFromLyrics = (lyrics) => {
+      return this.props.showChords ? lyrics : lyrics.replace(regex.chords, '').replace(regex.capoComment, '').replace(regex.tuneComment, '');
+    }
+    let formatCapoComment = (line) => {
+      return line.replace(regex.capo, `<div class='transpose-preset comment' data-capo='$1'>Capo $1</div>`);
+    }
+
+    let formatComment = (line) => {
+      return line.replace(regex.comment, "<div class='comment'>$1</div>");
+    }
+
+    let formatTextLine = (line) => {
+      // Chords have 0 width and double height, so they appear above the text.
+      // Both chords and text are in the same "line" block so they are aligned.
+      lineRegex = /(.*\>)?(  )?(.*)/;
+      return line.replace(lineRegex, `$1<div class='line'><span class='line-text'>$3</span></div>`);
+    }
+
+    let formatChords = (line, transpose) => {
+      // words containing chords are in a chord-word span, so that if the line is too long,
+      // the text wrapping can move the whole word with chords.
+      let separatedIntoWords = line.replace(regex.chordWords, `<span class='chord-word'>$1</span>`);
+      return separatedIntoWords.replace(regex.chords, (match, chord) => `<span class='chord' data-uncopyable-text='${transpose(chord)}'></span>`);
+    }
+
     lyrics = this.props.lyrics;
 
     if (regex.html_safety.test(lyrics)) {
@@ -207,95 +251,64 @@ class SongDisplay extends React.Component {
     }
 
     lyrics = lyrics.replace(regex.invisableUnicodeCharacters, "");
-    lyrics = this.formatVerseNumbers(lyrics);
-    lyrics = this.formatChorus(lyrics);
+    lyrics = formatVerseNumbers(lyrics);
+    lyrics = formatChorus(lyrics);
+    lyrics = removeMusicFromLyrics(lyrics);
 
-    var lines = lyrics.split("\n");
+    let lines = lyrics.split("\n");
 
-    for (var i = 0; i < lines.length; i++) {
+    for (let i = 0; i < lines.length; i++) {
       if (regex.capo.test(lines[i])) {
-        lines[i] = this.formatCapoComment(lines[i]);
+        lines[i] = formatCapoComment(lines[i]);
       } else if (regex.comment.test(lines[i])) {
-        lines[i] = this.formatComment(lines[i]);
+        lines[i] = formatComment(lines[i]);
       } else {
-        lines[i] = this.formatTextLine(lines[i]);
+        lines[i] = formatTextLine(lines[i]);
 
-        if (regex.hasChords.test(lines[i]) && this.state.showChords) {
-          lines[i] = this.formatChords(lines[i]);
+        if (regex.hasChords.test(lines[i]) && this.props.showChords) {
+          lines[i] = formatChords(lines[i], this.transpose);
         }
       }
     }
     lines.unshift(this.controls());
     lyrics = lines.join("\n");
-    lyrics = this.formatTextBoldItalic(lyrics);
-    lyrics = this.formatMusicalTies(lyrics);
+    lyrics = formatTextBoldItalic(lyrics);
+    lyrics = formatMusicalTies(lyrics);
     return lyrics;
   }
 
-  formatTextBoldItalic(text) {
-    text = text.replace(regex.boldText, "<b>$1</b>");
-    text = text.replace(regex.italicText, "<i>$1</i>");
-    return text
-  }
-
-  formatMusicalTies(lyrics) {
-    // convert _ to musical tie for spanish songs
-    return lyrics.replace(/_/g, "<span class='musical-tie'>‿</span>");
-  }
-
-  formatVerseNumbers(lyrics) {
-    return lyrics.replace(regex.verseNumber, `$1<div class='verse-number' data-uncopyable-text='$2'></div>`);
-  }
-
-  formatChorus(lyrics) {
-    return lyrics.replace(regex.chorus, `$1<div class='chorus'>$2</div>`);
-  }
-
-  formatChords(line) {
-    // words containing chords are in a chord-word span, so that if the line is too long,
-    // the text wrapping can move the whole word with chords.
-    var separatedIntoWords = line.replace(regex.chordWords, `<span class='chord-word'>$1</span>`);
-    return separatedIntoWords.replace(regex.chords, (match, chord) => `<span class='chord' data-uncopyable-text='${this.transpose(chord)}'></span>`);
-  }
-
-  formatCapoComment(line) {
-    return line.replace(regex.capo, `<div id='transpose-preset'>Capo $1</div>`);
-  }
-
-  formatComment(line) {
-    return line.replace(regex.comment, "<div class='comment'>$1</div>");
-  }
-
-  formatTextLine(line) {
-    // Chords have 0 width and double height, so they appear above the text.
-    // Both chords and text are in the same "line" block so they are aligned.
-    lineRegex = /(.*\>)?(  )?(.*)/;
-    return line.replace(lineRegex, `$1<div class='line'><span class='line-text'>$3</span></div>`);
-  }
-
   controls() {
+    let chordsExist = this.chordsExist();
+    let showChords = this.props.showChords;
+    let transpose = this.state.transpose;
+
+    let toggleMusicControl = () => {
+      if(!chordsExist || this.props.editMode) { return '' }
+
+      return(`<div class='show-music-controls' id='show-music-controls'>
+              ${HamburgerMenu}
+             </div>`)
+    }
+    let transposeControls = () => {
+      if(!chordsExist || !showChords) { return '' }
+
+      return `
+        <div class='transpose-controls'>
+          <a id='transpose-down' class='transpose-symbol'>-</a>
+          <div class='transpose-value'>${transpose}</div>
+          <a id='transpose-up' class='transpose-symbol'>+</a>
+        </div>`;
+    }
+
     return `
       <div class='song-controls'>
         <div class='bookmark'>
           ${BookmarkIconAsString}
         </div>
-        ${this.transposeControls()}
+        ${toggleMusicControl()}
+        ${transposeControls()}
       </div>
     `
-  }
-
-  transposeControls() {
-    var songHasChords = /\[/.test(lyrics);
-    if(!songHasChords) {
-      return '';
-    }
-
-    return `
-      <div class='transpose-controls'>
-        <a id='transpose-down' class='transpose-symbol'>-</a>
-        <div class='transpose-value'>${this.state.transpose}</div>
-        <a id='transpose-up' class='transpose-symbol'>+</a>
-      </div>`;
   }
 
   render() {

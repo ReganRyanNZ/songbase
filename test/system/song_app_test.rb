@@ -26,6 +26,7 @@ class SongAppTest < ApplicationSystemTestCase
     find('.index_row_title', text: 'According to my earnest').click
     assert_content 'magnified in my'
 
+    # Transpose chords:
     assert_capo('0')
     assert_first_chord('G')
 
@@ -37,6 +38,27 @@ class SongAppTest < ApplicationSystemTestCase
     assert_capo('0')
     assert_first_chord('G')
 
+    find('#transpose-preset').click
+    assert_capo('3')
+    assert_first_chord('Bb')
+
+    # Hide chords, transpose controls, and capo/tune comments:
+    assert_selector('#transpose-up')
+    assert_selector('#transpose-down')
+    assert_selector('#transpose-preset')
+    assert_selector('.chord')
+    assert_content('New Tune:')
+    assert_content('Capo 3')
+
+    find('#show-music-controls').click
+
+    refute_selector('#transpose-up')
+    refute_selector('#transpose-down')
+    refute_selector('#transpose-preset')
+    refute_selector('.chord')
+    refute_content('New Tune:')
+    refute_content('Capo 3')
+
     # Returning to index will still have the search:
     find('h1', text: 'Songbase').click
     assert_index_titles(only: @song_according_to)
@@ -45,7 +67,19 @@ class SongAppTest < ApplicationSystemTestCase
     find('div.btn_clear_search').click
     assert_index_titles(only: @english_songs)
 
+    # Chordless songs will not show toggle music button:
+    fill_in 'index_search', with: 'unto the king'
+    assert_index_titles(only: @song_now_unto)
+    find('.index_row_title', text: 'Now unto the King eternal').click
+    assert_content('immortal, invisible')
+    refute_selector('.chord')
+    refute_selector('#show-music-controls')
+
+
     # Selecting languages in settings scopes the index to those languages:
+    find('h1', text: 'Songbase').click
+    find('div.btn_clear_search').click
+
     find('div.settings-btn').click
     assert_selector 'h2', text: 'Languages'
 

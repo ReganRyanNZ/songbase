@@ -131,17 +131,20 @@ Past notes:
 
 - Along with links to book indices, we also want links to e.g. same song in another language, or commonly joined songs (e.g. Therefore with joy + drinking at the fountain)
 - Will need a script to create all the hymnal language links
-
-### Add languages
-
-- Portuguese (scrape data from hinario)
-- Chinese (+ pinyin if we can find a good tool to generate it)
+- This can be an array of song ids stored in each song record. The client can fetch the title/firstline for the link
 
 ### Tabs for alternate versions/tunes
 
 - Instead of using different verses for different tunes, make a separate tab for each tune or version
 - This lets us modify song structure/add bonus verses without messing with the original etc
 - Client should remember which tab was last used so after the first time switching it's automatically on their preferred version
+
+Examples (non-exhaustive) where a separate tune forces line-repeats, or chorus is written out a second time:
+507 Re[D]move my covering, Lord
+627 My goal is God Himself
+
+Id's of all songs with "tune" in the lyrics:
+[2168, 752, 478, 433, 439, 507, 514, 626, 627, 631, 719, 624, 515, 751, 1105, 1595, 520, 2129, 1603, 782, 1613, 957, 1512, 1457, 168, 336, 899, 3970, 1334, 345, 1307, 539, 352, 531, 549, 1305, 318, 524, 453, 2018, 1926, 398, 567, 2045, 46, 4325, 4277, 1608]
 
 ### Better analytics
 
@@ -151,11 +154,6 @@ Past notes:
 - Also useful to see orphaned songs, that are no longer sung and are just clutter
 - Build a hash of {song_id: sing_count} to add to next sync. Controller can add those counts to songs (will that ddos the server with too many db calls?). Timestamps and things can be left to statcounter, but at least we can have a running total (or should we bump in a new column every year or something? probs not)
 - We don't want to update a song with a count, that would cause too much data to update every time the client syncs. We'll need some kind of analytics table, probably with a jsonb hash of song_id => count, and some fancy syncing that goes "after 30s tell the server I sang this song, otherwise store it in a list to send the next time I sing a song"
-
-### No chords mode
-
-- Remove chords from sight
-- What about comments related to music? Capos etc
 
 ### Columns/Split screen
 

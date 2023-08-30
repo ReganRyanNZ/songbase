@@ -6,7 +6,7 @@ FactoryBot.define do
 
     trait :accord_to_my_earnest do
       title { "According to my earnest" }
-      lyrics { "\n[G]According to my [C]earnest\nexpectation and [D]hope\nthat in [G]nothing I will [C]be\nput to [D]shame,\nbut with all [G]boldness, as al[D]ways,\neven [C]now Christ will be\nmagnified in my [D]body,\nwhether through [G]life\nor through [C]death.\nPhilippians [D]1:[G]20" }
+      lyrics { "# Capo 3\n# New Tune:\n[G]According to my [C]earnest\nexpectation and [D]hope\nthat in [G]nothing I will [C]be\nput to [D]shame,\nbut with all [G]boldness, as al[D]ways,\neven [C]now Christ will be\nmagnified in my [D]body,\nwhether through [G]life\nor through [C]death.\nPhilippians [D]1:[G]20" }
     end
 
     trait :abba_father do
@@ -20,8 +20,10 @@ FactoryBot.define do
       lang { "portuguese" }
     end
 
-    trait :no_chords do
-      lyrics { "1\nFrom the time I spoke Your Name,\nLord, my life's not been the same\nSince I called on the only One Who'd\nSave me.\nWhen forsaken, in despair—\nWho'd have thought that You'd be there?\nNow I've found out, Jesus, You're alive!\n\n  Now my eyes begin to see\n  I'm living as I ought to be,\n  As this turning, burning God\n  Moves in my heart.\n  I don't care now how I feel;\n  I just know that this is real,\n  And I know, O Jesus, You're alive!\n\n2\nAll my friends may think it’s square,\nSince I’ve touched You I don’t care,\nFor I’ve found You’re the only life worth living.\nThough some mock and criticise,\nLord, they just don’t realise\nThat I’ve found out, Jesus, You’re alive!\n\n3\nIt's no statue that I call,\nNot a picture on the wall,\nBut a Person Who lives His life\nwithin me.\nWish they'd told me long before,\nAll You want's an open door,\nAnd that really, Jesus, You're alive!" }
+    # no chords
+    trait :now_unto do
+      title { "Now unto the King eternal" }
+      lyrics { "Now unto the King eternal,\nimmortal, invisible,\nThe only wise God, the only wise God,\nBe honor and glory forever and ever.\nAmen. Amen.\nBe honor and glory forever and ever.\nAmen." }
     end
 
     trait :hymn_ref_in_comments do
