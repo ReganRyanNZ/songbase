@@ -150,11 +150,13 @@ Past notes:
 - Homepage could be a list of popular songs, instead of all songs starting with A
 - Also useful to see orphaned songs, that are no longer sung and are just clutter
 - Build a hash of {song_id: sing_count} to add to next sync. Controller can add those counts to songs (will that ddos the server with too many db calls?). Timestamps and things can be left to statcounter, but at least we can have a running total (or should we bump in a new column every year or something? probs not)
+- We don't want to update a song with a count, that would cause too much data to update every time the client syncs. We'll need some kind of analytics table, probably with a jsonb hash of song_id => count, and some fancy syncing that goes "after 30s tell the server I sang this song, otherwise store it in a list to send the next time I sing a song"
 
 ### No chords mode
 
 - Remove chords from sight
+- What about comments related to music? Capos etc
 
-### Destroying a song should update related books
+### Columns/Split screen
 
-- With audit or just via rails destroy, we don't want any dangling id references pointing to a nothing-burger
+- If the screen is wide enough, button appears to add a column with the same lyrics. Not sure how capo might break things
