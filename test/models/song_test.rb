@@ -70,7 +70,7 @@ class SongTest < ActiveSupport::TestCase
     song1.destroy_with_audit
     song2.destroy
 
-    assert_equal({}, book.songs)
+    assert_equal({}, book.reload.songs)
   end
 
   test 'languages gets a distinct list of languages, sorted but with english first' do
