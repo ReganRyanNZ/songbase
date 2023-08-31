@@ -160,3 +160,6 @@ Past notes:
 ### Destroying a song should update related books
 
 - With audit or just via rails destroy, we don't want any dangling id references pointing to a nothing-burger
+
+
+- If the screen is wife enough, button appears to add a column with the same lyrics. Not sure how capo might break things
