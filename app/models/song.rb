@@ -1,10 +1,11 @@
 class Song < ApplicationRecord
-  has_many :song_books, dependent: :destroy
   has_many :audits, dependent: :destroy
   validates :title, presence: true
 
   before_save :remove_windows_carriage_returns
   before_save :sanitize_lang
+
+  after_destroy :remove_references_from_books
 
   default_scope -> { where(deleted_at: nil) }
   # We want to know songs that have been deleted since the client's last update
@@ -100,6 +101,13 @@ class Song < ApplicationRecord
   def destroy_with_audit(user=nil)
     user ||= User.system_user
     update(deleted_at: Time.current, deleted_by: user.id)
+    remove_references_from_books
+  end
+
+  def remove_references_from_books
+    Book.with_song(self).each do |book|
+      book.update(songs: book.songs.except(self.id.to_s))
+    end
   end
 
   def self.app_data

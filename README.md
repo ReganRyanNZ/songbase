@@ -157,9 +157,6 @@ Past notes:
 - Remove chords from sight
 - What about comments related to music? Capos etc
 
-### Destroying a song should update related books
+### Columns/Split screen
 
-- With audit or just via rails destroy, we don't want any dangling id references pointing to a nothing-burger
-
-
-- If the screen is wife enough, button appears to add a column with the same lyrics. Not sure how capo might break things
+- If the screen is wide enough, button appears to add a column with the same lyrics. Not sure how capo might break things
