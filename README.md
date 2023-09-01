@@ -101,16 +101,20 @@ Steps:
 - [done]Test preloaded props songs and books are working
 - Remove song_books from db and code
 - General refactor
-
-
-Past notes:
-
-- Add a local book by default called "My Favorites"
-- At the bottom of songs, where the book refs are, add a "+ [book name]" for every local-owned book
-- At the bottom of the books page, add a "+" that shows an input and submit to make a local book (maybe an HR can separate this from the list of references, and another to separate the song).
-- Local books need a delete btn on the index page, and an "export" button that gives a url for others to import. Delete and export could be under a burger menu.
-- Local books are not globally synced.
-- Local books should be uniquely named, and importing a dup name should ask if you want to delete the previous (i..e a kind of simple override to simulate updating)
+- Shareable link
+  - e.g. songbase.life/add_book?id=4123&name=wellington-yp-2023, where name is there for visual reference but discarded so changing names doesn't break the link
+  - Link needs to be easily accessed, perhaps in book selection page?
+  - A song url that includes a book in the path should add the book
+- Add array (or string?) of email addresses to book records. Users can log in via google, and their email matched to give access to edit that particular book.
+- Remove blue songbook from defaults, but keep hymnals
+- Add some kind of note to book selection page that if a book is missing, they need someone to share with them, or to perhaps check languages in the settings.
+- Book creation page
+- Book login page, separate from admin because we don't need all users knowing about admin
+- How to add songs to a book? Better to not clog up the song display, perhaps in the book edit page we can just have a searchable index, clicking brings to another panel, with draggable titles for ordering?
+- Remove book button
+- Logging in should sync books saved to that user('s record in db) to the client by default.
+- Logging in should save email address into indexedDB, so logging in is not required again
+- Creating a book should have "My Favorites" as the default name
 
 ### Book printing
 
@@ -158,3 +162,5 @@ Id's of all songs with "tune" in the lyrics:
 ### Columns/Split screen
 
 - If the screen is wide enough, button appears to add a column with the same lyrics. Not sure how capo might break things
+
+### Capo comment should have pointer cursor
