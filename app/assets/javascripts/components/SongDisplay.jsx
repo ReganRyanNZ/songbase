@@ -46,7 +46,7 @@ const regex = {
   boldText: /\*\*(.+?)\*\*/g,
   italicText: /\*(.+?)\*/g,
   html_safety: /.*[<>`].*/,
-  verseNumber: /(^|\n)([0-9]+)\n/gm, // numbers by themselves on a line are verse numbers
+  stanzaNumber: /(^|\n)([0-9]+)\n(.*)/gm, // numbers by themselves on a line are verse numbers
   chordCore: /([A-G][b#]?)([^A-G]*)/g,
   invisableUnicodeCharacters: /[\r\u2028\u2029]/g
 };
@@ -207,12 +207,19 @@ class SongDisplay extends React.Component {
     }
 
     let formatMusicalTies = (lyrics) => {
-      // convert _ to musical tie for spanish songs
-      return lyrics.replace(/_/g, "<span class='musical-tie'>‿</span>");
+      return lyrics.replace(/_/g, "<span class='musical-tie'>‿</span>"); // convert _ to musical tie for spanish songs
     }
 
-    let formatVerseNumbers = (lyrics) => {
-      return lyrics.replace(regex.verseNumber, `$1<div class='verse-number' data-uncopyable-text='$2'></div>`);
+    let formatStanzaNumbers = (lyrics) => {
+      // A digit on its own line is considered a stanza number.
+      // If the following line contains a chord, then we give it a with-chords
+      // class to increase padding, so the number lines up with the lyrics
+      // rather than the chords.
+      replacer = (_match, startOfString, stanzaNum, nextLine) => {
+        lineHasChords = nextLine.match(/\[/);
+        return `${startOfString}<div class='stanza-number ${lineHasChords ? "with-chords" : ""}' data-uncopyable-text='${stanzaNum}'></div>${nextLine}`
+      }
+      return lyrics.replace(regex.stanzaNumber, replacer);
     }
 
     let formatChorus = (lyrics) => {
@@ -251,7 +258,7 @@ class SongDisplay extends React.Component {
     }
 
     lyrics = lyrics.replace(regex.invisableUnicodeCharacters, "");
-    lyrics = formatVerseNumbers(lyrics);
+    lyrics = formatStanzaNumbers(lyrics);
     lyrics = formatChorus(lyrics);
     lyrics = removeMusicFromLyrics(lyrics);
 

@@ -122,9 +122,13 @@ div[data-react-class='SongDisplay'] {
     margin: 0 0 10px 25px;
   }
 
-  .verse-number {
+  .stanza-number {
     position: absolute;
     margin-left: -25px;
+
+    &.with-chords {
+      padding-top: 17px;
+    }
   }
 }
 

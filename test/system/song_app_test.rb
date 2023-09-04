@@ -24,7 +24,7 @@ class SongAppTest < ApplicationSystemTestCase
 
     # Clicking on index row displays that song:
     find('.index_row_title', text: 'According to my earnest').click
-    assert_content 'magnified in my'
+    assert_song_formatting
 
     # Transpose chords:
     assert_capo('0')
@@ -153,5 +153,28 @@ class SongAppTest < ApplicationSystemTestCase
     # Test preloaded pages
     visit @song_abba_father.id.to_s
     assert_content(@song_abba_father.title)
+  end
+
+  def assert_song_formatting
+    assert_content 'magnified in my'
+    html = page.find('.lyrics')['innerHTML']
+    assert html.include?(expected_html), "Couldn't match formatted song with:\n#{html}"
+  end
+
+  def expected_html
+    <<~HTML.strip
+      <div class=\"transpose-preset comment\" data-capo=\"3\">Capo 3</div>
+      <div class=\"comment\">New Tune:</div>
+      <div class=\"line\"><span class=\"line-text\"><span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"G\"></span>According</span> to my <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"C\"></span>earnest</span></span></div>
+      <div class=\"line\"><span class=\"line-text\">expectation and <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"D\"></span>hope</span></span></div>
+      <div class=\"line\"><span class=\"line-text\">that in <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"G\"></span>nothing</span> I will <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"C\"></span>be</span></span></div>
+      <div class=\"line\"><span class=\"line-text\">put to <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"D\"></span>shame,</span></span></div>
+      <div class=\"line\"><span class=\"line-text\">but with all <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"G\"></span>boldness,</span> as <span class=\"chord-word\">al<span class=\"chord\" data-uncopyable-text=\"D\"></span>ways,</span></span></div>
+      <div class=\"line\"><span class=\"line-text\">even <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"C\"></span>now</span> Christ will be</span></div>
+      <div class=\"line\"><span class=\"line-text\">magnified in my <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"D\"></span>body,</span></span></div>
+      <div class=\"line\"><span class=\"line-text\">whether through <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"G\"></span>life</span></span></div>
+      <div class=\"line\"><span class=\"line-text\">or through <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"C\"></span>death.</span></span></div>
+      <div class=\"line\"><span class=\"line-text\">Philippians <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"D\"></span>1:<span class=\"chord\" data-uncopyable-text=\"G\"></span>20</span></span></div>
+    HTML
   end
 end
