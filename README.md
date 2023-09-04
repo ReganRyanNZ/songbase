@@ -163,10 +163,4 @@ Id's of all songs with "tune" in the lyrics:
 
 - If the screen is wide enough, button appears to add a column with the same lyrics. Not sure how capo might break things
 
-### Capo comment should have pointer cursor
-
 ### Admin should search hymnal indices and song ids
-
-### Better choice of keys
-
-- Breathe thou on edit, E should have sharps not flats. Some keys would look more familiar as the flat version instead of the sharp.
