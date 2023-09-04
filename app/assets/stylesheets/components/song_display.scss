@@ -48,12 +48,13 @@ div[data-react-class='SongDisplay'] {
     top: 3px;
     left: -2px;
   }
-  .comment, #transpose-preset {
+  .comment, .transpose-preset {
     margin-bottom: 8px;
     color: darkgray;
     font-size: 90%;
   }
-  #transpose-preset {
+
+  .transpose-preset {
     cursor: pointer;
     -webkit-user-select: none;
     -moz-user-select: none;

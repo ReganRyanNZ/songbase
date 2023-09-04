@@ -162,5 +162,3 @@ Id's of all songs with "tune" in the lyrics:
 ### Columns/Split screen
 
 - If the screen is wide enough, button appears to add a column with the same lyrics. Not sure how capo might break things
-
-### Capo comment should have pointer cursor
