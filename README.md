@@ -91,20 +91,25 @@ Steps:
 - [done]Test preloaded props songs and books are working
 - Remove song_books from db and code
 - General refactor
+
+- Book creation page
+  - Book login page, separate from admin because we don't need all users knowing about admin
+  - Add array (or string?) of email addresses to book records. Users can log in via google, and their email matched to give access to edit that particular book.
+  - How to add songs to a book? Better to not clog up the song display, perhaps in the book edit page we can just have a searchable index, clicking brings to another panel, with draggable titles for ordering?
+  - Search similar to admin search, could probably reuse that api
+  - Advanced--clicking could bring up a modal to preview the song to confirm it's the right one. But for now, can just click a + next to the title to add it to the book.
+  - Search can overlay the screen, and with nothing searched it shows the list of songs in the book with a hamburger to click and drag to change the order
+  - Creating a book should have "My Favorites" as the default name
+- Book selection page
+  - Add some kind of note to book selection page that if a book is missing, they need someone to share with them, or to perhaps check languages in the settings.
+  - Remove book button, for user-owned books
+  - Logging in should sync books saved between client and user record on db (add array col of books)
+  - Logging in should save email address into indexedDB, so logging in is not required again
 - Shareable link
   - e.g. songbase.life/add_book?id=4123&name=wellington-yp-2023, where name is there for visual reference but discarded so changing names doesn't break the link
   - Link needs to be easily accessed, perhaps in book selection page?
   - A song url that includes a book in the path should add the book
-- Add array (or string?) of email addresses to book records. Users can log in via google, and their email matched to give access to edit that particular book.
 - Remove blue songbook from defaults, but keep hymnals
-- Add some kind of note to book selection page that if a book is missing, they need someone to share with them, or to perhaps check languages in the settings.
-- Book creation page
-- Book login page, separate from admin because we don't need all users knowing about admin
-- How to add songs to a book? Better to not clog up the song display, perhaps in the book edit page we can just have a searchable index, clicking brings to another panel, with draggable titles for ordering?
-- Remove book button
-- Logging in should sync books saved to that user('s record in db) to the client by default.
-- Logging in should save email address into indexedDB, so logging in is not required again
-- Creating a book should have "My Favorites" as the default name
 
 ### Book printing
 
@@ -131,6 +136,7 @@ Steps:
 - Instead of using different verses for different tunes, make a separate tab for each tune or version
 - This lets us modify song structure/add bonus verses without messing with the original etc
 - Client should remember which tab was last used so after the first time switching it's automatically on their preferred version
+- Books should preload a preferred tab, but overwriteable
 
 Examples (non-exhaustive) where a separate tune forces line-repeats, or chorus is written out a second time:
 507 Re[D]move my covering, Lord
@@ -150,7 +156,12 @@ Id's of all songs with "tune" in the lyrics:
 
 ### Columns/Split screen
 
-- If the screen is wide enough, button appears to add a column with the same lyrics. Not sure how capo might break things
-- It's still hard to justify.. you can split-screen tabs on ipads, run multiple windows and multiple spaces on computers.
-
-### Admin should search hymnal indices and song ids
+- Turn hamburger icon into a dialog open button
+- Show treb clef with staff icon with a radio toggle for showChords (disable radio greyed out if no chords)
+- Show a one col icon arrow to two cols icon, then a minus, value, plus control set like we have for capo.
+- Put capo controls here, we'll need an icon. (but it's nice to see the chords change, so you can really feel like spiderman) (mayybe)
+- [Big One]Rewrite the entire lyrics formatting algorithm, so that we can wrap stanzas and choruses into divs, and force breaks on them so it doesn't break a div in half for columns.
+- Remove margin/width stuff from most containers, references may need to be treated differently
+- Move song controls outside of the lyrics div
+- Set columns: 2 auto; column-gap: 40px; to .lyrics, where 2 is probably going to be an inline style set by js when the controls are clicked
+- IDEA: instead of manually setting number of cols, just have on/off. When on, increment the number of cols until the height of the text is less than the (100vh - whatever is above the lyrics div). I think we can js to find the hegiht of the div using element.offsetHeight
