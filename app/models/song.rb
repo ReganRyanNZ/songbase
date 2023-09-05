@@ -152,8 +152,17 @@ class Song < ApplicationRecord
       end
       line
     end.join("\n\t")
-    verse_number_regex = /^\t(\d+)\s*\n/
-    tabbed_lines.gsub(verse_number_regex, '\1')
+
+    verse_number_regex = /^\t(\d+)\s*\n(.*\n)?(.+)/
+    tabbed_lines.gsub(verse_number_regex) { |m|
+      captured_lines = m.split("\n")
+      chorded_line = captured_lines[1].gsub(/\S/, '').length > captured_lines[1].gsub(/\s/, '').length
+      if chorded_line
+        [captured_lines[1], "#{captured_lines[0].strip}#{captured_lines[2]}"].join("\n")
+      else
+        "#{captured_lines[0].strip}#{captured_lines[1..-1].join("\n")}"
+      end
+    }
   end
 
   def duplicate?

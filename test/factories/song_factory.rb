@@ -11,7 +11,7 @@ FactoryBot.define do
 
     trait :abba_father do
       title { "Abba, Father" }
-      lyrics { "\n  Abba, Father!\nHow sweet it is to call on Your name!\n  Abba, Father!\n  We love You!\n\nIs it just us or is it Him?\nThe Spirit of the Son You sent us?\nFrom deep within this mingled cry,\n“Abba, Father!”\nHere at the table with the saints\nYour sons enjoy the life You gave us.\nLed by Your firstborn Son we cry,\n“Abba, Father!”\nHe leads the many sons to sing\nThe praises of our holy Father.\nIn life we understand this name:\nAbba, Father!\nAmidst the church He leads the praise;\nHe’s not ashamed to call us brothers,\nFor just like Him we are of You,\nBorn sons of God!\n\nAbba, Father!\nHow sweet it is to call on Your name!\nAbba, Father!\nWe’re Your Sons!\n" }
+      lyrics { "# Capo 2\n\n  [D]Abba, [G]Father!\n  [D]How sweet it [A]is to call on Your [D]name!\n  Abba, [G]Father!\n  [D]We [A]love [D]You!\n\n1\n[G]Is it just us or i[D]s it Him?\n[G]The Spirit of the S[D]on You sent us?\n[G]From deep within this m[D]ingled cry,\n[G]“Ab[A]ba, Fa[D]ther!”\n\n2\nHere at the table with the saints\nYour sons enjoy the life You gave us.\nLed by Your firstborn Son we cry,\n“Abba, Father!”\n\n3\nHe leads the many sons to sing\nThe praises of our holy Father.\nIn life we understand this name:\nAbba, Father!\n\n4\nAmidst the church He leads the praise;\nHe’s not ashamed to call us brothers,\nFor just like Him we are of You,\nBorn sons of God!\n\n  Abba, Father!\n  How sweet it is to call on Your name!\n  Abba, Father!\n  We’re Your Sons!\n" }
     end
 
     trait :portuguese do

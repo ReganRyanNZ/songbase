@@ -100,4 +100,51 @@ class SongTest < ActiveSupport::TestCase
     song = FactoryBot.create(:song, title: ' Weird title that comes up first in index')
     assert_equal('Weird title that comes up first in index', song.title)
   end
+
+  test 'print_format' do
+    song = FactoryBot.create(:song, :abba_father)
+    assert(song.print_format.include?(expected_print_format), "Expected: \n\n" + expected_print_format.inspect + "----\n\n Got: \n\n" + song.print_format.inspect)
+  end
+
+  def expected_print_format
+    "\t# Capo 2\n"\
+    "\t\n"\
+    "\t\t  D        G        \n"\
+    "\t\tAbba, Father!\n"\
+    "\t\t  D               A                     D      \n"\
+    "\t\tHow sweet it is to call on Your name!\n"\
+    "\t\t        G        \n"\
+    "\t\tAbba, Father!\n"\
+    "\t\t  D     A       D     \n"\
+    "\t\tWe love You!\n"\
+    "\t\n"\
+    "\t G                    D          \n"\
+    "1\tIs it just us or is it Him?\n"\
+    "\t G                     D                \n"\
+    "\tThe Spirit of the Son You sent us?\n"\
+    "\t G                         D            \n"\
+    "\tFrom deep within this mingled cry,\n"\
+    "\t G     A        D       \n"\
+    "\t“Abba, Father!”\n"\
+    "\t\n"\
+    "2\tHere at the table with the saints\n"\
+    "\tYour sons enjoy the life You gave us.\n"\
+    "\tLed by Your firstborn Son we cry,\n"\
+    "\t“Abba, Father!”\n"\
+    "\t\n"\
+    "3\tHe leads the many sons to sing\n"\
+    "\tThe praises of our holy Father.\n"\
+    "\tIn life we understand this name:\n"\
+    "\tAbba, Father!\n"\
+    "\t\n"\
+    "4\tAmidst the church He leads the praise;\n"\
+    "\tHe’s not ashamed to call us brothers,\n"\
+    "\tFor just like Him we are of You,\n"\
+    "\tBorn sons of God!\n"\
+    "\t\n"\
+    "\t\tAbba, Father!\n"\
+    "\t\tHow sweet it is to call on Your name!\n"\
+    "\t\tAbba, Father!\n"\
+    "\t\tWe’re Your Sons!"
+  end
 end
