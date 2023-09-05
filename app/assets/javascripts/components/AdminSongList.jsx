@@ -12,12 +12,16 @@ class AdminSongList extends React.Component {
   }
 
   componentDidMount() {
-    let value = document.getElementById('admin_search').value
+    let historyState = window.history.state;
+    let value = historyState ? historyState.search : '';
     this.updateSongList(value || '');
   }
 
   handleChange(event) {
-    this.updateSongList(event.target.value);
+    let search = event.target.value;
+    // Update browser history to keep search value if the user navigates back out of a song
+    window.history.replaceState({ search: search }, "");
+    this.updateSongList(search);
   }
 
   linkClassName(reviewType) {
@@ -83,6 +87,7 @@ class AdminSongList extends React.Component {
           id="admin_search"
           onChange={this.handleChange}
           placeholder="Search"
+          value={window.history.state ? window.history.state.search : ''}
         />
         <table className="admin_table">
           <tbody>{list}</tbody>
