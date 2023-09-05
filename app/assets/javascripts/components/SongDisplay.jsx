@@ -251,7 +251,7 @@ class SongDisplay extends React.Component {
       return separatedIntoWords.replace(regex.chords, (match, chord) => `<span class='chord' data-uncopyable-text='${transpose(chord)}'></span>`);
     }
 
-    lyrics = this.props.lyrics;
+    let lyrics = this.props.lyrics;
 
     if (regex.html_safety.test(lyrics)) {
       return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";

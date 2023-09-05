@@ -28,12 +28,12 @@ If you want a bit of a backstory on songbase: I was in a high school church meet
 
 A few people have reached out about making a similar project, but using the data from songbase. This is great! May we all find ways to help one another serve our God and His people. My best recommendation here is to use songbase's api, either directly from the client or at least regularly syncing to your db. Here are the endpoints:
 
-- `https://songbase.life/api/v1/app_data` grabs all the data for songs and songbooks, this might be good for a giant refresh.
-  ​- `https://songbase.life/api/v1/languages` gets a list of all the languages in the db.
-- `https://songbase.life/api/v1/app_data?language=english` grabs all the data only for english songs (and so on for each language)​. If you get the languages first, and then fetch each language at the same time, you can download everything much faster, and have some songs loading before everything has finished.
-- ​`https://songbase.life/api/v1/app_data?updated_at=1655130159689` gets a list of data--but only what has changed after the `updated_at` timestamp. Songbase sends this with `updated_at` being the result of `new Date().getTime()` (in JS) to only get new data, instead of redownloading the entire db every time you load the site. This is pretty important if the client is fetching the API, since the full download will be several mb in size.
+- `https://songbase.life/api/v2/app_data` grabs all the data for songs and songbooks, this might be good for a giant refresh.
+  ​- `https://songbase.life/api/v2/languages` gets a list of all the languages in the db.
+- `https://songbase.life/api/v2/app_data?language=english` grabs all the data only for english songs (and so on for each language)​. If you get the languages first, and then fetch each language at the same time, you can download everything much faster, and have some songs loading before everything has finished.
+- ​`https://songbase.life/api/v2/app_data?updated_at=1655130159689` gets a list of data--but only what has changed after the `updated_at` timestamp. Songbase sends this with `updated_at` being the result of `new Date().getTime()` (in JS) to only get new data, instead of redownloading the entire db every time you load the site. This is pretty important if the client is fetching the API, since the full download will be several mb in size.
 
-If you are interested in the api for creating your own software, I would recommend checking out `app/assets/javascripts/components/SongDisplay.jsx` to see how the raw song data is converted to html (and transposing is also there).
+If you are interested in the api for creating your own software, I would recommend checking out `app/assets/javascripts/components/SongDisplay.jsx` to see how the raw song data is converted to html (chord transposing is also there).
 
 ## react-rails
 
@@ -55,16 +55,6 @@ This was first a Rails app, now it uses React to allow state management and offl
 - Fully offline! After initial load, clients should be able to later load songbase even without internet connection (it's patchy, confirmed working on chrome for android)
 
 # TODO
-
-### System tests
-
-- [done]App
-- [done]Admin
-- [done]Example
-
-### Styling
-
-- [done]Settings buttons should lift up a lil on hover, or maybe just have a shadow in general
 
 ### CRUD books
 
@@ -125,7 +115,6 @@ Steps:
 
 - Exact duplicates will no longer be created (by some previous double-submitting bug). Near duplicates (e.g. one version without chords, one with) are tricky to catch. The best solution I can think of is to use Postgres's Levenshtein function to match string similarity, but that has a 255 byte max, so we'd need to combine it with a LEFT function to get the first 60 characters (assuming the worst case is all characters are 4 bytes), and possibly some kind of regex to remove chords from the comparison. Would be cool, but it's technically challenging enough that manual finding/fixing is sufficient for now.
 - What if I strip lyrics of all chords and non-chars, downcase, then compare the first 100 chars? Would have to be a script, because it's O(n^2).
-- Improve language code so we don't have duplicate languages stored
 
 ### Loading bar
 
@@ -162,5 +151,6 @@ Id's of all songs with "tune" in the lyrics:
 ### Columns/Split screen
 
 - If the screen is wide enough, button appears to add a column with the same lyrics. Not sure how capo might break things
+- It's still hard to justify.. you can split-screen tabs on ipads, run multiple windows and multiple spaces on computers.
 
 ### Admin should search hymnal indices and song ids
