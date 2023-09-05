@@ -95,4 +95,9 @@ class SongTest < ActiveSupport::TestCase
     assert_equal([song], Song.search(ignores_case))
     assert_equal([song], Song.search(everything))
   end
+
+  test 'title is stripped of whitespace on save' do
+    song = FactoryBot.create(:song, title: ' Weird title that comes up first in index')
+    assert_equal('Weird title that comes up first in index', song.title)
+  end
 end
