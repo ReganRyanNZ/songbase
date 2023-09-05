@@ -301,9 +301,9 @@ class SongDisplay extends React.Component {
 
       return `
         <div class='transpose-controls'>
-          <a id='transpose-down' class='transpose-symbol'>-</a>
+          <button id='transpose-down' class='transpose-symbol'>${MinusIcon}</button>
           <div class='transpose-value'>${transpose}</div>
-          <a id='transpose-up' class='transpose-symbol'>+</a>
+          <button id='transpose-up' class='transpose-symbol'>${PlusIcon}</button>
         </div>`;
     }
 

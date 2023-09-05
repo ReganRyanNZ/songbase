@@ -23,23 +23,24 @@ div[data-react-class='SongDisplay'] {
     user-select: none;
   }
   .transpose-symbol {
-    position: relative;
-    top: 1px;
-    width: 18px;
-    padding: 2px;
+    all: unset;
     display: inline-block;
-    font-weight: 900;
     color: #777;
     opacity: 50%;
-    font-size: 1.5em;
-    border: 1px solid;
-    border-radius: 17px;
     text-align: center;
     cursor: pointer;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    width: 25px;
+      height: 25px;
+    &> svg {
+      width: 100%;
+      height: 100%;
+      stroke: darkgray;
+      fill: darkgray;
+    }
   }
   .musical-tie {
     width: 5px;
@@ -55,13 +56,18 @@ div[data-react-class='SongDisplay'] {
   }
 
   .transpose-preset {
+    display: inline-block;
+    padding-right: 15px;
     cursor: pointer;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
   }
-  .transpose-controls {
+  .song-controls > .transpose-controls {
+    display: flex;
+    gap: 4px;
+    align-items: center;
     color: darkgray;
   }
   .song-controls {
