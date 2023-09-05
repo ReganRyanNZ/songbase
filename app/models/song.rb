@@ -21,6 +21,8 @@ class Song < ApplicationRecord
   }
 
   scope :search, ->(search_term) {
+    return number_search(search_term) if search_term.match?(/^\d+$/)
+
     search_term ||= ''
     chord_regex = "(?:\\[[^\\]]*\\])"
     chord_or_non_char_or_newline_regex = "(?:#{chord_regex}|[[:punct:]]|[[:space:]])*"
@@ -35,6 +37,11 @@ class Song < ApplicationRecord
 
   def self.languages
     distinct.pluck(:lang).map(&:downcase).sort.without('english').prepend('english')
+  end
+
+  def self.number_search(number)
+    ids_from_hymnal_indexes = Book.hymnals.map { |book| book.songs.key(number) }.compact
+    where(id: ids_from_hymnal_indexes << number)
   end
 
   # Many-to-many relationship, but stored in JSON in the db, so the query is a

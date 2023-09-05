@@ -13,8 +13,14 @@ class AdminSongList extends React.Component {
 
   componentDidMount() {
     let historyState = window.history.state;
-    let value = historyState ? historyState.search : '';
-    this.updateSongList(value || '');
+    let value = '';
+
+    if(historyState) {
+      value = historyState.search || '';
+      document.getElementById('admin_search').value = value;
+    }
+
+    this.updateSongList(value);
   }
 
   handleChange(event) {
@@ -43,7 +49,6 @@ class AdminSongList extends React.Component {
       params: { search: search },
       headers: { "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content }
     }).then(function(response) {
-        console.log("Admin fetch completed.");
         app.setState({songs: response.data.songs});
       });
   }
@@ -87,7 +92,6 @@ class AdminSongList extends React.Component {
           id="admin_search"
           onChange={this.handleChange}
           placeholder="Search"
-          value={window.history.state ? window.history.state.search : ''}
         />
         <table className="admin_table">
           <tbody>{list}</tbody>
