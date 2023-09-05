@@ -215,8 +215,9 @@ class SongDisplay extends React.Component {
       // If the following line contains a chord, then we give it a with-chords
       // class to increase padding, so the number lines up with the lyrics
       // rather than the chords.
+      let showChords = this.props.showChords;
       replacer = (_match, startOfString, stanzaNum, nextLine) => {
-        lineHasChords = nextLine.match(/\[/);
+        lineHasChords = nextLine.match(/\[/) && showChords;
         return `${startOfString}<div class='stanza-number ${lineHasChords ? "with-chords" : ""}' data-uncopyable-text='${stanzaNum}'></div>${nextLine}`
       }
       return lyrics.replace(regex.stanzaNumber, replacer);
