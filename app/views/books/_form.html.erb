@@ -1,0 +1,70 @@
+
+<div id='song-list' class='title-list'>
+
+</div>
+
+<script>
+  let cancelDefault = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    return false
+  }
+
+  let songs = [
+    ['1234', 'According to my earnest'],
+    ['1423', 'Never did I dream before'],
+    ['3251', 'I am a tree with roots by the river'],
+    ['412', 'Something every heart is loving'],
+    ['3251421', 'New day, new start, oh I love the Lord'],
+  ];
+  let list = document.getElementById('song-list');
+  let draggedElement = null;
+  let draggedText = null;
+
+  let createSongElement = (songData) => {
+    let song = document.createElement('div');
+    song.classList.add('draggable-song');
+    song.setAttribute('draggable', true);
+    song.textContent = songData[1];
+
+    song.addEventListener("dragstart", (event) => {
+      draggedElement = event.target;
+      draggedText = draggedElement.textContent;
+      // draggedElement.textContent = null;
+      draggedElement.classList.add("dragging");
+    });
+    song.addEventListener("dragend", (event) => {
+
+      // draggedElement.style.display = 'block'
+      draggedElement.classList.remove("dragging");
+      // song.textContent = draggedText;
+      draggedElement = null;
+      cancelDefault(event);
+    });
+    song.addEventListener("dragenter", (event) => { cancelDefault(event) });
+    song.addEventListener("drop", (event) => { cancelDefault(event) });
+    // song.addEventListener("drag", (event) => { draggedElement.updateValueFromPosition({ x: event.x, y: event.y }) });
+
+    song.addEventListener("dragover", (event) => {
+      event.preventDefault();
+      if(event.target.classList.contains('draggable-song') && draggedElement.textContent != event.target.textContent) {
+        songIndex = Array.prototype.indexOf.call(list.children, draggedElement);
+        targetIndex = Array.prototype.indexOf.call(list.children, event.target);
+        if(targetIndex > songIndex) {
+          event.target.after(draggedElement);
+        } else {
+          event.target.before(draggedElement);
+        }
+      }
+      cancelDefault(event);
+    });
+
+    return(song);
+  }
+
+  songs.forEach((songData) => {
+    let song = createSongElement(songData);
+    list.appendChild(song)
+  })
+
+</script>

@@ -1,0 +1,8 @@
+.draggable-song {
+  height: 26px;
+}
+
+.dragging {
+  transition: 0.001s;
+  transform: translateX(-9999px);
+}

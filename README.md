@@ -58,15 +58,30 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 ### CRUD books
 
+Notes from 13 Sep 2023:
+
+- UI
+  - Looks like an index page, but with hamburger drag-to-reorder buttons on each song.
+  - Search bar at the top with animated slide-out to show searched songs are not part of book
+  - Click on search result and it's added to book
+  - [index number] [song title] [delete icon, with confirmation] [Draggable icon]
+  - Steps
+    - Blank page with 3 dummy song title cards
+    - Draggable to rearrange
+    - Rearranging updates the index numbers (or have the index numbers outside the cards?)
+    - Search bar with click to add to the page
+    - Delete button with confirmation
+    - Custom books page, with custom books deleteable and editable
+    - Don't sync books by default, only hymnals (blue?)
+
+- On drag
+  - Disappear original
+  - If dragged over another item, remove dummy from list, insert dummy to position of dragged-over item
+  - Make sure boundaries are full screen width, so it always reshuffles as the mouse drags around
+
+
 Notes from 17 Aug 2023:
 
-- song_books joins table will get too big (10k books, each with 100 songs, = 1 million rows), so we need to restructure the books db setup:
-  - Book records will have a single column with all song references, probably as a JSON encoded hash
-  - Postgres's text type can have infinite length (woo!) UPDATE postgres is way better than I realised. It has jsonb which stores json in an indexible way, and arrays, so I can use faster queries than wildcards to search for books with a particular language.
-  - On the frontend, we can explore whether we can store it the same, or whether to unpack to the current references structure after fetch #TODO
-  - merge! and song deletion needs to be updated and tested that book indices would change
-- Sync should be simpler, just replace any book that has been updated later than the last sync date
-  - Languages for books are still needed, but should be multi-choice, and stored as CSV in the db, with a LIKE query to fetch the right books
 - Books need a csv field of email addresses allowed to edit the song. Users need to log in via gmail, and then their email is checked against this value. This feels like the best compromise between avoiding user signup and privilege-based access.
 - Creating/editing books is still a question of UI
 - Add link icon in book index to get shareable link

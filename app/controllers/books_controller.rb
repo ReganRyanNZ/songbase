@@ -1,3 +1,10 @@
 class BooksController < ApplicationController
-  # what do we do here..?
+  def index
+  end
+
+  def new
+  end
+
+  def create
+  end
 end
