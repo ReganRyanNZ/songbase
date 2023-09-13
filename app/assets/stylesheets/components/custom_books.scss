@@ -3,6 +3,8 @@
 }
 
 .dragging {
-  transition: 0.001s;
-  transform: translateX(-9999px);
+  cursor: grabbing;
+  background: transparent;
+  color: transparent;
+  border: none;
 }

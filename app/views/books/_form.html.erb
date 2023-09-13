@@ -4,22 +4,26 @@
 </div>
 
 <script>
-  let cancelDefault = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    return false
+  let onDrag = (e) => {
+    let draggedElement = e.target
+    let dropTarget = document.elementFromPoint(e.clientX, e.clientY) || draggedElement;
+    let droppingOnSibling = draggedElement.parentNode === dropTarget.parentNode;
+
+    draggedElement.classList.add("dragging");
+    if (droppingOnSibling) {
+      let draggingDownwards = dropTarget == draggedElement.nextSibling;
+      if (draggingDownwards) {
+        dropTarget.after(draggedElement);
+      } else {
+        dropTarget.before(draggedElement);
+      }
+    }
   }
 
-  let songs = [
-    ['1234', 'According to my earnest'],
-    ['1423', 'Never did I dream before'],
-    ['3251', 'I am a tree with roots by the river'],
-    ['412', 'Something every heart is loving'],
-    ['3251421', 'New day, new start, oh I love the Lord'],
-  ];
-  let list = document.getElementById('song-list');
-  let draggedElement = null;
-  let draggedText = null;
+  let onDrop = (e) => {
+    e.target.classList.remove("dragging");
+    e.preventDefault();
+  }
 
   let createSongElement = (songData) => {
     let song = document.createElement('div');
@@ -27,44 +31,41 @@
     song.setAttribute('draggable', true);
     song.textContent = songData[1];
 
-    song.addEventListener("dragstart", (event) => {
-      draggedElement = event.target;
-      draggedText = draggedElement.textContent;
-      // draggedElement.textContent = null;
-      draggedElement.classList.add("dragging");
-    });
-    song.addEventListener("dragend", (event) => {
-
-      // draggedElement.style.display = 'block'
-      draggedElement.classList.remove("dragging");
-      // song.textContent = draggedText;
-      draggedElement = null;
-      cancelDefault(event);
-    });
-    song.addEventListener("dragenter", (event) => { cancelDefault(event) });
-    song.addEventListener("drop", (event) => { cancelDefault(event) });
-    // song.addEventListener("drag", (event) => { draggedElement.updateValueFromPosition({ x: event.x, y: event.y }) });
-
-    song.addEventListener("dragover", (event) => {
-      event.preventDefault();
-      if(event.target.classList.contains('draggable-song') && draggedElement.textContent != event.target.textContent) {
-        songIndex = Array.prototype.indexOf.call(list.children, draggedElement);
-        targetIndex = Array.prototype.indexOf.call(list.children, event.target);
-        if(targetIndex > songIndex) {
-          event.target.after(draggedElement);
-        } else {
-          event.target.before(draggedElement);
-        }
-      }
-      cancelDefault(event);
-    });
+    song.addEventListener("dragend", onDrop);
+    song.addEventListener("drag", onDrag);
+    song.addEventListener("dragover", (e) => e.preventDefault());
 
     return(song);
   }
 
+  // ---------------------------------------------------------------------------------------------------------------------
+  // DUMMY DATA
+
+  let list = document.getElementById('song-list');
+  let songs = [
+    ['1234', 'According to my earnest'],
+    ['1423', 'Never did I dream before'],
+    ['3251', 'I am a tree with roots by the river'],
+    ['412', 'Something every heart is loving'],
+    ['3251421', 'New day, new start, oh I love the Lord'],
+  ];
+  songs.forEach((songData) => {
+    let song = createSongElement(songData);
+    list.appendChild(song)
+  });
+  songs.forEach((songData) => {
+    let song = createSongElement(songData);
+    list.appendChild(song)
+  });
+  songs.forEach((songData) => {
+    let song = createSongElement(songData);
+    list.appendChild(song)
+  });
   songs.forEach((songData) => {
     let song = createSongElement(songData);
     list.appendChild(song)
   })
+
+  // ---------------------------------------------------------------------------------------------------------------------
 
 </script>
