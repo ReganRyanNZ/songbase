@@ -165,3 +165,8 @@ Id's of all songs with "tune" in the lyrics:
 - Move song controls outside of the lyrics div
 - Set columns: 2 auto; column-gap: 40px; to .lyrics, where 2 is probably going to be an inline style set by js when the controls are clicked
 - IDEA: instead of manually setting number of cols, just have on/off. When on, increment the number of cols until the height of the text is less than the (100vh - whatever is above the lyrics div). I think we can js to find the hegiht of the div using element.offsetHeight
+
+### Copyright fellowship
+
+- General disclaimer/statement
+- Copyright button that pops up with more information?
