@@ -1,10 +1,17 @@
-.draggable-song {
-  height: 26px;
-}
-
 .dragging {
   cursor: grabbing;
   background: transparent;
   color: transparent;
   border: none;
+}
+
+.custom-book-row {
+  display: flex;
+  height: 26px;
+}
+
+
+.custom-book-index {
+  display: inline-block;
+  padding: 0 10px;
 }

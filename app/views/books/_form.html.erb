@@ -4,9 +4,36 @@
 </div>
 
 <script>
+// ----------------------------------------------------------------------
+// @author regan.ryan.nz@gmail.com
+//
+// Draggable via html5!
+//
+// This is a simple yet very finnicky thing to create.
+// The key thing is to have siblings of a div with a "draggable" class and the following event listeners:
+// drag = onDrag
+// dragend = onDrop
+// dragover = preventDefault
+//
+// You also want the following css:
+//
+// .dragging {
+//   cursor: grabbing;
+//   background: transparent;
+//   color: transparent;
+//   border: none;
+// }
   let onDrag = (e) => {
     let draggedElement = e.target
     let dropTarget = document.elementFromPoint(e.clientX, e.clientY) || draggedElement;
+
+    // This allows us to drag onto 'draggable' containers with children that don't have the class
+    while(!dropTarget.classList.contains('draggable')) {
+      dropTarget = dropTarget.parentElement
+      if (dropTarget == document.body) { return }
+      if (dropTarget == null) { return }
+    }
+
     let droppingOnSibling = draggedElement.parentNode === dropTarget.parentNode;
 
     draggedElement.classList.add("dragging");
@@ -24,21 +51,41 @@
     e.target.classList.remove("dragging");
     e.preventDefault();
   }
+// ----------------------------------------------------------------------
+
+
+
+  let updateIndices = () => {
+    Array.from(list.children).forEach((songElement, i) => {
+      let indexElement = songElement.getElementsByClassName('custom-book-index')[0];
+      indexElement.textContent = i + 1;
+    })
+  }
 
   let createSongElement = (songData) => {
     let song = document.createElement('div');
-    song.classList.add('draggable-song');
+    song.classList.add('custom-book-row', 'draggable');
     song.setAttribute('draggable', true);
-    song.textContent = songData[1];
 
     song.addEventListener("dragend", onDrop);
-    song.addEventListener("drag", onDrag);
+    song.addEventListener("drag", (e) => {onDrag(e);
+                                          updateIndices();});
     song.addEventListener("dragover", (e) => e.preventDefault());
 
+    let text = document.createElement('div');
+    text.classList.add('custom-book-song-title');
+    text.textContent = songData[1];
+
+    let index = document.createElement('div');
+    index.classList.add('custom-book-index');
+
+    song.appendChild(index);
+    song.appendChild(text);
     return(song);
   }
 
-  // Show the index number, updating live with the dragging
+  // [DONE] Show the index number, updating live with the dragging
+  // Indices should be static, and only titles move.
   // Click remove to remove from list
   // Search for songs to add to list
   // Click song to add to end of list
@@ -71,7 +118,7 @@
     let song = createSongElement(songData);
     list.appendChild(song)
   })
-
+  updateIndices();
   // ---------------------------------------------------------------------------------------------------------------------
 
 </script>
