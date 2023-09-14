@@ -154,6 +154,13 @@ Id's of all songs with "tune" in the lyrics:
 - Build a hash of {song_id: sing_count} to add to next sync. Controller can add those counts to songs (will that ddos the server with too many db calls?). Timestamps and things can be left to statcounter, but at least we can have a running total (or should we bump in a new column every year or something? probs not)
 - We don't want to update a song with a count, that would cause too much data to update every time the client syncs. We'll need some kind of analytics table, probably with a jsonb hash of song_id => count, and some fancy syncing that goes "after 30s tell the server I sang this song, otherwise store it in a list to send the next time I sing a song"
 
+New notes:
+- Create hash of analytics data on client, send every now and then according to connectivity
+- On the server side, store 1 record per song to get fine-grained info
+- This is 10k records per day
+- After 7 days, those records can be reduced to e.g. an array of month totals on the song record, then the individual records deleted
+- This will keep the db to ~70-100k records for analytics, never going beyond that, while keeping a huge amount of accurate data
+
 ### Columns/Split screen
 
 - Turn hamburger icon into a dialog open button

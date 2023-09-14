@@ -54,11 +54,12 @@ class DatabaseSetupAndSync {
     this.log('Dexie schema defined');
   }
 
-  syncSettings(settingsFromDb) {
+  async syncSettings(settingsFromDb) {
     if(!!settingsFromDb) {
       this.log("Settings via IndexedDB detected:");
       this.log(settingsFromDb);
-      this.app.setState({ settings: settingsFromDb });
+      let promisedSetState = (newState) => new Promise((resolve) => this.app.setState(newState, resolve));
+      await promisedSetState({ settings: settingsFromDb });
     } else {
       this.log("No settings found. Creating defaults...");
       this.db.settings.add(this.app.state.settings);
@@ -70,13 +71,14 @@ class DatabaseSetupAndSync {
   // So we need to check if references exist in indexedDB,
   // if it does we need a full reset.
   migrateFromV1toV2() {
+    let settings = this.app.state.settings;
     // MIGRATION_DATE is set a day after we actually deploy, so the overlap
     // covers all timezones. This means for 1 day songbase will load slowly
     // because it redownloads every session.
     const MIGRATION_DATE = new Date('August 22, 2023 03:45:00').getTime();
-    this.log('Last updated at: ' + this.app.state.settings.updated_at);
+    this.log('Last updated at: ' + settings.updated_at);
     this.log('MIGRATION_DATE: ' + MIGRATION_DATE);
-    if(this.app.state.settings.updated_at > 0 && this.app.state.settings.updated_at < MIGRATION_DATE){
+    if(settings.updated_at > 0 && settings.updated_at < MIGRATION_DATE){
       this.log("Resetting DB for v2 API migration.")
       this.resetDbData();
       this.migrating = true;
@@ -248,8 +250,6 @@ class DatabaseSetupAndSync {
 
       thisSyncTool.log("Syncing " + response.data.songs.length + " " + language + " songs with indexedDB...");
       // run this all in a transaction, to stop mid-sync cut outs from wrecking everything.
-      // if I'm fetching by language, things could still break if there's a song or book referring to multiple languages
-      // I guess we'll see...
       db.transaction(
         "rw",
         db.songs,
