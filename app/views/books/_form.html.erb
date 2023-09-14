@@ -4,6 +4,7 @@
 </div>
 
 <script>
+
 // ----------------------------------------------------------------------
 // @author regan.ryan.nz@gmail.com
 //
@@ -23,16 +24,22 @@
 //   color: transparent;
 //   border: none;
 // }
+
+  let findNearestDraggable = (el) => {
+    while(!el.classList.contains('draggable')) {
+      el = el.parentElement
+      if (el == document.body) { return null }
+      if (el == null) { return null }
+    }
+    return el
+  }
+
   let onDrag = (e) => {
     let draggedElement = e.target
     let dropTarget = document.elementFromPoint(e.clientX, e.clientY) || draggedElement;
 
     // This allows us to drag onto 'draggable' containers with children that don't have the class
-    while(!dropTarget.classList.contains('draggable')) {
-      dropTarget = dropTarget.parentElement
-      if (dropTarget == document.body) { return }
-      if (dropTarget == null) { return }
-    }
+    dropTarget = findNearestDraggable(dropTarget);
 
     let droppingOnSibling = draggedElement.parentNode === dropTarget.parentNode;
 
@@ -51,15 +58,29 @@
     e.target.classList.remove("dragging");
     e.preventDefault();
   }
-// ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
 
 
   let updateIndices = () => {
     Array.from(list.children).forEach((songElement, i) => {
-      let indexElement = songElement.getElementsByClassName('custom-book-index')[0];
+      let indexElement = songElement.querySelector('.custom-book-index');
       indexElement.textContent = i + 1;
     })
+  }
+
+  let getRowText = (row) => {
+    return row.querySelector('.custom-book-song-title').textContent
+  }
+
+  let removeSong = (e) => {
+    let targetRow = findNearestDraggable(e.target);
+
+    var confirmation = confirm(`Remove "${getRowText(targetRow)}" from the book?`);
+    if (!confirmation) { return null }
+
+    list.removeChild(targetRow);
+    updateIndices();
   }
 
   let createSongElement = (songData) => {
@@ -79,14 +100,20 @@
     let index = document.createElement('div');
     index.classList.add('custom-book-index');
 
+    let deleteBtn = document.createElement('div');
+    deleteBtn.textContent = 'Remove';
+    deleteBtn.classList.add('custom-book-remove-song-btn');
+    deleteBtn.addEventListener('mouseup', removeSong);
+
     song.appendChild(index);
     song.appendChild(text);
+    song.appendChild(deleteBtn);
     return(song);
   }
 
   // [DONE] Show the index number, updating live with the dragging
   // Indices should be static, and only titles move.
-  // Click remove to remove from list
+  // [DONE] Click remove to remove from list
   // Search for songs to add to list
   // Click song to add to end of list
   // Other form components like emails of those who can edit, title, etc
