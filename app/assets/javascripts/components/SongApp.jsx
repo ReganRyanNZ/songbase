@@ -27,19 +27,6 @@ class SongApp extends React.Component {
       showChords: localStorage.getItem('showChords') == 'false' ? false : true, // Local storage to load faster than indexedDB, and synchronously
     };
 
-    // bind all methods to this context (so we can use them)
-    this.getSong = this.getSong.bind(this);
-    this.getSongIdFromBook = this.getSongIdFromBook.bind(this);
-    this.getBookReferencesForSong = this.getBookReferencesForSong.bind(this);
-    this.setSearch = this.setSearch.bind(this);
-    this.clearSearch = this.clearSearch.bind(this);
-    this.toggleOrderIndexBy = this.toggleOrderIndexBy.bind(this);
-    this.setTheme = this.setTheme.bind(this);
-    this.scrollToSong = this.scrollToSong.bind(this);
-    this.infiniteScrolling = this.infiniteScrolling.bind(this);
-    this.log = this.log.bind(this);
-    this.toggleMusic = this.toggleMusic.bind(this);
-
     this.navigate = new AppNavigation(this);
     this.navigate.setupInitialHistoryState();
 
@@ -82,10 +69,6 @@ class SongApp extends React.Component {
   }
 
   getSong(id) {
-    // TODO FIX THIS PRELOAD STUFF
-    // shortcut for preloaded song (load url with a song id) so user doesn't
-    // wait for whole db to load.
-
     if (this.props.preloaded_song) {
       if (this.props.preloaded_current_book) {
         // If we are inside a book, the song's id will point to the song's index in that book
@@ -169,15 +152,15 @@ class SongApp extends React.Component {
             books={this.state.books}
             currentBook={this.state.currentBook}
             loadingData={this.state.loadingData}
-            setSearch={this.setSearch}
-            clearSearch={this.clearSearch}
+            setSearch={this.setSearch.bind(this)}
+            clearSearch={this.clearSearch.bind(this)}
             search={this.state.search}
             getSongIdFromBook={this.getSongIdFromBook}
             orderIndexBy={this.state.orderIndexBy}
-            toggleOrderIndexBy={this.toggleOrderIndexBy}
+            toggleOrderIndexBy={this.toggleOrderIndexBy.bind(this)}
             scrollTo={this.state.scrollTo}
             rowLimit={this.state.rowLimit}
-            infiniteScrolling={this.infiniteScrolling}
+            infiniteScrolling={this.infiniteScrolling.bind(this)}
             key="song-index"
           />
         );
@@ -188,7 +171,7 @@ class SongApp extends React.Component {
             setSettings={this.dbSync.setSettings}
             settings={this.state.settings}
             toggleSettingsPage={this.navigate.toggleSettingsPage}
-            setTheme={this.setTheme}
+            setTheme={this.setTheme.bind(this)}
             cachedSongCount={this.state.totalSongsCached}
             resetCache={this.dbSync.resetDbData}
           />
@@ -220,11 +203,11 @@ class SongApp extends React.Component {
               lyrics={song.lyrics}
               analyticsPath={songWasPreloaded ? null : window.location.href}
               showChords={this.state.showChords}
-              toggleMusic={this.toggleMusic}/>
+              toggleMusic={this.toggleMusic.bind(this)}/>
             <SongReferences
               goToBookIndex={this.navigate.goToBookIndex}
-              toggleOrderIndexBy={this.toggleOrderIndexBy}
-              scrollToSong={this.scrollToSong}
+              toggleOrderIndexBy={this.toggleOrderIndexBy.bind(this)}
+              scrollToSong={this.scrollToSong.bind(this)}
               bookRefs={(this.state.loadingData && this.props.preloaded_book_refs) || this.getBookReferencesForSong(song)}
               loadingData={this.state.loadingData}
             />
