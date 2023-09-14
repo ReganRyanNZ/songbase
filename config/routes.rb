@@ -36,6 +36,7 @@ Rails.application.routes.draw do
       get 'app_data', to: 'songs#app_data'
       get 'languages', to: 'songs#languages'
       get 'admin_songs', to: 'songs#admin_songs'
+      get 'custom_book_search', to: 'songs#custom_book_search'
     end
   end
 end

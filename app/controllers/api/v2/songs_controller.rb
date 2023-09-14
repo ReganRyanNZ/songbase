@@ -26,6 +26,10 @@ class Api::V2::SongsController < ApplicationController
                           unchanged: songs_for_admin - recently_changed_songs - duplicate_songs}}, status: 200
   end
 
+  def custom_book_search
+    render json: {songs: songs_for_admin}, status: 200
+  end
+
   private
 
   def duplicate_songs

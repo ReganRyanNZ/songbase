@@ -1,8 +1,4 @@
 
-<div id='song-list' class='title-list'>
-
-</div>
-
 <script>
 
 // ----------------------------------------------------------------------
@@ -61,9 +57,10 @@
   // ----------------------------------------------------------------------
 
 
+  let songList = () => document.getElementById('song-list');
 
   let updateIndices = () => {
-    Array.from(list.children).forEach((songElement, i) => {
+    Array.from(songList().children).forEach((songElement, i) => {
       let indexElement = songElement.querySelector('.custom-book-index');
       indexElement.textContent = i + 1;
     })
@@ -79,7 +76,7 @@
     var confirmation = confirm(`Remove "${getRowText(targetRow)}" from the book?`);
     if (!confirmation) { return null }
 
-    list.removeChild(targetRow);
+    songList().removeChild(targetRow);
     updateIndices();
   }
 
@@ -111,41 +108,31 @@
     return(song);
   }
 
+  let addSong = (songData) => {
+    let row = createSongElement(songData); // WARNING reaching into function defined outside this scope
+    songList().appendChild(row);
+    updateIndices();
+  }
+
   // [DONE] Show the index number, updating live with the dragging
   // Indices should be static, and only titles move.
   // [DONE] Click remove to remove from list
-  // Search for songs to add to list
-  // Click song to add to end of list
+  // [DONE] Search for songs to add to list
+  // [DONE] Click song to add to end of list
+  // Preview icon opens song in new tab, so users can confirm it's the right one
   // Other form components like emails of those who can edit, title, etc
 
-  // ---------------------------------------------------------------------------------------------------------------------
-  // DUMMY DATA
-
-  let list = document.getElementById('song-list');
-  let songs = [
-    ['1234', 'According to my earnest'],
-    ['1423', 'Never did I dream before'],
-    ['3251', 'I am a tree with roots by the river'],
-    ['412', 'Something every heart is loving'],
-    ['3251421', 'New day, new start, oh I love the Lord'],
-  ];
-  songs.forEach((songData) => {
-    let song = createSongElement(songData);
-    list.appendChild(song)
-  });
-  songs.forEach((songData) => {
-    let song = createSongElement(songData);
-    list.appendChild(song)
-  });
-  songs.forEach((songData) => {
-    let song = createSongElement(songData);
-    list.appendChild(song)
-  });
-  songs.forEach((songData) => {
-    let song = createSongElement(songData);
-    list.appendChild(song)
-  })
-  updateIndices();
-  // ---------------------------------------------------------------------------------------------------------------------
-
 </script>
+
+
+
+
+
+
+
+
+<%= react_component('CustomBookSongSearch') %>
+
+<div id='song-list' class='title-list'>
+
+</div>

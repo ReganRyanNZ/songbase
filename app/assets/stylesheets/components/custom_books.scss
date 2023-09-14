@@ -7,9 +7,13 @@
 
 .custom-book-row {
   display: flex;
-  height: 26px;
-}
+  height: 28px;
+  line-height: 28px;
 
+  &:nth-child(even) {
+    background-color: #F2F2F2;
+  }
+}
 
 .custom-book-index {
   display: inline-block;
@@ -18,5 +22,30 @@
 
 .custom-book-remove-song-btn {
   margin-left: auto;
+  padding-right: 8px;
+  cursor: pointer;
+}
+
+.custom_book_search_list input {
+  margin: 15px auto;
+  display: block;
+  line-height: 26px;
+  padding: 0 8px;
+  border-radius: 4px;
+  border: 1px solid lightgray;
+}
+
+.custom_book_search_results {
+  max-height: 200px;
+  overflow-y: scroll;
+}
+
+.custom_book_search_list {
+  border: 1px solid lightgray;
+  border-radius: 4px;
+  margin-bottom: 60px;
+}
+
+.custom-book-song-title {
   cursor: pointer;
 }
