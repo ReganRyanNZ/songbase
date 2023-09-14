@@ -108,8 +108,11 @@
     return(song);
   }
 
+  // This function is to be accessed from within the CustomBookSongSearch
+  // component. It would be great to pass it into the props, but idk if that's
+  // possible.
   let addSong = (songData) => {
-    let row = createSongElement(songData); // WARNING reaching into function defined outside this scope
+    let row = createSongElement(songData);
     songList().appendChild(row);
     updateIndices();
   }

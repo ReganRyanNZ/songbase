@@ -5,11 +5,6 @@ class CustomBookSongSearch extends React.Component {
     this.state = {
       songs: []
     };
-
-    this.handleChange = this.handleChange.bind(this);
-    this.updateSongList = this.updateSongList.bind(this);
-    this.keyNavigate = this.keyNavigate.bind(this);
-    this.addToList = this.addToList.bind(this);
   }
 
   componentDidMount() {
