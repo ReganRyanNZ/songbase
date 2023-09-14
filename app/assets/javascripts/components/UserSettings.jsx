@@ -1,44 +1,34 @@
 class UserSettings extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      settings: this.props.settings
-    };
-
-    this.toggleLanguage = this.toggleLanguage.bind(this);
-    this.addLanguage = this.addLanguage.bind(this);
-    this.removeLanguage = this.removeLanguage.bind(this);
-    this.updateTheme = this.updateTheme.bind(this);
   }
 
   render() {
-    var sortedLangs = this.props.settings.languagesInfo.sort((a,b) => a[0].toUpperCase() >= b[0].toUpperCase() ? 1 : -1);
-    langCheckboxes = sortedLangs.map(lang => {
-      var langName = lang[0],
-        langCount = lang[1];
-      return (
-        <label key={lang[0]}>
-          <input
-            name={langName}
-            type="checkbox"
-            onChange={this.toggleLanguage}
-            defaultChecked={this.state.settings.languages.includes(langName)}
-            value={langName}
-          />
-          <div className="lang-label">
-            {langName[0].toUpperCase() + langName.slice(1) + ` (${langCount})`}
-          </div>
-        </label>
-      );
-    });
-    currentLanguagesForTesting = [
-      <h2>Current Languages</h2>,
-      <p>{this.state.settings.languages.toString()}</p>
-    ];
+    let titleCase = (str) => str[0].toUpperCase() + str.slice(1)
+    let createLangCheckbox = (lang) => {let langName = lang[0]
+                                        let langCount = lang[1]
+                                        return (<label key={lang[0]}>
+                                                  <input
+                                                    name={langName}
+                                                    type="checkbox"
+                                                    onChange={this.toggleLanguage.bind(this)}
+                                                    defaultChecked={this.props.settings.languages.includes(langName)}
+                                                    value={langName}
+                                                  />
+                                                  <div className="lang-label">
+                                                    {titleCase(langName) + ` (${langCount})`}
+                                                  </div>
+                                                </label>)}
+    let sortedLangs = this.props.settings.languagesInfo.sort((a,b) => titleCase(a[0]) >= titleCase(b[0]) ? 1 : -1)
+    let langCheckboxes = sortedLangs.map(createLangCheckbox);
 
-    var themeRadioBtns = (
-      <div className='radio-btns' onChange={this.updateTheme}>
+    // currentLanguagesForTesting = [
+    //   <h2>Current Languages</h2>,
+    //   <p>{this.props.settings.languages.toString()}</p>
+    // ];
+
+    let themeRadioBtns = (
+      <div className='radio-btns' onChange={this.updateTheme.bind(this)}>
         <div>
           <input type='radio' id='css-normal' name='theme' value='css-normal'/>
           <label htmlFor='css-normal' className='demo-css-normal app-settings-btn'>Normal</label>
@@ -50,7 +40,7 @@ class UserSettings extends React.Component {
       </div>
     );
 
-    var resetCacheBtn = (
+    let resetCacheBtn = (
       <div className="reset-cache-container">
         If songs are not loading properly, you can reset the cache and download them again:
         <button type='button' className="app-settings-btn" id='reset-cache' onClick={this.props.resetCache}>Reset cache</button>
@@ -81,33 +71,19 @@ class UserSettings extends React.Component {
   }
 
   toggleLanguage(e) {
-    var lang = e.target.value;
-    if (this.state.settings.languages.includes(lang)) {
-      this.removeLanguage(lang);
-    } else {
-      this.addLanguage(lang);
-    }
-  }
+    let settings = this.props.settings;
+    let lang = e.target.value;
 
-  addLanguage(lang) {
-    settings = this.state.settings;
-    if (!settings.languages.includes(lang)) {
+    if (settings.languages.includes(lang)) {
+      settings.languages = settings.languages.filter(l => l !== lang);
+    } else {
       settings.languages.push(lang);
     }
     this.props.setSettings(settings);
   }
 
-  removeLanguage(lang) {
-    settings = this.state.settings;
-    index = settings.languages.indexOf(lang);
-    if (index > -1) {
-      settings.languages.splice(index, 1);
-    }
-    this.props.setSettings(settings);
-  }
-
   updateTheme(e) {
-    var settings = this.state.settings;
+    let settings = this.props.settings;
     settings.cssTheme = e.target.value;
     this.props.setSettings(settings);
   }
