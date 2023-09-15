@@ -87,7 +87,7 @@ class CustomBookSongSearch extends React.Component {
       <div className="custom_book_search_list">
         <input
           id="search_input"
-          onChange={this.handleChange}
+          onChange={this.handleChange.bind(this)}
           placeholder="Search"
         />
         <div className="custom_book_search_results">
