@@ -2,26 +2,11 @@ class SongIndex extends React.Component {
   constructor(props) {
     super(props);
 
-    this.getSearchResults = this.getSearchResults.bind(this);
-    this.songIndexRow = this.songIndexRow.bind(this);
-    this.songs = this.songs.bind(this);
-    this.strip = this.strip.bind(this);
-    this.rowDataForNumericalSearch = this.rowDataForNumericalSearch.bind(this);
-    this.sortRowData = this.sortRowData.bind(this);
-    this.keyNavigate = this.keyNavigate.bind(this);
-
     window.addEventListener('scroll', this.props.infiniteScrolling);
   }
 
   componentWillUnmount() {
     window.removeEventListener('scroll', this.props.infiniteScrolling);
-  }
-
-  // If the search is a number, we can look for book indices instead of
-  // title/lyric matches
-  searchIsNumber() {
-    let isNumberRegex = new RegExp("^[0-9]+$", "i");
-    return isNumberRegex.test(this.props.search);
   }
 
   strip(string) {
@@ -30,8 +15,6 @@ class SongIndex extends React.Component {
                  .toUpperCase()
                  .replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "");
   }
-
-
 
   songs() {
     let results = this.props.songs;
@@ -66,13 +49,16 @@ class SongIndex extends React.Component {
     });
   }
 
+  // Returns an array of {song: song, tag: tag} objects
   getSearchResults() {
     if (this.props.songs.length === 0) { return [] }
 
     let strippedSearch = this.strip(this.props.search);
     let rowData = [];
 
-    if (this.searchIsNumber()) {
+    let searchIsNumber = /^[0-9]+$/i.test(this.props.search);
+    if (searchIsNumber) {
+      // If search is a number, we can look for book index instead of title/lyrics
       rowData = this.rowDataForNumericalSearch(strippedSearch);
     } else {
       let containsSearchRegex = new RegExp(strippedSearch, "i");
@@ -102,23 +88,25 @@ class SongIndex extends React.Component {
     } else {
       return rows.sort((a, b) => {
         let titles = [this.strip(a.song.title), this.strip(b.song.title)];
-        let titlesImportance = titles.map(title => {
-          if (titleStartRegex.test(title)) {
-            return 2; // Matching the start of the title
-          } else if (titleMatchRegex.test(title)) {
-            return 1; // Matching the title
-          } else {
-            return 0; // Matching the lyrics
-          }
-        });
+        let titleSortValue = (title) => {
+                                          if (titleStartRegex.test(title)) {
+                                            return 2; // Matching the start of the title
+                                          } else if (titleMatchRegex.test(title)) {
+                                            return 1; // Matching the title
+                                          } else {
+                                            return 0; // Matching the lyrics
+                                          }
+                                        }
+        let titlesImportance = titles.map(titleSortValue);
+        if (titlesImportance[0] != titlesImportance[1]) {
+          return titlesImportance[1] - titlesImportance[0];
+        }
 
         // sort alphabetically if they are in the same importance category
         if (titlesImportance[0] == titlesImportance[1]) {
           if (titles[0] < titles[1]) return -1;
           if (titles[0] > titles[1]) return 1;
           return 0;
-        } else {
-          return titlesImportance[1] - titlesImportance[0];
         }
       });
     }

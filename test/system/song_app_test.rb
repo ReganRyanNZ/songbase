@@ -130,20 +130,20 @@ class SongAppTest < ApplicationSystemTestCase
 
     # Keyboard navigation:
     find('#index_search').click
-    page.driver.browser.action.send_keys([:down,:return]).perform
+    page.driver.browser.action.send_keys([:down,:down,:return]).perform
 
     # A book's song has a reference to that book in the song's display:
-    assert_content 'Here at the table with the saints'
-    assert_content 'Test Book: #2'
+    assert_content 'but with all boldness'
+    assert_content 'Test Book: #3'
 
     # A book's song has the book + index as the title:
     within('h1.home-title') do
       assert_content 'Test Book'
-      assert_selector('div.title-number', text: '2')
+      assert_selector('div.title-number', text: '3')
     end
 
     # Reference is a link that brings up book index sorted by index:
-    find('div.song-reference', text: 'Test Book: #2').click
+    find('div.song-reference', text: 'Test Book: #3').click
     assert_book_titles(sort_by: :index)
 
     # Clicking book icon will exit out of current book:
