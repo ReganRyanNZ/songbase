@@ -5,10 +5,6 @@ class AdminSongList extends React.Component {
     this.state = {
       songs: []
     };
-
-    this.handleChange = this.handleChange.bind(this);
-    this.linkClassName = this.linkClassName.bind(this);
-    this.updateSongList = this.updateSongList.bind(this);
   }
 
   componentDidMount() {
@@ -28,16 +24,6 @@ class AdminSongList extends React.Component {
     // Update browser history to keep search value if the user navigates back out of a song
     window.history.replaceState({ search: search }, "");
     this.updateSongList(search);
-  }
-
-  linkClassName(reviewType) {
-    if (reviewType == "duplicates") {
-      return "requires-review-duplicate";
-    }
-    if (reviewType == "changed") {
-      return "requires-review-changed";
-    }
-    return "";
   }
 
   updateSongList(search) {
@@ -90,7 +76,7 @@ class AdminSongList extends React.Component {
       <div className="admin_list">
         <input
           id="admin_search"
-          onChange={this.handleChange}
+          onChange={this.handleChange.bind(this)}
           placeholder="Search"
         />
         <table className="admin_table">
