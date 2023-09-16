@@ -65,15 +65,12 @@ class SongDisplay extends React.Component {
       logSongDisplay: true
     };
 
-    this.transpose = this.transpose.bind(this);
-    this.controls = this.controls.bind(this);
-    this.changeKey = this.changeKey.bind(this);
+    // `bind` creates a new function with an immutable "this" reference. We
+    // need to bind it here so we can reuse the one function instead of
+    // creating many via event listener calls.
     this.goUpOneKey = this.goUpOneKey.bind(this);
     this.goDownOneKey = this.goDownOneKey.bind(this);
     this.toggleTransposePreset = this.toggleTransposePreset.bind(this);
-    this.addListeners = this.addListeners.bind(this);
-    this.chordsExist = this.chordsExist.bind(this);
-    this.log = this.log.bind(this);
 
     this.setAnalyticsTimer();
   }
@@ -175,12 +172,13 @@ class SongDisplay extends React.Component {
     });
   }
 
-  transpose(chord) {
+  transposeChord(chord) {
     if (this.state.transpose == 0) {
       return chord;
     }
 
-    let newKey = keys[mod((keys.indexOf(this.state.originalKey) + this.state.transpose), 12)]; // move down the list of keys, by transpose number
+    let getNewKey = (ogKey, transposeValue) => keys[mod((keys.indexOf(ogKey) + transposeValue), 12)];
+    let newKey = getNewKey(this.state.originalKey, this.state.transpose);
 
     return chord.replace(regex.chordCore, (_match, chordCore, trailingChars) => {
       let transposedCore;
@@ -189,6 +187,7 @@ class SongDisplay extends React.Component {
         return transposedCore + trailingChars
       } else {
         // Fancy transposing failed, let's build this chord
+        newKey = getNewKey(this.getKeyFromChords(this.props.lyrics), this.state.transpose);
         let movement = mod(this.state.transpose, 12);
         let chordCoreIndex = Math.max(guessingScaleFlats.indexOf(chordCore), guessingScaleSharps.indexOf(chordCore));
         let newChordCoreIndex = mod(chordCoreIndex + movement, 12);
@@ -274,7 +273,7 @@ class SongDisplay extends React.Component {
         lines[i] = formatTextLine(lines[i]);
 
         if (regex.hasChords.test(lines[i]) && this.props.showChords) {
-          lines[i] = formatChords(lines[i], this.transpose);
+          lines[i] = formatChords(lines[i], this.transposeChord.bind(this));
         }
       }
     }
