@@ -28,10 +28,11 @@ class SongForm extends React.Component {
   render() {
     let language_options = [];
     let langs = this.props.languages;
+    let titleCase = (str) => str[0].toUpperCase() + str.slice(1);
     for (let i = 0; i < langs.length; i++) {
       language_options.push(
         <option value={langs[i]} key={langs[i]}>
-          {langs[i][0].toUpperCase() + langs[i].slice(1)}
+          {titleCase(langs[i])}
         </option>
       );
     }
@@ -41,7 +42,7 @@ class SongForm extends React.Component {
       </option>
     );
 
-    let new_lang;
+    let new_lang = null;
     if (this.state.lang == "new_lang") {
       new_lang = (
         <input
@@ -52,8 +53,6 @@ class SongForm extends React.Component {
           name="song[new_lang]"
         />
       );
-    } else {
-      new_lang = null;
     }
 
     let songTitleBeef = "\n\
@@ -108,9 +107,7 @@ class SongForm extends React.Component {
         </div>
         <div className="preview">
           <SongDisplay lyrics={this.state.lyrics} showChords={true} editMode={true}/>
-          <SongReferences
-            bookRefs={this.props.bookRefs}
-          />
+          <SongReferences bookRefs={this.props.bookRefs}/>
         </div>
 
         {this.props.exampleForm ? '' : titleComponent}
