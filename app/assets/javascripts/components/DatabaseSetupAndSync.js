@@ -4,8 +4,6 @@ class DatabaseSetupAndSync {
     this.db = new Dexie("songbaseDB");
     this.migrating = false;
 
-    this.initialize = this.initialize.bind(this);
-    this.defineSchema = this.defineSchema.bind(this);
     this.syncSettings = this.syncSettings.bind(this);
     this.pushIndexedDBToState = this.pushIndexedDBToState.bind(this);
     this.fetchDataFromAPI = this.fetchDataFromAPI.bind(this);
