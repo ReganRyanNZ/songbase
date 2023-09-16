@@ -1,6 +1,9 @@
 class AppNavigation {
   constructor(app) {
     this.app = app;
+
+    // All these bindings are important as navigation methods are used in other
+    // components, and we want to always know for sure where "this" points to.
     this.setupInitialHistoryState = this.setupInitialHistoryState.bind(this);
     this.toPreviousPageInHistory = this.toPreviousPageInHistory.bind(this);
     this.returnToIndex = this.returnToIndex.bind(this);
