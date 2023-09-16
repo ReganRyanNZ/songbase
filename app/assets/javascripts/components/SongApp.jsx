@@ -22,8 +22,7 @@ class SongApp extends React.Component {
       orderIndexBy: 'alpha',
       scrollTo: null,
       rowLimit: 100,
-      logSyncData: false,
-      logSongApp: false,
+      logSongApp: true,
       showChords: localStorage.getItem('showChords') == 'false' ? false : true, // Local storage to load faster than indexedDB, and synchronously
     };
 
@@ -49,8 +48,8 @@ class SongApp extends React.Component {
     }
   }
 
-  log(string) {
-    if(this.state.logSongApp) { console.log(string) }
+  log(output) {
+    if(this.state.logSongApp) { typeof output === 'string' ? console.log(output) : console.table(output) }
   }
 
   toggleMusic() {
@@ -178,7 +177,7 @@ class SongApp extends React.Component {
         );
         break;
       case "books":
-        this.log('[Navigation] Books page:');
+        this.log('Navigation - Books page:');
         this.log(this.state.books);
         content = (
           <IndexOfBooks

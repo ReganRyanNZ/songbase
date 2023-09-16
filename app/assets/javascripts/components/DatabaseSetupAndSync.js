@@ -2,35 +2,57 @@ class DatabaseSetupAndSync {
   constructor(app) {
     this.app = app;
     this.db = new Dexie("songbaseDB");
-    this.migrating = false;
 
-    this.syncSettings = this.syncSettings.bind(this);
+    this.loadSettingsToState = this.loadSettingsToState.bind(this);
     this.pushIndexedDBToState = this.pushIndexedDBToState.bind(this);
     this.fetchDataFromAPI = this.fetchDataFromAPI.bind(this);
     this.resetDbData = this.resetDbData.bind(this);
     this.fetchDataByLanguage = this.fetchDataByLanguage.bind(this);
     this.setSettings = this.setSettings.bind(this);
     this.log = this.log.bind(this);
+    this.time = this.time.bind(this);
     this.axiosError = this.axiosError.bind(this);
     this.migrateFromV1toV2 = this.migrateFromV1toV2.bind(this);
+
+    this.timers = [];
+    this.logSyncData = true;
   }
 
   log(string) {
-    if(this.app.state.logSyncData) { console.log(string) }
+    if(this.logSyncData) { console.log(string) }
   }
 
-  initialize() {
+  // add to start and end of something to time it
+  time(name) {
+    if(!this.logSyncData) { return }
+
+    if (this.timers.includes(name)) {
+      console.timeEnd(name)
+      this.timers.pop(name)
+    } else {
+      console.time(name)
+      this.timers.push(name)
+    }
+  }
+
+  async initialize() {
     this.log('Initializing db sync...')
     this.defineSchema();
-    let thisSyncTool = this;
-    let skipPromise = () => {};
 
-    this.db.settings.get({ settingsType: "global" }) // Fetch settings from indexedDB
-                    .then(thisSyncTool.syncSettings) // Push settings to React state
-                    .then(thisSyncTool.migrateFromV1toV2)
-                    .then(thisSyncTool.migrating ? skipPromise : thisSyncTool.pushIndexedDBToState)
-                    .then(thisSyncTool.migrating ? skipPromise : thisSyncTool.fetchDataFromAPI)
-                    .catch((e) => { thisSyncTool.log("Failed to fetch new data.", e); });
+    try {
+      let cachedSettings = await this.db.settings.get({ settingsType: "global" }) // Fetch settings from indexedDB
+      await this.loadSettingsToState(cachedSettings) // Push settings to React state
+
+      // Nuke IndexedDB if client hasn't synced since v2 came out:
+      let migratingDB = this.migrateFromV1toV2()
+
+      if (!migratingDB) {
+        this.pushIndexedDBToState() // push current cached data immediately
+        this.fetchDataFromAPI() // sync with api
+      }
+    } catch (e) {
+      this.log({Error: "Failed to fetch new data.", e})
+    }
   }
 
   defineSchema() {
@@ -52,15 +74,15 @@ class DatabaseSetupAndSync {
     this.log('Dexie schema defined');
   }
 
-  async syncSettings(settingsFromDb) {
-    if(!!settingsFromDb) {
+  async loadSettingsToState(cachedSettings) {
+    if(cachedSettings) {
       this.log("Settings via IndexedDB detected:");
-      this.log(settingsFromDb);
+      this.log(cachedSettings);
       let promisedSetState = (newState) => new Promise((resolve) => this.app.setState(newState, resolve));
-      await promisedSetState({ settings: settingsFromDb });
+      await promisedSetState({ settings: cachedSettings });
     } else {
       this.log("No settings found. Creating defaults...");
-      this.db.settings.add(this.app.state.settings);
+      this.db.settings.add(this.app.state.settings); // If there are no cached settings, then we'll use the state's default settings
     }
   }
 
@@ -79,9 +101,10 @@ class DatabaseSetupAndSync {
     if(settings.updated_at > 0 && settings.updated_at < MIGRATION_DATE){
       this.log("Resetting DB for v2 API migration.")
       this.resetDbData();
-      this.migrating = true;
+      return true;
     } else {
       this.log('No need to migrate this db');
+      return false;
     }
   }
 
