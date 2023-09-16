@@ -15,7 +15,7 @@ class DatabaseSetupAndSync {
     this.migrateFromV1toV2 = this.migrateFromV1toV2.bind(this);
 
     this.timers = [];
-    this.logSyncData = true;
+    this.logSyncData = false;
   }
 
   log(string) {

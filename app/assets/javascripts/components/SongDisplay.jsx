@@ -62,7 +62,7 @@ class SongDisplay extends React.Component {
     this.state = {
       transpose: props.transpose || 0,
       originalKey: this.getKeyFromChords(props.lyrics),
-      logSongDisplay: true
+      logSongDisplay: false
     };
 
     // `bind` creates a new function with an immutable "this" reference. We
