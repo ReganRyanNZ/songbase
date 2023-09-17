@@ -96,15 +96,16 @@ class SongDisplay extends React.Component {
   setAnalyticsTimer() {
     let longEnoughToCountAsSung = 20 * 1000;
     if (this.props.analyticsPath) {
-      this.log('"' + this.props.title + '" rendered with analytics prop');
-      setTimeout((currentPath, title) => {
+      this.log(`"${this.props.title}" rendered with analytics prop`);
+      let triggerPageView = (currentPath, title) => {
         if (window.location.href == currentPath) {
-          this.log('"' + title + '" still present after timer, logging to StatCounter');
+          this.log(`"${title}" still present after timer, logging to StatCounter`);
           _statcounter.record_pageview();
         } else {
-          this.log('"' + title + '" exited before timer, ignoring song for StatCounter analytics');
+          this.log(`"${title}" exited before timer, ignoring song for StatCounter analytics`);
         }
-      }, longEnoughToCountAsSung, this.props.analyticsPath, this.props.title);
+      }
+      setTimeout(triggerPageView, longEnoughToCountAsSung, this.props.analyticsPath, this.props.title);
     }
   }
 
