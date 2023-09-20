@@ -20,12 +20,16 @@ end
 
 namespace :scraper do
   task portuguese: :environment do |args|
-    ids_to_search = [76,330,437,764,765,766,767,768,769,770,771,772,773,774,775,776,777,778,779,780,781,782,783,1222,1258,1340,1373,1466,1492].map(&:to_s)
+    UPDATE_ONLY = true # True when fixing existing songs, instead of creating new ones
     WHITESPACE_AT_START_OF_LINE = /^[[:space:]]+/
     WHITESPACE_AT_END_OF_LINE = /[[:space:]]+$/
     page = Capybara.current_session
     browser = page.driver.browser
 
+    # for testing 1 song first, call the scraper like: rails scraper:portuguese TEST_ID=7
+    test_song = [ENV['TEST_ID']].compact.presence
+
+    ids_to_search = test_song || (1..1500).map(&:to_s)
     console_data = []
     songs = {}
 
@@ -36,6 +40,7 @@ namespace :scraper do
 
       doc = Nokogiri::HTML(browser.page_source)
       raw_stanzas = doc.css('#hymntextdata p,#hymntextdata > h5 > div')
+      raw_stanzas = raw_stanzas.children if raw_stanzas.count == 1
 
       stanzas = raw_stanzas.map do |stanza|
         if is_book_ref?(stanza)
@@ -56,26 +61,42 @@ namespace :scraper do
       lyrics = fix_quotes(lyrics)
       title = doc.at_css('span.colr h4').text
       title = get_title_from_first_line(lyrics) unless title.present?
+      title = strip_title(title)
 
       console_data << [title, lyrics, nil, index]
-      song = Song.find_or_create_by(title: title, lyrics: lyrics, lang: 'português')
-      songs[song.id.to_s] = index
-
-      puts "Created: [#{index}] #{title}"
+      if UPDATE_ONLY
+        song = Song.from_book(hymnal, index)
+        if song.has_chords?
+          puts "Already with chords: [#{index}] #{title}"
+        else
+          song.update(lyrics: lyrics, title: title)
+          puts "Updated: [#{index}] #{title}"
+        end
+      else
+        song = Song.find_or_create_by(title: title, lyrics: lyrics, lang: 'português')
+        songs[song.id.to_s] = index
+        puts "Created: [#{index}] #{title}"
+      end
     end
 
-    puts console_data
-    hymnal = Book.find_or_create_by(name: 'Hinos', slug: 'hinos', languages: ['português'])
+    # puts console_data
     hymnal.songs = songs
-    hymnal.save
+    hymnal.save unless UPDATE_ONLY
+  end
+
+  def hymnal
+    @hymnal ||= Book.find_or_create_by(name: 'Hinos', slug: 'hinos', languages: ['português'])
   end
 
   def get_title_from_first_line(text)
-    text.gsub(/^S-\d+/, '') # without book reference
-        .at(/[[:alpha:]].*/) # without leading digit or whitespace
+    text.at(/[[:alpha:]].*/) # without leading digit or whitespace
         .at(/.*[^\,\.\;\—\–\-\_\!]/) # without trailing punct
   rescue
     text
+  end
+
+  def strip_title(title)
+    title.gsub(/^S-\d+/, '').strip
   end
 
   def fix_quotes(text)
@@ -86,7 +107,7 @@ namespace :scraper do
   end
 
   def move_stanza_numbers_to_newline(text)
-    text.gsub(/(^|\n)(\d+)[[:space:]]{2}/) {|match| [$1, $2, "\n"].join}
+    text.gsub(/(^|\n)(\d+)[[:space:]]+/) {|match| [$1, $2, "\n"].join}
   end
 
   def remove_excess_newlines(text)

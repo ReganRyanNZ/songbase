@@ -192,3 +192,9 @@ New notes:
 
 - General disclaimer/statement
 - Copyright button that pops up with more information?
+
+### Book navigation via sideswiping
+
+- Would be cool to swipe horizontally to move between songs in a book
+- Can use scroll snapping to center on the next song
+- Might have issues with native phone behaviour of going backwards when swiping left..

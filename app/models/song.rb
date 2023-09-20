@@ -44,6 +44,10 @@ class Song < ApplicationRecord
     where(id: ids_from_hymnal_indexes << number)
   end
 
+  def self.from_book(book, index)
+    find(book.song_id_from_index(index.to_s))
+  end
+
   # Many-to-many relationship, but stored in JSON in the db, so the query is a
   # bit different.
   # The ? in this means "any top-level key in the json data is equal to"
@@ -67,8 +71,7 @@ class Song < ApplicationRecord
 
     # choose the lyrics that has chords
     lyrics = self.lyrics
-    has_chords = /\[/
-    if old_song.lyrics =~ has_chords && !(lyrics =~ has_chords)
+    if old_song.has_chords? && !self.has_chords?
       lyrics = old_song.lyrics
     end
 
@@ -78,6 +81,10 @@ class Song < ApplicationRecord
     self.update(lyrics: lyrics) if self.lyrics != lyrics
 
     old_song.destroy_with_audit(User.system_user)
+  end
+
+  def has_chords?
+    lyrics.include?('[')
   end
 
   def app_entry
