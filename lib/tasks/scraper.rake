@@ -1,3 +1,8 @@
+# NOTE
+# For this to work on production, the server needs to have chrome installed.
+# For Heroku, you need to add the following buildpack:
+# https://github.com/heroku/heroku-buildpack-google-chrome.git
+
 require 'selenium-webdriver'
 require 'nokogiri'
 require 'capybara'
