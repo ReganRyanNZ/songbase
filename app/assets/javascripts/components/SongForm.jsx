@@ -4,7 +4,6 @@ class SongForm extends React.Component {
 
     this.state = {
       lyrics: this.props.song.lyrics || "",
-      title: this.props.song.title || "",
       lang: this.props.song.lang || "english",
       book_refs: this.props.book_refs
     };
@@ -16,16 +15,57 @@ class SongForm extends React.Component {
       case "song_lyrics":
         this.setState({ lyrics: event.target.value });
         break;
-      case "song_title":
-        this.setState({ title: event.target.value });
-        break;
       case "song_lang":
         this.setState({ lang: event.target.value });
         break;
     }
   }
 
-  render() {
+  // Making a hotkey to insert '[]' for easier chord writing
+  chordHotkey(event) {
+    if (event.key === '\\'){
+      let selectStart = event.target.selectionStart;
+      let selectEnd = event.target.selectionEnd;
+      let lyrics = event.target.value;
+
+      // replace input with '[]'
+      let newLyrics = lyrics.slice(0, selectStart) + '[]' + lyrics.slice(selectEnd)
+      event.target.value = newLyrics;
+
+      // position cursor
+      event.target.selectionStart = event.target.selectionEnd = selectStart + 1;
+
+      event.preventDefault();
+    }
+  }
+
+  titleComponent() {
+    let songTitleBeef = "\n\
+    Dear saints, for the sake of uniformity and usability, please consider the following:\n\
+    - If you have a custom title (e.g. \"Hebrews Medley\"), you can put it after the first line: \"Christ our High Priest (Hebrews Medley)\"\n\
+    - Likewise for a verse reference (e.g. \"Matthew 16:18-19\"), better to put it after the first line: \"And I also say to you that you are Peter (Matthew 16:18-19)\"\n\
+    - Do not duplicate an existing title\n\
+    - Do not put a conference or event in the title (e.g. \"As the Spirit God came - SSOT14—Two Spirits\"). It is better to put this in a comment within the song.\n\
+    - Do not use all-caps (e.g. FOR THE BREAD AND FOR THE WINE), it's much better to write the title as a sentence: \"For the bread and for the wine\"\n\
+    "
+
+    return (<div className="titles">
+              <h2>Index title</h2>
+              <p className="admin-comment">
+                {songTitleBeef}
+              </p>
+              <input
+                id="song_title"
+                placeholder="Title (usually the first line)"
+                className="song-form-title"
+                type="text"
+                defaultValue={this.props.song.title}
+                name="song[title]"
+              />
+            </div>);
+  }
+
+  languageComponent() {
     let language_options = [];
     let langs = this.props.languages;
     let titleCase = (str) => str[0].toUpperCase() + str.slice(1);
@@ -44,55 +84,30 @@ class SongForm extends React.Component {
 
     let new_lang = null;
     if (this.state.lang == "new_lang") {
-      new_lang = (
-        <input
-          id="song_new_lang"
-          placeholder="new language"
-          className="song-form-title"
-          type="text"
-          name="song[new_lang]"
-        />
-      );
+      new_lang = (<input
+                    id="song_new_lang"
+                    placeholder="new language"
+                    className="song-form-title"
+                    type="text"
+                    name="song[new_lang]"
+                  />);
     }
 
-    let songTitleBeef = "\n\
-    Dear saints, for the sake of uniformity and usability, please consider the following:\n\
-    - If you have a custom title (e.g. \"Hebrews Medley\"), you can put it after the first line: \"Christ our High Priest (Hebrews Medley)\"\n\
-    - Likewise for a verse reference (e.g. \"Matthew 16:18-19\"), better to put it after the first line: \"And I also say to you that you are Peter (Matthew 16:18-19)\"\n\
-    - Do not duplicate an existing title\n\
-    - Do not put a conference or event in the title (e.g. \"As the Spirit God came - SSOT14—Two Spirits\"). It is better to put this in a comment within the song.\n\
-    - Do not use all-caps (e.g. FOR THE BREAD AND FOR THE WINE), it's much better to write the title as a sentence: \"For the bread and for the wine\"\n\
-    "
+    return (<div className="languages">
+              <h2>Language</h2>
+              <select
+                id="song_lang"
+                name="song[lang]"
+                onChange={this.handleChange}
+                value={this.state.lang}
+              >
+                {language_options}
+              </select>
+              <div className="new_lang">{new_lang}</div>
+            </div>);
+  }
 
-    let titleComponent = (<div className="titles">
-                            <h2>Index title</h2>
-                            <p className="admin-comment">
-                              {songTitleBeef}
-                            </p>
-                            <input
-                              id="song_title"
-                              placeholder="Title (usually the first line)"
-                              className="song-form-title"
-                              type="text"
-                              value={this.state.title}
-                              name="song[title]"
-                              onChange={this.handleChange}
-                            />
-                          </div>);
-
-    let languageComponent = (<div className="languages">
-                               <h2>Language</h2>
-                               <select
-                                 id="song_lang"
-                                 name="song[lang]"
-                                 onChange={this.handleChange}
-                                 value={this.state.lang}
-                               >
-                                 {language_options}
-                                </select>
-                                <div className="new_lang">{new_lang}</div>
-                              </div>);
-
+  render() {
     return (
       <div className="song-form">
         <div className="form">
@@ -100,6 +115,7 @@ class SongForm extends React.Component {
             id="song_lyrics"
             value={this.state.lyrics}
             onChange={this.handleChange}
+            onKeyPress={this.chordHotkey}
             name="song[lyrics]"
             className="song-form-textbox"
             placeholder="Enter song lyrics here..."
@@ -110,8 +126,8 @@ class SongForm extends React.Component {
           <SongReferences bookRefs={this.props.bookRefs}/>
         </div>
 
-        {this.props.exampleForm ? '' : titleComponent}
-        {this.props.exampleForm ? '' : languageComponent}
+        {this.props.exampleForm ? '' : this.titleComponent()}
+        {this.props.exampleForm ? '' : this.languageComponent()}
       </div>
     );
   }

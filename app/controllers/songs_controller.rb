@@ -126,6 +126,8 @@ of a line. You can use_ underscores to link words
 like_ this.
 
 This example opened in a new tab. The song you were working on is still there in the previous tab.
+
+# Bonus, you can type '\\' to bring up the square brackets for adding chords quickly
 "
   end
 end
