@@ -23,7 +23,7 @@ class SongForm extends React.Component {
 
   // Making a hotkey to insert '[]' for easier chord writing
   chordHotkey(event) {
-    if (event.key === '\\'){
+    if (event.key === '\\' || event.key === '$'){
       let selectStart = event.target.selectionStart;
       let selectEnd = event.target.selectionEnd;
       let lyrics = event.target.value;
