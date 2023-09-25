@@ -127,7 +127,6 @@ like_ this.
 
 This example opened in a new tab. The song you were working on is still there in the previous tab.
 
-# Bonus, you can type '\\' to bring up the square brackets for adding chords quickly
-"
+# Bonus, you can type '\\' (easy for physical keyboards) or '$' (easy for phone keyboards) to insert square brackets for adding chords quickly."
   end
 end
