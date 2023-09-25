@@ -115,7 +115,7 @@ class SongForm extends React.Component {
             id="song_lyrics"
             value={this.state.lyrics}
             onChange={this.handleChange}
-            onKeyPress={this.chordHotkey}
+            onKeyDown={this.chordHotkey}
             name="song[lyrics]"
             className="song-form-textbox"
             placeholder="Enter song lyrics here..."
