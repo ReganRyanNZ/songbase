@@ -21,22 +21,35 @@ class SongForm extends React.Component {
     }
   }
 
-  // Making a hotkey to insert '[]' for easier chord writing
+  // Making a hotkey to insert '[]'
+  // And auto-replacing lowercase chord letters with uppercase
   chordHotkey(event) {
-    let hotkeys = ["\\","$"]
-    let key = event.target.value.charAt(event.target.selectionStart - 1)
+    let lyrics = event.target.value;
+    let selectStart = event.target.selectionStart - 1;
+    let selectEnd = event.target.selectionEnd;
+    let key = lyrics.charAt(selectStart)
 
-    if (hotkeys.includes(key)){
-      let selectStart = event.target.selectionStart - 1;
-      let selectEnd = event.target.selectionEnd;
-      let lyrics = event.target.value;
+    let bracketHotkeys = ["\\","$"]
+    let chordKeys = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+    let keyIsInChordRegex = new RegExp(`\\[[^\\]]*$`) // opening bracket with no closing bracket
 
+    if (bracketHotkeys.includes(key)){
       // replace input with '[]'
       let newLyrics = lyrics.slice(0, selectStart) + '[]' + lyrics.slice(selectEnd)
       event.target.value = newLyrics;
 
       // position cursor
       event.target.selectionStart = event.target.selectionEnd = selectStart + 1;
+      this.handleChange(event);
+    } else
+    if (chordKeys.includes(key) && lyrics.slice(0, selectStart).match(keyIsInChordRegex)) {
+      // replace chord with capitalized version
+      let newLyrics = lyrics.slice(0, selectStart) + key.toUpperCase() + lyrics.slice(selectEnd)
+      event.target.value = newLyrics;
+
+      // position cursor
+      event.target.selectionStart = event.target.selectionEnd = selectStart + 1;
+      this.handleChange(event);
     }
   }
 
@@ -116,7 +129,7 @@ class SongForm extends React.Component {
             id="song_lyrics"
             value={this.state.lyrics}
             onChange={this.handleChange}
-            onKeyUp={this.chordHotkey}
+            onKeyUp={this.chordHotkey.bind(this)}
             name="song[lyrics]"
             className="song-form-textbox"
             placeholder="Enter song lyrics here..."

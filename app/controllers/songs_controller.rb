@@ -127,6 +127,8 @@ like_ this.
 
 This example opened in a new tab. The song you were working on is still there in the previous tab.
 
-# Bonus, you can type '\\' (easy for physical keyboards) or '$' (easy for phone keyboards) to insert square brackets for adding chords quickly."
+Advanced:
+- You can type '\\' (easy for physical keyboards) or '$' (easy for phone keyboards) to insert square brackets for adding chords quickly.
+- You can type lowercase chords inside square brackets and they will be automatically capitalized."
   end
 end
