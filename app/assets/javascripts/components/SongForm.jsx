@@ -30,7 +30,7 @@ class SongForm extends React.Component {
     let key = lyrics.charAt(selectStart)
 
     let bracketHotkeys = ["\\","$"]
-    let chordKeys = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
+    let chordChars = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
     let keyIsInChordRegex = new RegExp(`\\[[^\\]]*$`) // opening bracket with no closing bracket
 
     if (bracketHotkeys.includes(key)){
@@ -42,7 +42,13 @@ class SongForm extends React.Component {
       event.target.selectionStart = event.target.selectionEnd = selectStart + 1;
       this.handleChange(event);
     } else
-    if (chordKeys.includes(key) && lyrics.slice(0, selectStart).match(keyIsInChordRegex)) {
+
+    if (chordChars.includes(key) && lyrics.slice(0, selectStart).match(keyIsInChordRegex)) {
+      // Do not change a 'b' after a chord char
+      if (key === 'b' && chordChars.includes(lyrics.charAt(selectStart - 1).toLowerCase())) {
+        return
+      }
+
       // replace chord with capitalized version
       let newLyrics = lyrics.slice(0, selectStart) + key.toUpperCase() + lyrics.slice(selectEnd)
       event.target.value = newLyrics;

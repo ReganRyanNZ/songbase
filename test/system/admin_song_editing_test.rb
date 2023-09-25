@@ -44,6 +44,15 @@ class AdminSongEditingTest < ApplicationSystemTestCase
       assert_content "adding a new line woo"
     end
 
+    # Lyrics input has hotkeys to help with chords:
+    find('#song_lyrics').send_keys "\\"
+    within('#song_lyrics') { assert_content 'woo[]' }
+    find('#song_lyrics').send_keys "b"
+    within('#song_lyrics') { assert_content 'woo[B]' }
+    find('#song_lyrics').send_keys "b"
+    within('#song_lyrics') { assert_content 'woo[Bb]' }
+
+
     refute_selector('#show-music-controls') # Toggle music button doesnt show for admin
 
     new_title = 'From the time I spoke Your Name, Lord my life...'
