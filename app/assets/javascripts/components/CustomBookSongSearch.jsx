@@ -85,11 +85,17 @@ class CustomBookSongSearch extends React.Component {
 
     let testTextArea = () => {
       let handlekeys = (event) => {
+        let keyCode = event.keyCode || event.which;
+        if (keyCode == 0 || keyCode == 229) {
+            keyCode = event.target.value.charAt(event.target.selectionStart - 1).charCodeAt();
+        }
+
         let lyrics = event.target.value;
         console.log(event);
         log = [`Type: ${event.type}`]
         log.push(`Key: ${event.key}`)
-        log.push(`KeyCode: ${event.keyCode}`)
+        log.push(`Event KeyCode: ${event.keyCode}`)
+        log.push(`KeyCode: ${keyCode}`)
         log.push(`Code: ${event.code}`)
         log.push(`Which: ${event.which}`)
         // lyrics = lyrics + event

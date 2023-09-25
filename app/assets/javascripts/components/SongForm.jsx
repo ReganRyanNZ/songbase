@@ -23,6 +23,15 @@ class SongForm extends React.Component {
 
   // Making a hotkey to insert '[]' for easier chord writing
   chordHotkey(event) {
+    // Android is a big hot mess where keyCodes are often all set to 229 and keys as undefined...
+    let keyCode = event.keyCode || event.which;
+     if (keyCode == 0 || keyCode == 229) {
+         keyCode = event.target.value.charAt(event.target.selectionStart - 1).charCodeAt();
+     }
+
+
+    //  let keyCodes = [,]
+
     if (event.key === '\\' || event.key === '$'){
       let selectStart = event.target.selectionStart;
       let selectEnd = event.target.selectionEnd;
@@ -115,7 +124,7 @@ class SongForm extends React.Component {
             id="song_lyrics"
             value={this.state.lyrics}
             onChange={this.handleChange}
-            onKeyDown={this.chordHotkey}
+            onKeyUp={this.chordHotkey}
             name="song[lyrics]"
             className="song-form-textbox"
             placeholder="Enter song lyrics here..."
