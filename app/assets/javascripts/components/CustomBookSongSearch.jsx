@@ -83,6 +83,25 @@ class CustomBookSongSearch extends React.Component {
 
     let list = this.state.songs.map(createSearchRow);
 
+    let testTextArea = () => {
+      let handlekeys = (event) => {
+        let lyrics = event.target.value;
+        console.log(event);
+        log = [`Type: ${event.type}`]
+        log.push(`Key: ${event.key}`)
+        log.push(`KeyCode: ${event.keyCode}`)
+        log.push(`Code: ${event.code}`)
+        log.push(`Which: ${event.which}`)
+        // lyrics = lyrics + event
+        event.target.value = log.join("\n");
+      }
+      return(<textarea
+            onKeyDown={handlekeys}
+            onKeyUp={handlekeys}
+            className="song-form-textbox"
+          />)
+    }
+
     return (
       <div className="custom_book_search_list">
         <input
@@ -90,6 +109,7 @@ class CustomBookSongSearch extends React.Component {
           onChange={this.handleChange.bind(this)}
           placeholder="Search"
         />
+        {testTextArea()}
         <div className="custom_book_search_results">
           {list}
         </div>
