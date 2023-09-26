@@ -5,6 +5,7 @@ class Song < ApplicationRecord
   before_save :remove_windows_carriage_returns
   before_save :sanitize_lang
   before_save :sanitize_title
+  before_save :sanitize_lyrics
 
   after_destroy :remove_references_from_books
 
@@ -191,10 +192,14 @@ class Song < ApplicationRecord
   end
 
   def sanitize_lang
-    self.lang = self.lang.to_s.downcase
+    self.lang = self.lang.to_s.strip.downcase
   end
 
   def sanitize_title
-    self.title = self.title.strip
+    self.title = self.title.strip.unicode_normalize(:nfd)
+  end
+
+  def sanitize_lyrics
+    self.lyrics = self.lyrics.strip.unicode_normalize(:nfd)
   end
 end

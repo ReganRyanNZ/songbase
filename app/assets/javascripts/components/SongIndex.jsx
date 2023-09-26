@@ -9,11 +9,16 @@ class SongIndex extends React.Component {
     window.removeEventListener('scroll', this.props.infiniteScrolling);
   }
 
-  strip(string) {
-    return string.replace(/[\_\-—–]/g, " ")
-                 .normalize("NFD")
-                 .toUpperCase()
-                 .replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "");
+  strip(string, normalize=true) {
+    let result = string.replace(/[\_\-—–]/g, " ")
+                       .toUpperCase()
+                       .replaceAll("\n", " ")
+                       .replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "");
+
+    // Normalize is optional for performance reasons. We don't want to
+    // normalize song data because it should already exist normalized. We _do_
+    // want to normalize e.g. user search input, to match our data.
+    return normalize ? result.normalize("NFD") : result
   }
 
   songs() {
@@ -21,7 +26,8 @@ class SongIndex extends React.Component {
 
     // scope songs to the current selected book
     if (this.props.currentBook) {
-      results = results.filter(song => this.props.currentBook.songs[song.id]);
+      let bookIndex = this.props.currentBook.songs;
+      results = results.filter(song => bookIndex[song.id]);
     }
     return results;
   }
@@ -61,29 +67,28 @@ class SongIndex extends React.Component {
       // If search is a number, we can look for book index instead of title/lyrics
       rowData = this.rowDataForNumericalSearch(strippedSearch);
     } else {
-      let containsSearchRegex = new RegExp(strippedSearch, "i");
+      let containsSearchRegex = new RegExp(strippedSearch);
       let toRowData = (song) => { return { song: song, tag: "" } };
       let songContainsSearch = (song) => {
-        let title = this.strip(song.title);
-        let lyrics = this.strip(song.lyrics);
+        let title = this.strip(song.title, false);
+        let lyrics = this.strip(song.lyrics, false);
         return containsSearchRegex.test(title) || containsSearchRegex.test(lyrics);
       };
-      let searchResults = this.songs().filter(songContainsSearch).map(toRowData);
-      rowData = searchResults;
+      let searchResults = this.songs().filter(songContainsSearch);
+      rowData = searchResults.map(toRowData);
     }
 
     return this.sortRowData(rowData, strippedSearch).slice(0, this.props.rowLimit);
   }
 
   sortRowData(rows, search) {
-    let titleStartRegex = new RegExp("^" + search, "i");
-    let titleMatchRegex = new RegExp(search, "i");
+    let titleStartRegex = new RegExp("^" + search, 'i');
+    let titleMatchRegex = new RegExp(search, 'i');
 
     if (this.props.currentBook && this.props.orderIndexBy == 'number') {
+      let bookIndex = this.props.currentBook.songs;
       return rows.sort((a, b) => {
-        let index_a = this.props.currentBook.songs[a.song.id];
-        let index_b = this.props.currentBook.songs[b.song.id];
-        return parseInt(index_a) > parseInt(index_b) ? 1 : -1;
+        return parseInt(bookIndex[a.song.id]) > parseInt(bookIndex[b.song.id]) ? 1 : -1;
       });
     } else {
       return rows.sort((a, b) => {
