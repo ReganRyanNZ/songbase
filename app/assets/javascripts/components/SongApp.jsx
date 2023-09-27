@@ -26,6 +26,8 @@ class SongApp extends React.Component {
       showChords: localStorage.getItem('showChords') == 'false' ? false : true, // Local storage to load faster than indexedDB, and synchronously
     };
 
+    this.toggleMusic = this.toggleMusic.bind(this); // Bind here to keep 'this' context and keep the function ref constant, so we don't apply the same listener a dozen times
+
     this.navigate = new AppNavigation(this);
     this.navigate.setupInitialHistoryState();
 
@@ -202,7 +204,7 @@ class SongApp extends React.Component {
               lyrics={song.lyrics}
               analyticsPath={songWasPreloaded ? null : window.location.href}
               showChords={this.state.showChords}
-              toggleMusic={this.toggleMusic.bind(this)}/>
+              toggleMusic={this.toggleMusic}/>
             <SongReferences
               goToBookIndex={this.navigate.goToBookIndex}
               toggleOrderIndexBy={this.toggleOrderIndexBy.bind(this)}

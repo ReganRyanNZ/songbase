@@ -41,14 +41,15 @@ const regex = {
   comment: /^\# ?(.*)/, // everything after a '#'
   chordWords: /([^\>\s]*\[[^\]]*?\][^\s<]*)/g, // a word with a chord in it
   chords: /\[(.*?)\]/g, // anything inside square brackets
-  chorus: /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
+  choruses: /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
+  stanzas: /(^|\n)(([^ #\n].*\n)+)/g,
   hasChords: /.*\[.*\].*/, // has square brackets
   boldText: /\*\*(.+?)\*\*/g,
   italicText: /\*(.+?)\*/g,
   html_safety: /.*[<>`].*/,
-  stanzaNumber: /(^|\n)([0-9]+)\n(.*)/gm, // numbers by themselves on a line are verse numbers
+  stanzaNumber: /^([0-9]+)$/, // numbers by themselves on a line are stanza numbers
   chordCore: /([A-G][b#]?)([^A-G]*)/g,
-  invisableUnicodeCharacters: /[\r\u2028\u2029]/g
+  emptyLine: /^(|<[^>]+>)$/
 };
 
 function mod(n, m) {
@@ -210,46 +211,36 @@ class SongDisplay extends React.Component {
       return lyrics.replace(/_/g, "<span class='musical-tie'>‿</span>"); // convert _ to musical tie for spanish songs
     }
 
-    let formatStanzaNumbers = (lyrics) => {
-      // A digit on its own line is considered a stanza number.
-      // If the following line contains a chord, then we give it a with-chords
-      // class to increase padding, so the number lines up with the lyrics
-      // rather than the chords.
-      let showChords = this.props.showChords;
-      replacer = (_match, startOfString, stanzaNum, nextLine) => {
-        lineHasChords = nextLine.match(/\[/) && showChords;
-        return `${startOfString}<div class='stanza-number ${lineHasChords ? "with-chords" : ""}' data-uncopyable-text='${stanzaNum}'></div>${nextLine}`
+    let formatStanzas = (lyrics) => lyrics.replace(regex.stanzas, `$1<div class='stanza'>\n$2</div>\n<br>`)
+    let formatChorus = (lyrics) => lyrics.replace(regex.choruses, `$1<div class='chorus'>\n$2</div>\n<br>`)
+    let removeMusicFromLyrics = (lyrics) => lyrics.replace(regex.chords, '').replace(regex.capoComment, '').replace(regex.tuneComment, '')
+    let formatStanzaNumber = (line, nextLineHasChords) => `<div class='stanza-number ${nextLineHasChords ? "with-chords" : ""}' data-uncopyable-text='${line}'></div>`
+    let formatCapoComment = (line) => line.replace(regex.capo, `<div class='transpose-preset comment' data-capo='$1'>Capo $1</div>`)
+    let formatComment = (line) => line.replace(regex.comment, "<div class='comment'>$1</div>")
+    let formatTextLine = (line) => `<div class='line'>${line}</div>`
+    let formatChorusLine = (line) => line.replace(/^  /, "\t")
+    let formatChordWord = (line) => line.replace(regex.chordWords, `<span class='chord-word'>$1</span>`) // words containing chords are in a chord-word span, so that if the line is too long, the text wrapping can move the whole word with chords
+    let formatChords = (line, transpose) => formatChordWord(line).replace(regex.chords, (match, chord) => `<span class='chord' data-uncopyable-text='${transpose(chord)}'></span>`)
+    let formatLyricLine = (line) => {
+        line = formatChorusLine(line);
+        line = formatTextLine(line);
+        if (regex.hasChords.test(line) && this.props.showChords) {
+          line = formatChords(line, this.transposeChord.bind(this));
+        }
+        return line;
+    }
+    let formatLine = (line, i, lines) => {
+      if (regex.capo.test(line)) {
+        return formatCapoComment(line)
+      } else if (regex.comment.test(line)) {
+        return formatComment(line)
+      } else if (regex.stanzaNumber.test(line)) {
+        return formatStanzaNumber(line, regex.hasChords.test(lines[i+1]))
+      } else if (regex.emptyLine.test(line)) {
+        return line;
+      } else {
+        return formatLyricLine(line)
       }
-      return lyrics.replace(regex.stanzaNumber, replacer);
-    }
-
-    let formatChorus = (lyrics) => {
-      return lyrics.replace(regex.chorus, `$1<div class='chorus'>$2</div>`);
-    }
-
-    let removeMusicFromLyrics = (lyrics) => {
-      return this.props.showChords ? lyrics : lyrics.replace(regex.chords, '').replace(regex.capoComment, '').replace(regex.tuneComment, '');
-    }
-    let formatCapoComment = (line) => {
-      return line.replace(regex.capo, `<div class='transpose-preset comment' data-capo='$1'>Capo $1</div>`);
-    }
-
-    let formatComment = (line) => {
-      return line.replace(regex.comment, "<div class='comment'>$1</div>");
-    }
-
-    let formatTextLine = (line) => {
-      // Chords have 0 width and double height, so they appear above the text.
-      // Both chords and text are in the same "line" block so they are aligned.
-      lineRegex = /(.*\>)?(  )?(.*)/;
-      return line.replace(lineRegex, `$1<div class='line'><span class='line-text'>$3</span></div>`);
-    }
-
-    let formatChords = (line, transpose) => {
-      // words containing chords are in a chord-word span, so that if the line is too long,
-      // the text wrapping can move the whole word with chords.
-      let separatedIntoWords = line.replace(regex.chordWords, `<span class='chord-word'>$1</span>`);
-      return separatedIntoWords.replace(regex.chords, (match, chord) => `<span class='chord' data-uncopyable-text='${transpose(chord)}'></span>`);
     }
 
     let lyrics = this.props.lyrics;
@@ -258,26 +249,12 @@ class SongDisplay extends React.Component {
       return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";
     }
 
-    lyrics = lyrics.replace(regex.invisableUnicodeCharacters, "");
-    lyrics = formatStanzaNumbers(lyrics);
+    lyrics = formatStanzas(lyrics);
     lyrics = formatChorus(lyrics);
-    lyrics = removeMusicFromLyrics(lyrics);
+    if (!this.props.showChords) { lyrics = removeMusicFromLyrics(lyrics) }
 
     let lines = lyrics.split("\n");
-
-    for (let i = 0; i < lines.length; i++) {
-      if (regex.capo.test(lines[i])) {
-        lines[i] = formatCapoComment(lines[i]);
-      } else if (regex.comment.test(lines[i])) {
-        lines[i] = formatComment(lines[i]);
-      } else {
-        lines[i] = formatTextLine(lines[i]);
-
-        if (regex.hasChords.test(lines[i]) && this.props.showChords) {
-          lines[i] = formatChords(lines[i], this.transposeChord.bind(this));
-        }
-      }
-    }
+    lines = lines.map(formatLine);
     lines.unshift(this.controls());
     lyrics = lines.join("\n");
     lyrics = formatTextBoldItalic(lyrics);

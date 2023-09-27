@@ -18,6 +18,7 @@ div[data-react-class='SongDisplay'] {
   margin-left: 20px;
   display: inline-block;
   text-align: left;
+  tab-size: 22px;
 
   .capo {
     user-select: none;
@@ -111,23 +112,9 @@ div[data-react-class='SongDisplay'] {
   }
   .line {
     min-height: 12px;
-  }
-
-  .line-text {
     vertical-align: bottom;
     white-space: pre-wrap;
   }
-
-  // space between verses
-  .line-text:empty {
-    margin-top: 8px;
-    display: block;
-  }
-
-  .chorus {
-    margin: 0 0 10px 25px;
-  }
-
   .stanza-number {
     position: absolute;
     margin-left: -25px;
