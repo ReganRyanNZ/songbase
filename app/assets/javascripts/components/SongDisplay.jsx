@@ -42,7 +42,7 @@ const regex = {
   chordWords: /([^\>\s]*\[[^\]]*?\][^\s<]*)/g, // a word with a chord in it
   chords: /\[(.*?)\]/g, // anything inside square brackets
   choruses: /(\n|^)((  .*(?:\n|$))+)/g, // block with two spaces at the front of each line is a chorus
-  stanzas: /(^|\n)(([^ #\n].*\n)+)/g,
+  stanzas: /(^|\n)(([^ #\n].*(\n|$))+)/g,
   hasChords: /.*\[.*\].*/, // has square brackets
   boldText: /\*\*(.+?)\*\*/g,
   italicText: /\*(.+?)\*/g,
