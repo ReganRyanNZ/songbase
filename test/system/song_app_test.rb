@@ -163,18 +163,20 @@ class SongAppTest < ApplicationSystemTestCase
 
   def expected_html
     <<~HTML.strip
-      <div class=\"transpose-preset comment\" data-capo=\"3\">Capo 3</div>
-      <div class=\"comment\">New Tune:</div>
-      <div class=\"line\"><span class=\"line-text\"><span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"G\"></span>According</span> to my <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"C\"></span>earnest</span></span></div>
-      <div class=\"line\"><span class=\"line-text\">expectation and <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"D\"></span>hope</span></span></div>
-      <div class=\"line\"><span class=\"line-text\">that in <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"G\"></span>nothing</span> I will <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"C\"></span>be</span></span></div>
-      <div class=\"line\"><span class=\"line-text\">put to <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"D\"></span>shame,</span></span></div>
-      <div class=\"line\"><span class=\"line-text\">but with all <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"G\"></span>boldness,</span> as <span class=\"chord-word\">al<span class=\"chord\" data-uncopyable-text=\"D\"></span>ways,</span></span></div>
-      <div class=\"line\"><span class=\"line-text\">even <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"C\"></span>now</span> Christ will be</span></div>
-      <div class=\"line\"><span class=\"line-text\">magnified in my <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"D\"></span>body,</span></span></div>
-      <div class=\"line\"><span class=\"line-text\">whether through <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"G\"></span>life</span></span></div>
-      <div class=\"line\"><span class=\"line-text\">or through <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"C\"></span>death.</span></span></div>
-      <div class=\"line\"><span class=\"line-text\">Philippians <span class=\"chord-word\"><span class=\"chord\" data-uncopyable-text=\"D\"></span>1:<span class=\"chord\" data-uncopyable-text=\"G\"></span>20</span></span></div>
+      <div class="transpose-preset comment" data-capo="3">Capo 3</div>
+      <div class="comment">New Tune:</div>
+      <div class="stanza">
+      <div class="line"><span class="chord-word"><span class="chord" data-uncopyable-text="G"></span>According</span> to my <span class="chord-word"><span class="chord" data-uncopyable-text="C"></span>earnest</span></div>
+      <div class="line">expectation and <span class="chord-word"><span class="chord" data-uncopyable-text="D"></span>hope</span></div>
+      <div class="line">that in <span class="chord-word"><span class="chord" data-uncopyable-text="G"></span>nothing</span> I will <span class="chord-word"><span class="chord" data-uncopyable-text="C"></span>be</span></div>
+      <div class="line">put to <span class="chord-word"><span class="chord" data-uncopyable-text="D"></span>shame,</span></div>
+      <div class="line">but with all <span class="chord-word"><span class="chord" data-uncopyable-text="G"></span>boldness,</span> as <span class="chord-word">al<span class="chord" data-uncopyable-text="D"></span>ways,</span></div>
+      <div class="line">even <span class="chord-word"><span class="chord" data-uncopyable-text="C"></span>now</span> Christ will be</div>
+      <div class="line">magnified in my <span class="chord-word"><span class="chord" data-uncopyable-text="D"></span>body,</span></div>
+      <div class="line">whether through <span class="chord-word"><span class="chord" data-uncopyable-text="G"></span>life</span></div>
+      <div class="line">or through <span class="chord-word"><span class="chord" data-uncopyable-text="C"></span>death.</span></div>
+      <div class="line">Philippians <span class="chord-word"><span class="chord" data-uncopyable-text="D"></span>1:<span class="chord" data-uncopyable-text="G"></span>20</span></div></div>
+      <br>
     HTML
   end
 end
