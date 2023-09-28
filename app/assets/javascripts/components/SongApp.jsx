@@ -10,7 +10,7 @@ class SongApp extends React.Component {
         languages: ["english"],
         languagesInfo: [],
         updated_at: 0,
-        cssTheme: 'css-normal'
+        cssTheme: localStorage.getItem('cssTheme') || 'css-normal'
       },
       totalSongsCached: 0,
       currentBook: props.preloaded_current_book || null,
@@ -127,6 +127,7 @@ class SongApp extends React.Component {
   setTheme() {
     document.body.removeAttribute('class');
     document.body.classList.add(this.state.settings.cssTheme);
+    localStorage.setItem('cssTheme', this.state.settings.cssTheme)
   }
 
   getBookReferencesForSong(song) {

@@ -52,13 +52,12 @@ div[data-react-class='SongDisplay'] {
     font-size: 9px;
   }
   .comment, .transpose-preset {
-    margin-bottom: 8px;
     color: darkgray;
     font-size: 90%;
   }
 
   .transpose-preset {
-    display: inline-block;
+    display: block;
     padding-right: 15px;
     cursor: pointer;
     -webkit-user-select: none;

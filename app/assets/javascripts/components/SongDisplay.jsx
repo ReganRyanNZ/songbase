@@ -36,8 +36,8 @@ const keySharpness = {A: 'sharp', Bb: 'flat', B: 'sharp', C: 'sharp', Db: 'flat'
 
 const regex = {
   capo: /.*capo (\d+).*/i,
-  capoComment: /.*capo (\d+).*\n/ig,
-  tuneComment: /\#.*tune.*\n/ig,
+  capoComment: /.*capo (\d+).*\n\n?/ig,
+  tuneComment: /\#.*tune.*\n\n?/ig,
   comment: /^\# ?(.*)/, // everything after a '#'
   chordWords: /([^\>\s]*\[[^\]]*?\][^\s<]*)/g, // a word with a chord in it
   chords: /\[(.*?)\]/g, // anything inside square brackets
@@ -49,7 +49,8 @@ const regex = {
   html_safety: /.*[<>`].*/,
   stanzaNumber: /^([0-9]+)$/, // numbers by themselves on a line are stanza numbers
   chordCore: /([A-G][b#]?)([^A-G]*)/g,
-  emptyLine: /^(|<[^>]+>)$/
+  emptyLine: /^$/,
+  tagLine: /^(<[^>]+>)$/ // entire line is just a tag, eg "</div>"
 };
 
 function mod(n, m) {
@@ -201,18 +202,12 @@ class SongDisplay extends React.Component {
   }
 
   getLyricsHTML() {
-    let formatTextBoldItalic = (text) => {
-      text = text.replace(regex.boldText, "<b>$1</b>");
-      text = text.replace(regex.italicText, "<i>$1</i>");
-      return text
+    if (regex.html_safety.test(this.props.lyrics)) {
+      return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";
     }
 
-    let formatMusicalTies = (lyrics) => {
-      return lyrics.replace(/_/g, "<span class='musical-tie'>‿</span>"); // convert _ to musical tie for spanish songs
-    }
-
-    let formatStanzas = (lyrics) => lyrics.replace(regex.stanzas, `$1<div class='stanza'>\n$2</div>\n<br>`)
-    let formatChorus = (lyrics) => lyrics.replace(regex.choruses, `$1<div class='chorus'>\n$2</div>\n<br>`)
+    let formatStanzas = (lyrics) => lyrics.replace(regex.stanzas, `$1<div class='stanza'>\n$2</div>\n`)
+    let formatChorus = (lyrics) => lyrics.replace(regex.choruses, `$1<div class='chorus'>\n$2</div>\n`)
     let removeMusicFromLyrics = (lyrics) => lyrics.replace(regex.chords, '').replace(regex.capoComment, '').replace(regex.tuneComment, '')
     let formatStanzaNumber = (line, nextLineHasChords) => `<div class='stanza-number ${nextLineHasChords ? "with-chords" : ""}' data-uncopyable-text='${line}'></div>`
     let formatCapoComment = (line) => line.replace(regex.capo, `<div class='transpose-preset comment' data-capo='$1'>Capo $1</div>`)
@@ -221,6 +216,8 @@ class SongDisplay extends React.Component {
     let formatChorusLine = (line) => line.replace(/^  /, "\t")
     let formatChordWord = (line) => line.replace(regex.chordWords, `<span class='chord-word'>$1</span>`) // words containing chords are in a chord-word span, so that if the line is too long, the text wrapping can move the whole word with chords
     let formatChords = (line, transpose) => formatChordWord(line).replace(regex.chords, (match, chord) => `<span class='chord' data-uncopyable-text='${transpose(chord)}'></span>`)
+    let formatTextBoldItalic = (text) => text.replace(regex.boldText, "<b>$1</b>").replace(regex.italicText, "<i>$1</i>")
+    let formatMusicalTies = (lyrics) => lyrics.replace(/_/g, "<span class='musical-tie'>‿</span>") // convert _ to musical tie for spanish songs
     let formatLyricLine = (line) => {
         line = formatChorusLine(line);
         line = formatTextLine(line);
@@ -236,30 +233,26 @@ class SongDisplay extends React.Component {
         return formatComment(line)
       } else if (regex.stanzaNumber.test(line)) {
         return formatStanzaNumber(line, regex.hasChords.test(lines[i+1]))
+      } else if (regex.tagLine.test(line)) {
+        return line
       } else if (regex.emptyLine.test(line)) {
-        return line;
+        return "<br>"
       } else {
         return formatLyricLine(line)
       }
     }
 
     let lyrics = this.props.lyrics;
-
-    if (regex.html_safety.test(lyrics)) {
-      return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";
-    }
-
     lyrics = formatStanzas(lyrics);
     lyrics = formatChorus(lyrics);
     if (!this.props.showChords) { lyrics = removeMusicFromLyrics(lyrics) }
-
-    let lines = lyrics.split("\n");
-    lines = lines.map(formatLine);
-    lines.unshift(this.controls());
-    lyrics = lines.join("\n");
-    lyrics = formatTextBoldItalic(lyrics);
-    lyrics = formatMusicalTies(lyrics);
-    return lyrics;
+    lyrics = lyrics.split("\n")
+                   .map(formatLine)
+                   .join("\n")
+    lyrics = formatTextBoldItalic(lyrics)
+    lyrics = formatMusicalTies(lyrics)
+    lyrics = this.controls() + lyrics
+    return lyrics
   }
 
   controls() {
@@ -272,7 +265,7 @@ class SongDisplay extends React.Component {
 
       return(`<div class='show-music-controls' id='show-music-controls'>
               ${HamburgerMenu}
-             </div>`)
+             </div>\n`)
     }
     let transposeControls = () => {
       if(!chordsExist || !showChords) { return '' }
@@ -282,7 +275,7 @@ class SongDisplay extends React.Component {
           <button id='transpose-down' class='transpose-symbol'>${MinusIcon}</button>
           <div class='transpose-value'>${transpose}</div>
           <button id='transpose-up' class='transpose-symbol'>${PlusIcon}</button>
-        </div>`;
+        </div>\n`;
     }
 
     return `
@@ -292,7 +285,7 @@ class SongDisplay extends React.Component {
         </div>
         ${toggleMusicControl()}
         ${transposeControls()}
-      </div>
+      </div>\n
     `
   }
 
