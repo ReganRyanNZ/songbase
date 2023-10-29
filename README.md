@@ -198,3 +198,9 @@ New notes:
 - Would be cool to swipe horizontally to move between songs in a book
 - Can use scroll snapping to center on the next song
 - Might have issues with native phone behaviour of going backwards when swiping left..
+
+### Debounce admin API call
+
+- Put a lil d'bounce while admin is typing in search, so we don't fire 7 calls while she/he be typin'
+
+### Auto sharp when typing 3? If immediately after the chord note
