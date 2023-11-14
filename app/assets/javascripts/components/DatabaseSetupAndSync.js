@@ -298,6 +298,8 @@ class DatabaseSetupAndSync {
     .then(function(data) {
       thisSyncTool.log("Syncing " + language + " completed.");
       thisSyncTool.pushIndexedDBToState();
+      thisSyncTool.app.state.languagesLoaded += 1
+      thisSyncTool.log(`Number of languages: ${thisSyncTool.app.state.languagesLoaded}`)
     });
   }
 

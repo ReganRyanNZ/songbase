@@ -18,6 +18,7 @@ class SongApp extends React.Component {
       references: [], // obsolete, but needed for sync migration
       books: [props.preloaded_current_book].filter(notNull => notNull),
       loadingData: false,
+      languagesLoaded: 0,
       search: "",
       orderIndexBy: 'alpha',
       scrollTo: null,
@@ -154,6 +155,7 @@ class SongApp extends React.Component {
             books={this.state.books}
             currentBook={this.state.currentBook}
             loadingData={this.state.loadingData}
+            languagesLoaded={this.state.languagesLoaded}
             setSearch={this.setSearch.bind(this)}
             clearSearch={this.clearSearch.bind(this)}
             search={this.state.search}
