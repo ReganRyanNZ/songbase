@@ -211,4 +211,14 @@ New notes:
 
 - Put a lil d'bounce while admin is typing in search, so we don't fire 7 calls while she/he be typin'
 
-### Auto sharp when typing 3? If immediately after the chord note
+### History on the front page
+
+- Record "visited" songs (not 30s, just opened), update it with the 30s timer to count as sung
+- Use this record to populate blank search (no book)
+
+### Random TODO list
+
+- Remove "Songbase" h1
+- Expand search bar to fill the width better
+- Inside a song add a back button top left
+- Inside a song, add a share button

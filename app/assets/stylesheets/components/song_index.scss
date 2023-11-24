@@ -50,14 +50,16 @@
   text-align: center;
   .index_search {
     padding: 4px 8px;
-    padding-right: 25px;
+    padding-right: 31px;
+    width: 240px;
+    height: 30px;
   }
   .btn_clear_search {
     position: absolute;
     right: 0;
     top: 0;
-    line-height: 100%;
-    padding: 6px 8px;
+    line-height: 30px;
+    padding: 5px 12px;
     color: #aaa;
     &:hover {
       cursor: pointer;
