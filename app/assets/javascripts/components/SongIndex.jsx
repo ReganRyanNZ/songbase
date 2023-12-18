@@ -203,10 +203,10 @@ class SongIndex extends React.Component {
               <SortIcon />
             </div>) : null}
 
-          {this.props.languagesLoaded < 12 ? (
-            <div className="loading"><Loading languagesLoaded={this.props.languagesLoaded} /></div>
-          ) : (
+          {this.props.languagesLoaded ? (
             this.getSearchResults().map(this.songIndexRow, this)
+          ) : (
+            <div className="loading"><Loading languagesLoaded={this.props.languagesLoaded} /></div>
           )}
         </div>
       </div>

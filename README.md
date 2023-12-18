@@ -204,3 +204,7 @@ New notes:
 - Put a lil d'bounce while admin is typing in search, so we don't fire 7 calls while she/he be typin'
 
 ### Auto sharp when typing 3? If immediately after the chord note
+
+### Media links
+
+- Pretty common to not know a song. A button that shows a list of links (with icons based on url) to youtube, soundcloud, etc would be pretty rad.

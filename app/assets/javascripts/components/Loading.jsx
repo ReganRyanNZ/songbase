@@ -1,5 +1,5 @@
-const Loading = ({ languagesLoaded }) => {
-  const percentage = Math.floor((100/12) * languagesLoaded);
+const Loading = ({ languagesLoaded, totalLanguages }) => {
+  const percentage = Math.floor((100/totalLanguages) * languagesLoaded);
   const loadingText = `Loading songs: ${percentage}% done`;
 
   return (
