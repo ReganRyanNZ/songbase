@@ -10,15 +10,17 @@ class SongIndex extends React.Component {
   }
 
   strip(string, normalize=true) {
-    let result = string.replace(/[\_\-—–]/g, " ")
-                       .toUpperCase()
-                       .replaceAll("\n", " ")
-                       .replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "");
-
     // Normalize is optional for performance reasons. We don't want to
     // normalize song data because it should already exist normalized. We _do_
     // want to normalize e.g. user search input, to match our data.
-    return normalize ? result.normalize("NFD") : result
+    let result = normalize ? string.normalize("NFD") : string
+
+    result = result.replace(/[\_\-—–]/g, " ")
+                   .toUpperCase()
+                   .replaceAll("\n", " ")
+                   .replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "");
+
+    return result
   }
 
   songs() {
