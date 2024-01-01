@@ -55,6 +55,13 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 # TODO
 
+### Short-term TODO
+- Investigate removing Dexie and using indexedDB directly (or writing a simple in-house interface for indexedDB)
+- Separate language API calls better, show syncing in UX while loading is still going
+- Import chinese (trad & simple?), check for UTF errors if characters require more than the default encoding
+- Pinyin, would be cool to have english transliteration above the characters, I don't think we can dynamically generate it, but maybe there's an api (and make pinyin online-only)?
+
+
 ### CRUD books
 
 Notes from 13 Sep 2023:
