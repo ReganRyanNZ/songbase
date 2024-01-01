@@ -9,10 +9,9 @@ You might need to install postgres, the easiest way is to download and run postg
 - `bundle install`
 - `rails db:create`
 - `rails db:migrate`
-- `heroku pg:backups:download` to get 'latest.dump' (you'll need heroku access)
-- `pg_restore --verbose --clean --no-acl --no-owner -h localhost -d songbase_development latest.dump` to load 'latest.dump' into dev db
+- `pg_restore --verbose --clean --no-acl --no-owner -h localhost -d songbase_development latest.dump` to load 'latest.dump' into dev db. If the dump is old or not working, send an email to songbase.brothers@gmail.com to request an updated DB dump
 
-If you don't have heroku access, send an email to songbase.brothers@gmail.com to request a DB dump (I think the app won't run without data in the db).
+_Note for superadmin: `heroku pg:backups:download` to get a fresh db dump (you'll need heroku access)_
 
 ## Backstory
 
