@@ -201,6 +201,6 @@ class Song < ApplicationRecord
 
   def sanitize_lyrics
     self.lyrics = lyrics.strip.unicode_normalize(:nfd)
-    self.lyrics = "  #{lyrics}" if lyrics.split("\n")[1].match?(/  \S/) # put stripped leading spaces back if lyrics start with a chorus
+    self.lyrics = "  #{lyrics}" if lyrics.split("\n")[1]&.match?(/  \S/) # put stripped leading spaces back if lyrics start with a chorus
   end
 end

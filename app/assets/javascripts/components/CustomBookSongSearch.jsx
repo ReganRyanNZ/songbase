@@ -29,14 +29,21 @@ class CustomBookSongSearch extends React.Component {
   updateSongList(search) {
     let app = this;
 
-    axios({
+    const csrfToken = document.querySelector("meta[name=csrf-token]").content;
+    const searchParams = new URLSearchParams({ search });
+
+    fetch("/api/v2/custom_book_search?" + searchParams.toString(), {
       method: "GET",
-      url: "/api/v2/custom_book_search",
-      params: { search: search },
-      headers: { "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content }
-    }).then(function(response) {
-        app.setState({songs: response.data.songs});
-      });
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        app.setState({ songs: data.songs });
+      })
+      .catch(error => console.error("Error:", error));
   }
 
   addToList(e) {

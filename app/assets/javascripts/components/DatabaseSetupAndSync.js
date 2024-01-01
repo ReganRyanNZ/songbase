@@ -11,7 +11,6 @@ class DatabaseSetupAndSync {
     this.setSettings = this.setSettings.bind(this);
     this.log = this.log.bind(this);
     this.time = this.time.bind(this);
-    this.axiosError = this.axiosError.bind(this);
     this.migrateFromV1toV2 = this.migrateFromV1toV2.bind(this);
 
     this.timers = [];
@@ -169,26 +168,6 @@ class DatabaseSetupAndSync {
     }
   }
 
-  axiosError(error) {
-    this.log('Error trying to connect to songbase API, perhaps we are offline?');
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      this.log(error.response.data);
-      this.log(error.response.status);
-      this.log(error.response.headers);
-    } else if (error.request) {
-      // The request was made but no response was received
-      // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-      // http.ClientRequest in node.js
-      this.log(error.request);
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      this.log('Error', error.message);
-    }
-    this.log(error.config);
-  }
-
   fetchDataFromAPI() {
     // fetch a list of languages
     // sort the list so languages selected in settings are synced first
@@ -209,15 +188,17 @@ class DatabaseSetupAndSync {
 
     this.log("Fetching data from api...");
 
-    axios({
+    const csrfToken = document.querySelector("meta[name=csrf-token]").content;
+
+    fetch("/api/v2/languages", {
       method: "GET",
-      url: "/api/v2/languages",
-      headers: {
-        "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content
-      }
-    }).then((response) => {
+      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
+    })
+    .then((response) => response.json())
+    .then((data) => {
+
       let selectedLanguages = app.state.settings.languages;
-      let hiddenLanguages = response.data.languages.filter(lang => !selectedLanguages.includes(lang));
+      let hiddenLanguages = data.languages.filter(lang => !selectedLanguages.includes(lang));
       let allLanguages = selectedLanguages.concat(hiddenLanguages);
 
       thisSyncTool.log('selectedLanguages: ' + selectedLanguages);
@@ -244,7 +225,7 @@ class DatabaseSetupAndSync {
           thisSyncTool.log('updated_at is now: ' + app.state.settings.updated_at);
         }
       )
-    }).catch(this.axiosError);
+    }).catch(error => console.error("Error:", error));
     thisSyncTool.log("Fetch completed.");
   }
 
@@ -254,22 +235,19 @@ class DatabaseSetupAndSync {
         thisSyncTool = this;
 
     thisSyncTool.log("Fetching " + language + " songs");
-    axios({
-      method: "GET",
-      url: "/api/v2/app_data",
-      params: {
-        updated_at: lastUpdatedAt,
-        language: language
-      },
-      headers: {
-        "X-CSRF-Token": document.querySelector("meta[name=csrf-token]").content
-      }
-    })
-    .then(function(response) {
-      thisSyncTool.log('Response from API: ');
-      thisSyncTool.log(response);
+    const csrfToken = document.querySelector("meta[name=csrf-token]").content;
+    const searchParams = new URLSearchParams({ updated_at: lastUpdatedAt, language });
 
-      thisSyncTool.log("Syncing " + response.data.songs.length + " " + language + " songs with indexedDB...");
+    fetch("/api/v2/app_data?" + searchParams.toString(), {
+      method: "GET",
+      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
+    })
+    .then(response => response.json())
+    .then((data) => {
+      thisSyncTool.log('Response from API: ');
+      thisSyncTool.log(data);
+
+      thisSyncTool.log("Syncing " + data.songs.length + " " + language + " songs with indexedDB...");
       // run this all in a transaction, to stop mid-sync cut outs from wrecking everything.
       db.transaction(
         "rw",
@@ -277,16 +255,16 @@ class DatabaseSetupAndSync {
         db.books,
         db.settings,
         () => {
-          db.songs.bulkPut(response.data.songs);
-          db.books.bulkPut(response.data.books);
-          db.songs.bulkDelete(response.data.destroyed.songs);
-          db.books.bulkDelete(response.data.destroyed.books);
+          db.songs.bulkPut(data.songs);
+          db.books.bulkPut(data.books);
+          db.songs.bulkDelete(data.destroyed.songs);
+          db.books.bulkDelete(data.destroyed.books);
 
           let settings = app.state.settings;
           settings['languagesInfo'] = settings['languagesInfo'].filter(info => info[0] != language); // remove previous value
 
-          if(response.data.songCount > 0) {
-            settings['languagesInfo'].push([language, response.data.songCount]); // add new value
+          if(data.songCount > 0) {
+            settings['languagesInfo'].push([language, data.songCount]); // add new value
           }
           app.setState({
             settings: settings
@@ -298,7 +276,7 @@ class DatabaseSetupAndSync {
     .then(function(data) {
       thisSyncTool.log("Syncing " + language + " completed.");
       thisSyncTool.pushIndexedDBToState();
-    });
+    }).catch(error => console.error("Error:", error));
   }
 
   // reset updated timestamp, wipe db, reinitialize then call fetch
