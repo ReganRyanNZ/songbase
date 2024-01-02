@@ -10,6 +10,7 @@ You might need to install postgres, the easiest way is to download and run postg
 - `rails db:create`
 - `rails db:migrate`
 - `pg_restore --verbose --clean --no-acl --no-owner -h localhost -d songbase_development latest.dump` to load 'latest.dump' into dev db. If the dump is old or not working, send an email to songbase.brothers@gmail.com to request an updated DB dump
+- `rails test` to run the test suite, `rails test:all` to include system tests
 
 _Note for superadmin: `heroku pg:backups:download` to get a fresh db dump (you'll need heroku access)_
 
@@ -56,8 +57,9 @@ This was first a Rails app, now it uses React to allow state management and offl
 # TODO
 
 ### Short-term TODO
-- Investigate removing Dexie and using indexedDB directly (or writing a simple in-house interface for indexedDB)
-- Separate language API calls better, show syncing in UX while loading is still going
+- [done]Investigate removing Dexie and using indexedDB directly (or writing a simple in-house interface for indexedDB) - UPDATE Dexie is very useful, we'll keep it for now
+- [done]Separate language API calls better, prioritise English for first loads
+- Show syncing in UX while loading is still going
 - Import chinese (trad & simple?), check for UTF errors if characters require more than the default encoding
 - Pinyin, would be cool to have english transliteration above the characters, I don't think we can dynamically generate it, but maybe there's an api (and make pinyin online-only)?
 

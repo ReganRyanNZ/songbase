@@ -50,7 +50,7 @@ class DatabaseSetupAndSync {
         this.fetchDataFromAPI() // sync with api
       }
     } catch (e) {
-      this.log({Error: "Failed to fetch new data.", e})
+      console.error("Failed to fetch new data.", e)
     }
   }
 
@@ -77,6 +77,8 @@ class DatabaseSetupAndSync {
     if(cachedSettings) {
       this.log("Settings via IndexedDB detected:");
       this.log(cachedSettings);
+      // Wrapped in a promise with "await" because setting state is async but we need to read this state so it cant be still loading.
+      // Although it's "async" it doesn't return a promise, therefore can only be used with await if it's wrapped in a promise-returning function.
       let promisedSetState = (newState) => new Promise((resolve) => this.app.setState(newState, resolve));
       await promisedSetState({ settings: cachedSettings });
     } else {
@@ -90,10 +92,7 @@ class DatabaseSetupAndSync {
   // So we need to check if references exist in indexedDB,
   // if it does we need a full reset.
   migrateFromV1toV2() {
-    let settings = this.app.state.settings;
-    // MIGRATION_DATE is set a day after we actually deploy, so the overlap
-    // covers all timezones. This means for 1 day songbase will load slowly
-    // because it redownloads every session.
+    const settings = this.app.state.settings;
     const MIGRATION_DATE = new Date('August 22, 2023 03:45:00').getTime();
     this.log('Last updated at: ' + settings.updated_at);
     this.log('MIGRATION_DATE: ' + MIGRATION_DATE);
@@ -170,8 +169,8 @@ class DatabaseSetupAndSync {
 
   fetchDataFromAPI() {
     // fetch a list of languages
-    // sort the list so languages selected in settings are synced first
-    // for each language, fetch and update db
+    // fetch English
+    // fetch remaining languages
 
     // The general way syncing is done is that we send the API a timestamp of
     // the date we last updated. The server then returns only data that has
@@ -190,46 +189,58 @@ class DatabaseSetupAndSync {
 
     const csrfToken = document.querySelector("meta[name=csrf-token]").content;
 
-    fetch("/api/v2/languages", {
-      method: "GET",
-      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
-    })
-    .then((response) => response.json())
-    .then((data) => {
+    // We fetch English separately because the site's default language is English.
+    // Once songs have loaded, songbase is very fast to navigate, but for new users
+    // it can take a long time to load up all the songs. Beause only English will
+    // show up until the settings change, we want to load English before all the
+    // other languages.
+    const fetchEnglish = async (data) => {
+      await thisSyncTool.fetchDataByLanguage("english", lastUpdatedAt)
+      return data
+    }
 
+    // We fetch data by language to split the downloads into multiple requests
+    const fetchOtherLanguages = (data) => {
       let selectedLanguages = app.state.settings.languages;
       let hiddenLanguages = data.languages.filter(lang => !selectedLanguages.includes(lang));
-      let allLanguages = selectedLanguages.concat(hiddenLanguages);
+      let allLanguages = selectedLanguages.concat(hiddenLanguages).filter(lang => lang != "english");
 
       thisSyncTool.log('selectedLanguages: ' + selectedLanguages);
       thisSyncTool.log('hiddenLanguages: ' + hiddenLanguages);
 
-      // We fetch data by language to split the downloads into multiple
-      // requests. It also lets us request the user-selected data first,
-      // although since the requests are in parallel I don't know if it helps..
       allLanguages.forEach((language) => {
         thisSyncTool.fetchDataByLanguage(language, lastUpdatedAt)
       })
-    }).then(() => {
-      // Update IndexedDB with the last synced timestamp to be the current time:
+    }
+
+    // Update IndexedDB with the last synced timestamp to be the current time:
+    const updateTimestamp = () => {
       db.transaction(
         "rw",
         db.settings,
         () => {
           let settings = app.state.settings;
           settings["updated_at"] = newUpdateTime;
-          app.setState({
-            settings: settings
-          });
+          app.setState({ settings: settings });
           db.settings.put(settings);
           thisSyncTool.log('updated_at is now: ' + app.state.settings.updated_at);
         }
       )
-    }).catch(error => console.error("Error:", error));
+    }
+
+    fetch("/api/v2/languages", {
+      method: "GET",
+      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
+    })
+    .then((response) => response.json())
+    .then(fetchEnglish)
+    .then(fetchOtherLanguages)
+    .then(updateTimestamp)
+    .catch(error => console.error("Error:", error));
     thisSyncTool.log("Fetch completed.");
   }
 
-  fetchDataByLanguage(language, lastUpdatedAt) {
+  async fetchDataByLanguage(language, lastUpdatedAt) {
     let app = this.app,
         db = this.db,
         thisSyncTool = this;
@@ -238,45 +249,46 @@ class DatabaseSetupAndSync {
     const csrfToken = document.querySelector("meta[name=csrf-token]").content;
     const searchParams = new URLSearchParams({ updated_at: lastUpdatedAt, language });
 
-    fetch("/api/v2/app_data?" + searchParams.toString(), {
+    let response = await fetch("/api/v2/app_data?" + searchParams.toString(), {
       method: "GET",
       headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
     })
-    .then(response => response.json())
-    .then((data) => {
-      thisSyncTool.log('Response from API: ');
-      thisSyncTool.log(data);
 
-      thisSyncTool.log("Syncing " + data.songs.length + " " + language + " songs with indexedDB...");
-      // run this all in a transaction, to stop mid-sync cut outs from wrecking everything.
-      db.transaction(
-        "rw",
-        db.songs,
-        db.books,
-        db.settings,
-        () => {
-          db.songs.bulkPut(data.songs);
-          db.books.bulkPut(data.books);
-          db.songs.bulkDelete(data.destroyed.songs);
-          db.books.bulkDelete(data.destroyed.books);
+    let data = await response.json()
 
-          let settings = app.state.settings;
-          settings['languagesInfo'] = settings['languagesInfo'].filter(info => info[0] != language); // remove previous value
+    thisSyncTool.log('Response from API: ');
+    thisSyncTool.log(data);
 
-          if(data.songCount > 0) {
-            settings['languagesInfo'].push([language, data.songCount]); // add new value
-          }
-          app.setState({
-            settings: settings
-          });
-          db.settings.put(settings);
+    thisSyncTool.log("Syncing " + data.songs.length + " " + language + " songs with indexedDB...");
+    // run this all in a transaction, to stop mid-sync cut outs from wrecking everything.
+    await db.transaction(
+      "rw",
+      db.songs,
+      db.books,
+      db.settings,
+      () => {
+        db.songs.bulkPut(data.songs);
+        db.books.bulkPut(data.books);
+        db.songs.bulkDelete(data.destroyed.songs);
+        db.books.bulkDelete(data.destroyed.books);
+
+        let settings = app.state.settings;
+        settings['languagesInfo'] = settings['languagesInfo'].filter(info => info[0] != language); // remove previous value
+
+        if(data.songCount > 0) {
+          settings['languagesInfo'].push([language, data.songCount]); // add new value
         }
-      );
-    })
-    .then(function(data) {
-      thisSyncTool.log("Syncing " + language + " completed.");
-      thisSyncTool.pushIndexedDBToState();
-    }).catch(error => console.error("Error:", error));
+        app.setState({
+          settings: settings
+        });
+        db.settings.put(settings);
+      }
+    )
+
+
+    thisSyncTool.log("Syncing " + language + " completed.");
+    // console.log("LOADED LANGUAGE: " + language)
+    thisSyncTool.pushIndexedDBToState();
   }
 
   // reset updated timestamp, wipe db, reinitialize then call fetch
