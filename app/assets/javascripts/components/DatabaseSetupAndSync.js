@@ -3,15 +3,10 @@ class DatabaseSetupAndSync {
     this.app = app;
     this.db = new Dexie("songbaseDB");
 
-    this.loadSettingsToState = this.loadSettingsToState.bind(this);
+    // Bind methods that are used in shifting contexts, so we still have access to the class:
     this.pushIndexedDBToState = this.pushIndexedDBToState.bind(this);
-    this.fetchDataFromAPI = this.fetchDataFromAPI.bind(this);
     this.resetDbData = this.resetDbData.bind(this);
-    this.fetchDataByLanguage = this.fetchDataByLanguage.bind(this);
     this.setSettings = this.setSettings.bind(this);
-    this.log = this.log.bind(this);
-    this.time = this.time.bind(this);
-    this.migrateFromV1toV2 = this.migrateFromV1toV2.bind(this);
 
     this.timers = [];
     this.logSyncData = false;
