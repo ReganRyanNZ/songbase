@@ -4,7 +4,8 @@ const UserSettings = ({
   cachedSongCount,
   toggleSettingsPage,
   setSettings,
-  loadingData
+  loadingData,
+  homeButton
 }) => {
   let toggleLanguage = (e) => {
     let newSettings = settings;
@@ -65,9 +66,7 @@ const UserSettings = ({
 
   return (
     <div className="settings-container">
-      <div className="settings-btn" onClick={toggleSettingsPage}>
-        <HomeIcon />
-      </div>
+      {homeButton}
       <h2>
         Languages
         {loadingSpinner}

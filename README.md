@@ -59,7 +59,7 @@ This was first a Rails app, now it uses React to allow state management and offl
 ### Short-term TODO
 - [done]Investigate removing Dexie and using indexedDB directly (or writing a simple in-house interface for indexedDB) - UPDATE Dexie is very useful, we'll keep it for now
 - [done]Separate language API calls better, prioritise English for first loads
-- Show syncing in UX while loading is still going
+- [done]Show syncing in UX while loading is still going
 - Import chinese (trad & simple?), check for UTF errors if characters require more than the default encoding
 - Pinyin, would be cool to have english transliteration above the characters, I don't think we can dynamically generate it, but maybe there's an api (and make pinyin online-only)?
 
@@ -144,10 +144,6 @@ Steps:
 - Exact duplicates will no longer be created (by some previous double-submitting bug). Near duplicates (e.g. one version without chords, one with) are tricky to catch. The best solution I can think of is to use Postgres's Levenshtein function to match string similarity, but that has a 255 byte max, so we'd need to combine it with a LEFT function to get the first 60 characters (assuming the worst case is all characters are 4 bytes), and possibly some kind of regex to remove chords from the comparison. Would be cool, but it's technically challenging enough that manual finding/fixing is sufficient for now.
 - What if I strip lyrics of all chords and non-chars, downcase, then compare the first 100 chars? Would have to be a script, because it's O(n^2).
 
-### Loading bar
-
-- Loading bar to show progress when syncing, so it doesn't just look stuck
-
 ### Related songs linking
 
 - Along with links to book indices, we also want links to e.g. same song in another language, or commonly joined songs (e.g. Therefore with joy + drinking at the fountain)
@@ -214,11 +210,7 @@ New notes:
 ### History on the front page
 
 - Record "visited" songs (not 30s, just opened), update it with the 30s timer to count as sung
-- Use this record to populate blank search (no book)
+- Put a history icon on index, perhaps next to book icon, that toggles page to list of songs in order of recently opened
 
-### Random TODO list
-
-- Remove "Songbase" h1
-- Expand search bar to fill the width better
-- Inside a song add a back button top left
-- Inside a song, add a share button
+### Sharing
+- Inside a song, add a share button. Not all browsers/phones have easy access to the current url.

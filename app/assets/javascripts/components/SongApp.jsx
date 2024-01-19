@@ -139,6 +139,10 @@ class SongApp extends React.Component {
     let content;
     let indexNumber;
     let pageTitle = 'Songbase';
+
+    let homeButton = (<div className="home-btn" onClick={this.navigate.returnToIndex}>
+                        <HomeIcon />
+                      </div>)
     switch (page) {
       case "index":
         if(!!this.state.currentBook) {
@@ -177,6 +181,7 @@ class SongApp extends React.Component {
             cachedSongCount={this.state.totalSongsCached}
             resetCache={this.dbSync.resetDbData}
             loadingData={this.state.loadingData}
+            homeButton={homeButton}
           />
         );
         break;
@@ -187,6 +192,7 @@ class SongApp extends React.Component {
           <IndexOfBooks
           books={this.state.books || []}
           goToBookIndex={this.navigate.goToBookIndex}
+          homeButton={homeButton}
           />
         );
         break;
@@ -201,6 +207,7 @@ class SongApp extends React.Component {
 
         content = (
           <div className="song-container">
+            {homeButton}
             <SongDisplay
               title={song.title}
               lyrics={song.lyrics}
