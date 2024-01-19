@@ -130,7 +130,7 @@ class DatabaseSetupAndSync {
           .anyOf(languages)
           .toArray(songs => {
             songs.sort(this.sortSongsByTitle);
-            app.setState({ songs: songs, loadingData: false });
+            app.setState({ songs: songs });
           });
       })
       .then(() => {
@@ -190,12 +190,14 @@ class DatabaseSetupAndSync {
     // show up until the settings change, we want to load English before all the
     // other languages.
     const fetchEnglish = async (data) => {
+      app.setState({loadingData: true})
       await thisSyncTool.fetchDataByLanguage("english", lastUpdatedAt)
       return data
     }
 
     // We fetch data by language to split the downloads into multiple requests
-    const fetchOtherLanguages = (data) => {
+    const fetchOtherLanguages = async (data) => {
+
       let selectedLanguages = app.state.settings.languages;
       let hiddenLanguages = data.languages.filter(lang => !selectedLanguages.includes(lang));
       let allLanguages = selectedLanguages.concat(hiddenLanguages).filter(lang => lang != "english");
@@ -203,9 +205,13 @@ class DatabaseSetupAndSync {
       thisSyncTool.log('selectedLanguages: ' + selectedLanguages);
       thisSyncTool.log('hiddenLanguages: ' + hiddenLanguages);
 
-      allLanguages.forEach((language) => {
-        thisSyncTool.fetchDataByLanguage(language, lastUpdatedAt)
-      })
+      await Promise.all(
+        allLanguages.map((language) => {
+          return thisSyncTool.fetchDataByLanguage(language, lastUpdatedAt)
+        })
+      )
+
+      app.setState({loadingData: false})
     }
 
     // Update IndexedDB with the last synced timestamp to be the current time:
@@ -282,7 +288,6 @@ class DatabaseSetupAndSync {
 
 
     thisSyncTool.log("Syncing " + language + " completed.");
-    // console.log("LOADED LANGUAGE: " + language)
     thisSyncTool.pushIndexedDBToState();
   }
 

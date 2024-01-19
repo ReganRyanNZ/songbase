@@ -176,6 +176,7 @@ class SongApp extends React.Component {
             setTheme={this.setTheme.bind(this)}
             cachedSongCount={this.state.totalSongsCached}
             resetCache={this.dbSync.resetDbData}
+            loadingData={this.state.loadingData}
           />
         );
         break;

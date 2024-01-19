@@ -3,7 +3,8 @@ const UserSettings = ({
   resetCache,
   cachedSongCount,
   toggleSettingsPage,
-  setSettings
+  setSettings,
+  loadingData
 }) => {
   let toggleLanguage = (e) => {
     let newSettings = settings;
@@ -60,12 +61,18 @@ const UserSettings = ({
     </div>
   );
 
+  let loadingSpinner = loadingData ? (<div class='loading-spinner'></div>) : ""
+
   return (
     <div className="settings-container">
       <div className="settings-btn" onClick={toggleSettingsPage}>
         <HomeIcon />
       </div>
-      <h2>Languages</h2>
+      <h2>
+        Languages
+        {loadingSpinner}
+      </h2>
+
       {langCheckboxes}
       <h2>Theme</h2>
       {themeRadioBtns}
