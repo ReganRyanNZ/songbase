@@ -28,7 +28,7 @@ class AppNavigation {
   }
 
   returnToIndex() {
-    this.app.setState({ page: "index" });
+    this.app.setState({ page: "index", rowLimit: 100 });
     let currentBook = this.app.state.currentBook;
     let path = !!currentBook ? `/${currentBook.slug}/i` : "/"
     window.history.pushState({ page: "index", currentBook: currentBook }, "", path);
