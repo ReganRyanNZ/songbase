@@ -212,5 +212,6 @@ New notes:
 - Record "visited" songs (not 30s, just opened), update it with the 30s timer to count as sung
 - Put a history icon on index, perhaps next to book icon, that toggles page to list of songs in order of recently opened
 
-### Sharing
-- Inside a song, add a share button. Not all browsers/phones have easy access to the current url.
+### Short Song UI
+
+- Book references and share icon float up with the end of the text, we need a minimum height for the lyrics so it's not so odd
