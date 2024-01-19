@@ -215,3 +215,7 @@ New notes:
 ### Short Song UI
 
 - Book references and share icon float up with the end of the text, we need a minimum height for the lyrics so it's not so odd
+
+### Home and book navigation overlap
+
+- If pressing the home button takes a second, the user might press it twice... and end up in the book selection page. We should block the book navigation for ~500ms after pressing the home navigation
