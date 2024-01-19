@@ -28,6 +28,7 @@ class SongsController < ApplicationController
         @preloaded_book_refs = Book.with_song(song).book_refs_for(song)
       end
     end
+    render layout: "robot_visible"
   end
 
   def admin

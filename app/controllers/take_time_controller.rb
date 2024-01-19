@@ -2,7 +2,7 @@ class TakeTimeController < ApplicationController
 
   def take_time
     @cards = card_data
-    render :take_time
+    render :take_time, layout: "robot_visible"
   end
 
   private
