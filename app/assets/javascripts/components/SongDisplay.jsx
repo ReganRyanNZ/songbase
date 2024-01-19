@@ -125,6 +125,8 @@ class SongDisplay extends React.Component {
       let toggleMusicElement = document.getElementById("show-music-controls");
       if(toggleMusicElement) { toggleMusicElement.addEventListener("click", this.props.toggleMusic) }
     }
+    let shareButton = document.getElementById("share-song")
+    if (shareButton) { shareButton.addEventListener("click", this.shareSong) }
   }
 
   chordsExist() {
@@ -255,11 +257,32 @@ class SongDisplay extends React.Component {
     return lyrics
   }
 
+  shareSong() {
+    if(navigator.share) {
+      navigator.share({
+        text: document.title,
+        url: location.href
+      })
+    } else {
+      navigator.clipboard.writeText(`${document.title}\n\n${location.href}`)
+      let successMsg = document.getElementById("share-song-success")
+      successMsg.classList.add("fadeOut")
+      setTimeout( () => {successMsg.classList.remove("fadeOut")}, 1200);
+    }
+  }
+
+
   controls() {
     let chordsExist = this.chordsExist();
     let showChords = this.props.showChords;
     let transpose = this.state.transpose;
 
+    let shareButton = () => {
+      return(`<div class='share-song' id='share-song'>
+                <div class='share-song-success' id='share-song-success'>Copied!</div>
+                ${ShareIcon}
+              </div>\n`)
+    }
     let toggleMusicControl = () => {
       if(!chordsExist || this.props.editMode) { return '' }
 
@@ -284,6 +307,7 @@ class SongDisplay extends React.Component {
           ${BookmarkIconAsString}
         </div>
         ${toggleMusicControl()}
+        ${shareButton()}
         ${transposeControls()}
       </div>\n
     `

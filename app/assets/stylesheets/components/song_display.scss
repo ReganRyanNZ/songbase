@@ -155,3 +155,36 @@ div[data-react-class='SongDisplay'] {
   padding-left: 22px;
   tab-size: 0;
 }
+
+.share-song {
+  & svg {
+    fill: lightgrey;
+    // fill-rule:evenodd;
+    stroke: lightgrey;
+    height: 30px;
+  }
+
+  position: absolute;
+  bottom: 15px;
+  right: 20px;
+}
+
+.share-song-success {
+  position: absolute;
+  top: -50px;
+  left: -40px;
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 8px 12px;
+  opacity: 0;
+}
+
+.fadeOut {
+  animation: fadeOut 1.2s ease-out;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0;}
+}
