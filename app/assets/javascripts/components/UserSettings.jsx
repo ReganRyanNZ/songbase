@@ -61,7 +61,7 @@ const UserSettings = ({
     </div>
   );
 
-  let loadingSpinner = loadingData ? (<div class='loading-spinner'></div>) : ""
+  let loadingSpinner = loadingData ? (<div className='loading-spinner'></div>) : ""
 
   return (
     <div className="settings-container">

@@ -298,7 +298,7 @@ class DatabaseSetupAndSync {
     let settings = this.app.state.settings;
     settings.updated_at = 0;
     settings.languagesInfo = [];
-    this.app.setState({settings: settings, totalSongsCached: 0});
+    this.app.setState({settings: settings, totalSongsCached: 0, loadingData: true});
     let thisSyncTool = this;
 
     this.db.delete().then(() => {
