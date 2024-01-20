@@ -17,6 +17,8 @@ body {
   background-color: white;
   font-size: 100%;
   position: relative;
+  min-height: calc(100vh - 16px);
+  margin: 8px;
 }
 
 .application-container {
