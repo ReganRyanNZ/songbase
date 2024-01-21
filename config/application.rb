@@ -18,6 +18,6 @@ module Songbase
 
     # Compress requests with gzip, very important for giant api requests
     config.middleware.use Rack::Deflater
-
+    config.load_defaults 7.0
   end
 end
