@@ -78,7 +78,7 @@ const UserSettings = ({
       <h2>Reset Cache</h2>
       {resetCacheBtn}
       <h2>Install App</h2>
-      <p>First go to the website https://songbase.life. From there:</p>
+      <p>First go to the website "songbase.life", from there:</p>
       <p><b>Safari on iOS</b> <br/>"Share {">"} Add to Homescreen"</p>
       <p><b>Chrome on Android</b> <br/>"Options  {">"} Install App"</p>
       <div className="contact-footer">
