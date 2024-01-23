@@ -5,14 +5,20 @@
     <%= csrf_meta_tags %>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google" content="notranslate">
     <meta name="google-site-verification" content="37ffvoSa1-N_lySTBC3xeLJozjNWNh0Sy-rI9g3DBVY" />
     <meta name="description" content="Songbook for psalms, hymns, and spiritual songs" />
+    <meta name="robots" content="noindex">
+
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/logo.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" >
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+    <link rel="manifest" href=<%= asset_path "manifest.json" %> />
+
     <%= stylesheet_link_tag    'application', media: 'all' %>
     <%= javascript_include_tag 'application' %>
-    <link rel="manifest" href=<%= asset_path "manifest.json" %> />
-    <meta name="robots" content="noindex">
   </head>
 
   <body>
