@@ -56,7 +56,7 @@ const UserSettings = ({
 
   let resetCacheBtn = (
     <div className="reset-cache-container">
-      If songs are not loading properly, you can reset the cache and download them again:
+      <div>If songs are not loading properly, you can reset the cache and download them again.</div>
       <button type='button' className="app-settings-btn" id='reset-cache' onClick={resetCache}>Reset cache</button>
       <div className="counter">Cached songs: {cachedSongCount}</div>
     </div>
@@ -77,6 +77,10 @@ const UserSettings = ({
       {themeRadioBtns}
       <h2>Reset Cache</h2>
       {resetCacheBtn}
+      <h2>Install App</h2>
+      <p>First go to the website https://songbase.life. From there:</p>
+      <p><b>Safari on iOS</b> <br/>"Share {">"} Add to Homescreen"</p>
+      <p><b>Chrome on Android</b> <br/>"Options  {">"} Install App"</p>
       <div className="contact-footer">
         <hr />
         Site Support:{" "}
