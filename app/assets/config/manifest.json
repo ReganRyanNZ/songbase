@@ -1,6 +1,8 @@
 {
   "name": "Songbase",
+  "short_name": "Songs",
   "start_url": "/",
+  "description": "Songbook for psalms, hymns, and spiritual songs",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
