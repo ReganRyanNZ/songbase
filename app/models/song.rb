@@ -42,7 +42,7 @@ class Song < ApplicationRecord
 
   def self.number_search(number)
     ids_from_hymnal_indexes = Book.hymnals.map { |book| book.songs.key(number) }.compact
-    where(id: ids_from_hymnal_indexes << number)
+    where(id: ids_from_hymnal_indexes)
   end
 
   def self.from_book(book, index)
