@@ -23,6 +23,7 @@ class SongApp extends React.Component {
       scrollTo: null,
       rowLimit: 100,
       logSongApp: true,
+      showReferenceLinks: false,
       showChords: localStorage.getItem('showChords') == 'false' ? false : true, // Local storage to load faster than indexedDB, and synchronously
     };
 
@@ -41,12 +42,12 @@ class SongApp extends React.Component {
   }
 
   componentDidUpdate() {
-    if(!!this.state.scrollTo && this.state.page == 'index') {
+    if(!!this.state.scrollTo) {
       let element = document.getElementById(this.state.scrollTo);
       if(element) {
         element.scrollIntoView({ block: 'center'});
+        this.setState({scrollTo: null});
       }
-      this.setState({scrollTo: null});
     }
   }
 
@@ -58,6 +59,14 @@ class SongApp extends React.Component {
     let showChords = !this.state.showChords;
     this.setState({showChords: showChords});
     localStorage.setItem('showChords', showChords);
+  }
+
+  toggleReferenceLinks() {
+    let newState = {showReferenceLinks: !this.state.showReferenceLinks}
+    if (newState.showReferenceLinks) {
+      newState["scrollTo"] = "song-references"
+    }
+    this.setState(newState)
   }
 
   infiniteScrolling(){
@@ -176,7 +185,6 @@ class SongApp extends React.Component {
           <UserSettings
             setSettings={this.dbSync.setSettings}
             settings={this.state.settings}
-            toggleSettingsPage={this.navigate.toggleSettingsPage}
             setTheme={this.setTheme.bind(this)}
             cachedSongCount={this.state.totalSongsCached}
             resetCache={this.dbSync.resetDbData}
@@ -214,12 +222,19 @@ class SongApp extends React.Component {
               analyticsPath={songWasPreloaded ? null : window.location.href}
               showChords={this.state.showChords}
               toggleMusic={this.toggleMusic}/>
+
             <SongReferences
               goToBookIndex={this.navigate.goToBookIndex}
               toggleOrderIndexBy={this.toggleOrderIndexBy.bind(this)}
               scrollToSong={this.scrollToSong.bind(this)}
               bookRefs={(this.state.loadingData && this.props.preloaded_book_refs) || this.getBookReferencesForSong(song)}
               loadingData={this.state.loadingData}
+
+              linkIds={song.language_links}
+              songs={this.state.songs}
+              setSong={this.navigate.setSong}
+              toggleReferenceLinks={this.toggleReferenceLinks.bind(this)}
+              showReferenceLinks={this.state.showReferenceLinks}
             />
           </div>
         );

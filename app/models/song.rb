@@ -84,6 +84,16 @@ class Song < ApplicationRecord
     old_song.destroy_with_audit(User.system_user)
   end
 
+  # TODO test what happens (backend and frontend) when a linked record is destroyed
+  def add_language_link other_song_id
+    other_song_id = other_song_id.to_i
+    self.language_links.push(other_song_id) unless self.language_links.include?(other_song_id)
+    save
+    other_song = Song.find(other_song_id)
+    other_song.language_links.push(self.id) unless other_song.language_links.include?(self.id)
+    other_song.save
+  end
+
   def has_chords?
     lyrics.include?('[')
   end
@@ -93,7 +103,8 @@ class Song < ApplicationRecord
       id: id,
       title: title,
       lang: lang,
-      lyrics: lyrics
+      lyrics: lyrics,
+      language_links: language_links
     }
   end
 

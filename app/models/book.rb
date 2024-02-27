@@ -25,6 +25,12 @@ class Book < ApplicationRecord
     where(slug: ["spanish_hymnal", "english_hymnal", "german_hymnal", "french_hymnal", "hinos"])
   end
 
+  def self.english_hymnal; find_by(slug: "english_hymnal"); end
+  def self.spanish_hymnal; find_by(slug: "spanish_hymnal"); end
+  def self.german_hymnal; find_by(slug: "german_hymnal"); end
+  def self.french_hymnal; find_by(slug: "french_hymnal"); end
+  def self.portuguese_hymnal; find_by(slug: "hinos"); end
+
   def self.book_refs_for(song)
     all.map { |book| [book.slug, book.name, book.songs[song.id.to_s]] }
   end

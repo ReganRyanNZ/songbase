@@ -2,7 +2,6 @@ const UserSettings = ({
   settings,
   resetCache,
   cachedSongCount,
-  toggleSettingsPage,
   setSettings,
   loadingData,
   homeButton
@@ -79,8 +78,8 @@ const UserSettings = ({
       {resetCacheBtn}
       <h2>Install App</h2>
       <p>First go to the website "songbase.life", from there:</p>
-      <p><b>Safari on iOS</b> <br/>"Share {">"} Add to Homescreen"</p>
-      <p><b>Chrome on Android</b> <br/>"Options  {">"} Install App"</p>
+      <p><b>Safari on iOS</b> <br/>Share {">"} Add to Homescreen</p>
+      <p><b>Chrome on Android</b> <br/>Options  {">"} Install App</p>
       <div className="contact-footer">
         <hr />
         Site Support:{" "}

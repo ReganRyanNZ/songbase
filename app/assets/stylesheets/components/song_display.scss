@@ -16,6 +16,7 @@ div[data-react-class='SongDisplay'] {
 .lyrics {
   width: auto;
   margin-left: 20px;
+  margin-bottom: 48px;
   display: inline-block;
   text-align: left;
   tab-size: 22px;
@@ -177,6 +178,7 @@ div[data-react-class='SongDisplay'] {
   border-radius: 4px;
   padding: 8px 12px;
   opacity: 0;
+  z-index: 1000;
 }
 
 .fadeOut {

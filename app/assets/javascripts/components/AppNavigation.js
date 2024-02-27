@@ -67,9 +67,18 @@ class AppNavigation {
   }
 
   setSong(e) {
-    var songId = e.target.closest(".index_row").id;
-    this.app.setState({ page: songId });
-    window.history.pushState({ page: songId, currentBook: this.app.state.currentBook }, "", songId);
+    let target = e.target.closest(".song_link")
+    let songId = target.id
+    let book, path
+    if (target.classList.contains('language_link')) {
+      book = null // if we're navigating via language links, we need to exit from any book
+      path = `/${songId}`
+    } else {
+      book = this.app.state.currentBook
+      path = songId
+    }
+    this.app.setState({ page: songId, currentBook: book });
+    window.history.pushState({ page: songId, currentBook: book }, "", path);
     window.scrollTo(0, 0);
   }
 

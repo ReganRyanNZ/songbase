@@ -1,6 +1,7 @@
-<h1 class="admin-root-title"><%= link_to "Songbase", admin_path %></h1>
-
+<h1 class="admin-root-title"><%= link_to "Edit Song", admin_path %></h1>
+<hr>
+<p class="admin-comment">
+Dear saints, when editing songs, please respect the original writings. Adding chords and fixing typos are very helpful. However, (especially with the LSM hymnal) please do not change the lyrics or offer alternate lines/stanzas.
+</p>
+<hr>
 <%= render 'form', song: @song %>
-
-
-

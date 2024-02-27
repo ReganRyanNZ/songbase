@@ -219,3 +219,25 @@ New notes:
 ### Home and book navigation overlap
 
 - If pressing the home button takes a second, the user might press it twice... and end up in the book selection page. We should block the book navigation for ~500ms after pressing the home navigation
+
+### Book and language navigation
+
+- The bottom left corner is free, we can add a globe icon to show links to other languages and a book icon to show links to books
+- How does a song know it has other languages? An array of index links for each song. I think that's better than a "central" song with all the links
+- Could just have one icon that triggers a display of both book refs and other lang refs
+- Current languages are:
+  - English
+  - French
+  - Spanish
+  - Portuguese
+- [done]Link all the hymnal indexes
+- [done]Send language links over api
+- [done]Display in song, click to go to the other song
+- [done]Pretty UI
+- Add a field in admin to link songs from other languages
+- If a song is deleted, how will the links be updated? If a link is deleted, what about its inverse?
+- Put all songs into state, so we can click to songs that the index doesn't show (e.g. unticked languages)
+
+### PWA stops admin working
+
+- The login/Oauth system redirect tries to open the app instead of the browser

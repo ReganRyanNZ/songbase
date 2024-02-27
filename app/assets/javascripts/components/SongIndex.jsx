@@ -37,16 +37,17 @@ class SongIndex extends React.Component {
   rowDataForNumericalSearch(number) {
     let books = this.props.currentBook ? [this.props.currentBook] : this.props.books;
     let booksWithIndex = books.map(book => {
-      let song_id = this.props.getSongIdFromBook(book, number);
-      return song_id ? [book, song_id] : null;
-    }).filter(notNull => notNull);
+                                    let song_id = this.props.getSongIdFromBook(book, number);
+                                    return song_id ? [book, song_id] : null;
+                                  }).filter(notNull => notNull);
 
     return booksWithIndex.map(bookAndSongId => {
       let book = bookAndSongId[0];
       let song_id = bookAndSongId[1];
-
+      let song = this.props.songs.find(song => song.id == song_id);
+      if (!song) { return null }
       return {
-        song: this.props.songs.find(song => song.id == song_id),
+        song: song,
         tag:
           '<span class="search_tag">' +
           book.name +
@@ -54,7 +55,7 @@ class SongIndex extends React.Component {
           number +
           "</span>"
       };
-    });
+    }).filter(notNull => notNull);;
   }
 
   // Returns an array of {song: song, tag: tag} objects
@@ -155,7 +156,7 @@ class SongIndex extends React.Component {
 
     return (
       <button
-        className="index_row"
+        className="index_row song_link"
         key={i}
         id={id}
         onClick={this.props.setSong}

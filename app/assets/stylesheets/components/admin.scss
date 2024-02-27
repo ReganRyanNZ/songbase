@@ -1,9 +1,12 @@
 .admin-comment {
-  margin: -10px 0 0px 0;
+  margin: 0;
   color: grey;
   font-size: 80%;
   font-style: italic;
-  white-space: pre;
+  text-wrap: wrap;
+}
+.admin-comment ul {
+  margin: 8px 0;
 }
 
 .btn {

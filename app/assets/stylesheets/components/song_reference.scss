@@ -2,10 +2,63 @@
   -ms-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  margin-top: 50px;
   margin-left: 20px;
+  margin-bottom: 55px;
   color: #AAA;
   text-align: left;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.song-reference {
+  padding: 4px 0;
+}
+
+.lang-link-list.with-line {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid;
+}
+
+.lang-link-list {
+  text-align: left;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  color: #AAA;
+  background-color: #FFF; // theme dependent
+
+  max-width: 80%;
+}
+.language_link {
+  padding: 4px 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+  &:hover {
+    cursor: pointer;
+  }
+}
+button.song-reference-toggle {
+  height: 32px;
+  width: 32px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: lightgrey;
+  z-index: 10;
+
+  position: absolute;
+  bottom: 15px;
+  left: 20px;
+
+  & svg {
+    height: 100%;
+    fill: currentColor;
+  }
 
   &:hover {
     cursor: pointer;
