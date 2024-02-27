@@ -242,3 +242,17 @@ New notes:
 ### When clicking into a song's book index, highlight the song in the index
 
 - Currently it scrolls to have the song in the middle, but that's difficult to see/understand in the wall of titles.
+
+### Add asian languages
+
+- Korean
+- Cebuano
+- Tagalog
+- Chinese traditional
+- Chinese Simplified
+
+Todo:
+
+- Get the language names in the language
+- Write a script to import them all from the text files
+- Link them to their other language links (make a method to link 1 song to all of another song's language links)
