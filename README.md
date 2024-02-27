@@ -53,6 +53,7 @@ This was first a Rails app, now it uses React to allow state management and offl
 - Infinite scrolling to speed up search loading.
 - References at the end of a song bring the user to the index of that book
 - Fully offline! After initial load, clients should be able to later load songbase even without internet connection (it's patchy, confirmed working on chrome for android)
+- PWA app :) this website is now installable from the browser as a standalone app.
 
 # TODO
 
@@ -212,10 +213,6 @@ New notes:
 - Record "visited" songs (not 30s, just opened), update it with the 30s timer to count as sung
 - Put a history icon on index, perhaps next to book icon, that toggles page to list of songs in order of recently opened
 
-### Short Song UI
-
-- Book references and share icon float up with the end of the text, we need a minimum height for the lyrics so it's not so odd
-
 ### Home and book navigation overlap
 
 - If pressing the home button takes a second, the user might press it twice... and end up in the book selection page. We should block the book navigation for ~500ms after pressing the home navigation
@@ -241,3 +238,7 @@ New notes:
 ### PWA stops admin working
 
 - The login/Oauth system redirect tries to open the app instead of the browser
+
+### When clicking into a song's book index, highlight the song in the index
+
+- Currently it scrolls to have the song in the middle, but that's difficult to see/understand in the wall of titles.
