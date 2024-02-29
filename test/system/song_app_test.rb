@@ -134,13 +134,18 @@ class SongAppTest < ApplicationSystemTestCase
 
     # A book's song has a reference to that book in the song's display:
     assert_content 'but with all boldness'
-    assert_content 'Test Book: #3'
+    assert_content 'Test Book3'
 
     # A book's song has the book + index as the title:
     within('h1.home-title') do
       assert_content 'Test Book'
       assert_selector('div.title-number', text: '3')
     end
+
+    # References are hidden, toggled by a button:
+    refute_content 'Test Book: #3'
+    find('button.song-reference-toggle').click
+    assert_content 'Test Book: #3'
 
     # Reference is a link that brings up book index sorted by index:
     find('div.song-reference', text: 'Test Book: #3').click

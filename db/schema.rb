@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_29_170738) do
+ActiveRecord::Schema[7.1].define(version: 2024_02_29_185439) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -30,8 +30,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_29_170738) do
     t.string "slug"
     t.datetime "deleted_at", precision: nil
     t.boolean "sync_to_all", default: false
-    t.jsonb "songs"
-    t.string "languages", array: true
+    t.jsonb "songs", default: {}
+    t.string "languages", default: [], array: true
   end
 
   create_table "songs", id: :serial, force: :cascade do |t|
