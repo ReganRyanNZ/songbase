@@ -100,7 +100,9 @@ class SongsController < ApplicationController
 
 
   def song_params
-    params.require(:song).permit(:lyrics, :title, :lang)
+    result = params.require(:song).permit(:lyrics, :title, :lang, language_links: [])
+    result[:language_links] = result[:language_links].first.split(',') if result[:language_links].present?
+    result
   end
 
   def example_lyrics

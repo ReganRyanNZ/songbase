@@ -6,6 +6,7 @@ class Song < ApplicationRecord
   before_save :sanitize_lang
   before_save :sanitize_title
   before_save :sanitize_lyrics
+  after_save :reciprocate_language_links
 
   after_destroy :remove_references_from_books
 
@@ -213,5 +214,29 @@ class Song < ApplicationRecord
   def sanitize_lyrics
     self.lyrics = lyrics.strip.unicode_normalize(:nfd)
     self.lyrics = "  #{lyrics}" if lyrics.split("\n")[1]&.match?(/  \S/) # put stripped leading spaces back if lyrics start with a chorus
+  end
+
+  # If we add or remove a link, we want to add/remove the mirrored link in the other record.
+  # This is the downside of using an array db field instead of a join table.
+  def reciprocate_language_links
+    return unless saved_change_to_language_links?
+
+    new_links = saved_change_to_language_links[1] - saved_change_to_language_links[0]
+    removed_links = saved_change_to_language_links[0] - saved_change_to_language_links[1]
+
+    if new_links.present?
+      Song.where(id: new_links).each do |song|
+        song.language_links << self.id
+        song.language_links.uniq!
+        song.save
+      end
+    end
+
+    if removed_links.present?
+      Song.where(id: removed_links).each do |song|
+        song.language_links -= [self.id]
+        song.save
+      end
+    end
   end
 end

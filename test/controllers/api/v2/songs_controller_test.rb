@@ -24,7 +24,8 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
       {
         title: song.title,
         lang: song.lang,
-        lyrics: song.lyrics
+        lyrics: song.lyrics,
+        language_links: song.language_links
       }
     end
 

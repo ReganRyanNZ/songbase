@@ -65,9 +65,50 @@ namespace :import do
   desc "Import hymnal"
   namespace "hymnal" do
 
-    # TODO need chinese name and lang description
+    # Run this task from a terminal window (in the code's directory) with:
+    # `rake import:hymnal:chinese`
+    #
+    # If something goes wrong and you want to clear up the data:
+    # ```
+    #   rails console
+    #   Book.find_by(slug: :chinese_hymnal).destroy
+    #   Song.where(lang: "繁體中文").destroy_all
+    # ```
+    # If something is still wrong, you can reload the "latest.dump" file
+    # according to the readme, to completely reset the db.
     task chinese: :environment do
-      hymnal = Book.find_or_create_by(slug: :chinese_hymnal, name: "???", lang: "???")
+      language = "繁體中文"
+      hymnal = Book.find_or_create_by(slug: :chinese_hymnal, name: "詩歌", languages: [language])
+
+      # Go through the txt file here, you may want to use `File.foreach`, and
+      # you might need to use regex to group lines together. The english import
+      # task looks pretty good, I think 90% of that code would work here.
+      # Some things however are obsolete:
+      # - Songs now just have a "title" field, not "firstline_title" or "chorus_title"
+      # - Books now have a "languages" field which is an array, instead of a "lang" string field
+      # - There is no SongBook model any more.
+      # - In other imports I did a global find/replace to add an obvious
+      #   delimiter to separate the songs for regex. In the chinese txt file
+      #   there is only the pattern of two newlines and then a "C123" style
+      #   number. You might want to insert a delimiter like I did for the others.
+
+      
+      # For each song:
+        song = Song.new
+        song.title = "something"
+        song.lyrics = "something else"
+        song.lang = language # this doesn't change
+        song.save
+
+        # Get the database id and the hymnal index (both as strings),
+        # and add it to the hymnal:
+        db_id = song.id.to_s
+        hymnal_index = "779" # get this from the top of the song e.g. "C779", remove the "C"
+        hymnal.songs[db_id] = hymnal_index
+      # end loop
+
+      # Save the hymnal to db after all the songs have been added
+      hymnal.save
     end
 
     task german: :environment do

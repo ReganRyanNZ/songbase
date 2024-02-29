@@ -231,8 +231,9 @@ New notes:
 - [done]Send language links over api
 - [done]Display in song, click to go to the other song
 - [done]Pretty UI
-- Add a field in admin to link songs from other languages
+- [done]Add a field in admin to link songs from other languages
 - If a song is deleted, how will the links be updated? If a link is deleted, what about its inverse?
+- Make model tests for adding/removing song links, and deleting a linked song
 - Put all songs into state, so we can click to songs that the index doesn't show (e.g. unticked languages)
 
 ### PWA stops admin working
@@ -256,3 +257,8 @@ Todo:
 - Get the language names in the language
 - Write a script to import them all from the text files
 - Link them to their other language links (make a method to link 1 song to all of another song's language links)
+
+- Remove lang from books
+- Remove song_books from db
+- Book default songs value should be {}
+- Finish instructions for Samuel

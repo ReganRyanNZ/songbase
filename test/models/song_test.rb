@@ -101,6 +101,24 @@ class SongTest < ActiveSupport::TestCase
     assert_equal('Weird title that comes up first in index', song.title)
   end
 
+  test 'language_links' do
+    song1 = FactoryBot.create(:song)
+    song2 = FactoryBot.create(:song, :portuguese)
+
+    assert_equal([], song1.language_links)
+
+    song1.language_links = [song2.id]
+    song1.save
+
+    assert_equal([song2.id], song1.reload.language_links)
+    assert_equal([song1.id], song2.reload.language_links)
+
+    song1.update(language_links: [])
+
+    assert_equal([], song1.reload.language_links)
+    assert_equal([], song2.reload.language_links)
+  end
+
   test 'print_format' do
     song = FactoryBot.create(:song, :abba_father)
     assert(song.print_format.include?(expected_print_format), "Expected: \n\n" + expected_print_format.inspect + "----\n\n Got: \n\n" + song.print_format.inspect)

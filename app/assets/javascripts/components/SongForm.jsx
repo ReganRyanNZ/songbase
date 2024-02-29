@@ -61,7 +61,7 @@ class SongForm extends React.Component {
 
   titleBeef() {
     return (
-      <p className="admin-comment">
+      <div className="admin-comment">
         Dear saints, for the sake of uniformity and usability, please consider the following:
         <ul>
           <li>If you have a custom title (e.g. "Hebrews Medley"), you can put it after the first line: "Christ our High Priest (Hebrews Medley)"</li>
@@ -70,7 +70,7 @@ class SongForm extends React.Component {
           <li>Do not put a conference or event in the title (e.g. "As the Spirit God came - SSOT14—Two Spirits"). It is better to put this in a comment within the song.</li>
           <li>Do not use all-caps (e.g. FOR THE BREAD AND FOR THE WINE), it's much better to write the title as a sentence: "For the bread and for the wine"</li>
         </ul>
-      </p>
+      </div>
     )
   }
 
@@ -131,6 +131,20 @@ class SongForm extends React.Component {
             </div>);
   }
 
+  linksComponent() {
+   return (<div className="edit-links">
+              <h2>Language Links</h2>
+              <input
+                id="song_language_links"
+                name="song[language_links][]"
+                type="array"
+                placeholder="E.g. 4756,1982,3390"
+                defaultValue={this.props.song.language_links}
+              />
+              <p className="admin-comment">This field is for a comma-separated list of ids to the same song in different languages. A song's id is the number in the url, e.g. "songbase.life/4756", the id is 4756.</p>
+            </div>)
+  }
+
   render() {
     return (
       <div className="song-form">
@@ -151,6 +165,7 @@ class SongForm extends React.Component {
 
         {this.props.exampleForm ? '' : this.titleComponent()}
         {this.props.exampleForm ? '' : this.languageComponent()}
+        {this.props.exampleForm ? '' : this.linksComponent()}
       </div>
     );
   }

@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_15_181826) do
+ActiveRecord::Schema[7.1].define(version: 2024_02_29_170738) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_trgm"
   enable_extension "plpgsql"
 
   create_table "audits", id: :serial, force: :cascade do |t|
@@ -26,23 +27,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_15_181826) do
     t.string "name"
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
-    t.string "lang"
     t.string "slug"
     t.datetime "deleted_at", precision: nil
     t.boolean "sync_to_all", default: false
     t.jsonb "songs"
     t.string "languages", array: true
-  end
-
-  create_table "song_books", id: :serial, force: :cascade do |t|
-    t.integer "song_id"
-    t.integer "book_id"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.string "index"
-    t.datetime "deleted_at", precision: nil
-    t.index ["book_id"], name: "index_song_books_on_book_id"
-    t.index ["song_id"], name: "index_song_books_on_song_id"
   end
 
   create_table "songs", id: :serial, force: :cascade do |t|
@@ -55,6 +44,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_15_181826) do
     t.datetime "deleted_at", precision: nil
     t.integer "deleted_by"
     t.integer "language_links", default: [], array: true
+    t.index ["title"], name: "index_songs_on_title", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "users", id: :serial, force: :cascade do |t|

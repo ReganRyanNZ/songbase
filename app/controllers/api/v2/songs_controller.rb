@@ -33,6 +33,7 @@ class Api::V2::SongsController < ApplicationController
   private
 
   def duplicate_songs
+    # Only super admin can see duplicates, because it crashes performance
     return [] unless (super_admin && !params[:search].present?)
 
     recently_changed_ids = Song.recently_changed.pluck(:id) # only query recent songs to speed things up
