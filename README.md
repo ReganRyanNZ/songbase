@@ -39,6 +39,14 @@ If you are interested in the api for creating your own software, I would recomme
 
 This was first a Rails app, now it uses React to allow state management and offline navigation. Instead of maintaining two separate apps, the frontend and backend are (somewhat mashed) together in this project. The main difference is that React is served through a Rails gem, and importing/exporting JS components doesn't work like a regular React project.
 
+## Devops/architecture stack
+
+- This is a Ruby on Rails site, the server runs ruby
+- The front end is mostly React, served by the Rails server (not a separate code-base)
+- PWA configuration means the front end runs disconnected from the server, only pinging for data sync updates on page reload.
+- The Rails server is hosted on Heroku
+- The database is Postgres, hosted on Neon
+
 ## Features
 
 - Users can view lyrics and chords to songs
@@ -257,8 +265,3 @@ Todo:
 - Get the language names in the language
 - Write a script to import them all from the text files
 - Link them to their other language links (make a method to link 1 song to all of another song's language links)
-
-- Remove lang from books
-- Remove song_books from db
-- Book default songs value should be {}
-- Finish instructions for Samuel
