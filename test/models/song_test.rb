@@ -117,6 +117,13 @@ class SongTest < ActiveSupport::TestCase
 
     assert_equal([], song1.reload.language_links)
     assert_equal([], song2.reload.language_links)
+
+    song1.language_links = [song2.id]
+    song1.save
+
+    assert_equal([song1.id], song2.reload.language_links)
+    song1.destroy
+    assert_equal([], song2.reload.language_links)
   end
 
   test 'print_format' do

@@ -153,12 +153,6 @@ Steps:
 - Exact duplicates will no longer be created (by some previous double-submitting bug). Near duplicates (e.g. one version without chords, one with) are tricky to catch. The best solution I can think of is to use Postgres's Levenshtein function to match string similarity, but that has a 255 byte max, so we'd need to combine it with a LEFT function to get the first 60 characters (assuming the worst case is all characters are 4 bytes), and possibly some kind of regex to remove chords from the comparison. Would be cool, but it's technically challenging enough that manual finding/fixing is sufficient for now.
 - What if I strip lyrics of all chords and non-chars, downcase, then compare the first 100 chars? Would have to be a script, because it's O(n^2).
 
-### Related songs linking
-
-- Along with links to book indices, we also want links to e.g. same song in another language, or commonly joined songs (e.g. Therefore with joy + drinking at the fountain)
-- Will need a script to create all the hymnal language links
-- This can be an array of song ids stored in each song record. The client can fetch the title/firstline for the link
-
 ### Tabs for alternate versions/tunes
 
 - Instead of using different verses for different tunes, make a separate tab for each tune or version
@@ -172,6 +166,10 @@ Examples (non-exhaustive) where a separate tune forces line-repeats, or chorus i
 
 Id's of all songs with "tune" in the lyrics:
 [2168, 752, 478, 433, 439, 507, 514, 626, 627, 631, 719, 624, 515, 751, 1105, 1595, 520, 2129, 1603, 782, 1613, 957, 1512, 1457, 168, 336, 899, 3970, 1334, 345, 1307, 539, 352, 531, 549, 1305, 318, 524, 453, 2018, 1926, 398, 567, 2045, 46, 4325, 4277, 1608]
+
+- How do we store alternate tunes? An array of strings? Or a json so the tune has a title => lyrics structure?
+- How do we signal to the user that there are alternate tunes?
+- What do we do if there are alternate tunes, but no word changes, and the user has toggled off chords? Hide the other tune buttons
 
 ### Better analytics
 
@@ -227,10 +225,10 @@ New notes:
 
 ### Book and language navigation
 
-- The bottom left corner is free, we can add a globe icon to show links to other languages and a book icon to show links to books
-- How does a song know it has other languages? An array of index links for each song. I think that's better than a "central" song with all the links
-- Could just have one icon that triggers a display of both book refs and other lang refs
-- Current languages are:
+- [done]The bottom left corner is free, we can add a globe icon to show links to other languages and a book icon to show links to books
+- [done]How does a song know it has other languages? An array of index links for each song. I think that's better than a "central" song with all the links
+- [done]Could just have one icon that triggers a display of both book refs and other lang refs
+- [done]Current languages are:
   - English
   - French
   - Spanish
@@ -240,8 +238,8 @@ New notes:
 - [done]Display in song, click to go to the other song
 - [done]Pretty UI
 - [done]Add a field in admin to link songs from other languages
-- If a song is deleted, how will the links be updated? If a link is deleted, what about its inverse?
-- Make model tests for adding/removing song links, and deleting a linked song
+- [done]If a song is deleted, how will the links be updated? If a link is deleted, what about its inverse?
+- [done]Make model tests for adding/removing song links, and deleting a linked song
 - Put all songs into state, so we can click to songs that the index doesn't show (e.g. unticked languages)
 
 ### PWA stops admin working

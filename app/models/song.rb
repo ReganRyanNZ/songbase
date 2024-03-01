@@ -9,6 +9,7 @@ class Song < ApplicationRecord
   after_save :reciprocate_language_links
 
   after_destroy :remove_references_from_books
+  after_destroy :remove_language_links
 
   default_scope -> { where(deleted_at: nil) }
   # We want to know songs that have been deleted since the client's last update
@@ -135,6 +136,13 @@ class Song < ApplicationRecord
   def remove_references_from_books
     Book.with_song(self).each do |book|
       book.update(songs: book.songs.except(self.id.to_s))
+    end
+  end
+
+  def remove_language_links
+    Song.where(id: language_links).each do |song|
+      song.language_links -= [id]
+      song.save
     end
   end
 
