@@ -287,7 +287,7 @@ class SongDisplay extends React.Component {
       if(!chordsExist || this.props.editMode) { return '' }
 
       return(`<div class='show-music-controls' id='show-music-controls'>
-              ${HamburgerMenu}
+              ${ToggleMusicIcon}
              </div>\n`)
     }
     let transposeControls = () => {

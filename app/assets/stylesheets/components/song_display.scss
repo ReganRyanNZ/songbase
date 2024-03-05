@@ -138,12 +138,12 @@ div[data-react-class='SongDisplay'] {
 // And then set the height/width via css to control the size.
 .show-music-controls {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 22px;
+  right: 21px;
   width: 30px;
   height: 30px;
-  border: 1px solid lightgrey;
-  border-radius: 4px;
+  // border: 1px solid lightgrey;
+  // border-radius: 4px;
   & svg {
     fill: lightgrey;
     fill-rule:evenodd;
