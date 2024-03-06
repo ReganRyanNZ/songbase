@@ -171,6 +171,16 @@ Id's of all songs with "tune" in the lyrics:
 - How do we signal to the user that there are alternate tunes?
 - What do we do if there are alternate tunes, but no word changes, and the user has toggled off chords? Hide the other tune buttons
 
+5 March 2024:
+- Keep all versions in the lyrics field, separate versions with a delimiter like "### New tune"
+- Song display's breakdown of lyrics should start with splitting delimited versions into an array, and using the first one unless the path says otherwise, like songbase.life/1423?tune=2
+- Look into the direct song rendering, how we might change that
+- Look into meta data/page title, to match the tune
+- Add a second example page specifically for tunes
+- If music is toggled off, tunes button should remain if there are non-whitespace differences in the text. Tunes should stay on the left, trabspose controls on the right.
+- Check the whole flow with different themes set
+- What about searches that match to a later tune? Something for the back burner
+
 ### Better analytics
 
 - If a user stays on a song for more than 30 seconds, add to list of sung songs. Periodically sync that list with the server so we have records of what songs are sung.

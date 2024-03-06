@@ -66,7 +66,7 @@ div[data-react-class='SongDisplay'] {
     -ms-user-select: none;
     user-select: none;
   }
-  .song-controls > .transpose-controls {
+  .song-controls > div {
     display: flex;
     gap: 4px;
     align-items: center;
@@ -78,9 +78,6 @@ div[data-react-class='SongDisplay'] {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    div {
-      display: inline-block;
-    }
     text-align: right;
     display: flex;
     align-items: flex-end;
@@ -189,4 +186,41 @@ div[data-react-class='SongDisplay'] {
   0% { opacity: 1; }
   80% { opacity: 1; }
   100% { opacity: 0;}
+}
+
+.tune-selector {
+  fill: darkgray;
+  font-size: 90%;
+  position: relative;
+
+
+  & svg {
+    width: 18px;
+    border: 1px solid;
+    border-radius: 2px;
+  }
+}
+
+.tune-select-box {
+  text-align: left;
+  position: absolute;
+  background-color: black;
+  top: 32px;
+  padding: 0px;
+  width: 240px;
+  z-index: 1050;
+  border-radius: 6px;
+  border: 1px solid;
+  box-shadow: -2px 3px #222;
+  & div {
+    padding: 12px 0;
+    padding-left: 28px;
+  }
+  & div + div {
+    border-top: 1px solid;
+  }
+}
+.selected-tune-check {
+  position: absolute;
+  left: 9px;
 }

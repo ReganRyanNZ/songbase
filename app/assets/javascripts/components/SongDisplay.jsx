@@ -61,10 +61,23 @@ class SongDisplay extends React.Component {
   constructor(props) {
     super(props);
 
+    window.song = this // For dev to have easy access :)
+
+
+    // What if a song doesn't have the ### tag, we don't want to cut the first line of that song...?
+
+    // lyricArray splits the song lyric data into different "tunes" or "versions"
+    this.lyricArray = props.lyrics.split(/(?=###)/).filter(s => s.length > 0)
+    let selectedTune = 0 // TODO get current tune from URL or preferred settings (and then update URL), default to 0
+    let lyrics = this.removeTuneTitle(this.lyricArray[selectedTune])
+
     this.state = {
+      selectedTune: selectedTune,
       transpose: props.transpose || 0,
-      originalKey: this.getKeyFromChords(props.lyrics),
-      logSongDisplay: false
+      originalKey: this.getKeyFromChords(lyrics),
+      logSongDisplay: false,
+      lyrics: lyrics,
+      showTuneSelectBox: false
     };
 
     // `bind` creates a new function with an immutable "this" reference. We
@@ -73,6 +86,8 @@ class SongDisplay extends React.Component {
     this.goUpOneKey = this.goUpOneKey.bind(this);
     this.goDownOneKey = this.goDownOneKey.bind(this);
     this.toggleTransposePreset = this.toggleTransposePreset.bind(this);
+    this.changeTune = this.changeTune.bind(this);
+    this.toggleTuneSelector = this.toggleTuneSelector.bind(this);
 
     this.setAnalyticsTimer();
   }
@@ -87,6 +102,20 @@ class SongDisplay extends React.Component {
     if (this.state.logSongDisplay) {
       console.log(str);
     }
+  }
+
+  removeTuneTitle(lyrics) {
+    return lyrics.replace(/###.*\n/, "")
+  }
+
+  changeTune(tuneNumber) {
+    if(tuneNumber.target) { tuneNumber = tuneNumber.target.dataset.tuneId }
+
+    let newLyrics = this.removeTuneTitle(this.lyricArray[tuneNumber])
+    this.setState({selectedTune: tuneNumber,
+                   lyrics: newLyrics,
+                   transpose: 0,
+                   originalKey: this.getKeyFromChords(newLyrics)})
   }
 
   // StatCounter records pageviews, but only when app.html is first loaded,
@@ -111,6 +140,18 @@ class SongDisplay extends React.Component {
     }
   }
 
+  // This react component is quite odd, it builds a bunch of html as a string
+  // instead of a JSX element. This works fine for most things, but it's very
+  // difficult to add click listeners inline. So here we have a method that
+  // will be called after this component is mounted, adding the listener
+  // functions on. Note that any function referenced may need to be bound to
+  // the class (see the constructor method), so "this" can refer to the class
+  // and not the event at the time of clicking.
+  // Note also that this method will be called by react about 44 times. If the
+  // listener function is named, that's fine because it wont add the same
+  // reference twice. If the listener function is anonymous, then the reference
+  // changes each time so you'll have your function called about 40 times per
+  // click.
   addListeners() {
     if(this.chordsExist()) {
       let presetElements = document.getElementsByClassName("transpose-preset");
@@ -127,10 +168,16 @@ class SongDisplay extends React.Component {
     }
     let shareButton = document.getElementById("share-song")
     if (shareButton) { shareButton.addEventListener("click", this.shareSong) }
+
+    let tuneSelectorButton = document.querySelector(".tune-selector")
+    if (tuneSelectorButton) { tuneSelectorButton.addEventListener("click", this.toggleTuneSelector) }
+
+    let tuneSelect = document.querySelectorAll(".tune-select")
+    tuneSelect.forEach(select => select.addEventListener("click", this.changeTune))
   }
 
   chordsExist() {
-    return /\[/.test(this.props.lyrics);
+    return /\[/.test(this.state.lyrics);
   }
 
   getKeyFromChords(lyrics) {
@@ -192,7 +239,7 @@ class SongDisplay extends React.Component {
         return transposedCore + trailingChars
       } else {
         // Fancy transposing failed, let's build this chord
-        newKey = getNewKey(this.getKeyFromChords(this.props.lyrics), this.state.transpose);
+        newKey = getNewKey(this.getKeyFromChords(this.state.lyrics), this.state.transpose);
         let movement = mod(this.state.transpose, 12);
         let chordCoreIndex = Math.max(guessingScaleFlats.indexOf(chordCore), guessingScaleSharps.indexOf(chordCore));
         let newChordCoreIndex = mod(chordCoreIndex + movement, 12);
@@ -204,7 +251,7 @@ class SongDisplay extends React.Component {
   }
 
   getLyricsHTML() {
-    if (regex.html_safety.test(this.props.lyrics)) {
+    if (regex.html_safety.test(this.state.lyrics)) {
       return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";
     }
 
@@ -244,7 +291,7 @@ class SongDisplay extends React.Component {
       }
     }
 
-    let lyrics = this.props.lyrics;
+    let lyrics = this.state.lyrics;
     lyrics = formatStanzas(lyrics);
     lyrics = formatChorus(lyrics);
     if (!this.props.showChords) { lyrics = removeMusicFromLyrics(lyrics) }
@@ -271,9 +318,12 @@ class SongDisplay extends React.Component {
     }
   }
 
+  toggleTuneSelector() {
+    this.setState({showTuneSelectBox: !this.state.showTuneSelectBox})
+    console.log('togglin those selectors')
+  }
 
   controls() {
-    let chordsExist = this.chordsExist();
     let showChords = this.props.showChords;
     let transpose = this.state.transpose;
 
@@ -284,14 +334,14 @@ class SongDisplay extends React.Component {
               </div>\n`)
     }
     let toggleMusicControl = () => {
-      if(!chordsExist || this.props.editMode) { return '' }
+      if(!this.chordsExist() || this.props.editMode) { return '' }
 
       return(`<div class='show-music-controls' id='show-music-controls'>
               ${ToggleMusicIcon}
              </div>\n`)
     }
     let transposeControls = () => {
-      if(!chordsExist || !showChords) { return '' }
+      if(!this.chordsExist() || !showChords) { return '' }
 
       return `
         <div class='transpose-controls'>
@@ -301,6 +351,27 @@ class SongDisplay extends React.Component {
         </div>\n`;
     }
 
+    let tuneSelector = () => {
+      let tuneSelects = this.lyricArray.map((tune, i) => {
+        let title = tune.match(/### (.*)/)[1]
+        let check = ""
+        if (this.state.selectedTune == i) {
+          check = `<span class='selected-tune-check'>✓</span>`
+        }
+
+        return `<div class='tune-select' data-tune-id=${i}>${check}${title}</div>`
+      }).join("")
+
+      let selectBox = this.state.showTuneSelectBox ? `<div class='tune-select-box'>${tuneSelects}</div>` : ''
+
+      return `<div class='tune-selector'>
+                ${HamburgerMenu}
+                <span>Tunes</span>
+                ${selectBox}
+              </div>`
+    }
+
+
     return `
       <div class='song-controls'>
         <div class='bookmark'>
@@ -309,6 +380,7 @@ class SongDisplay extends React.Component {
         ${toggleMusicControl()}
         ${shareButton()}
         ${transposeControls()}
+        ${tuneSelector()}
       </div>\n
     `
   }
