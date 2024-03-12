@@ -30,7 +30,7 @@
   width: 22px;
   border-radius: 2px;
   border-top-left-radius: 6px;
-  background-color: #ccc;
+  background-color: var(--ui-color);
 
   & > div {
     position: absolute;
@@ -40,7 +40,11 @@
     width: 19px;
     border: 2px solid white;
     border-radius: 2px;
-    background-color: #ccc;
+    background-color: var(--ui-color);
+  }
+
+  & .book-icon-marker {
+    border-color: var(--background);
   }
 }
 
@@ -49,7 +53,7 @@
   margin-left: -5px;
   width: 12px;
   height: 12px;
-  background-color: #ccc;
+  background-color: var(--ui-color);
   border: 1px solid white;
   border-radius: 12px;
 

@@ -172,14 +172,28 @@ Id's of all songs with "tune" in the lyrics:
 - What do we do if there are alternate tunes, but no word changes, and the user has toggled off chords? Hide the other tune buttons
 
 5 March 2024:
-- Keep all versions in the lyrics field, separate versions with a delimiter like "### New tune"
-- Song display's breakdown of lyrics should start with splitting delimited versions into an array, and using the first one unless the path says otherwise, like songbase.life/1423?tune=2
-- Look into the direct song rendering, how we might change that
-- Look into meta data/page title, to match the tune
-- Add a second example page specifically for tunes
-- If music is toggled off, tunes button should remain if there are non-whitespace differences in the text. Tunes should stay on the left, trabspose controls on the right.
-- Check the whole flow with different themes set
+- [done]Keep all versions in the lyrics field, separate versions with a delimiter like "### New tune"
+- [done]Song display's breakdown of lyrics should start with splitting delimited versions into an array, and using the first one unless the path says otherwise, like songbase.life/1423?tune=2
+- [done]Look into the direct song rendering, how we might change that
+- [done]Look into meta data/page title, to match the tune
+- [done]Add a second example page specifically for tunes
+- [done]If music is toggled off, tunes button should remain if there are non-whitespace differences in the text. Tunes should stay on the left, trabspose controls on the right.
+- [done]Check the whole flow with different themes set
 - What about searches that match to a later tune? Something for the back burner
+
+- [done]Check no tune song
+- [done]Multiples tunes
+- [done]Two tunes
+- [done]Two tunes different wording
+- [done]Check edit form is still working
+- [done]Theme-based coloring
+- [done]Keep tunes button on the left
+- [done]Two tunes same words should not show selector without music
+- [done]Two tunes same words should show selector with music
+- [done]Two tunes with different words should show selector regardless of music
+- [done]When tune selector is open, clicking anything else should close it
+- [done]Name the tune instead of "tunes"?
+- [done]Tests for everything above
 
 ### Better analytics
 
@@ -273,3 +287,5 @@ Todo:
 - Get the language names in the language
 - Write a script to import them all from the text files
 - Link them to their other language links (make a method to link 1 song to all of another song's language links)
+
+### Cache globe reference toggle

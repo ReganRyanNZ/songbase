@@ -63,20 +63,13 @@ class SongDisplay extends React.Component {
 
     window.song = this // For dev to have easy access :)
 
-
-    // What if a song doesn't have the ### tag, we don't want to cut the first line of that song...?
-
-    // lyricArray splits the song lyric data into different "tunes" or "versions"
-    this.lyricArray = props.lyrics.split(/(?=###)/).filter(s => s.length > 0)
-    let selectedTune = 0 // TODO get current tune from URL or preferred settings (and then update URL), default to 0
-    let lyrics = this.removeTuneTitle(this.lyricArray[selectedTune])
+    let selectedTune = this.initializeTune() // get current tune from URL or preferred settings (and then update URL), default to 0
 
     this.state = {
       selectedTune: selectedTune,
       transpose: props.transpose || 0,
-      originalKey: this.getKeyFromChords(lyrics),
+      originalKey: this.getKeyFromChords(this.lyrics(selectedTune)),
       logSongDisplay: false,
-      lyrics: lyrics,
       showTuneSelectBox: false
     };
 
@@ -88,6 +81,7 @@ class SongDisplay extends React.Component {
     this.toggleTransposePreset = this.toggleTransposePreset.bind(this);
     this.changeTune = this.changeTune.bind(this);
     this.toggleTuneSelector = this.toggleTuneSelector.bind(this);
+    this.clickAwayFromTuneSelector = this.clickAwayFromTuneSelector.bind(this);
 
     this.setAnalyticsTimer();
   }
@@ -104,6 +98,43 @@ class SongDisplay extends React.Component {
     }
   }
 
+  initializeTune() {
+    let tune = 0 // default
+
+    if (this.lyricArray().length < 2) { return tune }
+
+    // try path
+    let pathMatch = window.location.search.match(/tune=(\d+)/)
+    if (pathMatch) { tune = pathMatch[1] }
+
+    // try cache
+    let tuneCache = localStorage.getItem(window.location.pathname)
+    if (tuneCache) { tune = tuneCache }
+
+    this.pushTuneToUrl(tune)
+    return tune
+  }
+
+  // We don't want lyrics in the state, because the edit song form passes updated lyrics as props
+  // So we need to get the current selected tune's lyrics dynamically from props
+  lyrics(tune) {
+    let lyricArray = this.lyricArray()
+    selectedTune = tune === undefined ? this.state.selectedTune : tune
+
+    // fix problems with lyrics updating to remove tunes
+    if (selectedTune >= lyricArray.length) { this.changeTune(0); selectedTune = 0 }
+
+    return this.removeTuneTitle(this.lyricArray()[selectedTune])
+  }
+
+  lyricArray() {
+    if (this.props.lyrics == '') { return [''] }
+
+    return this.props.lyrics.split(/(?=###)/)
+                            .map(s => s.trim())
+                            .filter(s => s.length > 0)
+  }
+
   removeTuneTitle(lyrics) {
     return lyrics.replace(/###.*\n/, "")
   }
@@ -111,11 +142,16 @@ class SongDisplay extends React.Component {
   changeTune(tuneNumber) {
     if(tuneNumber.target) { tuneNumber = tuneNumber.target.dataset.tuneId }
 
-    let newLyrics = this.removeTuneTitle(this.lyricArray[tuneNumber])
     this.setState({selectedTune: tuneNumber,
-                   lyrics: newLyrics,
                    transpose: 0,
-                   originalKey: this.getKeyFromChords(newLyrics)})
+                   originalKey: this.getKeyFromChords(this.lyrics(tuneNumber))})
+    localStorage.setItem(window.location.pathname, tuneNumber)
+    this.pushTuneToUrl(tuneNumber)
+  }
+
+  pushTuneToUrl(tuneNumber) {
+    let tunePath = `?tune=${tuneNumber}`;
+    window.history.replaceState(window.history.state, '', window.location.pathname+tunePath);
   }
 
   // StatCounter records pageviews, but only when app.html is first loaded,
@@ -174,10 +210,14 @@ class SongDisplay extends React.Component {
 
     let tuneSelect = document.querySelectorAll(".tune-select")
     tuneSelect.forEach(select => select.addEventListener("click", this.changeTune))
+
+    // If the select is open, click anywhere to close it
+    let tuneSelectBox = document.querySelector(".tune-select-box")
+    if (tuneSelectBox) { document.body.addEventListener('click', this.clickAwayFromTuneSelector), {once : true} }
   }
 
   chordsExist() {
-    return /\[/.test(this.state.lyrics);
+    return /\[/.test(this.lyrics());
   }
 
   getKeyFromChords(lyrics) {
@@ -239,7 +279,7 @@ class SongDisplay extends React.Component {
         return transposedCore + trailingChars
       } else {
         // Fancy transposing failed, let's build this chord
-        newKey = getNewKey(this.getKeyFromChords(this.state.lyrics), this.state.transpose);
+        newKey = getNewKey(this.getKeyFromChords(this.lyrics()), this.state.transpose);
         let movement = mod(this.state.transpose, 12);
         let chordCoreIndex = Math.max(guessingScaleFlats.indexOf(chordCore), guessingScaleSharps.indexOf(chordCore));
         let newChordCoreIndex = mod(chordCoreIndex + movement, 12);
@@ -250,14 +290,20 @@ class SongDisplay extends React.Component {
     })
   }
 
+  lyricsWithoutMusic(lyrics) {
+    return lyrics.replace(regex.chords, '').replace(regex.capoComment, '').replace(regex.tuneComment, '')
+  }
+
   getLyricsHTML() {
-    if (regex.html_safety.test(this.state.lyrics)) {
+    let lyrics = this.lyrics();
+
+    if (regex.html_safety.test(lyrics)) {
       return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";
     }
 
-    let formatStanzas = (lyrics) => lyrics.replace(regex.stanzas, `$1<div class='stanza'>\n$2</div>\n`)
-    let formatChorus = (lyrics) => lyrics.replace(regex.choruses, `$1<div class='chorus'>\n$2</div>\n`)
-    let removeMusicFromLyrics = (lyrics) => lyrics.replace(regex.chords, '').replace(regex.capoComment, '').replace(regex.tuneComment, '')
+    let formatStanzas = (text) => text.replace(regex.stanzas, `$1<div class='stanza'>\n$2</div>\n`)
+    let formatChorus = (text) => text.replace(regex.choruses, `$1<div class='chorus'>\n$2</div>\n`)
+    let removeMusicFromLyrics = this.lyricsWithoutMusic
     let formatStanzaNumber = (line, nextLineHasChords) => `<div class='stanza-number ${nextLineHasChords ? "with-chords" : ""}' data-uncopyable-text='${line}'></div>`
     let formatCapoComment = (line) => line.replace(regex.capo, `<div class='transpose-preset comment' data-capo='$1'>Capo $1</div>`)
     let formatComment = (line) => line.replace(regex.comment, "<div class='comment'>$1</div>")
@@ -266,7 +312,7 @@ class SongDisplay extends React.Component {
     let formatChordWord = (line) => line.replace(regex.chordWords, `<span class='chord-word'>$1</span>`) // words containing chords are in a chord-word span, so that if the line is too long, the text wrapping can move the whole word with chords
     let formatChords = (line, transpose) => formatChordWord(line).replace(regex.chords, (match, chord) => `<span class='chord' data-uncopyable-text='${transpose(chord)}'></span>`)
     let formatTextBoldItalic = (text) => text.replace(regex.boldText, "<b>$1</b>").replace(regex.italicText, "<i>$1</i>")
-    let formatMusicalTies = (lyrics) => lyrics.replace(/_/g, "<span class='musical-tie'>‿</span>") // convert _ to musical tie for spanish songs
+    let formatMusicalTies = (text) => text.replace(/_/g, "<span class='musical-tie'>‿</span>") // convert _ to musical tie for spanish songs
     let formatLyricLine = (line) => {
         line = formatChorusLine(line);
         line = formatTextLine(line);
@@ -291,7 +337,6 @@ class SongDisplay extends React.Component {
       }
     }
 
-    let lyrics = this.state.lyrics;
     lyrics = formatStanzas(lyrics);
     lyrics = formatChorus(lyrics);
     if (!this.props.showChords) { lyrics = removeMusicFromLyrics(lyrics) }
@@ -300,7 +345,13 @@ class SongDisplay extends React.Component {
                    .join("\n")
     lyrics = formatTextBoldItalic(lyrics)
     lyrics = formatMusicalTies(lyrics)
-    lyrics = this.controls() + lyrics
+
+    // Add controls, but hack in a <br> spacer if the tune selector control is present
+    let controls = this.controls()
+    if (controls.includes("tune-selector") && !lyrics.match(/^<br>/)) {
+      lyrics = "<br>" + lyrics
+    }
+    lyrics = controls + lyrics
     return lyrics
   }
 
@@ -320,7 +371,15 @@ class SongDisplay extends React.Component {
 
   toggleTuneSelector() {
     this.setState({showTuneSelectBox: !this.state.showTuneSelectBox})
-    console.log('togglin those selectors')
+  }
+
+  clickAwayFromTuneSelector(e) {
+    if (!document.querySelector(".tune-select-box")) { return }
+    if (e.target.closest(".tune-select-box")) { return }
+    if (e.target.closest(".tune-selector")) { return }
+
+    this.toggleTuneSelector()
+    return;
   }
 
   controls() {
@@ -345,15 +404,44 @@ class SongDisplay extends React.Component {
 
       return `
         <div class='transpose-controls'>
-          <button id='transpose-down' class='transpose-symbol'>${MinusIcon}</button>
-          <div class='transpose-value'>${transpose}</div>
           <button id='transpose-up' class='transpose-symbol'>${PlusIcon}</button>
+          <div class='transpose-value'>${transpose}</div>
+          <button id='transpose-down' class='transpose-symbol'>${MinusIcon}</button>
         </div>\n`;
     }
 
+    let showTuneSelector = () => {
+      // First calculate whether we have multiple tunes to show
+      let lyricArray = this.lyricArray()
+      if(lyricArray.length < 2) { return false }
+
+      // If user is not seeing chords, don't show tune selector if all the
+      // tunes have the exact same musicless content
+      if (!this.props.showChords) {
+        let musiclessLyricArray = lyricArray.map(x => {
+          x = this.removeTuneTitle(x)
+          x = this.lyricsWithoutMusic(x)
+          return x.trim()
+        })
+
+        let removedDuplicates = [...new Set(musiclessLyricArray)]
+        if(removedDuplicates.length < 2) { return false }
+      }
+
+      return true
+    }
+
     let tuneSelector = () => {
-      let tuneSelects = this.lyricArray.map((tune, i) => {
-        let title = tune.match(/### (.*)/)[1]
+      if (!showTuneSelector()) { return "" }
+      let lyricArray = this.lyricArray()
+
+      let tuneTitles = lyricArray.map((tune, i) => {
+        let title = tune.match(/### (.*)/)
+        title = title ? title[1] : 'Tune 1' // default in case there is no ### at the start of the first tune
+        return title
+      })
+
+      let tuneSelects = tuneTitles.map((title, i) => {
         let check = ""
         if (this.state.selectedTune == i) {
           check = `<span class='selected-tune-check'>✓</span>`
@@ -366,7 +454,7 @@ class SongDisplay extends React.Component {
 
       return `<div class='tune-selector'>
                 ${HamburgerMenu}
-                <span>Tunes</span>
+                <span>${tuneTitles[this.state.selectedTune]}</span>
                 ${selectBox}
               </div>`
     }

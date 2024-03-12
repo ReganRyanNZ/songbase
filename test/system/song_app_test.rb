@@ -158,6 +158,50 @@ class SongAppTest < ApplicationSystemTestCase
     # Test preloaded pages
     visit @song_abba_father.id.to_s
     assert_content(@song_abba_father.title)
+
+    # Test multiple tunes - same wording
+      # Tune selector
+    find('.home-btn').click
+    find('.index_row_title', text: 'A little bird I am').click
+
+      # With the same wording, tune selector hides if music is toggled off
+    refute_content("Capo 3")
+    refute_content("Original tune")
+    assert_no_selector(".tune-selector")
+
+      # But with music toggled on, shows tune selector
+    find('#show-music-controls').click
+
+    assert_content("Original tune")
+    refute_content("Tune 2")
+    refute_content("Tune 3")
+
+    assert_content("Capo 3")
+    refute_content("Capo 4")
+
+    find('.tune-selector > span', text: 'Original tune').click
+    assert_content("Original tune")
+    assert_content("Tune 2")
+    assert_content("Tune 3")
+
+    find('.tune-select', text: 'Tune 3').click
+    refute_content("Original tune")
+    refute_content("Tune 2")
+    assert_content("Tune 3")
+
+    assert_content("Capo 4")
+    refute_content("Capo 3")
+
+
+    # Test multiple tunes - different wording
+
+      # Tune selector remains regardless of music toggle
+    find('.home-btn').click
+    find('.index_row_title', text: 'Be Thou supreme').click
+    assert_selector(".tune-selector > span", text: "Original tune")
+    find('#show-music-controls').click
+    refute_content("Capo 1")
+    assert_selector(".tune-selector")
   end
 
   def assert_song_formatting

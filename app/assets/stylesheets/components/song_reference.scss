@@ -4,7 +4,7 @@
   user-select: none;
   margin-left: 20px;
   margin-bottom: 55px;
-  color: #AAA;
+  color: var(--comment-color);
   text-align: left;
 
   &:hover {
@@ -27,8 +27,7 @@
   -ms-user-select: none;
   -webkit-user-select: none;
   user-select: none;
-  color: #AAA;
-  background-color: #FFF; // theme dependent
+  color: var(--comment-color);
 
   max-width: 80%;
 }
@@ -48,7 +47,8 @@ button.song-reference-toggle {
   background: none;
   border: none;
   padding: 0;
-  color: lightgrey;
+  color: var(--ui-color);
+  fill: var(--ui-color);
   z-index: 10;
 
   position: absolute;

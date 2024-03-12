@@ -1,13 +1,9 @@
 body {
-  background-color: #fff;
-  color: #333;
   font-family: verdana, arial, helvetica, sans-serif;
-  line-height: 18px;
 }
 
 p, ol, ul, td {
   font-family: verdana, arial, helvetica, sans-serif;
-  line-height: 18px;
   margin: 33px;
 }
 
@@ -22,7 +18,7 @@ pre {
 }
 
 a {
-  color: #333;
+  color: var(--link-color);
   text-decoration: none;
 
   &:hover {

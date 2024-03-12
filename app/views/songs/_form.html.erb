@@ -1,4 +1,5 @@
 <%= link_to 'How do I format this?', admin_example_path, target: :_blank, class: 'btn-help' %>
+<%= link_to 'How do I add multiple tunes?', admin_example_with_tunes_path, target: :_blank, class: 'btn-help' %>
 <%= form_for(song) do |f| %>
   <% if song.errors.any? %>
     <div id="error_explanation">

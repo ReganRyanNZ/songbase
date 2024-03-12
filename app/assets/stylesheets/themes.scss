@@ -1,34 +1,24 @@
-.css-night {
-  background-color: black;
-  color: white;
-  & .index_row:nth-child(even) {
-    background-color: #222;
-  }
-  & .book-icon-marker {
-    border-color: black;
-  }
-  & .lyrics .chord-word .chord {
-    color: #aaa;
-  }
-  & h1,h2 {
-    color: #ccc;
-  }
-  & .index_search {
-    background-color: #000;
-    color: white;
-    border-radius: 2px;
-    border: 1px solid #777;
-    padding-bottom: 5px;
-  }
+/* normal theme: */
+body {
+  --text: #333;
+  --background: white;
+  --title: #333;
+  --index-row-bg: #F2F2F2;
+  --chord: #1f45ff;
+  --link-color: #333; // found at the bottom of user settings page
+  --comment-color: #aaa;
+  --ui-color: #ccc;
+}
 
-  & a {
-    color: #aaa;
-  }
-  & .search-form .btn_clear_search:hover {
-    color: white;
-  }
 
-  & .lang-link-list {
-    background-color: #000;
-  }
+/* night theme: */
+body.css-night {
+  --text: white;
+  --background: black;
+  --title: #ccc;
+  --index-row-bg: #222;
+  --chord: #aaa;
+  --link-color: #aaa;
+  --comment-color: #aaa;
+  --ui-color: #aaa;
 }

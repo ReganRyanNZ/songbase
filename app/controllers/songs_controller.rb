@@ -38,6 +38,11 @@ class SongsController < ApplicationController
     @song = Song.new(lyrics: example_lyrics)
   end
 
+  def admin_example_with_tunes
+    @song = Song.new(lyrics: example_lyrics_with_tunes)
+    render :admin_example
+  end
+
   def show
   end
 
@@ -135,5 +140,79 @@ This example opened in a new tab. The song you were working on is still there in
 Advanced:
 - You can type '\\' (easy for physical keyboards) or '$' (easy for phone keyboards) to insert square brackets for adding chords quickly.
 - You can type lowercase chords inside square brackets and they will be automatically capitalized."
+  end
+
+  def example_lyrics_with_tunes
+"### Original tune
+# You can see the example here for adding multiple tunes to the same song. This is a nice way to declutter songs with many tunes, and especially tunes where the wording changes (e.g. one tune with a chorus, one without)
+
+# If you are adding a new tune, please also name the original tune, with the triple # format.
+
+# Capo 1
+
+1
+Be [G]Thou su[D]preme, O [G]Jesus [C]Christ,
+Nor [Am]creed, nor [D]form, nor [G]word,
+Nor [D]holy [G]Church, nor [B7]human [Em]love,
+Com[G]pare with [Am]Thee, [D]my [G]Lord!
+
+2
+Be Thou supreme, O Jesus Christ,
+Thy love has conquered me;
+Beneath Thy Cross I die to self,
+And live alone to Thee.
+
+3
+Be Thou supreme, O Jesus Christ,
+My inmost being fill;
+So shall I think as Thou dost think,
+And will as Thou dost will.
+
+4
+Be Thou supreme, O Jesus Christ,
+Thy life transfigure mine;
+And through this veil of mortal flesh,
+Lord, let Thy splendor shine.
+
+5
+Be Thou supreme, O Jesus Christ,
+My soul exults in Thee;
+To be Thy slave, to do Thy will,
+Is my felicity.
+
+### New tune (with chorus)
+
+1
+[C]Be Thou su[G]preme, O [Am]Jesus Christ,
+[F]Thy love has conquered [G]me;
+[C]Beneath Thy [G]Cross I [Am]die to self,
+[F]And live a[G]lone to [C]Thee.
+
+  Be Thou su[F]prem[G]e, O Jesus [C]Christ,
+  Nor creed, nor [F]for[G]m, nor [C]word,
+  Nor holy [F]Church, [G]nor [Am]human love,
+  [F]Compare with [G]Thee, my [C]Lord!
+
+2
+Be Thou supreme, O Jesus Christ,
+My inmost being fill;
+So shall I think as Thou dost think,
+And will as Thou dost will.
+
+3
+Be Thou supreme, O Jesus Christ,
+Thy life transfigure mine;
+And through this veil of mortal flesh,
+Lord, let Thy splendor shine.
+
+4
+Be Thou supreme, O Jesus Christ,
+My soul exults in Thee;
+To be Thy slave, to do Thy will,
+Is my felicity.
+
+
+# Verse 1 of the original hymn has
+# become the chorus for this tune"
   end
 end

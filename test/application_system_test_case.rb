@@ -22,10 +22,14 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     @song_according_to = FactoryBot.create(:song, :accord_to_my_earnest)
     @song_abba_father = FactoryBot.create(:song, :abba_father)
     @song_now_unto = FactoryBot.create(:song, :now_unto)
+    @song_a_little_bird = FactoryBot.create(:song, :a_little_bird_i_am) # multiple tunes, same wording
+    @song_be_thou_supreme = FactoryBot.create(:song, :be_thou_supreme) # multiple tunes, different wording
     @english_songs = [@song_from_the_time,
                       @song_according_to,
                       @song_abba_father,
-                      @song_now_unto]
+                      @song_now_unto,
+                      @song_a_little_bird,
+                      @song_be_thou_supreme]
     @song_bendito = FactoryBot.create(:song, :portuguese)
     @all_songs = @english_songs + [@song_bendito]
     @test_book = FactoryBot.create(:book, name: 'Test Book', songs: {@song_from_the_time.id => '1',

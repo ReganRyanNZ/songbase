@@ -12,9 +12,13 @@
   html {
     font-size: 16px;
   }
+  .home-title {
+    margin-top: 0px;
+  }
 }
 body {
-  background-color: white;
+  color: var(--text);
+  background-color: var(--background);
   font-size: 100%;
   position: relative;
   min-height: calc(100vh - 16px);
@@ -45,10 +49,12 @@ h1 {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  color: var(--title);
 }
 
 h2 {
   margin-top: 30px;
+  color: var(--title);
 }
 
 .text-center {

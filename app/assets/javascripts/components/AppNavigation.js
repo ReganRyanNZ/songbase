@@ -15,7 +15,7 @@ class AppNavigation {
   }
 
   setupInitialHistoryState() {
-    window.history.replaceState({ page: this.app.state.page, currentBook: this.app.state.currentBook }, "", window.location.pathname);
+    window.history.replaceState({ page: this.app.state.page, currentBook: this.app.state.currentBook }, "", window.location.pathname+window.location.search);
   }
 
   toPreviousPageInHistory(e) {

@@ -12,17 +12,12 @@
     border-radius: 3px;
     font-weight: bold;
   }
-
-  &:active {
-    background-color: #333;
-    color: white;
-  }
   &:hover{
     font-weight: bold;
     cursor: pointer;
   }
   &:nth-child(even) {
-    background-color: #F2F2F2;
+    background-color: var(--index-row-bg);
   }
 }
 
@@ -53,6 +48,12 @@
     padding-right: 31px;
     width: 240px;
     height: 30px;
+
+    background-color: var(--background);
+    color: var(--text);
+    border-radius: 2px;
+    border: 1px solid #777;
+    padding-bottom: 5px;
   }
   .btn_clear_search {
     position: absolute;
@@ -60,10 +61,10 @@
     top: 0;
     line-height: 30px;
     padding: 5px 12px;
-    color: #aaa;
+    color: var(--ui-color);
     &:hover {
       cursor: pointer;
-      color: black;
+      color: var(--text);;
     }
   }
 }
@@ -88,6 +89,7 @@
   top: 20px;
   right: 20px;
   width: 30px;
+  fill: var(--ui-color);
   img {
     width: 100%;
   }
@@ -101,6 +103,8 @@
   top: 20px;
   left: 20px;
   width: 30px;
+  fill: var(--ui-color);
+
   img {
     width: 100%;
   }

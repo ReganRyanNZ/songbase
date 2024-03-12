@@ -1,7 +1,11 @@
 <h1 class="admin-root-title"><%= link_to "Edit Song", admin_path %></h1>
 <hr>
-<p class="admin-comment">
-Dear saints, when editing songs, please respect the original writings. Adding chords and fixing typos are very helpful. However, (especially with the LSM hymnal) please do not change the lyrics or offer alternate lines/stanzas.
-</p>
+<div class="admin-comment">
+Dear saints, when editing songs:
+  <ul>
+    <li>Please respect the original writings. Adding chords and fixing typos are very helpful. However, (especially with the LSM hymnal) please do not change the lyrics or offer alternate lines/stanzas.</li>
+    <li>Please choose the simpler version of chords, whenever there is a choice. Many musicians in the church are learners and beginners, and they need simple music to follow.</li>
+  </ul>
+</div>
 <hr>
 <%= render 'form', song: @song %>
