@@ -418,12 +418,13 @@ class SongDisplay extends React.Component {
       // If user is not seeing chords, don't show tune selector if all the
       // tunes have the exact same musicless content
       if (!this.props.showChords) {
+        let regexToCompareLyrics = /[\s,\.'"?!;:\-–—‘’“”]/g
         let musiclessLyricArray = lyricArray.map(x => {
           x = this.removeTuneTitle(x)
           x = this.lyricsWithoutMusic(x)
-          return x.trim()
+          return x.replace(regexToCompareLyrics, "")
         })
-        // TODO trim is not sufficient, different chords trailing after a line can create whitespace that makes it seem different. I think we need to remove all non-letters (keep numbers and hash symbols). This would also help differently encoded punctuation, etc.
+
         let removedDuplicates = [...new Set(musiclessLyricArray)]
         if(removedDuplicates.length < 2) { return false }
       }
