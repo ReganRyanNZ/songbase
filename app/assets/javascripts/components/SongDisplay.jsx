@@ -100,16 +100,16 @@ class SongDisplay extends React.Component {
 
   initializeTune() {
     let tune = 0 // default
-
     if (this.lyricArray().length < 2) { return tune }
 
     // try path
     let pathMatch = window.location.search.match(/tune=(\d+)/)
     if (pathMatch) { tune = pathMatch[1] }
-
-    // try cache
-    let tuneCache = localStorage.getItem(window.location.pathname)
-    if (tuneCache) { tune = tuneCache }
+    else {
+      // try cache
+      let tuneCache = localStorage.getItem(window.location.pathname)
+      if (tuneCache) { tune = tuneCache }
+    }
 
     this.pushTuneToUrl(tune)
     return tune
@@ -423,7 +423,7 @@ class SongDisplay extends React.Component {
           x = this.lyricsWithoutMusic(x)
           return x.trim()
         })
-
+        // TODO trim is not sufficient, different chords trailing after a line can create whitespace that makes it seem different. I think we need to remove all non-letters (keep numbers and hash symbols). This would also help differently encoded punctuation, etc.
         let removedDuplicates = [...new Set(musiclessLyricArray)]
         if(removedDuplicates.length < 2) { return false }
       }
