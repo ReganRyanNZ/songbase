@@ -80,7 +80,7 @@ div[data-react-class='SongDisplay'] {
     user-select: none;
     text-align: right;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 3fr 1fr;
   }
   .transpose-controls {
     grid-column-start: 2;
@@ -197,6 +197,7 @@ div[data-react-class='SongDisplay'] {
   font-size: 90%;
   position: relative;
   cursor: pointer;
+  text-align: left;
 
   // position in controls grid:
   grid-column-start: 1;
@@ -206,6 +207,7 @@ div[data-react-class='SongDisplay'] {
     width: 18px;
     border: 1px solid;
     border-radius: 2px;
+    margin-right: 8px;
   }
 }
 
