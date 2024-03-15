@@ -148,19 +148,21 @@ class SongForm extends React.Component {
   render() {
     return (
       <div className="song-form">
-        <div className="form">
-          <textarea
-            id="song_lyrics"
-            value={this.state.lyrics}
-            onChange={this.handleChange}
-            onKeyUp={this.chordHotkey.bind(this)}
-            name="song[lyrics]"
-            className="song-form-textbox"
-            placeholder="Enter song lyrics here..."
-          />
-        </div>
-        <div className="preview">
-          <SongDisplay lyrics={this.state.lyrics} showChords={true} editMode={true}/>
+        <div className="lyric-form">
+          <div className="form">
+            <textarea
+              id="song_lyrics"
+              value={this.state.lyrics}
+              onChange={this.handleChange}
+              onKeyUp={this.chordHotkey.bind(this)}
+              name="song[lyrics]"
+              className="song-form-textbox"
+              placeholder="Enter song lyrics here..."
+            />
+          </div>
+          <div className="preview">
+            <SongDisplay lyrics={this.state.lyrics} showChords={true} editMode={true}/>
+          </div>
         </div>
 
         {this.props.exampleForm ? '' : this.titleComponent()}

@@ -1,10 +1,6 @@
-.song-form {
+.song-form .lyric-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-
-  div {
-    grid-column: 1 / -1; // full width default
-  }
 
   div.form, div.preview {
     grid-column: span 1;
