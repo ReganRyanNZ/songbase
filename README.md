@@ -12,7 +12,7 @@ You might need to install postgres, the easiest way is to download and run postg
 - `pg_restore --verbose --clean --no-acl --no-owner -h localhost -d songbase_development latest.dump` to load 'latest.dump' into dev db. If the dump is old or not working, send an email to songbase.brothers@gmail.com to request an updated DB dump
 - `rails test` to run the test suite, `rails test:all` to include system tests
 
-_Note for superadmin: `heroku pg:backups:download` to get a fresh db dump (you'll need heroku access)_
+_Note for superadmin: you should have an alias `fresh_dump` set up to get a fresh db dump. Otherwise you'll need to look through the Neon docs to configure a `pg_dump` call manually._
 
 ## Backstory
 

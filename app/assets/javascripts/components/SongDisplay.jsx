@@ -131,7 +131,6 @@ class SongDisplay extends React.Component {
     if (this.props.lyrics == '') { return [''] }
 
     return this.props.lyrics.split(/(?=###)/)
-                            .map(s => s.trim())
                             .filter(s => s.length > 0)
   }
 
