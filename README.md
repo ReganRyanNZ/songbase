@@ -62,6 +62,7 @@ This was first a Rails app, now it uses React to allow state management and offl
 - References at the end of a song bring the user to the index of that book
 - Fully offline! After initial load, clients should be able to later load songbase even without internet connection (it's patchy, confirmed working on chrome for android)
 - PWA app :) this website is now installable from the browser as a standalone app.
+- Alternate tunes/versions can be added to the same song
 
 # TODO
 
@@ -153,48 +154,6 @@ Steps:
 - Exact duplicates will no longer be created (by some previous double-submitting bug). Near duplicates (e.g. one version without chords, one with) are tricky to catch. The best solution I can think of is to use Postgres's Levenshtein function to match string similarity, but that has a 255 byte max, so we'd need to combine it with a LEFT function to get the first 60 characters (assuming the worst case is all characters are 4 bytes), and possibly some kind of regex to remove chords from the comparison. Would be cool, but it's technically challenging enough that manual finding/fixing is sufficient for now.
 - What if I strip lyrics of all chords and non-chars, downcase, then compare the first 100 chars? Would have to be a script, because it's O(n^2).
 
-### Tabs for alternate versions/tunes
-
-- Instead of using different verses for different tunes, make a separate tab for each tune or version
-- This lets us modify song structure/add bonus verses without messing with the original etc
-- Client should remember which tab was last used so after the first time switching it's automatically on their preferred version
-- Books should preload a preferred tab, but overwriteable
-
-Examples (non-exhaustive) where a separate tune forces line-repeats, or chorus is written out a second time:
-507 Re[D]move my covering, Lord
-627 My goal is God Himself
-
-Id's of all songs with "tune" in the lyrics:
-[2168, 752, 478, 433, 439, 507, 514, 626, 627, 631, 719, 624, 515, 751, 1105, 1595, 520, 2129, 1603, 782, 1613, 957, 1512, 1457, 168, 336, 899, 3970, 1334, 345, 1307, 539, 352, 531, 549, 1305, 318, 524, 453, 2018, 1926, 398, 567, 2045, 46, 4325, 4277, 1608]
-
-- How do we store alternate tunes? An array of strings? Or a json so the tune has a title => lyrics structure?
-- How do we signal to the user that there are alternate tunes?
-- What do we do if there are alternate tunes, but no word changes, and the user has toggled off chords? Hide the other tune buttons
-
-5 March 2024:
-- [done]Keep all versions in the lyrics field, separate versions with a delimiter like "### New tune"
-- [done]Song display's breakdown of lyrics should start with splitting delimited versions into an array, and using the first one unless the path says otherwise, like songbase.life/1423?tune=2
-- [done]Look into the direct song rendering, how we might change that
-- [done]Look into meta data/page title, to match the tune
-- [done]Add a second example page specifically for tunes
-- [done]If music is toggled off, tunes button should remain if there are non-whitespace differences in the text. Tunes should stay on the left, trabspose controls on the right.
-- [done]Check the whole flow with different themes set
-- What about searches that match to a later tune? Something for the back burner
-
-- [done]Check no tune song
-- [done]Multiples tunes
-- [done]Two tunes
-- [done]Two tunes different wording
-- [done]Check edit form is still working
-- [done]Theme-based coloring
-- [done]Keep tunes button on the left
-- [done]Two tunes same words should not show selector without music
-- [done]Two tunes same words should show selector with music
-- [done]Two tunes with different words should show selector regardless of music
-- [done]When tune selector is open, clicking anything else should close it
-- [done]Name the tune instead of "tunes"?
-- [done]Tests for everything above
-
 ### Better analytics
 
 - If a user stays on a song for more than 30 seconds, add to list of sung songs. Periodically sync that list with the server so we have records of what songs are sung.
@@ -247,25 +206,6 @@ New notes:
 
 - If pressing the home button takes a second, the user might press it twice... and end up in the book selection page. We should block the book navigation for ~500ms after pressing the home navigation
 
-### Book and language navigation
-
-- [done]The bottom left corner is free, we can add a globe icon to show links to other languages and a book icon to show links to books
-- [done]How does a song know it has other languages? An array of index links for each song. I think that's better than a "central" song with all the links
-- [done]Could just have one icon that triggers a display of both book refs and other lang refs
-- [done]Current languages are:
-  - English
-  - French
-  - Spanish
-  - Portuguese
-- [done]Link all the hymnal indexes
-- [done]Send language links over api
-- [done]Display in song, click to go to the other song
-- [done]Pretty UI
-- [done]Add a field in admin to link songs from other languages
-- [done]If a song is deleted, how will the links be updated? If a link is deleted, what about its inverse?
-- [done]Make model tests for adding/removing song links, and deleting a linked song
-- Put all songs into state, so we can click to songs that the index doesn't show (e.g. unticked languages)
-
 ### PWA stops admin working
 
 - The login/Oauth system redirect tries to open the app instead of the browser
@@ -289,3 +229,10 @@ Todo:
 - Link them to their other language links (make a method to link 1 song to all of another song's language links)
 
 ### Cache globe reference toggle
+
+### Book index toggle overlapping search
+
+- Small screens like iphone SE
+- When in a book, the toggler between alphabet and index overlaps the search.
+- Could be solved by a media query for screen length, then reducing sizae or maybe shifting search to be left aligned.
+- Only needs to be when inside a book, when that toggle isn't there, it's nice to have the big search bar.
