@@ -18,3 +18,7 @@ test:
 production:
   <<: *default
   database: songbase_production
+
+sandbox:
+  <<: *default
+  url: <%= ENV['HEROKU_POSTGRESQL_ROSE_URL'] %>/songbase_production?pool=5
