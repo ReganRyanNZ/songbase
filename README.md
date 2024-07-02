@@ -12,7 +12,7 @@ You might need to install postgres, the easiest way is to download and run postg
 - `pg_restore --verbose --clean --no-acl --no-owner -h localhost -d songbase_development latest.dump` to load 'latest.dump' into dev db. If the dump is old or not working, send an email to songbase.brothers@gmail.com to request an updated DB dump
 - `rails test` to run the test suite, `rails test:all` to include system tests
 
-_Note for superadmin: you should have an alias `fresh_dump` set up to get a fresh db dump. Otherwise you'll need to look through the Neon docs to configure a `pg_dump` call manually._
+_Note for superadmin: `heroku pg:backups:capture` and `heroku pg:backups:download` will refresh the dump._
 
 ## Backstory
 
@@ -45,7 +45,7 @@ This was first a Rails app, now it uses React to allow state management and offl
 - The front end is mostly React, served by the Rails server (not a separate code-base)
 - PWA configuration means the front end runs disconnected from the server, only pinging for data sync updates on page reload.
 - The Rails server is hosted on Heroku
-- The database is Postgres, hosted on Neon
+- The database is Postgres, hosted on aws via Heroku add-on
 
 ## Features
 
