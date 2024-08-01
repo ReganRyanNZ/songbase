@@ -33,6 +33,7 @@ class Book < ApplicationRecord
   def self.german_hymnal; find_by(slug: "german_hymnal"); end
   def self.french_hymnal; find_by(slug: "french_hymnal"); end
   def self.portuguese_hymnal; find_by(slug: "hinos"); end
+  def self.dutch_hymnal; find_by(slug: "liedboek"); end
 
   def self.book_refs_for(song)
     all.map { |book| [book.slug, book.name, book.songs[song.id.to_s]] }

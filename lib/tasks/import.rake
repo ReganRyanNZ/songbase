@@ -313,4 +313,12 @@ DELIM
     end
     hymnal.save!
   end
+
+  desc "fix dutch book Liedboek comments"
+  task fix_dutch_hymnal_comments: :environment do
+    Book.dutch_hymnal.song_records.each do |song|
+      puts song.id
+      song.update(lyrics: song.lyrics.gsub(/(\n|\s)*Liedboek: #\d+/, ''))
+    end
+  end
 end
