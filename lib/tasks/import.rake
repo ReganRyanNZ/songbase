@@ -92,7 +92,7 @@ namespace :import do
       #   there is only the pattern of two newlines and then a "C123" style
       #   number. You might want to insert a delimiter like I did for the others.
 
-      
+
       # For each song:
         song = Song.new
         song.title = "something"
@@ -288,5 +288,29 @@ DELIM
       s.song_books.create(book: hymnal, index: hymnal_index) if hymnal_index
 
     end
+  end
+
+  desc "Create dutch book"
+  task create_dutch_hymnal: :environment do
+    hymnal = Book.find_or_create_by(name: "Liedboek", languages: ["nederlands"], slug: 'liedboek', sync_to_all: true)
+    english_hymnal = Book.english_hymnal
+    filename = Rails.root.join('db', 'hymns_data_DutchHymnalNumbers.csv')
+    File.foreach(filename) do |line|
+      puts line
+      book_index, id = line.split(",").map(&:strip)
+      song = Song.find(id)
+
+      # Add to book
+      hymnal.songs[song.id] = book_index
+
+      # Add language link to other languages of that index
+      english_hymn = english_hymnal.song_at(book_index)
+      related_song_ids = english_hymn.language_links + [english_hymn.id]
+      related_song_ids.each { |other_id| song.add_language_link(other_id) unless other_id == song.id}
+
+      # Remove old hymnal ref comment
+      song.update(lyrics: song.lyrics.sub(/(\n|\s)*Liedboek: #\d+/, ''))
+    end
+    hymnal.save!
   end
 end

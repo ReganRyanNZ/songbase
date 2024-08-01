@@ -1,8 +1,11 @@
 # For optimal client-side data structure, and also to compact books down to a
 # single row in the db per book, there are some unusual db fields in this
-# model. Languages is stored as an array field, as one book could contain songs
-# of more than one language. Songs are stored as a jsonb field. The format for
-# this is {song_id => index_in_book, other_song_id => other_index_in_book}.
+# model.
+# - Languages are stored as an array field, as one book could contain songs
+#   of more than one language.
+# - Songs are stored as a jsonb field. The format for
+#   this is {song_id => index_in_book, other_song_id => other_index_in_book}.
+#   Adding a song:  my_book.songs[song.id] = 1; my_book.save
 
 class Book < ApplicationRecord
   default_scope -> { where(deleted_at: nil) }
@@ -49,6 +52,10 @@ class Book < ApplicationRecord
 
   def song_id_from_index(index)
     songs.key(index.to_s)
+  end
+
+  def song_at(index)
+    Song.find(song_id_from_index(index))
   end
 
   def song_records
