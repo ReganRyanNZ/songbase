@@ -21,7 +21,7 @@ class TakeTimeController < ApplicationController
       ],
       [
         "Sing",
-        "But I will sing of Your strength;<br>And I will joyfully sing of Your lovingkindness in the morning.",
+        "But I will sing of Your strength;<br>And I will joyfully sing of Your <br>lovingkindness in the morning.",
         "Psalms 59:16"
       ],
       [
