@@ -2,14 +2,18 @@
 <style>
   body, .application-container {
     padding-top: 0;
-    margin-top: 0;
+    margin: 0;
     background-color: black;
+    scroll-snap-type: y mandatory;
+    overflow: scroll;
+    height: 100vh;
   }
   .card {
     max-width: 380px;
     height: 100vh;
     margin-left: auto;
     margin-right: auto;
+    scroll-snap-align: start;
     display: flex;
     flex-direction: column;
     justify-content: center;
