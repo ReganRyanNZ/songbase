@@ -3,14 +3,14 @@ const guessingScaleSharps = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#
 const guessingScaleFlats = ['A', 'Bb', 'B', 'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab'];
 const scales = {
   A: ["A", "B", "C#", "D", "E", "F#", "G", "G#"],
-  Bb: ["Bb", "C", "D", "Eb", "F", "G", "G#", "A"],
+  Bb: ["Bb", "C", "D", "Eb", "F", "G", "Ab", "A"],
   B: ["B", "C#", "D#", "E", "F#", "G#", "A", "A#"],
   C: ["C", "D", "E", "F", "G", "A", "Bb", "B"],
   Db: ["Db", "Eb", "F", "Gb", "Ab", "Bb", "B", "C"],
   D: ["D", "E", "F#", "G", "A", "B", "C", "C#"],
   Eb: ["Eb", "F", "G", "Ab", "Bb", "C", "Db", "D"],
   E: ["E", "F#", "G#", "A", "B", "C#", "D", "D#"],
-  F: ["F", "G", "A", "Bb", "C", "D", "D#", "E"],
+  F: ["F", "G", "A", "Bb", "C", "D", "Eb", "E"],
   Gb: ["Gb", "Ab", "Bb", "Cb", "Db", "Eb", "E", "F"],
   G: ["G", "A", "B", "C", "D", "E", "F", "F#"],
   Ab: ["Ab", "Bb", "C", "Db", "Eb", "F", "Gb", "G"]

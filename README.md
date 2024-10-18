@@ -72,6 +72,7 @@ This was first a Rails app, now it uses React to allow state management and offl
 - [done]Show syncing in UX while loading is still going
 - Import chinese (trad & simple?), check for UTF errors if characters require more than the default encoding
 - Pinyin, would be cool to have english transliteration above the characters, I don't think we can dynamically generate it, but maybe there's an api (and make pinyin online-only)?
+- On any edit, send an email to me with the changes, and get the reply to point to the editor's email address so I can just respond via email.
 
 
 ### CRUD books
