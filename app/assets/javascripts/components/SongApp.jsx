@@ -23,7 +23,7 @@ class SongApp extends React.Component {
       scrollTo: null,
       rowLimit: 100,
       logSongApp: true,
-      showReferenceLinks: false,
+      showReferenceLinks: localStorage.getItem('showReferenceLinks') == 'true',
       showChords: localStorage.getItem('showChords') == 'false' ? false : true, // Local storage to load faster than indexedDB, and synchronously
     };
 
@@ -67,6 +67,7 @@ class SongApp extends React.Component {
       newState["scrollTo"] = "song-references"
     }
     this.setState(newState)
+    localStorage.setItem('showReferenceLinks', newState.showReferenceLinks);
   }
 
   infiniteScrolling(){
