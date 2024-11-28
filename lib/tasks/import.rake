@@ -79,34 +79,43 @@ namespace :import do
     task chinese: :environment do
       language = "繁體中文"
       hymnal = Book.find_or_create_by(slug: :chinese_hymnal, name: "詩歌", languages: [language])
-
+      hymnal.songs = {}
       # Go through the txt file here, you may want to use `File.foreach`, and
       # you might need to use regex to group lines together. The english import
       # task looks pretty good, I think 90% of that code would work here.
       # Some things however are obsolete:
       # - Songs now just have a "title" field, not "firstline_title" or "chorus_title"
-      # - Books now have a "languages" field which is an array, instead of a "lang" string field
+      # - Books now have a "languages" field which is an array, instead of a
+      #   "lang" string field. This is so one book can have multiple languages.
+      #   Song records still have a string "lang" field.
       # - There is no SongBook model any more.
       # - In other imports I did a global find/replace to add an obvious
       #   delimiter to separate the songs for regex. In the chinese txt file
       #   there is only the pattern of two newlines and then a "C123" style
       #   number. You might want to insert a delimiter like I did for the others.
-
-
+      filename = Rails.root.join('db', 'chinese-hymnal.txt')
+      delim = "\nC"
       # For each song:
-        song = Song.new
-        song.title = "something"
-        song.lyrics = "something else"
-        song.lang = language # this doesn't change
-        song.save
+      File.foreach(filename, delim) do |txt|
+        next unless txt[/^\d+/].present?
 
+        hymnal_index = txt.split("\n")[0]
+        puts hymnal_index # print index number to the terminal
+        txt = txt.sub(/.+\n/, '') # remove the first line, which was the index number
+        txt = txt.sub(/\n+C/, '') # remove the delimiter
+        txt = txt.gsub(/\nchorus((?:\n[^\n]+)+)/) {$1.gsub("\n", "\n  ")} # pad each chorus line with 2 spaces
+        title = txt[/^[^\s\dc].+[^\s]/].sub(/[，。、；]$/, '') # get the first line for title
+        song = Song.new
+        song.title = title
+        song.lyrics = txt
+        song.lang = language # this doesn't change
+        song.save!
         # Get the database id and the hymnal index (both as strings),
         # and add it to the hymnal:
         db_id = song.id.to_s
-        hymnal_index = "779" # get this from the top of the song e.g. "C779", remove the "C"
         hymnal.songs[db_id] = hymnal_index
-      # end loop
-
+        # end loop
+      end
       # Save the hymnal to db after all the songs have been added
       hymnal.save
     end
