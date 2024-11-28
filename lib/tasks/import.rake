@@ -120,6 +120,66 @@ namespace :import do
       hymnal.save
     end
 
+
+    task korean: :environment do
+      # This code is based off the chinese import task
+      language = "한국어"
+      hymnal_name = "찬송가"
+      hymnal = Book.find_or_create_by(slug: :korean_hymnal, name: hymnal_name, languages: [language])
+      hymnal.songs = {}
+
+      filename = Rails.root.join('db', 'korean-hymnal.txt')
+      delim = "\nK"
+
+
+      File.foreach(filename, delim) do |txt|
+        # puts txt.inspect
+        txt = txt.sub(/^\n+K/, '')
+        next unless txt[/^\d+/].present?
+
+        lines = txt.split("\n")
+        hymnal_index = lines[0]
+        title = lines[1]
+        language_links = []
+
+        puts "importing #{title} - #{hymnal_index}"
+
+        if txt.match(/Related Hymns:.*/)
+          refs = txt.match(/Related Hymns:.*/)[0]
+
+          chinese = refs.match(/ C(\d+)/)
+          language_links << Book.chinese_hymnal.song_id_from_index(chinese[1]) if chinese
+
+          english = refs.match(/ E(\d+)/)
+          language_links << Book.english_hymnal.song_id_from_index(english[1]) if english
+          language_links << Book.portuguese_hymnal.song_id_from_index(english[1]) if english # portuguese use same numbers and have all the english hymns translated
+
+          french = refs.match(/ FR(\d+)/)
+          language_links << Book.french_hymnal.song_id_from_index(french[1]) if french
+
+          spanish = refs.match(/ S(\d+)/)
+          language_links << Book.spanish_hymnal.song_id_from_index(spanish[1]) if spanish
+        end
+
+        txt = txt.split(/\n\n\n+/)[1] # remove content before and after lyrics
+        txt = txt.gsub(/\nchorus((?:\n[^\n]+)+)/) {$1.gsub("\n", "\n  ")} # pad each chorus line with 2 spaces
+
+        song = Song.new
+        song.title = title
+        song.lyrics = txt
+        song.lang = language
+
+        song.language_links = language_links
+
+        song.save!
+
+        db_id = song.id.to_s
+        hymnal.songs[db_id] = hymnal_index
+      end
+
+      hymnal.save
+    end
+
     task german: :environment do
       hymnal = Book.find_or_create_by(slug: :german_hymnal, name: "Liederbuch", lang: "Deutsch")
       filename = Rails.root.join('db', 'german-hymnal.txt')
