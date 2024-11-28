@@ -62,6 +62,56 @@ namespace :import do
     end
   end
 
+  task chinese_refs: :environment do
+    chinese_hymnal = Book.chinese_hymnal
+    english_hymnal = Book.english_hymnal
+    portuguese_hymnal = Book.portuguese_hymnal
+    spanish_hymnal = Book.spanish_hymnal
+    german_hymnal = Book.german_hymnal
+    french_hymnal = Book.french_hymnal
+
+    filename = Rails.root.join('db', 'links.txt')
+    File.foreach(filename) do |line|
+      next unless line.match?(/ C\d+/)
+
+      puts "processing hymn #{line.match(/E\d+/)[0]}"
+
+      chinese_number = line.match(/ C(\d+)/)[1]
+      song = chinese_hymnal.song_at(chinese_number)
+      next unless song.present?
+
+      english_match = line.match(/E(\d+)/)
+      if english_match
+        sister_song = english_hymnal.song_at(english_match[1])
+        song.language_links.push(sister_song.id) if sister_song.present?
+
+        # portuguese has a 1-1 match with english
+        sister_song = portuguese_hymnal.song_at(english_match[1])
+        song.language_links.push(sister_song.id) if sister_song.present?
+      end
+
+      spanish_match = line.match(/S(\d+)/)
+      if spanish_match
+        sister_song = spanish_hymnal.song_at(spanish_match[1])
+        song.language_links.push(sister_song.id) if sister_song.present?
+      end
+
+      german_match = line.match(/G(\d+)/)
+      if german_match
+        sister_song = german_hymnal.song_at(german_match[1])
+        song.language_links.push(sister_song.id) if sister_song.present?
+      end
+
+      french_match = line.match(/FR(\d+)/)
+      if french_match
+        sister_song = french_hymnal.song_at(french_match[1])
+        song.language_links.push(sister_song.id) if sister_song.present?
+      end
+
+      song.save! # Song save triggers reverse refs to update too
+    end
+  end
+
   desc "Import hymnal"
   namespace "hymnal" do
 

@@ -58,7 +58,8 @@ class Book < ApplicationRecord
   end
 
   def song_at(index)
-    Song.find(song_id_from_index(index))
+    id = song_id_from_index(index)
+    Song.find(id) if id
   end
 
   def song_records
