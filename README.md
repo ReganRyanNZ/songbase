@@ -70,8 +70,9 @@ This was first a Rails app, now it uses React to allow state management and offl
 - [done]Investigate removing Dexie and using indexedDB directly (or writing a simple in-house interface for indexedDB) - UPDATE Dexie is very useful, we'll keep it for now
 - [done]Separate language API calls better, prioritise English for first loads
 - [done]Show syncing in UX while loading is still going
-- Import chinese (trad & simple?), check for UTF errors if characters require more than the default encoding
-- Pinyin, would be cool to have english transliteration above the characters, I don't think we can dynamically generate it, but maybe there's an api (and make pinyin online-only)?
+- [done]Import chinese (trad & simple?), check for UTF errors if characters require more than the default encoding
+- [done]Import Korean (code is deployed, just run heroku run rails import:hymnal:korean)
+- Add links to Chinese hymns (scan through links.txt)
 - On any edit, send an email to me with the changes, and get the reply to point to the editor's email address so I can just respond via email.
 
 

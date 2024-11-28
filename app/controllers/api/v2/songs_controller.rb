@@ -39,6 +39,7 @@ class Api::V2::SongsController < ApplicationController
     recently_changed_ids = Song.recently_changed.pluck(:id) # only query recent songs to speed things up
     @duplicate_songs ||= sort_songs(Song.where(id: recently_changed_ids)
                                         .duplicate_titles
+                                        .limit(10)
                                         .map(&:admin_entry))
   end
 
@@ -47,6 +48,7 @@ class Api::V2::SongsController < ApplicationController
 
     @recently_changed_songs ||= sort_songs(Song.search(params[:search])
                                                .recently_changed
+                                               .limit(50)
                                                .map(&:admin_entry))
   end
 
