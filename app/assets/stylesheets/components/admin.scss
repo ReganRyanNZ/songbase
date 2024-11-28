@@ -72,13 +72,24 @@ a.btn-help {
   }
 }
 
-.edit_song_link, .new_song_link, .remove_song_link {
+.edit_song_link, .remove_song_link {
   padding: 4px 2px;
   display: block;
 }
 
+.new-song-btn {
+  text-align: right;
+}
+
 .new_song_link {
-  padding: 10px 2px;
+  padding: 10px 10px;
+  display: inline;
+  border: 1px solid grey;
+  border-radius: 6px;
+  background: palegreen;
+  &:hover {
+    background: forestgreen;
+  }
 }
 
 .admin_table {
