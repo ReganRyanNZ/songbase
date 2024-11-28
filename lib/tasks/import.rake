@@ -10,9 +10,9 @@ namespace :import do
       lyrics = []
       content = File.read(song_file)
       content.split(/\n|\r/).each do |line|
-        if matches = (line.match /\{[Tt]itle: (?<title>.*)\}/)
+        if matches = (line.match(/\{[Tt]itle: (?<title>.*)\}/))
           song.firstline_title = matches[:title]
-        elsif matches = (line.match /\{section: (?<section>.*)\}/)
+        elsif matches = (line.match(/\{section: (?<section>.*)\}/))
         # elsif matches = (line.match /\.*[Cc]apo.+(?<capo>[0-9]).*/)
           # song.suggested_capo = matches[:capo]
         else
@@ -194,7 +194,7 @@ namespace :import do
 
         # convert 'chorus' to 2-space padding
         chorus_regex = /^\nchorus((?:\n[^\n]+)+)/
-        chorus_match = txt.match(chorus_regex)
+        _chorus_match = txt.match(chorus_regex)
         txt = txt.gsub(chorus_regex) {$1.gsub("\n", "\n  ")}
 
         # create song with lyrics
