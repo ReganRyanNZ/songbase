@@ -132,7 +132,7 @@ First line of the stanza
 2
 For languages like spanish,
 Where you want to merge the start and end
-of a line. You can use_underscores to link words
+of a word, you can use_underscores to link words
 like_this.
 
 This example opened in a new tab. The song you were working on is still there in the previous tab.

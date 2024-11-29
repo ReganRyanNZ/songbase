@@ -72,8 +72,10 @@ This was first a Rails app, now it uses React to allow state management and offl
 - [done]Show syncing in UX while loading is still going
 - [done]Import chinese (trad & simple?), check for UTF errors if characters require more than the default encoding
 - [done]Import Korean (code is deployed, just run heroku run rails import:hymnal:korean)
-- Add links to Chinese hymns (scan through links.txt)
+- [done]Add links to Chinese hymns (scan through links.txt)
 - On any edit, send an email to me with the changes, and get the reply to point to the editor's email address so I can just respond via email.
+  - Get a task to send a test email, to verify email works
+  - On update (non-system user) email the diff to the songbase email
 
 
 ### CRUD books
