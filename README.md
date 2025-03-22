@@ -67,12 +67,15 @@ This was first a Rails app, now it uses React to allow state management and offl
 # TODO
 
 ### Short-term TODO
-- [done]Investigate removing Dexie and using indexedDB directly (or writing a simple in-house interface for indexedDB) - UPDATE Dexie is very useful, we'll keep it for now
-- [done]Separate language API calls better, prioritise English for first loads
-- [done]Show syncing in UX while loading is still going
-- [done]Import chinese (trad & simple?), check for UTF errors if characters require more than the default encoding
-- [done]Import Korean (code is deployed, just run heroku run rails import:hymnal:korean)
-- [done]Add links to Chinese hymns (scan through links.txt)
+- Allow all language links to be shown at bottom of song, not just selected languages (but only show selected languages in index)
+- Clicking a language link at bottom of song should append that song to the view, not navigate.
+  - Which link is opened should be cached, so the user can always see the double up when they visit that song.
+  - It should also be in the url so someone can set up the languages then share with others.
+- Auto-caps while typing chords shouldn't trigger for the 'a' in Cmaj7 or the 'd' in Cdim
+- Share symbol should be updated
+
+### Admin
+
 - On any edit, send an email to me with the changes, and get the reply to point to the editor's email address so I can just respond via email.
   - Get a task to send a test email, to verify email works
   - On update (non-system user) email the diff to the songbase email
@@ -217,20 +220,6 @@ New notes:
 ### When clicking into a song's book index, highlight the song in the index
 
 - Currently it scrolls to have the song in the middle, but that's difficult to see/understand in the wall of titles.
-
-### Add asian languages
-
-- Korean
-- Cebuano
-- Tagalog
-- Chinese traditional
-- Chinese Simplified
-
-Todo:
-
-- Get the language names in the language
-- Write a script to import them all from the text files
-- Link them to their other language links (make a method to link 1 song to all of another song's language links)
 
 ### Cache globe reference toggle
 
