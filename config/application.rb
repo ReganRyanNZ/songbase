@@ -19,5 +19,10 @@ module Songbase
     # Compress requests with gzip, very important for giant api requests
     config.middleware.use Rack::Deflater
     config.load_defaults 7.0
+
+    # This allows other sites to embed songbase in an iframe
+    config.action_dispatch.default_headers = {
+      'X-Frame-Options' => 'ALLOWALL'
+    }
   end
 end
