@@ -9,7 +9,8 @@ class ApplicationController < ActionController::Base
 
   def super_admin
   [
-    "regan.ryan.nz@gmail.com"
+    "regan.ryan.nz@gmail.com",
+    "readjethro@gmail.com"
   ].include?(current_user&.email)
   end
 
