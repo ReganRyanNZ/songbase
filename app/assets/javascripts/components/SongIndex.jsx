@@ -30,6 +30,10 @@ class SongIndex extends React.Component {
     if (this.props.currentBook) {
       let bookIndex = this.props.currentBook.songs;
       results = results.filter(song => bookIndex[song.id]);
+    } else {
+      // scope songs to the languages in settings
+      let languages = this.props.settings.languages;
+      results = results.filter(song => languages.includes(song.lang));
     }
     return results;
   }

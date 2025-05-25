@@ -34,6 +34,8 @@ class SongApp extends React.Component {
 
     this.dbSync = new DatabaseSetupAndSync(this);
     this.dbSync.initialize();
+
+    $app = this; // global var accessible in console for debugging
   }
 
   // when user clicks "back" in their browser, navigate to previous song
