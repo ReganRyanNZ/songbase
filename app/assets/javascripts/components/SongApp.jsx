@@ -202,6 +202,7 @@ class SongApp extends React.Component {
         content = (
           <IndexOfBooks
           books={this.state.books || []}
+          languages={this.state.settings.languages}
           goToBookIndex={this.navigate.goToBookIndex}
           homeButton={homeButton}
           />
