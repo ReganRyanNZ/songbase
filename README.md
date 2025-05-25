@@ -67,23 +67,17 @@ This was first a Rails app, now it uses React to allow state management and offl
 # TODO
 
 ### Short-term TODO
-- Allow all language links to be shown at bottom of song, not just selected languages (but only show selected languages in index)
-  - Load all languages
-  - Only show selected langs in index
-  - Show all lang links in song display
 - Clicking a language link at bottom of song should append that song to the view, not navigate.
   - Which link is opened should be cached, so the user can always see the double up when they visit that song.
   - It should also be in the url so someone can set up the languages then share with others.
 - Auto-caps while typing chords shouldn't trigger for the 'a' in Cmaj7 or the 'd' in Cdim
-- Share symbol should be updated
+- Share symbol should be updated to match iOS
 - Book CRUD interface. Book search and select to sync to device.
-
-### Admin
-
-- On any edit, send an email to me with the changes, and get the reply to point to the editor's email address so I can just respond via email.
-  - Get a task to send a test email, to verify email works
-  - On update (non-system user) email the diff to the songbase email
-
+- Email diff of song edits to super admins, so we can double-check
+- Linking languages is so clunky at the moment
+  - Linking a new language in should link all the currently-linked songs to that new song
+  - Edit page should show the existing links with the "language: first line" format so it's obvious which link is which
+  - There should be a way to add a new song, instead of editing the CSV field. At least just adding an id to an input, and have an 'x' for existing links.
 
 ### CRUD books
 
