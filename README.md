@@ -68,11 +68,15 @@ This was first a Rails app, now it uses React to allow state management and offl
 
 ### Short-term TODO
 - Allow all language links to be shown at bottom of song, not just selected languages (but only show selected languages in index)
+  - Load all languages
+  - Only show selected langs in index
+  - Show all lang links in song display
 - Clicking a language link at bottom of song should append that song to the view, not navigate.
   - Which link is opened should be cached, so the user can always see the double up when they visit that song.
   - It should also be in the url so someone can set up the languages then share with others.
 - Auto-caps while typing chords shouldn't trigger for the 'a' in Cmaj7 or the 'd' in Cdim
 - Share symbol should be updated
+- Book CRUD interface. Book search and select to sync to device.
 
 ### Admin
 

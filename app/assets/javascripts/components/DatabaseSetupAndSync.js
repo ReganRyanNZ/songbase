@@ -112,12 +112,8 @@ class DatabaseSetupAndSync {
     this.log("Loading IndexedDB into state...");
     let app = this.app;
     let db = this.db;
-    let languages = app.state.settings.languages;
 
     db.books
-      .where("languages")
-      .anyOf(languages)
-      .distinct()
       .toArray(books => {
         this.log('Pushing books to state:');
         this.log(books);
@@ -126,8 +122,6 @@ class DatabaseSetupAndSync {
       })
       .then(() => {
         db.songs
-          .where("lang")
-          .anyOf(languages)
           .toArray(songs => {
             songs.sort(this.sortSongsByTitle);
             app.setState({ songs: songs });
