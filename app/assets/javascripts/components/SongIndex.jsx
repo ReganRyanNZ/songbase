@@ -40,6 +40,10 @@ class SongIndex extends React.Component {
 
   rowDataForNumericalSearch(number) {
     let books = this.props.currentBook ? [this.props.currentBook] : this.props.books;
+    let languages = this.props.settings.languages;
+    books = books.filter(book =>
+      book.languages.some(lang => languages.includes(lang))
+    );
     let booksWithIndex = books.map(book => {
                                     let song_id = this.props.getSongIdFromBook(book, number);
                                     return song_id ? [book, song_id] : null;
