@@ -1,0 +1,39 @@
+<h3><%= @title %></h3>
+
+<pre style="font-family: monospace; font-size:14px; line-height:20px;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse:collapse;">
+    <% @other_changes.each do |attribute, old, new| %>
+
+      <!-- Other changes -->
+      <tr>
+        <!-- Left column -->
+        <td valign="top" width="50%" style="padding:10px;">
+          <div><strong>Old <%= attribute %></strong></div>
+          <%= raw old %>
+        </td>
+
+        <!-- Right column -->
+        <td valign="top" width="50%" style="padding:10px;">
+          <div><strong>New <%= attribute %></strong></div>
+          <%= raw new %>
+        </td>
+      </tr>
+    <% end %>
+
+
+    <!-- Lyrics -->
+    <tr>
+      <!-- Left column -->
+      <td valign="top" width="50%" style="padding:10px;background:#f8f8f8;">
+        <div><strong>Old Lyrics</strong></div>
+        <%= raw @old_lyrics %>
+      </td>
+
+      <!-- Right column -->
+      <td valign="top" width="50%" style="padding:10px;background:#f8f8f8;">
+        <div><strong>New Lyrics</strong></div>
+        <%= raw @new_lyrics %>
+      </td>
+    </tr>
+  </table>
+</pre>
