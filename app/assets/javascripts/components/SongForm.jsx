@@ -44,18 +44,14 @@ class SongForm extends React.Component {
     } else
 
     if (chordChars.includes(key) && lyrics.slice(0, selectStart).match(keyIsInChordRegex)) {
-      // Do not change a 'b' after a chord char
-      if (key === 'b' && chordChars.includes(lyrics.charAt(selectStart - 1).toLowerCase())) {
-        return
+      let prevChar = lyrics.charAt(selectStart - 1);
+
+      // Capitalise only if it's the first char in a chord: preceded by [ or space or -
+      if (["[", " ", "-"].includes(prevChar)) {
+        event.target.value = lyrics.slice(0, selectStart) + key.toUpperCase() + lyrics.slice(selectEnd);
+        event.target.selectionStart = event.target.selectionEnd = selectStart + 1;
+        this.handleChange(event);
       }
-
-      // replace chord with capitalized version
-      let newLyrics = lyrics.slice(0, selectStart) + key.toUpperCase() + lyrics.slice(selectEnd)
-      event.target.value = newLyrics;
-
-      // position cursor
-      event.target.selectionStart = event.target.selectionEnd = selectStart + 1;
-      this.handleChange(event);
     }
   }
 
