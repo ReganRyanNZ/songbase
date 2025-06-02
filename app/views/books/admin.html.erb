@@ -1,0 +1,11 @@
+<%= render 'nav' %>
+<%= render 'flash' %>
+
+<h1>Songbase Admin</h1>
+
+<%=
+  react_component(
+    'AdminBookList',
+    { books: @books.map(&:app_entry) }
+  )
+%>
