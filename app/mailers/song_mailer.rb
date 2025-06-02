@@ -6,13 +6,22 @@ class SongMailer < ApplicationMailer
     @old_lyrics, @new_lyrics = diff_lyrics(*changes[:lyrics])
 
     mail(
-      to: SUPPORT_EMAIL,
+      to: to_emails(song),
       from: "song-diff@songbase.life",
       subject: "Song update for \"#{song.title}\""
     )
   end
 
   private
+
+  def to_emails(song)
+    case song.language
+    when "français"
+      SUPPORT_EMAIL # change this to Sylvie when she gets back to us
+    else
+      SUPPORT_EMAIL
+    end
+  end
 
   def format_changes(changes)
     changes.except(:lyrics).map do |attribute, (old, new)|
