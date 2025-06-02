@@ -25,14 +25,18 @@
     <tr>
       <!-- Left column -->
       <td valign="top" width="50%" style="padding:10px;background:#f8f8f8;">
-        <div><strong>Old Lyrics</strong></div>
-        <%= raw @old_lyrics %>
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="400" style="border-collapse:collapse;">
+          <tr><td><div><strong>Old Lyrics</strong></div></td></tr>
+          <%= raw @old_lyrics %>
+        </table>
       </td>
 
       <!-- Right column -->
       <td valign="top" width="50%" style="padding:10px;background:#f8f8f8;">
-        <div><strong>New Lyrics</strong></div>
-        <%= raw @new_lyrics %>
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="400" style="border-collapse:collapse;">
+          <tr><td><div><strong>New Lyrics</strong></div></td></tr>
+          <%= raw @new_lyrics %>
+        </table>
       </td>
     </tr>
   </table>

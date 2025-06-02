@@ -7,6 +7,7 @@ class SongMailer < ApplicationMailer
 
     mail(
       to: SUPPORT_EMAIL,
+      from: "song-diff@songbase.life",
       subject: "Song update for \"#{song.title}\""
     )
   end
@@ -20,7 +21,9 @@ class SongMailer < ApplicationMailer
   end
 
   def format_line(line, color)
-    "<div style='background:#{color}; white-space: pre-wrap;'>#{ERB::Util.html_escape(line.chomp)}</div>"
+    line = line.blank? ? "<br>" : ERB::Util.html_escape(line.chomp)
+
+    "<tr><td style='background:#{color}; white-space: pre-wrap;'>#{line}</td></tr>"
   end
 
   def normal_line(line) = format_line(line, "#f8f8f8")
