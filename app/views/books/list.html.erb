@@ -1,0 +1,13 @@
+<%= render 'nav' %>
+<%= render 'flash' %>
+
+<h1><%= @book.name %></h1>
+
+<%= react_component(
+  'AdminBookDisplay',
+  { songs: @songs.map(&:admin_entry), book: @book },
+  superAdmin: super_admin,
+  settings: {
+    languages: Song.languages
+  })
+%>

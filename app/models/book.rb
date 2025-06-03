@@ -8,6 +8,8 @@
 #   Adding a song:  my_book.songs[song.id] = 1; my_book.save
 
 class Book < ApplicationRecord
+  belongs_to :owner, class_name: "User"
+  before_validation :assign_default_owner, on: :create
   default_scope -> { where(deleted_at: nil) }
 
   # The weird syntax is for postgres Array types
@@ -72,7 +74,14 @@ class Book < ApplicationRecord
       name: name,
       slug: slug,
       songs: songs,
-      languages: languages
+      languages: languages,
+      admin: owner_id || [71],
     }
+  end
+
+  private 
+
+  def assign_default_owner
+    self.owner ||= User.system_user
   end
 end
