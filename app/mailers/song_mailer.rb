@@ -15,7 +15,7 @@ class SongMailer < ApplicationMailer
   private
 
   def to_emails(song)
-    case song.language
+    case song.lang.downcase
     when "français"
       SUPPORT_EMAIL # change this to Sylvie when she gets back to us
     else
