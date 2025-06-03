@@ -6,9 +6,7 @@
 <div class="new-song-btn">
   <%= link_to 'New Song', new_song_path, class: "new_song_link" %>
 
-  <% if super_admin %>
-    <%= link_to 'Books Admin', '/books/admin', class: "new_song_link" %>
-  <% end %>
+  <%= link_to 'Books Admin', '/books/admin', class: "new_song_link" %>
 </div>
 
 <%= react_component(
