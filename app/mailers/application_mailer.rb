@@ -1,4 +1,7 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: 'from@example.com'
+  default from: "no-reply@songbase.life"
   layout 'mailer'
+
+  SUPPORT_EMAIL = "songbase.brothers@gmail.com"
+
 end

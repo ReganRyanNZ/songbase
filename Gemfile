@@ -39,6 +39,7 @@ gem 'selenium-webdriver'
 group :development, :test do
   gem 'byebug', platform: :mri
   gem 'factory_bot_rails'
+  gem 'letter_opener'
 end
 
 group :test do

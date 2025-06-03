@@ -103,6 +103,8 @@ GEM
       xpath (~> 3.2)
     case_transform (0.2)
       activesupport
+    childprocess (5.1.0)
+      logger (~> 1.5)
     concurrent-ruby (1.2.3)
     connection_pool (2.4.1)
     crass (1.0.6)
@@ -145,9 +147,16 @@ GEM
       activesupport (>= 5.0.0)
     jsonapi-renderer (0.2.2)
     jwt (2.7.1)
+    launchy (3.1.1)
+      addressable (~> 2.8)
+      childprocess (~> 5.0)
+      logger (~> 1.6)
+    letter_opener (1.10.0)
+      launchy (>= 2.2, < 4)
     listen (3.8.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
+    logger (1.7.0)
     loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -328,6 +337,7 @@ DEPENDENCIES
   factory_bot_rails
   google_sign_in
   jbuilder
+  letter_opener
   listen
   minitest-rails
   minitest-reporters

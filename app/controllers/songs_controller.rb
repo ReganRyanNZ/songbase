@@ -71,7 +71,11 @@ class SongsController < ApplicationController
   end
 
   def update
+    @song = Song.find(params[:id])
+
     if @song.update(song_params)
+      changes = @song.previous_changes.except(:updated_at)
+      SongMailer.song_changed(@song, changes).deliver_later unless changes.empty?
       Audit.create(user: current_user, song: @song, time: Time.zone.now)
       redirect_to admin_path, notice: "Song was successfully updated. #{song_flash_link(@song)} to view in app."
     else
@@ -215,4 +219,5 @@ Is my felicity.
 # Verse 1 of the original hymn has
 # become the chorus for this tune"
   end
+
 end
