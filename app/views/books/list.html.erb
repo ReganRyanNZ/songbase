@@ -1,16 +1,10 @@
 <%= render 'nav' %>
 <%= render 'flash' %>
 
-<h1>Songbase Admin</h1>
-
-<div class="new-song-btn">
-  <% if super_admin %>
-    <%= link_to 'Books Admin', '/books/admin', class: "new_song_link" %>
-  <% end %>
-</div>
+<h1><%= @book.name %></h1>
 
 <%= react_component(
-  'AdminSongDisplay',
+  'AdminBookDisplay',
   { songs: @songs.map(&:admin_entry), book: @book },
   superAdmin: super_admin,
   settings: {

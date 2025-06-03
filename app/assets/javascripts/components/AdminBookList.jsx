@@ -3,6 +3,7 @@ class AdminBookList extends React.Component {
     super(props);
     this.state = {
       books: props.books || [],
+      users: props.users || []
     };
   }
 
@@ -10,10 +11,12 @@ class AdminBookList extends React.Component {
     window.location.href = `/books/admin/${book_slug}`;
   }
 
+  getUserNameFromAdminID(adminID) {
+    const user = this.state.users.find(user => user.id === adminID);
+    return user.name;
+  }
+
   render() {
-    this.state.books.map((book) => {
-      console.log(book);
-    });
 
     return (
       <div className="admin_book_list">
@@ -29,6 +32,7 @@ class AdminBookList extends React.Component {
             style={{ display: "flex", justifyContent: "space-between", cursor: "pointer" }}
           >
             <span className="index_row_title">{book.name}</span>
+            <span>{this.getUserNameFromAdminID(book.admin)}</span>
             <span className="index_row_languages">
               {book.languages
                 .map(lang => lang.charAt(0).toUpperCase() + lang.slice(1))
