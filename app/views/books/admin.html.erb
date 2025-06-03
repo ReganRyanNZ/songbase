@@ -3,9 +3,13 @@
 
 <h1>Songbase Admin</h1>
 
+<div class="new-book-btn">
+    <%= link_to 'New Book', '/books/admin/new', class: "new_book_link" %>
+</div>
+
 <%=
   react_component(
     'AdminBookList',
-    { books: @books.map(&:app_entry) }
+    { books: @books.map(&:app_entry), users: @users }
   )
 %>

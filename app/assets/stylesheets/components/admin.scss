@@ -77,11 +77,12 @@ a.btn-help {
   display: block;
 }
 
-.new-song-btn {
+.new-song-btn, .new-book-btn {
   text-align: right;
+  margin: 15px 0px
 }
 
-.new_song_link {
+.new_song_link, .new_book_link {
   padding: 10px 10px;
   display: inline;
   border: 1px solid grey;
@@ -101,4 +102,74 @@ a.btn-help {
 
 .flash_link {
   color: #4646fd;
+}
+.admin-book-form {
+  padding: 1rem;
+  font-family: sans-serif;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.index_search {
+  flex: 1;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.btn_clear_search {
+  cursor: pointer;
+  padding: 0 0.5rem;
+  font-size: 1.5rem;
+  color: #666;
+  user-select: none;
+}
+
+.songs-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.songs-search,
+.book-songs {
+  flex: 1;
+  min-width: 300px;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.songs-search h3,
+.book-songs h3 {
+  margin-top: 0;
+  padding-bottom: 0.5rem;
+}
+
+.song-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.5rem 0;
+  padding: 0.25rem 0;
+  border-bottom: 1px dashed #ddd;
+}
+
+.song-item button {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.song-item button:hover {
+  background-color: #0056b3;
 }
