@@ -2,44 +2,42 @@
 
 <pre style="font-family: monospace; font-size:14px; line-height:20px;">
   <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse:collapse;">
-    <% @other_changes.each do |attribute, old, new| %>
+    <tr>
+      <!-- Left column -->
+      <td valign="top" width="50%" style="padding:10px;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="400" style="border-collapse:collapse;">
 
-      <!-- Other changes -->
-      <tr>
-        <!-- Left column -->
-        <td valign="top" width="50%" style="padding:10px;">
-          <div><strong>Old <%= attribute %></strong></div>
-          <%= raw old %>
-        </td>
+          <% @other_changes.each do |attribute, old, new| %>
+            <tr><td><div><strong>Old <%= attribute %></strong></div></td></tr>
+            <%= raw old %>
+          <% end %>
 
-        <!-- Right column -->
-        <td valign="top" width="50%" style="padding:10px;">
-          <div><strong>New <%= attribute %></strong></div>
-          <%= raw new %>
-        </td>
-      </tr>
-    <% end %>
+          <% if @new_lyrics.present? %>
+            <td><br></td>
 
-
-    <!-- Lyrics -->
-    <% if @new_lyrics.present? %>
-      <tr>
-        <!-- Left column -->
-        <td valign="top" width="50%" style="padding:10px;background:#f8f8f8;">
-          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="400" style="border-collapse:collapse;">
             <tr><td><div><strong>Old Lyrics</strong></div></td></tr>
             <%= raw @old_lyrics %>
-          </table>
-        </td>
+          <% end %>
+        </table>
+      </td>
 
-        <!-- Right column -->
-        <td valign="top" width="50%" style="padding:10px;background:#f8f8f8;">
-          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="400" style="border-collapse:collapse;">
+      <!-- Right column -->
+      <td valign="top" width="50%" style="padding:10px;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="400" style="border-collapse:collapse;">
+
+          <% @other_changes.each do |attribute, old, new| %>
+            <tr><td><div><strong>New <%= attribute %></strong></div></td></tr>
+            <%= raw new %>
+          <% end %>
+
+          <% if @new_lyrics.present? %>
+            <td><br></td>
+
             <tr><td><div><strong>New Lyrics</strong></div></td></tr>
             <%= raw @new_lyrics %>
-          </table>
-        </td>
-      </tr>
-    <% end %>
+          <% end %>
+        </table>
+      </td>
+    </tr>
   </table>
 </pre>

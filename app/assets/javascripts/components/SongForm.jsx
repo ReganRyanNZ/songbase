@@ -59,6 +59,7 @@ class SongForm extends React.Component {
       <div className="admin-comment">
         Dear saints, for the sake of uniformity and usability, please consider the following:
         <ul>
+          <li>For the title, use the first line of the song</li>
           <li>If you have a custom title (e.g. "Hebrews Medley"), you can put it after the first line: "Christ our High Priest (Hebrews Medley)"</li>
           <li>Likewise for a verse reference (e.g. "Matthew 16:18-19"), better to put it after the first line: "And I also say to you that you are Peter (Matthew 16:18-19)"</li>
           <li>Do not duplicate an existing title</li>

@@ -1,27 +1,22 @@
 class SongMailer < ApplicationMailer
 
+  OVERSEERS_EMAILS = {
+    "français" => ["sdayfranceusa@gmail.com", "sdaytranslationexec.services@gmail.com"]
+  }
+
   def song_changed(song, changes)
     @title = song.title
     @other_changes = format_changes(changes)
     @old_lyrics, @new_lyrics = diff_lyrics(*changes[:lyrics])
 
     mail(
-      to: to_emails(song),
+      to: OVERSEERS_EMAILS[song.lang.downcase].presence || SUPPORT_EMAIL,
       from: "song-diff@songbase.life",
       subject: "Song update for \"#{song.title}\""
     )
   end
 
   private
-
-  def to_emails(song)
-    case song.lang.downcase
-    when "français"
-      SUPPORT_EMAIL # change this to Sylvie when she gets back to us
-    else
-      SUPPORT_EMAIL
-    end
-  end
 
   def format_changes(changes)
     changes.except(:lyrics).map do |attribute, (old, new)|
