@@ -62,7 +62,7 @@ class AdminBookForm extends React.Component {
         return acc;
       }, {});
   }
-  
+
   clearSearch() {
     this.setState({ search: "" });
     document.getElementById("index_search").focus();
@@ -188,8 +188,6 @@ class AdminBookForm extends React.Component {
 
     const filteredSongs = this.filterAndSortSongs(songs, search).slice(0, 25);
 
-    const filterBookSongs = newBookSongs.filter((song) => song.title.toLowerCase().includes(search.toLowerCase()));
-
     return (
       <div className="admin-book-form">
         <div className="search-form form" key="search-form">
@@ -246,19 +244,23 @@ class AdminBookForm extends React.Component {
           <div className="book-songs-container">
             <h3>Book Songs</h3>
             <div className="book-songs"></div>
-            {filterBookSongs.map((song, index) => (
-              <div
-                className="song-item"
-                key={song.id}
-                draggable
-                onDragStart={(e) => this.handleDragStart(e, index)}
-                onDrop={(e) => this.handleDrop(e, index)}
-                onDragOver={(e) => e.preventDefault()}
-              >
-                #{index + 1} {song.title}
-                <button onClick={() => this.handleRemoveSong(index)}>Remove</button>
-              </div>
-            ))}
+            {newBookSongs.map((song, index) => {
+              if (!song.title.toLowerCase().includes(search.toLowerCase())) return null;
+
+              return (
+                <div
+                  className="song-item"
+                  key={song.id}
+                  draggable
+                  onDragStart={(e) => this.handleDragStart(e, index)}
+                  onDrop={(e) => this.handleDrop(e, index)}
+                  onDragOver={(e) => e.preventDefault()}
+                >
+                  #{index + 1} {song.title}
+                  <button onClick={() => this.handleRemoveSong(index)}>Remove</button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
