@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_03_031438) do
+ActiveRecord::Schema[7.1].define(version: 2025_06_09_065941) do
   create_schema "songbase_production"
 
   # These are extensions that must be enabled in order to support this database
@@ -35,8 +35,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_03_031438) do
     t.boolean "sync_to_all", default: false
     t.jsonb "songs", default: {}
     t.string "languages", default: [], array: true
-    t.bigint "owner_id"
-    t.index ["owner_id"], name: "index_books_on_owner_id"
+    t.json "owners", default: []
   end
 
   create_table "songs", id: :serial, force: :cascade do |t|
@@ -65,5 +64,4 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_03_031438) do
 
   add_foreign_key "audits", "songs"
   add_foreign_key "audits", "users"
-  add_foreign_key "books", "users", column: "owner_id"
 end

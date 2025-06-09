@@ -136,19 +136,18 @@ a.btn-help {
   flex-wrap: wrap;
 }
 
-.songs-search,
-.book-songs {
+.songs-search-container,
+.book-songs-container {
   flex: 1;
   min-width: 300px;
+
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
-
-.songs-search h3,
-.book-songs h3 {
-  margin-top: 0;
-  padding-bottom: 0.5rem;
+.songs, .book-songs {
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 .song-item {
@@ -172,4 +171,56 @@ a.btn-help {
 
 .song-item button:hover {
   background-color: #0056b3;
+}
+
+.songs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.language-filter {
+  display: flex;
+  flex-direction: column;
+}
+
+.language-filter label {
+  display: flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.language-filter label:hover {
+  background: #d6e4ff;
+}
+
+.language-filter input[type="checkbox"] {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+button.book-langauge-filter {
+  height: 24px;
+  width: 24px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ui-color);
+  fill: var(--ui-color);
+  z-index: 10;
+
+  & svg {
+    height: 100%;
+    fill: currentColor;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
 }
