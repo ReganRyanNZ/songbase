@@ -7,11 +7,11 @@ class BooksController < ApplicationController
 
   def admin
     @books = Book.all()
-    @users = User.all()
   end
 
   def new
-    @book = Book.new
+    @newBook = Book.new
+    @books = Book.all()
     @songs = Song.all()
   end
 
