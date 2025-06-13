@@ -1,5 +1,28 @@
-<%= react_component("AdminBookForm", {
-  songs: @songs,
-  newBook: @newBook,
-  books: @books
-}) %>
+<%= form_for book, url: update_admin_book_path(@book.slug), method: :patch do |f| %>
+  <% if book.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(book.errors.count, "error") %> prohibited this book from being saved:</h2>
+      <ul>
+        <% book.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= react_component("AdminBookForm", {
+    songs: @songs,
+    book: book,
+  }) %>
+
+  <div class="actions text-center">
+    <%= f.submit "Save Book", class: "btn btn-update" %>
+  </div>
+<% end %>
+
+<% can_delete = super_admin || (book.owners.any? { |owner| owner.email == current_user.email }) %>
+<% if book.persisted? && can_delete %>
+  <%= button_to "Delete Book", delete_admin_book_path(book.slug), method: :delete,
+                data: { confirm: "Are you sure you want to delete this book?" },
+                class: "btn btn-delete" %>
+<% end %>

@@ -7,42 +7,56 @@ class AdminBookDisplay extends React.Component {
       book: props.book || {},
     };
   }
+
+  getSortedSongRows() {
+    const { songs, book } = this.state;
+
+    return [...songs]
+      .sort((a, b) => {
+        const aRef = book.songs[String(a.id)];
+        const bRef = book.songs[String(b.id)];
+
+        const aOrder = (aRef === undefined || aRef === null) ? Infinity : aRef;
+        const bOrder = (bRef === undefined || bRef === null) ? Infinity : bRef;
+
+        return aOrder - bOrder;
+      })
+      .map((song) => {
+        let songRef = book.songs[String(song.id)];
+        if (songRef === undefined || songRef === null) {
+          songRef = "-";
+        }
+
+        const editUrl = `/songs/${song.id}/edit`;
+
+        return (
+          <tr key={song.id}>
+            <td>#{songRef}&nbsp;&nbsp;</td>
+            <td>
+              <a href={editUrl}>{song.title}</a>
+            </td>
+            <td>
+              <div className="last_edited">{song.last_editor || "N/A"}</div>
+            </td>
+          </tr>
+        );
+      });
+  }
+
   render() {
-    const book = this.state.book;
-    // Sort songs array by their reference in the book (songRef)
-    const sortedSongs = this.state.songs.slice().sort((a, b) => {
-      const refA = book && book.songs && book.songs[a.id] ? book.songs[a.id] : Infinity;
-      const refB = book && book.songs && book.songs[b.id] ? book.songs[b.id] : Infinity;
-      return refA - refB;
-    });
-
-    let list = sortedSongs.map((song) => {
-      let editRef = "/songs/" + song.id + "/edit";
-      let songRef = book && book.songs && book.songs[song.id] ? book.songs[song.id] : "-";
-
-      return (
-        <tr key={song.id}>
-          <td>
-            #{songRef}
-            &nbsp;&nbsp;
-          </td>
-          <td>
-            <a href={editRef}>{song.title}</a>
-          </td>
-          <td>
-            <div className="last_edited">{song.last_editor}</div>
-          </td>
-          <td>
-            <div className="edit_timestamp">{song.edit_timestamp}</div>
-          </td>
-        </tr>
-      );
-    });
-
     return (
       <div className="admin_list">
         <table className="admin_table">
-          <tbody>{list}</tbody>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Title</th>
+              <th>Last Edited By</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.getSortedSongRows()}
+          </tbody>
         </table>
       </div>
     );

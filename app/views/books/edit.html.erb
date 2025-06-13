@@ -1,0 +1,13 @@
+<h1 class="admin-root-title"><%= link_to "Edit Book", admin_books_path %></h1>
+<hr>
+<div class="admin-comment">
+  Dear saints, when editing books:
+  <ul>
+    <li>You may update the book title, change the order of songs, and manage ownership (add or remove owners).</li>
+    <li>Please avoid reordering songs unless necessary, as the current sequence may have been prayerfully considered for use in meetings or conferences.</li>
+    <li>Deleting a book will permanently remove it for all users. Please ensure this is intentional before proceeding.</li>
+    <li>Edit access to this book is limited to the listed owners below. Please consider carefully who should have ownership.</li>
+  </ul>
+</div>
+<hr>
+<%= render 'form', songs: @songs, book: @book %>
