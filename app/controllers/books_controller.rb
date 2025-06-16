@@ -14,10 +14,13 @@ class BooksController < ApplicationController
 
   def new
     @book = Book.new
+    @songs = Song.all
     render :new
   end
 
   def edit
+    @book = Book.find_by!(slug: params[:book_slug])
+    @songs = Song.all
     render :edit
   end
 
@@ -27,7 +30,7 @@ class BooksController < ApplicationController
     if @book.save
       redirect_to admin_book_path(@book.slug), notice: "Book was successfully created"
     else
-      render :form
+      render :new
     end
   end
 
@@ -36,7 +39,6 @@ class BooksController < ApplicationController
     if @book.update(book_params)
       redirect_to admin_books_path, notice: "Book was successfully updated"
     else
-      @songs = Song.all
       render :edit
     end
   end

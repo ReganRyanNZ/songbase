@@ -1,4 +1,4 @@
-<%= form_for book, url: update_admin_book_path(@book.slug), method: :patch do |f| %>
+<%= form_for book, url: book.persisted? ? update_admin_book_path(book.slug) : create_admin_book_path, method: book.persisted? ? :patch : :post do |f| %>
   <% if book.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(book.errors.count, "error") %> prohibited this book from being saved:</h2>
