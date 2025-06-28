@@ -70,10 +70,8 @@ This was first a Rails app, now it uses React to allow state management and offl
 - Clicking a language link at bottom of song should append that song to the view, not navigate.
   - Which link is opened should be cached, so the user can always see the double up when they visit that song.
   - It should also be in the url so someone can set up the languages then share with others.
-- Auto-caps while typing chords shouldn't trigger for the 'a' in Cmaj7 or the 'd' in Cdim
 - Share symbol should be updated to match iOS
 - Book CRUD interface. Book search and select to sync to device.
-- Email diff of song edits to super admins, so we can double-check
 - Linking languages is so clunky at the moment
   - Linking a new language in should link all the currently-linked songs to that new song
   - Edit page should show the existing links with the "language: first line" format so it's obvious which link is which
@@ -154,11 +152,6 @@ Steps:
 - [done] First stage is to get a single song with chords in a copy-paste format.
 - Second stage is to get the whole book as back-to-back copy-paste songs. This is probably the best state because people still want to edit and move things around.
 
-### Duplicates
-
-- Exact duplicates will no longer be created (by some previous double-submitting bug). Near duplicates (e.g. one version without chords, one with) are tricky to catch. The best solution I can think of is to use Postgres's Levenshtein function to match string similarity, but that has a 255 byte max, so we'd need to combine it with a LEFT function to get the first 60 characters (assuming the worst case is all characters are 4 bytes), and possibly some kind of regex to remove chords from the comparison. Would be cool, but it's technically challenging enough that manual finding/fixing is sufficient for now.
-- What if I strip lyrics of all chords and non-chars, downcase, then compare the first 100 chars? Would have to be a script, because it's O(n^2).
-
 ### Better analytics
 
 - If a user stays on a song for more than 30 seconds, add to list of sung songs. Periodically sync that list with the server so we have records of what songs are sung.
@@ -218,8 +211,6 @@ New notes:
 ### When clicking into a song's book index, highlight the song in the index
 
 - Currently it scrolls to have the song in the middle, but that's difficult to see/understand in the wall of titles.
-
-### Cache globe reference toggle
 
 ### Book index toggle overlapping search
 
