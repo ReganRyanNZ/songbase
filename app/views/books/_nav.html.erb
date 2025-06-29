@@ -1,0 +1,8 @@
+<div class="user_nav">
+  <% if current_user %>
+    Signed in as <strong><%= current_user.name %></strong>
+    <%= link_to "Sign out", signout_path, id: "sign_out" %>
+  <% else %>
+    <%= google_sign_in_button image_tag('btn_google_signin_dark_normal_web@2x.png', alt: 'Google'), proceed_to: create_session_url(:google), class: 'sign_in_google' %>
+  <% end %>
+</div>

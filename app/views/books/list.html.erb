@@ -1,0 +1,11 @@
+<%= render 'nav' %>
+<%= render 'flash' %>
+
+<h1>
+  <%= link_to @book.name, admin_books_path, class: "book-title-link" %>
+</h1>
+
+<%= react_component(
+  'AdminBookDisplay',
+  { songs: @songs, book: @book, superAdmin: super_admin }
+) %>
