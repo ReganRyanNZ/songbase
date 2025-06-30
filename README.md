@@ -77,75 +77,66 @@ This was first a Rails app, now it uses React to allow state management and offl
   - Edit page should show the existing links with the "language: first line" format so it's obvious which link is which
   - There should be a way to add a new song, instead of editing the CSV field. At least just adding an id to an input, and have an 'x' for existing links.
 
-### CRUD books
+### Song moderation
+- [done]Email diff to moderators whenever a song is edited
+- Show who did the edit
+- New songs should also trigger the email
+- Spanish song moderators?
 
-Notes from 13 Sep 2023:
+### books
+- Different categories of books
+  1. Hymnals
+    - Available to everyone by default, non-deletable
+    - Super-admin can edit, through code lol but also make sure they have access to everything
+  2. Wide-reaching books
+    - E.g. Blue songbook, NACT book, Canada YP songbook, Spanish/German YP books
+    - Should be accessible by everyone, but not necessarily in the book list by default
+    - Might divide this by dated vs timeless (e.g. a conference vs bsb)
+    - List of email addresses for who can edit each book
+  3. Small group books
+    - Home meeting
+    - Hamilton highschoolers
+    - Besties having a shared favourites book
+    - List of email addresses for who can edit each book
+  4. Personal books
+    - E.g. favs, or maybe someone does a collection on a topic or something for study
+    - Technically doesn't need to be shared/synced/in the db, BUT the person might have multiple devices
+    - List of email addresses for who can edit each book (even if just 1 email)
 
-- UI
-  - Looks like an index page, but with hamburger drag-to-reorder buttons on each song.
-  - Search bar at the top with animated slide-out to show searched songs are not part of book
-  - Click on search result and it's added to book
-  - [index number] [song title] [delete icon, with confirmation] [Draggable icon]
-  - Steps
-    - Blank page with 3 dummy song title cards
-    - Draggable to rearrange
-    - Rearranging updates the index numbers (or have the index numbers outside the cards?)
-    - Search bar with click to add to the page
-    - Delete button with confirmation
-    - Custom books page, with custom books deleteable and editable
-    - Don't sync books by default, only hymnals (blue?)
+Concluding thoughts:
+- What if all books are publicly searchable, but only after moderator confirmation
+- When publishing a book, or editing title of a published book, let the user know that it wont be public until a moderator approves.
+- Sort books (when searching for new books) by how many people are syncing the book, so that all the good conferences etc come up to the top
+- A checkbox to say "publish" (or "public"), until then it's not searchable.
+  - This makes it hard to access on multiple devices, but maybe saving can send all owners (that are new for that save, or all owners when changing to "public") an email with an edit link "you've been made owner of SONGOBOOK click here to edit".
+- Also saving updates could let owners know? Maybe? Like diffs.
 
-- On drag
-  - Disappear original
-  - If dragged over another item, remove dummy from list, insert dummy to position of dragged-over item
-  - Make sure boundaries are full screen width, so it always reshuffles as the mouse drags around
+Pages:
+- Book index
+  - Searchable index of books to add
+    - Hidden by default, a button opens up the searchbar/list
+  - Edit button/icon somewhere for books you can edit
+  - Bottom of page shows "register email to edit books" button (wording can be improved)
+    - Button changes to just your email once registered (with a signout button)
+- Book form
+  - Book title
+    - On submit, create the slug by subbing out any whitespace for underscore or hyphen or something (/\S+/, "_")
+    - Validate both title and slug are unique, otherwise put an error on title (might need something fancy to check uniqueness on the spot instead of waiting for submit? Not a blocker, could just do it on submit)
+  - Book index stuff to create the book
+  - Email addresses for editors (CSV format)
+  - Hidden field with salt for registered device
+- Email for registering device
+- Email for moderators to approve new book/title
+- Email for book diff sent to owners on edit
+- Email for new owners added
 
-
-Notes from 17 Aug 2023:
-
-- Books need a csv field of email addresses allowed to edit the song. Users need to log in via gmail, and then their email is checked against this value. This feels like the best compromise between avoiding user signup and privilege-based access.
-- Creating/editing books is still a question of UI
-- Add link icon in book index to get shareable link
-  - Book's index url should also be a shareable link
-- Song form should not use Book.app_data, find a better way to query references
-- IDEA:
-  - Books are created locally
-  - When a share link is clicked, the booked is synced to server
-  - After 1 month, book is taken down? Nah but if it's just one record, seems fine to keep up.. What about 10k useless lost user books? Hmm maybe after 6 months of no updating, remove it? Seems like a task for 6 months later...
-
-Steps:
-
-- [done]Create new field in books
-- [done]Migrate data from song_books to books
-- [done]Figure out whether client needs to parse books back to references or just change its ways (done, I want to change ways)
-- [done]Keep v1 api but only returning song data
-- [done]Build v2 separate
-  - [done]Create v2 controller, with tests
-  - [done]SongApp to ping new api endpoint, and use the new data structure
-  - [done]Admin side to use new controller, create tests
-  - Email people about v2 when its in prod
-- [done]Test preloaded props songs and books are working
-- Remove song_books from db and code
-- General refactor
-
-- Book creation page
-  - Book login page, separate from admin because we don't need all users knowing about admin
-  - Add array (or string?) of email addresses to book records. Users can log in via google, and their email matched to give access to edit that particular book.
-  - How to add songs to a book? Better to not clog up the song display, perhaps in the book edit page we can just have a searchable index, clicking brings to another panel, with draggable titles for ordering?
-  - Search similar to admin search, could probably reuse that api
-  - Advanced--clicking could bring up a modal to preview the song to confirm it's the right one. But for now, can just click a + next to the title to add it to the book.
-  - Search can overlay the screen, and with nothing searched it shows the list of songs in the book with a hamburger to click and drag to change the order
-  - Creating a book should have "My Favorites" as the default name
-- Book selection page
-  - Add some kind of note to book selection page that if a book is missing, they need someone to share with them, or to perhaps check languages in the settings.
-  - Remove book button, for user-owned books
-  - Logging in should sync books saved between client and user record on db (add array col of books)
-  - Logging in should save email address into indexedDB, so logging in is not required again
-- Shareable link
-  - e.g. songbase.life/add_book?id=4123&name=wellington-yp-2023, where name is there for visual reference but discarded so changing names doesn't break the link
-  - Link needs to be easily accessed, perhaps in book selection page?
-  - A song url that includes a book in the path should add the book
-- Remove blue songbook from defaults, but keep hymnals
+Auth idea:
+Register email to edit books
+-> regan.ryan.nz@gmail.com
+-> I get an email with a link, I click the link
+-> device stores 1423jhkbj12bkjhwqerfbhdjqwehiu
+-> Whenever you submit an edit form from that device, a hidden field will include 1423jhkbj12bkjhwqerfbhdjqwehiu so the server knows you are regan.ryan.nz@gmail.com, same as detecting whether you can see the edit button.
+"register" as a word because it's permanent, rather than "log in" but really it's the same thing except you dont make up a password nor sign up
 
 ### Book printing
 
