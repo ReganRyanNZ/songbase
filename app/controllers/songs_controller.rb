@@ -72,13 +72,10 @@ class SongsController < ApplicationController
 
   def update
     @song = Song.find(params[:id])
-    old_lyrics = @song.lyrics
 
     if @song.update(song_params)
-      if old_lyrics != @song.lyrics
-        lyrics_diff_html = song_diff(old_lyrics, @song.lyrics)
-        SongMailer.lyrics_changed(@song, lyrics_diff_html).deliver_later
-      end
+      changes = @song.previous_changes.except(:updated_at)
+      SongMailer.song_changed(@song, changes).deliver_later unless changes.empty?
       Audit.create(user: current_user, song: @song, time: Time.zone.now)
       redirect_to admin_path, notice: "Song was successfully updated. #{song_flash_link(@song)} to view in app."
     else
@@ -221,70 +218,6 @@ Is my felicity.
 
 # Verse 1 of the original hymn has
 # become the chorus for this tune"
-  end
-
-  def song_diff(old_lyrics, new_lyrics, context_lines: 2)
-    old_lines = old_lyrics.to_s.lines
-    new_lines = new_lyrics.to_s.lines
-    max_len = [old_lines.size, new_lines.size].max
-
-    # Collect indexes of changed lines
-    changed_indexes = []
-    (0...max_len).each do |i|
-      old_line = old_lines[i]
-      new_line = new_lines[i]
-      changed_indexes << i if old_line != new_line
-    end
-
-    # Calculate ranges to show with context lines included
-    ranges_to_show = []
-    changed_indexes.each do |idx|
-      start_range = [idx - context_lines, 0].max
-      end_range = [idx + context_lines, max_len - 1].min
-      ranges_to_show << (start_range..end_range)
-    end
-
-    # Merge overlapping ranges
-    merged_ranges = []
-    ranges_to_show.sort_by(&:begin).each do |range|
-      if merged_ranges.empty? || merged_ranges.last.end < range.begin - 1
-        merged_ranges << range
-      else
-        merged_ranges[-1] = (merged_ranges.last.begin..[merged_ranges.last.end, range.end].max)
-      end
-    end
-
-    output = []
-    last_shown_line = -1
-
-    merged_ranges.each do |range|
-      # Add a gap indicator if this range is not immediately after the last
-      if last_shown_line != -1 && range.begin > last_shown_line + 1
-        output << "<div style='color: #888; font-style: italic;'>... (skipped lines) ...</div>"
-      end
-
-      (range.begin..range.end).each do |i|
-        old_line = old_lines[i]
-        new_line = new_lines[i]
-
-        if old_line == new_line
-          # Unchanged line in context, show normal
-          output << "<div style='background:#f8f8f8; white-space: pre-wrap;'>#{ERB::Util.html_escape(old_line.chomp)}</div>"
-        else
-          # Changed line
-          if old_line && (old_line != new_line)
-            output << "<div style='background:#fdd; white-space: pre-wrap;'>- #{ERB::Util.html_escape(old_line.chomp)}</div>"
-          end
-          if new_line && (old_line != new_line)
-            output << "<div style='background:#dfd; white-space: pre-wrap;'>+ #{ERB::Util.html_escape(new_line.chomp)}</div>"
-          end
-        end
-      end
-
-      last_shown_line = range.end
-    end
-
-    output.join("\n")
   end
 
 end
