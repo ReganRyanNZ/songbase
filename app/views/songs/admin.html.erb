@@ -5,10 +5,13 @@
 
 <div class="new-song-btn">
   <%= link_to 'New Song', new_song_path, class: "new_song_link" %>
+
+  <%= link_to 'Books Admin', '/books/admin', class: "new_song_link" %>
 </div>
 
 <%= react_component(
   'AdminSongList',
+  { songs: @songs.map(&:admin_entry) },
   superAdmin: super_admin,
   settings: {
     languages: Song.languages

@@ -4,13 +4,32 @@ Song sheet database for psalms, hymns, and spiritual songs
 
 ## Getting Started
 
-You might need to install postgres, the easiest way is to download and run postgres.app. Follow the app's setup tutorial to install CLI tools as well.
+You might need to install postgres, the easiest way is to download and run postgres.app. Follow the app's setup tutorial to install CLI tools as well. Ensure you have the correct versions before running these commands:
+
+### Versions (or higher)
+- Ruby: `Ruby 3.2.2`
+- Rails: `Rails 7.1.3`
+- Postgres: `16.9`
+- Node.js: `v18.17.1`
 
 - `bundle install`
 - `rails db:create`
 - `rails db:migrate`
-- `pg_restore --verbose --clean --no-acl --no-owner -h localhost -d songbase_development latest.dump` to load 'latest.dump' into dev db. If the dump is old or not working, send an email to songbase.brothers@gmail.com to request an updated DB dump
+- `pg_restore --verbose --clean --no-acl --no-owner -h localhost -d songbase_development latest.dump` to load 'latest.dump' into dev db. If the dump is old or not working, send an email to songbase.brothers@gmail.com to request an updated DB dump. Current dump version is 1.15 which requires postgres@16
+- `rails s` or `rails server` to run the server before running tests
 - `rails test` to run the test suite, `rails test:all` to include system tests
+
+
+You may need to add your db credientals to `database.yml` eg:
+``` 
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  username: example <-
+  password: root <-
+  pool: 5
+  timeout: 5000
+```
 
 _Note for superadmin: `heroku pg:backups:capture` and `heroku pg:backups:download` will refresh the dump._
 
@@ -209,3 +228,8 @@ New notes:
 - When in a book, the toggler between alphabet and index overlaps the search.
 - Could be solved by a media query for screen length, then reducing sizae or maybe shifting search to be left aligned.
 - Only needs to be when inside a book, when that toggle isn't there, it's nice to have the big search bar.
+
+### Background sync updates
+
+- Currently index takes longer to load when on internet compared to offline even if cached
+- Look to load from cache, and then background sync outdated songs onto state on state(page) change
