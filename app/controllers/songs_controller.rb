@@ -63,6 +63,7 @@ class SongsController < ApplicationController
     if @song.duplicate?
       redirect_to admin_path, notice: "Song was successfully created. #{song_flash_link(@song.duplicate)} to view in app."
     elsif @song.save
+      email_diff_to_overseers(@song)
       Audit.create(user: current_user, song: @song, time: Time.zone.now)
       redirect_to admin_path, notice: "Song was successfully created. #{song_flash_link(@song)} to view in app."
     else
@@ -74,8 +75,7 @@ class SongsController < ApplicationController
     @song = Song.find(params[:id])
 
     if @song.update(song_params)
-      changes = @song.previous_changes.except(:updated_at)
-      SongMailer.song_changed(@song, changes).deliver_later unless changes.empty?
+      email_diff_to_overseers(@song)
       Audit.create(user: current_user, song: @song, time: Time.zone.now)
       redirect_to admin_path, notice: "Song was successfully updated. #{song_flash_link(@song)} to view in app."
     else
@@ -92,6 +92,11 @@ class SongsController < ApplicationController
   end
 
   private
+
+  def email_diff_to_overseers(song)
+    changes = song.previous_changes.except(:updated_at, :created_at, :id)
+    SongMailer.song_changed(song, changes).deliver_later unless changes.empty?
+  end
 
   def song_flash_link(song)
     view_context.link_to 'Click here', song_path(song), class: 'flash_link'

@@ -1,18 +1,21 @@
 class SongMailer < ApplicationMailer
 
   OVERSEERS_EMAILS = {
-    "français" => ["sdayfranceusa@gmail.com", "sdaytranslationexec.services@gmail.com"]
+    "français" => ["sdayfranceusa@gmail.com", "sdaytranslationexec.services@gmail.com"],
+    "español" => ["ypsongs.spanish@gmail.com", "victor.santamag@gmail.com"]
   }
 
   def song_changed(song, changes)
     @title = song.title
     @other_changes = format_changes(changes)
     @old_lyrics, @new_lyrics = diff_lyrics(*changes[:lyrics])
+    new_song = song.id_previously_changed?
+    email_subject = new_song ? "New Song: \"#{song.title}\"" : "Song update for \"#{song.title}\""
 
     mail(
       to: OVERSEERS_EMAILS[song.lang.downcase].presence || SUPPORT_EMAIL,
       from: "song-diff@songbase.life",
-      subject: "Song update for \"#{song.title}\""
+      subject: email_subject
     )
   end
 
