@@ -11,7 +11,7 @@ const BookButton = props => {
   }
 
   return(
-    <div className="book-icon" onClick={props.toggleBookIndex}>
+    <div title="Books" className="book-icon" onClick={props.toggleBookIndex}>
       <div className="book-icon-marker">
         {closeBtn}
       </div>
