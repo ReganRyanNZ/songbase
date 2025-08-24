@@ -14,6 +14,11 @@ class ApplicationController < ActionController::Base
   ].include?(current_user&.email)
   end
 
+  def book_admin(book)
+     redirect_to admin_path, alert: "You must sign in / have permission to edit this book" unless (book.owner.include?(current_user)) || super_admin
+  end
+
+
   def current_user
     # @current_user ||= User.placeholder
     @current_user ||= User.test_user(:admin) if Rails.env.development? || Rails.env.test?
