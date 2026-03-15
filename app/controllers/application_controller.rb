@@ -15,7 +15,7 @@ class ApplicationController < ActionController::Base
   end
 
   def book_admin(book)
-     redirect_to admin_path, alert: "You must sign in / have permission to edit this book" unless (book.owner.include?(current_user)) || super_admin
+     redirect_to admin_path, alert: "You must sign in / have permission to edit this book" unless super_admin
   end
 
 

@@ -17,7 +17,6 @@ class AdminBookForm extends React.Component {
         name: props.book.name || "",
         songs: props.book.songs || {},
         languages: props.book.languages || [],
-        owners: props.book.owners || [],
       },
       books: props.books || [],
       languages: languages || [],
@@ -302,7 +301,7 @@ class AdminBookForm extends React.Component {
             onChange={this.handleBookTitle}
             name="book[name]"
             className="book-form-title"
-            placeholder="Book Title (eg NZ Easter Conference 2025"
+            placeholder="Book Title"
             key="search-input"
           />
         </div>

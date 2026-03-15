@@ -21,6 +21,9 @@ const IndexOfBooks = ({ goToBookIndex, books, languages, homeButton }) => {
           </div>
         );
       })}
+      <a href="/books/new" className="index_row create-book-btn">
+        <span className="index_row_title">+ Create new book</span>
+      </a>
     </div>
   );
 };

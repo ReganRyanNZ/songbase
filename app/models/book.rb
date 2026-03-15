@@ -8,7 +8,6 @@
 #   Adding a song:  my_book.songs[song.id] = 1; my_book.save
 
 class Book < ApplicationRecord
-  before_validation :assign_default_owner,  on: [:create, :update]
   before_validation :generate_slug, on: [:create, :update]
   default_scope -> { where(deleted_at: nil) }
 
@@ -74,18 +73,11 @@ class Book < ApplicationRecord
       name: name,
       slug: slug,
       songs: songs,
-      languages: languages,
-      owners: owners
+      languages: languages
     }
   end
 
-  private 
-
-  def assign_default_owner
-      if owners.blank?
-        self.owners = [{ name: User.system_user.name, email: User.system_user.email }]
-      end
-  end
+  private
 
   def generate_slug
     return if name.blank?
