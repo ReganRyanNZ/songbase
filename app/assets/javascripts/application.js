@@ -37,3 +37,11 @@ class Confirm {
 Array.from(document.querySelectorAll('[data-confirm]')).forEach((el) => {
   new Confirm(el)
 })
+
+// Hide flash messages on any click within the React app
+document.addEventListener('click', function(e) {
+  const flash = document.querySelector('#notice, #alert');
+  if (flash) {
+    flash.remove();
+  }
+}, { once: true });
