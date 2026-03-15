@@ -35,7 +35,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_09_065941) do
     t.boolean "sync_to_all", default: false
     t.jsonb "songs", default: {}
     t.string "languages", default: [], array: true
-    t.json "owners", default: []
   end
 
   create_table "songs", id: :serial, force: :cascade do |t|
