@@ -20,8 +20,8 @@
   </div>
 <% end %>
 
-<% if book.persisted? && super_admin %>
-  <%= button_to "Delete Book", book_path(book), method: :delete,
+<% if book.persisted? %>
+  <%= button_to "Delete Book", book_path(book, edit_token: params[:edit_token]), method: :delete,
                 data: { confirm: "Are you sure you want to delete this book?" },
                 class: "btn btn-delete" %>
 <% end %>

@@ -3,7 +3,16 @@ class Api::V2::SongsController < ApplicationController
 
   def app_data
     songs_to_sync = Song.where('updated_at >= ?', client_updated_at).for_language(params[:language])
-    books_to_sync = Book.where('updated_at >= ?', client_updated_at).for_language(params[:language])
+
+    # Build base query for books that were updated recently or match language
+    books_base_query = Book.where('updated_at >= ?', client_updated_at).for_language(params[:language])
+
+    # Add books explicitly requested via params[:books]
+    requested_book_ids = params[:books].present? ? params[:books].split(',').map(&:to_i) : []
+    requested_books = books_base_query.where(id: requested_book_ids)
+
+    # Always include books with sync_to_all
+    books_to_sync = requested_books.or(books_base_query.where(sync_to_all: true))
 
     render json: {
       songs: songs_to_sync.app_data,

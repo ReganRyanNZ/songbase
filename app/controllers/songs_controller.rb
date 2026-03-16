@@ -10,6 +10,8 @@ class SongsController < ApplicationController
   # we can deliver the data instantly while the rest is
   # still loading via api.
   def app
+    @new_book_id = params[:new_book] if params[:new_book].present?
+    @new_book_token = params[:edit_token] if params[:edit_token].present?
     @book_slug = params[:book]
     @book_from_url = Book.find_by(slug: @book_slug) if @book_slug.present?
     if(params[:s].present? && params[:s] != 'i')

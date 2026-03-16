@@ -9,6 +9,7 @@
 
 class Book < ApplicationRecord
   before_validation :generate_slug, on: [:create, :update]
+  before_create :generate_edit_token
   default_scope -> { where(deleted_at: nil) }
 
   # The weird syntax is for postgres Array types
@@ -94,5 +95,9 @@ class Book < ApplicationRecord
 
       self.slug = candidate
     end
+  end
+
+  def generate_edit_token
+    self.edit_token = SecureRandom.hex(16)
   end
 end

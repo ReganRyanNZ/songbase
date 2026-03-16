@@ -1,5 +1,6 @@
 class BooksController < ApplicationController
   before_action :set_book, only: [:edit, :update, :destroy]
+  before_action :verify_edit_token, only: [:edit, :update, :destroy]
   before_action :load_songs, only: [:new, :edit, :create, :update]
 
   def new
@@ -17,7 +18,7 @@ class BooksController < ApplicationController
     @book = Book.new(book_params)
 
     if @book.save
-      redirect_to root_path, notice: "Book was successfully created"
+      redirect_to root_path(new_book: @book.id, edit_token: @book.edit_token), notice: "Book was successfully created"
     else
       render :new
     end
@@ -40,6 +41,12 @@ class BooksController < ApplicationController
 
   def set_book
     @book = Book.find(params[:id])
+  end
+
+  def verify_edit_token
+    unless @book.edit_token == params[:edit_token]
+      redirect_to root_path, alert: "You don't have permission to edit this book"
+    end
   end
 
   def load_songs

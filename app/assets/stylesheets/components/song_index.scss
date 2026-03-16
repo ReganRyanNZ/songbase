@@ -29,6 +29,24 @@
 .index_row_title {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.book-edit-btn {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  color: var(--ui-color);
+  text-decoration: none;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    color: var(--text);
+  }
 }
 
 .index_row_tag {

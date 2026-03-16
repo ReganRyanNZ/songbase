@@ -10,7 +10,9 @@ class SongApp extends React.Component {
         languages: ["english"],
         languagesInfo: [],
         updated_at: 0,
-        cssTheme: localStorage.getItem('cssTheme') || 'css-normal'
+        cssTheme: localStorage.getItem('cssTheme') || 'css-normal',
+        booksToSync: [],
+        editableBooks: {}  // { "book_id": "edit_token" }
       },
       totalSongsCached: 0,
       currentBook: props.preloaded_current_book || null,
@@ -28,6 +30,8 @@ class SongApp extends React.Component {
     };
 
     this.toggleMusic = this.toggleMusic.bind(this); // Bind here to keep 'this' context and keep the function ref constant, so we don't apply the same listener a dozen times
+    this.canEditBook = this.canEditBook.bind(this);
+    this.editUrlFor = this.editUrlFor.bind(this);
 
     this.navigate = new AppNavigation(this);
     this.navigate.setupInitialHistoryState();
@@ -146,6 +150,21 @@ class SongApp extends React.Component {
     return this.state.books.map(book => {return book.songs[song.id] ? [book.slug, book.name, book.songs[song.id]] : null }).filter(notNull => notNull);
   }
 
+  canEditBook(bookId) {
+    const editableBooks = this.state.settings.editableBooks || {};
+    return !!editableBooks[bookId];
+  }
+
+  editTokenFor(bookId) {
+    const editableBooks = this.state.settings.editableBooks || {};
+    return editableBooks[bookId];
+  }
+
+  editUrlFor(bookId) {
+    const token = this.editTokenFor(bookId);
+    return token ? `/books/${bookId}/edit?edit_token=${token}` : null;
+  }
+
   render() {
     let page = this.state.page;
     let content;
@@ -205,6 +224,8 @@ class SongApp extends React.Component {
           languages={this.state.settings.languages}
           goToBookIndex={this.navigate.goToBookIndex}
           homeButton={homeButton}
+          canEditBook={this.canEditBook}
+          editUrlFor={this.editUrlFor}
           />
         );
         break;

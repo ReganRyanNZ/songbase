@@ -37,6 +37,9 @@ class DatabaseSetupAndSync {
       let cachedSettings = await this.db.settings.get({ settingsType: "global" }) // Fetch settings from indexedDB
       await this.loadSettingsToState(cachedSettings) // Push settings to React state
 
+      // Check for new book that was just created and add it to sync list
+      this.checkForNewBook();
+
       // Nuke IndexedDB if client hasn't synced since v2 came out:
       let migratingDB = this.migrateFromV1toV2()
 
@@ -104,6 +107,40 @@ class DatabaseSetupAndSync {
   setSettings(settings) {
     this.app.setState({ settings: settings });
     this.db.settings.put(settings).then(this.pushIndexedDBToState);
+  }
+
+  checkForNewBook() {
+    const newBookMeta = document.querySelector("meta[name='new-book-id']");
+    if (newBookMeta) {
+      const newBookId = newBookMeta.content;
+      const newBookTokenMeta = document.querySelector("meta[name='new-book-token']");
+      const newBookToken = newBookTokenMeta ? newBookTokenMeta.content : null;
+
+      if (newBookId && newBookToken) {
+        let settings = this.app.state.settings;
+        if (!settings.booksToSync) {
+          settings.booksToSync = [];
+        }
+        if (!settings.booksToSync.includes(newBookId)) {
+          settings.booksToSync.push(newBookId);
+        }
+        if (!settings.editableBooks) {
+          settings.editableBooks = {};
+        }
+        // Store as object: { "book_id": "edit_token" }
+        if (!settings.editableBooks[newBookId]) {
+          settings.editableBooks[newBookId] = newBookToken;
+        }
+        this.app.setState({ settings: settings });
+        this.db.settings.put(settings);
+        this.log('Added new book ' + newBookId + ' to sync and editable lists with token');
+        // Remove new_book and edit_token parameters from URL
+        const url = new URL(window.location);
+        url.searchParams.delete('new_book');
+        url.searchParams.delete('edit_token');
+        window.history.replaceState({}, '', url);
+      }
+    }
   }
 
 
@@ -243,6 +280,13 @@ class DatabaseSetupAndSync {
     thisSyncTool.log("Fetching " + language + " songs");
     const csrfToken = document.querySelector("meta[name=csrf-token]").content;
     const searchParams = new URLSearchParams({ updated_at: lastUpdatedAt, language });
+
+    // Add books parameter if there are books to sync
+    const booksToSync = app.state.settings.booksToSync || [];
+    if (booksToSync.length > 0) {
+      searchParams.append('books', booksToSync.join(','));
+      thisSyncTool.log('Including books in sync: ' + booksToSync.join(','));
+    }
 
     let response = await fetch("/api/v2/app_data?" + searchParams.toString(), {
       method: "GET",

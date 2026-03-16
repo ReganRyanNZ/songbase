@@ -19,5 +19,9 @@
       <%= render 'songs/flash' %>
       <%= yield %>
     </div>
+    <% if @new_book_id %>
+      <meta name="new-book-id" content="<%= @new_book_id %>">
+      <meta name="new-book-token" content="<%= @new_book_token %>">
+    <% end %>
   </body>
 </html>
