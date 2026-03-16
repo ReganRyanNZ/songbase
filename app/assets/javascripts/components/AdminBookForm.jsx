@@ -27,18 +27,17 @@ class AdminBookForm extends React.Component {
   }
 
   handleBookTitle(e) {
-    const name = e.target.value;
-    this.setState((prevState) => ({
-      book: {
-        ...prevState.book,
-        name,
-      },
-    }));
+    var name = e.target.value;
+    this.setState(function(prevState) {
+      return {
+        book: Object.assign({}, prevState.book, { name: name })
+      };
+    });
   }
 
   handleSearchChange(e) {
-    const search = e.target.value;
-    this.setState({ search });
+    var search = e.target.value;
+    this.setState({ search: search });
 
     // Clear existing timeout
     if (this.searchTimeout) {
@@ -46,100 +45,97 @@ class AdminBookForm extends React.Component {
     }
 
     // Debounce search
-    this.searchTimeout = setTimeout(() => {
+    this.searchTimeout = setTimeout(function() {
       this.searchSongs(search);
-    }, 300);
+    }.bind(this), 300);
   }
 
   searchSongs(search) {
     this.setState({ loading: true });
 
-    const csrfToken = document.querySelector("meta[name=csrf-token]").content);
-    const searchParams = new URLSearchParams({ search });
+    var csrfToken = document.querySelector("meta[name='csrf-token']").content;
+    var searchUrl = "/api/v2/custom_book_search?search=" + encodeURIComponent(search);
 
-    fetch("/api/v2/custom_book_search?" + searchParams.toString(), {
+    fetch(searchUrl, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         "X-CSRF-Token": csrfToken
       }
     })
-      .then(response => response.json())
-      .then(data => {
+      .then(function(response) { return response.json(); })
+      .then(function(data) {
         this.setState({
           songs: data.songs,
           loading: false
         });
-      })
-      .catch(error => {
+      }.bind(this))
+      .catch(function(error) {
         console.error("Error:", error);
         this.setState({ loading: false });
-      });
+      }.bind(this));
   }
 
   handleAddSong(song) {
-    this.setState((prevState) => {
-      const songs = { ...prevState.book.songs };
+    this.setState(function(prevState) {
+      var songs = Object.assign({}, prevState.book.songs);
       if (song.id in songs) return null;
 
       songs[song.id] = String(Object.keys(songs).length + 1);
-      const languages = this.getUpdatedLanguages(songs);
+      var languages = this.getUpdatedLanguages(songs);
 
       return {
-        book: {
-          ...prevState.book,
-          songs,
-          languages,
-        },
+        book: Object.assign({}, prevState.book, { songs: songs, languages: languages }),
       };
     });
   }
 
   getUpdatedLanguages(songsMap) {
-    const allSongs = this.state.songs || [];
+    var allSongs = this.state.songs || [];
+    var languageSet = {};
 
-    const languages = Object.keys(songsMap)
-      .map((id) => {
-        const song = allSongs.find((s) => String(s.id) === String(id));
-        return song && (song.lang || song.language); // support either
-      })
-      .filter(Boolean);
+    Object.keys(songsMap).forEach(function(id) {
+      var song = allSongs.find(function(s) { return String(s.id) === String(id); });
+      if (song) {
+        var lang = song.lang || song.language;
+        if (lang) languageSet[lang] = true;
+      }
+    });
 
-    return Array.from(new Set(languages));
+    return Object.keys(languageSet);
   }
 
   reorderSongObject(songObject) {
-    return Object.keys(songObject)
-      .sort((a, b) => parseInt(songObject[a]) - parseInt(songObject[b]))
-      .reduce((acc, id, index) => {
-        acc[id] = String(index + 1);
-        return acc;
-      }, {});
+    var orderedKeys = Object.keys(songObject).sort(function(a, b) {
+      return parseInt(songObject[a]) - parseInt(songObject[b]);
+    });
+
+    var result = {};
+    orderedKeys.forEach(function(id, index) {
+      result[id] = String(index + 1);
+    });
+    return result;
   }
 
   clearSearch() {
     this.setState({ search: "" });
-    const input = document.getElementById("index_search");
+    var input = document.getElementById("index_search");
     if (input) input.focus();
   }
 
   handleRemoveSong(index) {
-    this.setState((prevState) => {
-      const songs = { ...prevState.book.songs };
-      const songIdToRemove = Object.keys(songs).find((id) => songs[id] === index);
+    this.setState(function(prevState) {
+      var songs = Object.assign({}, prevState.book.songs);
+      var songIdToRemove = Object.keys(songs).find(function(id) { return songs[id] === index; });
 
       if (songIdToRemove === undefined) return null;
 
       delete songs[songIdToRemove];
-      const reordered = this.reorderSongObject(songs);
-      const languages = this.getUpdatedLanguages(reordered);
+      var reordered = this.reorderSongObject(songs);
+      var languages = this.getUpdatedLanguages(reordered);
 
       return {
-        book: {
-          ...prevState.book,
-          songs: reordered,
-          languages,
-        },
+        book: Object.assign({}, prevState.book, { songs: reordered, languages: languages }),
       };
     });
   }
@@ -150,45 +146,45 @@ class AdminBookForm extends React.Component {
 
   handleDrop(e, dropIndex) {
     e.preventDefault();
-    const dragIndex = parseInt(e.dataTransfer.getData("dragIndex"), 10);
+    var dragIndex = parseInt(e.dataTransfer.getData("dragIndex"), 10);
 
-    const songEntries = Object.entries(this.state.book.songs)
-      .sort((a, b) => parseInt(a[1]) - parseInt(b[1]));
-    const [dragged] = songEntries.splice(dragIndex, 1);
-    songEntries.splice(dropIndex, 0, dragged);
+    var songEntries = Object.entries(this.state.book.songs)
+      .sort(function(a, b) { return parseInt(a[1]) - parseInt(b[1]); });
+    var dragged = songEntries.splice(dragIndex, 1);
+    songEntries.splice(dropIndex, 0, dragged[0]);
 
-    const reordered = songEntries.reduce((acc, [id], i) => {
-      acc[id] = String(i + 1);
-      return acc;
-    }, {});
+    var reordered = {};
+    songEntries.forEach(function(entry, i) {
+      reordered[entry[0]] = String(i + 1);
+    });
 
-    this.setState((prevState) => ({
-      book: {
-        ...prevState.book,
-        songs: reordered,
-      },
-    }));
+    this.setState(function(prevState) {
+      return {
+        book: Object.assign({}, prevState.book, { songs: reordered }),
+      };
+    });
   }
 
   getOrderedBookSongs(book, allSongs) {
     if (!book.songs) return [];
 
     return Object.entries(book.songs)
-      .sort(([, aIndex], [, bIndex]) => parseInt(aIndex) - parseInt(bIndex))
-      .map(([songId, index]) => ({
-        song: allSongs.find((s) => s.id === parseInt(songId)),
-        index: index
-      }))
-      .filter(({ song }) => song);
+      .sort(function(a, b) { return parseInt(a[1]) - parseInt(b[1]); })
+      .map(function(entry) {
+        var song = allSongs.find(function(s) { return s.id === parseInt(entry[0]); });
+        return { song: song, index: entry[1] };
+      })
+      .filter(function(item) { return item.song; });
   }
 
-  strip(string, normalize = true) {
-    let result = normalize ? string.normalize("NFD") : string;
+  strip(string, normalize) {
+    normalize = normalize !== false;
+    var result = normalize ? string.normalize("NFD") : string;
 
     return result
       .replace(/[\_\-—–]/g, " ")
       .toUpperCase()
-      .replaceAll("\n", " ")
+      .replace(/\n/g, " ")
       .replace(/(\[.+?\])|[’'",“!?()\[\]]|[\u0300-\u036f]/g, "");
   }
 
@@ -198,92 +194,98 @@ class AdminBookForm extends React.Component {
   }
 
   render() {
-    const { search, book, songs, loading } = this.state;
-    const bookSongs = this.getOrderedBookSongs(book, songs);
+    var search = this.state.search;
+    var book = this.state.book;
+    var songs = this.state.songs;
+    var loading = this.state.loading;
+    var bookSongs = this.getOrderedBookSongs(book, songs);
+    var filteredSongs = this.filterAndSortSongs(songs, search);
 
-    const filteredSongs = this.filterAndSortSongs(songs, search);
-
-    return (
-      <div className="admin-book-form">
-        <div className="book-songs-form-container">
-          <div className="search-form form" key="search-form">
-            <input
-              id="index_search"
-              autoComplete="off"
-              value={search}
-              onChange={this.handleSearchChange}
-              name="search"
-              className="index_search"
-              placeholder="search..."
-              key="search-input"
-            />
-            {search.length > 0 ? (
-              <div className="btn_clear_search" onClick={this.clearSearch}>
-                ×
-              </div>
-            ) : null}
-          </div>
-          <div className="songs-container">
-            <div className="songs-search-container">
-              <div className="songs-header">
-                <h3>Songbase Songs</h3>
-              </div>
-              {loading ? (
-                <div className="songs">Loading...</div>
-              ) : (
-                <div className="songs">
-                  {filteredSongs.map((song) => (
-                    <div className="song-item" key={song.id}>
-                      {song.title}
-                      <button type="button" onClick={() => this.handleAddSong(song)}>
-                        Add
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="book-songs-container">
-              <h3>Book Songs</h3>
-              <div className="book-songs">
-                {bookSongs.map(({ song, index: bookIndex }, arrayIndex) => {
-                  if (!song.title.toLowerCase().includes(search.toLowerCase())) return null;
-                  return (
-                    <div
-                      className="song-item"
-                      key={song.id}
-                      draggable
-                      onDragStart={(e) => this.handleDragStart(e, arrayIndex)}
-                      onDrop={(e) => this.handleDrop(e, arrayIndex)}
-                      onDragOver={(e) => e.preventDefault()}
-                    >
-                      #{bookIndex} {song.title}
-                      <button type="button" onClick={() => this.handleRemoveSong(bookIndex)}>
-                        Remove
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="book-title">
-          <h2>Book title</h2>
-          <input
-            id="book_title"
-            autoComplete="off"
-            value={book.name}
-            onChange={this.handleBookTitle}
-            name="book[name]"
-            className="book-form-title"
-            placeholder="Book Title"
-            key="search-input"
-          />
-        </div>
-        <input type="hidden" name="book[songs]" value={JSON.stringify(book.songs || {})} />
-        <input type="hidden" name="book[languages]" value={JSON.stringify(book.languages || [])} />
-      </div>
+    return React.createElement("div", { className: "admin-book-form" },
+      React.createElement("div", { className: "book-songs-form-container" },
+        React.createElement("div", { className: "search-form form", key: "search-form" },
+          React.createElement("input", {
+            id: "index_search",
+            autoComplete: "off",
+            value: search,
+            onChange: this.handleSearchChange,
+            name: "search",
+            className: "index_search",
+            placeholder: "search...",
+            key: "search-input"
+          }),
+          search.length > 0 ? React.createElement("div", {
+            className: "btn_clear_search",
+            onClick: this.clearSearch
+          }, "×") : null
+        ),
+        React.createElement("div", { className: "songs-container" },
+          React.createElement("div", { className: "songs-search-container" },
+            React.createElement("div", { className: "songs-header" },
+              React.createElement("h3", null, "Songbase Songs")
+            ),
+            loading ? React.createElement("div", { className: "songs" }, "Loading...") :
+            React.createElement("div", { className: "songs" },
+              filteredSongs.map(function(song) {
+                return React.createElement("div", { className: "song-item", key: song.id },
+                  song.title,
+                  React.createElement("button", {
+                    type: "button",
+                    onClick: function() { this.handleAddSong(song); }.bind(this)
+                  }, "Add")
+                );
+              }, this)
+            )
+          ),
+          React.createElement("div", { className: "book-songs-container" },
+            React.createElement("h3", null, "Book Songs"),
+            React.createElement("div", { className: "book-songs" },
+              bookSongs.map(function(songData, arrayIndex) {
+                var song = songData.song;
+                var bookIndex = songData.index;
+                if (!song.title.toLowerCase().includes(search.toLowerCase())) return null;
+                return React.createElement("div", {
+                  className: "song-item",
+                  key: song.id,
+                  draggable: true,
+                  onDragStart: function(e) { this.handleDragStart(e, arrayIndex); }.bind(this),
+                  onDrop: function(e) { this.handleDrop(e, arrayIndex); }.bind(this),
+                  onDragOver: function(e) { e.preventDefault(); }
+                },
+                  "#" + bookIndex + " " + song.title,
+                  React.createElement("button", {
+                    type: "button",
+                    onClick: function() { this.handleRemoveSong(bookIndex); }.bind(this)
+                  }, "Remove")
+                );
+              }, this)
+            )
+          )
+        )
+      ),
+      React.createElement("div", { className: "book-title" },
+        React.createElement("h2", null, "Book title"),
+        React.createElement("input", {
+          id: "book_title",
+          autoComplete: "off",
+          value: book.name,
+          onChange: this.handleBookTitle,
+          name: "book[name]",
+          className: "book-form-title",
+          placeholder: "Book Title",
+          key: "search-input"
+        }),
+        React.createElement("input", {
+          type: "hidden",
+          name: "book[songs]",
+          value: JSON.stringify(book.songs || {})
+        }),
+        React.createElement("input", {
+          type: "hidden",
+          name: "book[languages]",
+          value: JSON.stringify(book.languages || [])
+        })
+      )
     );
   }
 }
