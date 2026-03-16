@@ -2,15 +2,6 @@ class AdminBookForm extends React.Component {
   constructor(props) {
     super(props);
 
-    const languages = Array.from(
-      new Set(
-        props.songs
-          .map((song) => song.lang)
-          .filter(Boolean)
-          .flat()
-      )
-    );
-
     this.state = {
       search: "",
       book: {
@@ -18,11 +9,8 @@ class AdminBookForm extends React.Component {
         songs: props.book.songs || {},
         languages: props.book.languages || [],
       },
-      books: props.books || [],
-      languages: languages || [],
-      songs: props.songs || [],
-      showLanguageFilter: false,
-      activeLanguages: ["english"],
+      songs: [],
+      loading: false,
     };
 
     this.handleSearchChange = this.handleSearchChange.bind(this);
@@ -30,10 +18,12 @@ class AdminBookForm extends React.Component {
     this.handleRemoveSong = this.handleRemoveSong.bind(this);
     this.handleDragStart = this.handleDragStart.bind(this);
     this.handleDrop = this.handleDrop.bind(this);
-    this.toggleLanguageFilter = this.toggleLanguageFilter.bind(this);
-    this.toggleLanguage = this.toggleLanguage.bind(this);
     this.clearSearch = this.clearSearch.bind(this);
     this.handleBookTitle = this.handleBookTitle.bind(this);
+    this.searchTimeout = null;
+
+    // Initial load
+    this.searchSongs("");
   }
 
   handleBookTitle(e) {
@@ -47,7 +37,44 @@ class AdminBookForm extends React.Component {
   }
 
   handleSearchChange(e) {
-    this.setState({ search: e.target.value });
+    const search = e.target.value;
+    this.setState({ search });
+
+    // Clear existing timeout
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+
+    // Debounce search
+    this.searchTimeout = setTimeout(() => {
+      this.searchSongs(search);
+    }, 300);
+  }
+
+  searchSongs(search) {
+    this.setState({ loading: true });
+
+    const csrfToken = document.querySelector("meta[name=csrf-token]").content);
+    const searchParams = new URLSearchParams({ search });
+
+    fetch("/api/v2/custom_book_search?" + searchParams.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        this.setState({
+          songs: data.songs,
+          loading: false
+        });
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        this.setState({ loading: false });
+      });
   }
 
   handleAddSong(song) {
@@ -166,57 +193,15 @@ class AdminBookForm extends React.Component {
   }
 
   filterAndSortSongs(songs, search) {
-    const strippedSearch = this.strip(search);
-    const titleStartsWithSearch = new RegExp("^" + strippedSearch, "i");
-    const titleContainsSearch = new RegExp(strippedSearch, "i");
-
-    return songs
-      .filter((song) => {
-        const strippedTitle = this.strip(song.title);
-        const matchesTitle = titleContainsSearch.test(strippedTitle);
-        const matchesLanguage = this.state.activeLanguages.includes(song.lang);
-        return matchesTitle && matchesLanguage;
-      })
-      .sort((a, b) => {
-        const titleA = this.strip(a.title);
-        const titleB = this.strip(b.title);
-
-        const relevance = (title) => {
-          if (titleStartsWithSearch.test(title)) return 2;
-          if (titleContainsSearch.test(title)) return 1;
-          return 0;
-        };
-
-        const relevanceA = relevance(titleA);
-        const relevanceB = relevance(titleB);
-
-        if (relevanceA !== relevanceB) {
-          return relevanceB - relevanceA;
-        }
-
-        return titleA.localeCompare(titleB);
-      });
-  }
-
-  toggleLanguageFilter() {
-    this.setState((prevState) => ({
-      showLanguageFilter: !prevState.showLanguageFilter,
-    }));
-  }
-
-  toggleLanguage(lang) {
-    this.setState((prevState) => {
-      const activeLanguages = prevState.activeLanguages.includes(lang) ? prevState.activeLanguages.filter((l) => l !== lang) : [...prevState.activeLanguages, lang];
-
-      return { activeLanguages };
-    });
+    // Server handles search and sorting
+    return songs.slice(0, 100);
   }
 
   render() {
-    const { search, book, songs, languages, showLanguageFilter, activeLanguages } = this.state;
+    const { search, book, songs, loading } = this.state;
     const bookSongs = this.getOrderedBookSongs(book, songs);
 
-    const filteredSongs = this.filterAndSortSongs(songs, search).slice(0, 100);
+    const filteredSongs = this.filterAndSortSongs(songs, search);
 
     return (
       <div className="admin-book-form">
@@ -242,22 +227,9 @@ class AdminBookForm extends React.Component {
             <div className="songs-search-container">
               <div className="songs-header">
                 <h3>Songbase Songs</h3>
-                <button type="button" onClick={this.toggleLanguageFilter} className="book-langauge-filter">
-                  <GlobeIcon />
-                </button>
               </div>
-              {showLanguageFilter ? (
-                <div className="language-filter">
-                  {languages.map((lang) => {
-                    const capitalizedLang = lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase();
-                    return (
-                      <label key={lang}>
-                        <input type="checkbox" checked={activeLanguages.includes(lang)} onChange={() => this.toggleLanguage(lang)} />
-                        {capitalizedLang}
-                      </label>
-                    );
-                  })}
-                </div>
+              {loading ? (
+                <div className="songs">Loading...</div>
               ) : (
                 <div className="songs">
                   {filteredSongs.map((song) => (

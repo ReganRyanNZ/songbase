@@ -1,16 +1,13 @@
 class BooksController < ApplicationController
   before_action :set_book, only: [:edit, :update, :destroy]
   before_action :verify_edit_token, only: [:edit, :update, :destroy]
-  before_action :load_songs, only: [:new, :edit, :create, :update]
 
   def new
     @book = Book.new
-    @songs = Song.all
     render :new
   end
 
   def edit
-    @songs = Song.all
     render :edit
   end
 
@@ -47,10 +44,6 @@ class BooksController < ApplicationController
     unless @book.edit_token == params[:edit_token]
       redirect_to root_path, alert: "You don't have permission to edit this book"
     end
-  end
-
-  def load_songs
-    @songs = Song.all
   end
 
   def book_params
