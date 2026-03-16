@@ -355,7 +355,8 @@ class SongDisplay extends React.Component {
   }
 
   shareSong() {
-    if(navigator.share) {
+    const isMobile = 'ontouchstart' in window && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if(navigator.share && isMobile) {
       navigator.share({
         text: document.title,
         url: location.href

@@ -207,3 +207,24 @@
     height: 20px;
   }
 }
+
+.kabob-copied {
+  position: absolute;
+  right: 100%;
+  top: 0;
+  margin-right: 10px;
+  padding: 6px 10px;
+  background: var(--background);
+  border: 1px solid var(--text);
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  animation: fadeOut 1.2s ease-out;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}

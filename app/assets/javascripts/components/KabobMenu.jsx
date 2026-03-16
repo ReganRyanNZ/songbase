@@ -1,7 +1,7 @@
 class KabobMenu extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { isOpen: false };
+    this.state = { isOpen: false, showCopied: false };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.closeMenu = this.closeMenu.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
@@ -64,48 +64,39 @@ class KabobMenu extends React.Component {
     return match ? match[1] : null;
   }
 
-  async shareUrl(url, title) {
-    // Use Web Share API on mobile if available
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: title,
-          url: url
-        });
-        this.closeMenu();
-        return;
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          console.error('Error sharing:', err);
-        }
-        // User cancelled, fall through to clipboard
-      }
-    }
+  isMobile() {
+    // Check for touch support and mobile user agent
+    return 'ontouchstart' in window && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  }
 
-    // Fallback to clipboard
-    try {
-      await navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
+  shareUrl(url) {
+    if (navigator.share && this.isMobile()) {
+      navigator.share({
+        text: 'Songbase book',
+        url: url
+      });
       this.closeMenu();
-    } catch (err) {
-      console.error('Failed to copy:', err);
-      alert('Failed to copy link. Please copy manually: ' + url);
+    } else {
+      navigator.clipboard.writeText(url);
+      this.setState({ showCopied: true });
+      this.closeMenu();
+      setTimeout(() => this.setState({ showCopied: false }), 1200);
     }
   }
 
   handleShare(e) {
     e.preventDefault();
     e.stopPropagation();
-    const url = `${window.location.origin}/${this.props.bookSlug}`;
-    this.shareUrl(url, 'Songbase book');
+    const url = `${window.location.origin}/?new_book=${this.props.bookId}`;
+    this.shareUrl(url);
   }
 
   handleShareEdit(e) {
     e.preventDefault();
     e.stopPropagation();
     const token = this.getEditToken();
-    const url = `${window.location.origin}/${this.props.bookSlug}/edit?edit_token=${token}`;
-    this.shareUrl(url, 'Songbase book (edit access)');
+    const url = `${window.location.origin}/?new_book=${this.props.bookId}&edit_token=${token}`;
+    this.shareUrl(url);
   }
 
   render() {
@@ -123,6 +114,9 @@ class KabobMenu extends React.Component {
         <button className="kabob-button" onClick={this.toggleMenu}>
           <KabobIcon />
         </button>
+        {this.state.showCopied &&
+          React.createElement("div", { className: "kabob-copied fadeOut" }, "Copied!")
+        }
         {this.state.isOpen && (
           <div className="kabob-menu">
             {hasShare &&
@@ -131,7 +125,7 @@ class KabobMenu extends React.Component {
                 className: "kabob-menu-item",
                 onClick: this.handleShare
               },
-                React.createElement(ShareIcon),
+                React.createElement("span", { dangerouslySetInnerHTML: { __html: ShareIcon }, className: "kabob-icon" }),
                 canEdit ? "Share (read-only)" : "Share"
               )
             }
@@ -141,7 +135,7 @@ class KabobMenu extends React.Component {
                 className: "kabob-menu-item",
                 onClick: this.handleShareEdit
               },
-                React.createElement(ShareIcon),
+                React.createElement("span", { dangerouslySetInnerHTML: { __html: ShareIcon }, className: "kabob-icon" }),
                 "Share (edit)"
               )
             }

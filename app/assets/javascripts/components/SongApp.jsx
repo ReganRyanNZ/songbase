@@ -28,6 +28,7 @@ class SongApp extends React.Component {
       showReferenceLinks: localStorage.getItem('showReferenceLinks') == 'true',
       showChords: localStorage.getItem('showChords') == 'false' ? false : true, // Local storage to load faster than indexedDB, and synchronously
       activeTranslations: [], // Array of song IDs for translations to display alongside current song
+      pendingBookNavigation: null, // Book ID to navigate to after sync completes
     };
 
     this.toggleMusic = this.toggleMusic.bind(this); // Bind here to keep 'this' context and keep the function ref constant, so we don't apply the same listener a dozen times

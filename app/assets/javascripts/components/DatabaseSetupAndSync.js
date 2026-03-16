@@ -116,7 +116,7 @@ class DatabaseSetupAndSync {
       const newBookTokenMeta = document.querySelector("meta[name='new-book-token']");
       const newBookToken = newBookTokenMeta ? newBookTokenMeta.content : null;
 
-      if (newBookId && newBookToken) {
+      if (newBookId) {
         let settings = this.app.state.settings;
         if (!settings.booksToSync) {
           settings.booksToSync = [];
@@ -124,16 +124,20 @@ class DatabaseSetupAndSync {
         if (!settings.booksToSync.includes(newBookId)) {
           settings.booksToSync.push(newBookId);
         }
-        if (!settings.editableBooks) {
-          settings.editableBooks = {};
+        if (newBookToken) {
+          if (!settings.editableBooks) {
+            settings.editableBooks = {};
+          }
+          // Store as object: { "book_id": "edit_token" }
+          if (!settings.editableBooks[newBookId]) {
+            settings.editableBooks[newBookId] = newBookToken;
+          }
+          this.log('Added new book ' + newBookId + ' to sync and editable lists with token');
+        } else {
+          this.log('Added new book ' + newBookId + ' to sync (read-only)');
         }
-        // Store as object: { "book_id": "edit_token" }
-        if (!settings.editableBooks[newBookId]) {
-          settings.editableBooks[newBookId] = newBookToken;
-        }
-        this.app.setState({ settings: settings });
+        this.app.setState({ settings: settings, pendingBookNavigation: newBookId });
         this.db.settings.put(settings);
-        this.log('Added new book ' + newBookId + ' to sync and editable lists with token');
         // Remove new_book and edit_token parameters from URL
         const url = new URL(window.location);
         url.searchParams.delete('new_book');
@@ -174,6 +178,22 @@ class DatabaseSetupAndSync {
       .then(() => {
         db.songs.count(songCount => { app.setState({totalSongsCached: songCount}) });
         this.log("IndexedDB loaded into state.");
+      })
+      .then(() => {
+        // Check if there's a pending book navigation (from share link)
+        if (app.state.pendingBookNavigation && app.state.books.length > 0) {
+          const bookId = app.state.pendingBookNavigation;
+          const book = app.state.books.find(b => b.id == bookId);
+          if (book) {
+            this.log('Navigating to shared book: ' + book.slug);
+            app.setState({
+              currentBook: book,
+              page: "index",
+              pendingBookNavigation: null
+            });
+            window.history.pushState({ page: "index", currentBook: book }, "", `/${book.slug}/i`);
+          }
+        }
       });
     return true
   }
