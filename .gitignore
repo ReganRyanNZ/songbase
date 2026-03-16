@@ -49,3 +49,4 @@ bower.json
 /config/master.key
 
 .DS_Store
+.claude/settings.local.json
