@@ -8,7 +8,12 @@ const SongReferences = ({
   songs,
   setSong,
   toggleReferenceLinks,
-  showReferenceLinks}) => {
+  showReferenceLinks,
+  selectedLanguages,
+  activeTranslations,
+  addTranslation,
+  removeTranslation,
+  currentSongId}) => {
 
   if (loadingData || !bookRefs) {
     return null;
@@ -40,6 +45,11 @@ const SongReferences = ({
                                       toggleReferenceLinks={toggleReferenceLinks}
                                       showReferenceLinks={showReferenceLinks}
                                       hasBookRefsToo={bookRefs.length > 0}
+                                      selectedLanguages={selectedLanguages}
+                                      activeTranslations={activeTranslations}
+                                      addTranslation={addTranslation}
+                                      removeTranslation={removeTranslation}
+                                      currentSongId={currentSongId}
                                     />) : ""
 
   return showReferenceLinks ? (

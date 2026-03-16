@@ -1,0 +1,160 @@
+// Styles for language links with add-to-screen functionality
+
+// Language link row (link + button)
+.language_link_row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  
+  .language_link {
+    flex: 1;
+    min-width: 0; // Allow text to overflow properly
+  }
+}
+
+// Add translation button
+.add-translation-btn {
+  background: var(--background);
+  border: 1px solid var(--comment-color);
+  color: var(--comment-color);
+  font-size: 16px;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background: var(--comment-color);
+    color: var(--background);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+    background: var(--comment-color);
+    color: var(--background);
+    border-color: var(--comment-color);
+  }
+  
+  &.displayed {
+    background: var(--comment-color);
+    color: var(--background);
+  }
+}
+
+// Active translations section (displayed songs)
+.active-translations-section {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.translations-label {
+  font-size: 11px;
+  color: var(--comment-color);
+  margin-bottom: 5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.active-translation-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.translation-link {
+  flex: 1;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 13px;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.remove-translation-btn {
+  background: var(--background);
+  border: 1px solid var(--comment-color);
+  color: var(--comment-color);
+  font-size: 18px;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 8px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: var(--comment-color);
+    color: var(--background);
+  }
+}
+
+// Translation display area (rendered songs)
+.translation-display {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.translation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 4px 8px;
+  border-left: 2px solid var(--border-color);
+  background: transparent;
+}
+
+.translation-language {
+  font-weight: 400;
+  font-size: 12px;
+  text-transform: capitalize;
+  color: var(--comment-color);
+  letter-spacing: 0.5px;
+}
+
+.translation-remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--comment-color);
+  font-size: 18px;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  
+  &:hover {
+    opacity: 1;
+    background: var(--text);
+    color: var(--background);
+  }
+}

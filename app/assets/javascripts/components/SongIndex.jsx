@@ -22,7 +22,17 @@ class SongIndex extends React.Component {
 
     return result
   }
+  escapeRegExp(string) {
+    // Escape special regex characters to prevent regex errors
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
 
+  escapeHtml(text) {
+    // Escape HTML entities to prevent XSS attacks
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
   songs() {
     let results = this.props.songs;
 
@@ -58,7 +68,7 @@ class SongIndex extends React.Component {
         song: song,
         tag:
           '<span class="search_tag">' +
-          book.name +
+          this.escapeHtml(book.name) +
           ": #" +
           number +
           "</span>"
@@ -78,7 +88,8 @@ class SongIndex extends React.Component {
       // If search is a number, we can look for book index instead of title/lyrics
       rowData = this.rowDataForNumericalSearch(strippedSearch);
     } else {
-      let containsSearchRegex = new RegExp(strippedSearch);
+      let escapedSearch = this.escapeRegExp(strippedSearch);
+      let containsSearchRegex = new RegExp(escapedSearch);
       let toRowData = (song) => { return { song: song, tag: "" } };
       let songContainsSearch = (song) => {
         let title = this.strip(song.title, false);
@@ -93,8 +104,9 @@ class SongIndex extends React.Component {
   }
 
   sortRowData(rows, search) {
-    let titleStartRegex = new RegExp("^" + search, 'i');
-    let titleMatchRegex = new RegExp(search, 'i');
+    let escapedSearch = this.escapeRegExp(search);
+    let titleStartRegex = new RegExp("^" + escapedSearch, 'i');
+    let titleMatchRegex = new RegExp(escapedSearch, 'i');
 
     if (this.props.currentBook && this.props.orderIndexBy == 'number') {
       let bookIndex = this.props.currentBook.songs;
