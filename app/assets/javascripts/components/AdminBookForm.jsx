@@ -55,7 +55,7 @@ class AdminBookForm extends React.Component {
       const songs = { ...prevState.book.songs };
       if (song.id in songs) return null;
 
-      songs[song.id] = Object.keys(songs).length;
+      songs[song.id] = String(Object.keys(songs).length + 1);
       const languages = this.getUpdatedLanguages(songs);
 
       return {
@@ -83,9 +83,9 @@ class AdminBookForm extends React.Component {
 
   reorderSongObject(songObject) {
     return Object.keys(songObject)
-      .sort((a, b) => songObject[a] - songObject[b])
+      .sort((a, b) => parseInt(songObject[a]) - parseInt(songObject[b]))
       .reduce((acc, id, index) => {
-        acc[id] = index;
+        acc[id] = String(index + 1);
         return acc;
       }, {});
   }
@@ -125,12 +125,13 @@ class AdminBookForm extends React.Component {
     e.preventDefault();
     const dragIndex = parseInt(e.dataTransfer.getData("dragIndex"), 10);
 
-    const songEntries = Object.entries(this.state.book.songs).sort((a, b) => a[1] - b[1]);
+    const songEntries = Object.entries(this.state.book.songs)
+      .sort((a, b) => parseInt(a[1]) - parseInt(b[1]));
     const [dragged] = songEntries.splice(dragIndex, 1);
     songEntries.splice(dropIndex, 0, dragged);
 
     const reordered = songEntries.reduce((acc, [id], i) => {
-      acc[id] = i;
+      acc[id] = String(i + 1);
       return acc;
     }, {});
 
@@ -146,9 +147,12 @@ class AdminBookForm extends React.Component {
     if (!book.songs) return [];
 
     return Object.entries(book.songs)
-      .sort(([, aIndex], [, bIndex]) => aIndex - bIndex)
-      .map(([songId]) => allSongs.find((s) => s.id === parseInt(songId)))
-      .filter(Boolean);
+      .sort(([, aIndex], [, bIndex]) => parseInt(aIndex) - parseInt(bIndex))
+      .map(([songId, index]) => ({
+        song: allSongs.find((s) => s.id === parseInt(songId)),
+        index: index
+      }))
+      .filter(({ song }) => song);
   }
 
   strip(string, normalize = true) {
@@ -270,19 +274,19 @@ class AdminBookForm extends React.Component {
             <div className="book-songs-container">
               <h3>Book Songs</h3>
               <div className="book-songs">
-                {bookSongs.map((song, index) => {
+                {bookSongs.map(({ song, index: bookIndex }, arrayIndex) => {
                   if (!song.title.toLowerCase().includes(search.toLowerCase())) return null;
                   return (
                     <div
                       className="song-item"
                       key={song.id}
                       draggable
-                      onDragStart={(e) => this.handleDragStart(e, index)}
-                      onDrop={(e) => this.handleDrop(e, index)}
+                      onDragStart={(e) => this.handleDragStart(e, arrayIndex)}
+                      onDrop={(e) => this.handleDrop(e, arrayIndex)}
                       onDragOver={(e) => e.preventDefault()}
                     >
-                      #{index + 1} {song.title}
-                      <button type="button" onClick={() => this.handleRemoveSong(index)}>
+                      #{bookIndex} {song.title}
+                      <button type="button" onClick={() => this.handleRemoveSong(bookIndex)}>
                         Remove
                       </button>
                     </div>
