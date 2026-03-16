@@ -170,6 +170,7 @@ class SongApp extends React.Component {
   }
 
   removeBookFromSync(bookId) {
+    this.navigate.clearBook();
     let settings = this.state.settings;
     if (settings.booksToSync) {
       settings.booksToSync = settings.booksToSync.filter(id => id != bookId);

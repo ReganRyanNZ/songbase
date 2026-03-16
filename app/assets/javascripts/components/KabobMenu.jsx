@@ -49,6 +49,7 @@ class KabobMenu extends React.Component {
 
   handleRemove(e) {
     e.preventDefault();
+    e.stopPropagation();
     if (confirm('Remove this book from your device?')) {
       this.props.onRemove();
       this.closeMenu();
