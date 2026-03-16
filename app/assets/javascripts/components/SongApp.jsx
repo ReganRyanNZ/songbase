@@ -3,7 +3,7 @@ class SongApp extends React.Component {
     super(props);
 
     this.state = {
-      page: props.song_id || "index",
+      page: props.show_books_page ? "books" : (props.song_id || "index"),
       settings: {
         // default settings, these will be overridden if db settings are found
         settingsType: "global",

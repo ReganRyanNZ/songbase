@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   get 'maintenance', to: 'sessions#maintenance_mode'
   get 'privacy', to: 'application#privacy'
   resources :songs, except: ["show"]
-  resources :books, except: ["show"]
+  resources :books, only: [:new, :create, :edit, :update, :destroy]
   get '/songs/:id', to: redirect('/%{id}')
 
   root to: 'songs#app'
