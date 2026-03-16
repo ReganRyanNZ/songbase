@@ -314,11 +314,9 @@ class SongApp extends React.Component {
               setSong={this.navigate.setSong}
               toggleReferenceLinks={this.toggleReferenceLinks.bind(this)}
               showReferenceLinks={this.state.showReferenceLinks}
-              selectedLanguages={this.state.settings.languages}
               activeTranslations={this.state.activeTranslations}
               addTranslation={this.addTranslation}
               removeTranslation={this.removeTranslation}
-              currentSongId={song.id}
             />
           </div>
         );

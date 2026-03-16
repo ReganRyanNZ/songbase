@@ -1,16 +1,14 @@
 // LanguageLinks component with add-to-screen functionality
 // Shows links to navigate plus buttons to add translations to current page
 
-const LanguageLinks = ({ 
-  linkIds, 
-  songs, 
-  setSong, 
+const LanguageLinks = ({
+  linkIds,
+  songs,
+  setSong,
   hasBookRefsToo,
-  selectedLanguages,
   activeTranslations,
   addTranslation,
-  removeTranslation,
-  currentSongId
+  removeTranslation
 }) => {
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -23,13 +21,8 @@ const LanguageLinks = ({
     .map(id => songs.find(song => song.id == id))
     .filter(song => song !== undefined);
 
-  // Filter by selected languages
-  const filteredSongs = selectedLanguages 
-    ? linkedSongs.filter(song => selectedLanguages.includes(song.lang))
-    : linkedSongs;
-
   // Sort by language
-  filteredSongs.sort((a, b) => (a.lang < b.lang ? -1 : a.lang > b.lang ? 1 : 0));
+  linkedSongs.sort((a, b) => (a.lang < b.lang ? -1 : a.lang > b.lang ? 1 : 0));
 
   // Get songs that are currently displayed as translations
   const displayedTranslations = activeTranslations
@@ -47,9 +40,9 @@ const LanguageLinks = ({
   };
 
   const linkList = (
-    <div className={`lang-link-list ${filteredSongs.length > 0 && hasBookRefsToo ? "with-line" : ""}`}>
+    <div className={`lang-link-list ${linkedSongs.length > 0 && hasBookRefsToo ? "with-line" : ""}`}>
       {/* Links with add buttons */}
-      {filteredSongs.map(song => {
+      {linkedSongs.map(song => {
         const isDisplayed = activeTranslations.includes(song.id);
         return (
           <div 
