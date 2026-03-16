@@ -32,6 +32,7 @@ class SongApp extends React.Component {
     this.toggleMusic = this.toggleMusic.bind(this); // Bind here to keep 'this' context and keep the function ref constant, so we don't apply the same listener a dozen times
     this.canEditBook = this.canEditBook.bind(this);
     this.editUrlFor = this.editUrlFor.bind(this);
+    this.removeBookFromSync = this.removeBookFromSync.bind(this);
 
     this.navigate = new AppNavigation(this);
     this.navigate.setupInitialHistoryState();
@@ -165,6 +166,17 @@ class SongApp extends React.Component {
     return token ? `/books/${bookId}/edit?edit_token=${token}` : null;
   }
 
+  removeBookFromSync(bookId) {
+    let settings = this.state.settings;
+    if (settings.booksToSync) {
+      settings.booksToSync = settings.booksToSync.filter(id => id != bookId);
+    }
+    this.setState({ settings: settings });
+    this.dbSync.db.settings.put(settings);
+    this.dbSync.db.books.delete(bookId);
+    this.dbSync.pushIndexedDBToState();
+  }
+
   render() {
     let page = this.state.page;
     let content;
@@ -226,6 +238,8 @@ class SongApp extends React.Component {
           homeButton={homeButton}
           canEditBook={this.canEditBook}
           editUrlFor={this.editUrlFor}
+          onRemoveBook={this.removeBookFromSync}
+          booksToSync={this.state.settings.booksToSync || []}
           />
         );
         break;

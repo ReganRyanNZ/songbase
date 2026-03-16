@@ -1,4 +1,4 @@
-const IndexOfBooks = ({ goToBookIndex, books, languages, homeButton, canEditBook, editUrlFor }) => {
+const IndexOfBooks = ({ goToBookIndex, books, languages, homeButton, canEditBook, editUrlFor, onRemoveBook, booksToSync }) => {
   const bookClicked = ({ target }) => {
     let bookSlug = target.closest('.index_row').id;
     goToBookIndex(bookSlug);
@@ -11,6 +11,9 @@ const IndexOfBooks = ({ goToBookIndex, books, languages, homeButton, canEditBook
       {homeButton}
       {scopeBooksToLanagues(books, languages).map((book, i) => {
         const editUrl = (canEditBook && editUrlFor && canEditBook(book.id)) ? editUrlFor(book.id) : null;
+        const isInSyncList = booksToSync.map(String).includes(String(book.id));
+        const showKabob = isInSyncList || editUrl; // Show kabob if user can edit OR book is in their sync list
+
         return (
           <div
             className="index_row"
@@ -20,14 +23,13 @@ const IndexOfBooks = ({ goToBookIndex, books, languages, homeButton, canEditBook
           >
             <span className="index_row_title">
               {book.name}
-              {editUrl && (
-                <a
-                  href={editUrl}
-                  className="book-edit-btn"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <EditIcon />
-                </a>
+              {showKabob && (
+                <KabobMenu
+                  canEdit={!!editUrl}
+                  editUrl={editUrl}
+                  showTrash={isInSyncList}
+                  onRemove={() => onRemoveBook(book.id)}
+                />
               )}
             </span>
           </div>

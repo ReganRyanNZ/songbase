@@ -74,7 +74,8 @@ class Book < ApplicationRecord
       name: name,
       slug: slug,
       songs: songs,
-      languages: languages
+      languages: languages,
+      sync_to_all: sync_to_all
     }
   end
 
