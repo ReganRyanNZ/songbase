@@ -88,6 +88,7 @@ GEM
       babel-source (>= 4.0, < 6)
       execjs (~> 2.0)
     base64 (0.2.0)
+    benchmark (0.5.0)
     bigdecimal (3.1.6)
     bindex (0.8.1)
     builder (3.2.4)
@@ -103,6 +104,7 @@ GEM
       xpath (~> 3.2)
     case_transform (0.2)
       activesupport
+    cgi (0.5.1)
     childprocess (5.1.0)
       logger (~> 1.5)
     concurrent-ruby (1.2.3)
@@ -126,7 +128,9 @@ GEM
       faraday-net_http (>= 2.0, < 3.2)
     faraday-net_http (3.1.0)
       net-http
-    ffi (1.16.3)
+    ffi (1.17.3)
+    ffi (1.17.3-arm64-darwin)
+    ffi (1.17.3-x86_64-linux-gnu)
     globalid (1.2.1)
       activesupport (>= 6.1)
     google-id-token (1.4.2)
@@ -169,7 +173,7 @@ GEM
     matrix (0.4.2)
     mini_mime (1.1.5)
     mini_portile2 (2.8.5)
-    minitest (5.21.2)
+    minitest (5.27.0)
     minitest-rails (7.1.0)
       minitest (~> 5.20)
       railties (~> 7.1.0)
@@ -195,10 +199,6 @@ GEM
     nokogiri (1.16.0)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.16.0-arm64-darwin)
-      racc (~> 1.4)
-    nokogiri (1.16.0-x86_64-linux)
-      racc (~> 1.4)
     oauth2 (2.0.9)
       faraday (>= 0.17.3, < 3.0)
       jwt (>= 1.0, < 3.0)
@@ -206,6 +206,7 @@ GEM
       rack (>= 1.2, < 4)
       snaky_hash (~> 2.0)
       version_gem (~> 1.1)
+    ostruct (0.6.3)
     pg (1.5.5)
     psych (5.1.2)
       stringio
@@ -331,16 +332,23 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers
+  benchmark
   byebug
   capybara
+  cgi
+  date
   dotenv-rails
   factory_bot_rails
+  ffi (~> 1.17)
   google_sign_in
   jbuilder
   letter_opener
   listen
+  logger
   minitest-rails
   minitest-reporters
+  mutex_m
+  ostruct
   pg (~> 1.5)
   puma
   rack-mini-profiler
@@ -350,13 +358,12 @@ DEPENDENCIES
   sassc-rails
   selenium-webdriver
   serviceworker-rails
-  spring
   spring-watcher-listen
   terser
   web-console
 
 RUBY VERSION
-   ruby 3.2.2p53
+   ruby 4.0.1p0
 
 BUNDLED WITH
    2.4.16

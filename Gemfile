@@ -1,7 +1,16 @@
-ruby '3.2.3'
+ruby '4.0.1'
 
 source 'https://rubygems.org'
 
+# Ruby 4.0 removed these from stdlib
+gem 'ostruct'
+gem 'benchmark'
+gem 'cgi'
+gem 'logger'
+gem 'mutex_m'
+gem 'date'
+
+gem 'ffi', '~> 1.17'
 gem 'rails', '~> 7.0'
 # Use postgres as the database for Active Record
 gem 'pg', '~> 1.5'
