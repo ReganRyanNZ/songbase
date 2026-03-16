@@ -15,7 +15,7 @@ class BooksController < ApplicationController
     @book = Book.new(book_params)
 
     if @book.save
-      redirect_to root_path(new_book: @book.id, edit_token: @book.edit_token), notice: "Book was successfully created"
+      redirect_to "/#{@book.slug}/i?new_book=#{@book.id}&edit_token=#{@book.edit_token}", notice: "Book was successfully created"
     else
       render :new
     end
@@ -23,7 +23,7 @@ class BooksController < ApplicationController
 
   def update
     if @book.update(book_params)
-      redirect_to root_path, notice: "Book was successfully updated"
+      redirect_to "/#{@book.slug}/i", notice: "Book was successfully updated"
     else
       render :edit
     end
