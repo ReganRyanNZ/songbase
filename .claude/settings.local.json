@@ -3,7 +3,8 @@
     "allow": [
       "Bash(bin/rails generate:*)",
       "Bash(bin/rails db:migrate)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git show:*)"
     ]
   }
 }

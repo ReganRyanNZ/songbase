@@ -6,7 +6,7 @@
   align-items: center;
   gap: 8px;
   padding: 4px 0;
-  
+
   .language_link {
     flex: 1;
     min-width: 0; // Allow text to overflow properly
@@ -30,12 +30,12 @@
   justify-content: center;
   flex-shrink: 0;
   transition: all 0.2s ease;
-  
+
   &:hover:not(:disabled) {
     background: var(--comment-color);
     color: var(--background);
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: default;
@@ -43,7 +43,7 @@
     color: var(--background);
     border-color: var(--comment-color);
   }
-  
+
   &.displayed {
     background: var(--comment-color);
     color: var(--background);
@@ -81,7 +81,7 @@
   overflow: hidden;
   color: var(--text);
   font-size: 13px;
-  
+
   &:hover {
     text-decoration: underline;
   }
@@ -104,7 +104,7 @@
   flex-shrink: 0;
   margin-left: 8px;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background: var(--comment-color);
     color: var(--background);
@@ -151,7 +151,7 @@
   align-items: center;
   justify-content: center;
   opacity: 0.6;
-  
+
   &:hover {
     opacity: 1;
     background: var(--text);
