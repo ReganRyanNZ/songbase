@@ -7,6 +7,8 @@ class KabobMenu extends React.Component {
     this.handleRemove = this.handleRemove.bind(this);
     this.handleClickOutside = this.handleClickOutside.bind(this);
     this.closeOtherMenus = this.closeOtherMenus.bind(this);
+    this.handleShare = this.handleShare.bind(this);
+    this.handleShareEdit = this.handleShareEdit.bind(this);
   }
 
   componentDidMount() {
@@ -56,12 +58,63 @@ class KabobMenu extends React.Component {
     }
   }
 
+  getEditToken() {
+    if (!this.props.editUrl) return null;
+    const match = this.props.editUrl.match(/edit_token=([^&]+)/);
+    return match ? match[1] : null;
+  }
+
+  async shareUrl(url, title) {
+    // Use Web Share API on mobile if available
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          url: url
+        });
+        this.closeMenu();
+        return;
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Error sharing:', err);
+        }
+        // User cancelled, fall through to clipboard
+      }
+    }
+
+    // Fallback to clipboard
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+      this.closeMenu();
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      alert('Failed to copy link. Please copy manually: ' + url);
+    }
+  }
+
+  handleShare(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/${this.props.bookSlug}`;
+    this.shareUrl(url, 'Songbase book');
+  }
+
+  handleShareEdit(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const token = this.getEditToken();
+    const url = `${window.location.origin}/${this.props.bookSlug}/edit?edit_token=${token}`;
+    this.shareUrl(url, 'Songbase book (edit access)');
+  }
+
   render() {
     var canEdit = this.props.canEdit;
     var editUrl = this.props.editUrl;
     var showTrash = this.props.showTrash;
+    var hasShare = this.props.bookSlug;
 
-    if (!showTrash && !canEdit) {
+    if (!showTrash && !canEdit && !hasShare) {
       return null;
     }
 
@@ -72,14 +125,24 @@ class KabobMenu extends React.Component {
         </button>
         {this.state.isOpen && (
           <div className="kabob-menu">
-            {showTrash &&
+            {hasShare &&
               React.createElement("a", {
                 href: "#",
-                className: "kabob-menu-item kabob-menu-item-trash",
-                onClick: this.handleRemove
+                className: "kabob-menu-item",
+                onClick: this.handleShare
               },
-                React.createElement(TrashIcon),
-                "Remove from device"
+                React.createElement(ShareIcon),
+                canEdit ? "Share (read-only)" : "Share"
+              )
+            }
+            {canEdit && editUrl &&
+              React.createElement("a", {
+                href: "#",
+                className: "kabob-menu-item",
+                onClick: this.handleShareEdit
+              },
+                React.createElement(ShareIcon),
+                "Share (edit)"
               )
             }
             {canEdit && editUrl &&
@@ -90,6 +153,16 @@ class KabobMenu extends React.Component {
               },
                 React.createElement(EditIcon),
                 "Edit book"
+              )
+            }
+            {showTrash &&
+              React.createElement("a", {
+                href: "#",
+                className: "kabob-menu-item kabob-menu-item-trash",
+                onClick: this.handleRemove
+              },
+                React.createElement(TrashIcon),
+                "Remove from device"
               )
             }
           </div>

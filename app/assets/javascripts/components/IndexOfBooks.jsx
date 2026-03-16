@@ -29,6 +29,7 @@ const IndexOfBooks = ({ goToBookIndex, books, languages, homeButton, canEditBook
                   editUrl={editUrl}
                   showTrash={isInSyncList}
                   onRemove={() => onRemoveBook(book.id)}
+                  bookSlug={book.slug}
                 />
               )}
             </span>

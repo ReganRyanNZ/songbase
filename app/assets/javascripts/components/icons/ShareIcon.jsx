@@ -1,10 +1,9 @@
-const ShareIcon =  `<svg id="svg2" version="1.1" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                      <title>Share</title>
-                      <defs id="defs4"/>
-                      <g id="layer1" transform="translate(0,-1036.3622)">
-                        <path d="m -22.410713,-3.3303571 a 2.3660715,2.3660715 0 1 1 -4.732143,0 2.3660715,2.3660715 0 1 1 4.732143,0 z" id="path2985" style="fill-opacity:1;stroke:none" transform="matrix(0.84528301,0,0,0.84528301,33.943395,1042.1773)"/>
-                        <path d="m -22.410713,-3.3303571 a 2.3660715,2.3660715 0 1 1 -4.732143,0 2.3660715,2.3660715 0 1 1 4.732143,0 z" id="path2985-1" style="fill-opacity:1;stroke:none" transform="matrix(0.84528301,0,0,0.84528301,33.943395,1052.1773)"/>
-                        <path d="m -22.410713,-3.3303571 a 2.3660715,2.3660715 0 1 1 -4.732143,0 2.3660715,2.3660715 0 1 1 4.732143,0 z" id="path2985-1-7" style="fill-opacity:1;stroke:none" transform="matrix(0.84528301,0,0,0.84528301,23.943395,1047.1773)"/>
-                        <path d="M 13,3 3,8 13,13" id="path3791" style="fill:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" transform="translate(0,1036.3622)"/>
-                      </g>
-                    </svg>`
+const ShareIcon = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <circle cx="18" cy="5" r="3"/>
+    <circle cx="6" cy="12" r="3"/>
+    <circle cx="18" cy="19" r="3"/>
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+  </svg>
+);

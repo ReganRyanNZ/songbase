@@ -181,10 +181,12 @@
   color: var(--text);
   text-decoration: none;
   font-size: 14px;
+  white-space: nowrap;
 
   svg {
     width: 16px;
     height: 16px;
+    flex-shrink: 0;
   }
 
   &:hover {
