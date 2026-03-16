@@ -74,7 +74,7 @@ class KabobMenu extends React.Component {
             {showTrash &&
               React.createElement("a", {
                 href: "#",
-                className: "kabob-menu-item",
+                className: "kabob-menu-item kabob-menu-item-trash",
                 onClick: this.handleRemove
               },
                 React.createElement(TrashIcon),

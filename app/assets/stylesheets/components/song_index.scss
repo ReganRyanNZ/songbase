@@ -194,4 +194,9 @@
   &:last-child {
     border-radius: 0 0 4px 4px;
   }
+
+  &.kabob-menu-item-trash svg {
+    width: 26px;
+    height: 20px;
+  }
 }
