@@ -1,5 +1,5 @@
 <% if notice %>
-  <p id="notice"><%= notice.html_safe %></p>
+  <p id="notice"><%= sanitize notice, tags: %w[a], attributes: %w[href class] %></p>
 <% end %>
 <% if alert %>
   <p id="alert"><%= alert %></p>
