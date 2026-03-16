@@ -1,12 +1,3 @@
 <h1 class="admin-root-title"><%= link_to "Edit Book", books_path %></h1>
-<hr>
-<div class="admin-comment">
-  Dear saints, when editing books:
-  <ul>
-    <li>You may update the book title and change the order of songs.</li>
-    <li>Please avoid reordering songs unless necessary, as the current sequence may have been prayerfully considered for use in meetings or conferences.</li>
-    <li>Deleting a book will permanently remove it for all users. Please ensure this is intentional before proceeding.</li>
-  </ul>
-</div>
-<hr>
+
 <%= render 'form', songs: @songs, book: @book %>
