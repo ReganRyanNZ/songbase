@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_15_234841) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_16_000000) do
   create_schema "songbase_production"
 
   # These are extensions that must be enabled in order to support this database
@@ -36,6 +36,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_15_234841) do
     t.jsonb "songs", default: {}
     t.string "languages", default: [], array: true
     t.string "edit_token"
+    t.datetime "sync_to_all_changed_at"
   end
 
   create_table "songs", id: :serial, force: :cascade do |t|

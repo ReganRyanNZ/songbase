@@ -12,7 +12,10 @@ class Api::V2::SongsController < ApplicationController
     requested_books = books_base_query.where(id: requested_book_ids)
 
     # Always include books with sync_to_all
-    books_to_sync = requested_books.or(books_base_query.where(sync_to_all: true))
+    # Also include books where sync_to_all recently changed (so clients get the update to remove it)
+    sync_to_all_books = books_base_query.where(sync_to_all: true)
+    recently_changed_sync_to_all = books_base_query.where('sync_to_all_changed_at >= ?', client_updated_at)
+    books_to_sync = requested_books.or(sync_to_all_books).or(recently_changed_sync_to_all)
 
     render json: {
       songs: songs_to_sync.app_data,

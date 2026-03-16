@@ -332,6 +332,26 @@ class DatabaseSetupAndSync {
         db.books.bulkDelete(data.destroyed.books);
 
         let settings = app.state.settings;
+        if (!settings.booksToSync) {
+          settings.booksToSync = [];
+        }
+
+        // Handle books that changed sync_to_all to false
+        // If the book already exists locally and sync_to_all changed to false, add to booksToSync to preserve it
+        data.books.forEach(book => {
+          if (book.sync_to_all === false) {
+            // Check if this book was previously sync_to_all (exists locally but not in booksToSync)
+            const bookExistsLocally = app.state.books.find(b => b.id == book.id);
+            const notExplicitlySynced = !settings.booksToSync.map(String).includes(String(book.id));
+
+            if (bookExistsLocally && notExplicitlySynced) {
+              // Book was sync_to_all, now it's not - add to booksToSync to preserve it
+              settings.booksToSync.push(book.id);
+              thisSyncTool.log('Added book ' + book.id + ' to sync list (was sync_to_all, now preserved)');
+            }
+          }
+        });
+
         settings['languagesInfo'] = settings['languagesInfo'].filter(info => info[0] != language); // remove previous value
 
         if(data.songCount > 0) {
