@@ -27,12 +27,15 @@ class SongApp extends React.Component {
       logSongApp: true,
       showReferenceLinks: localStorage.getItem('showReferenceLinks') == 'true',
       showChords: localStorage.getItem('showChords') == 'false' ? false : true, // Local storage to load faster than indexedDB, and synchronously
+      activeTranslations: [], // Array of song IDs for translations to display alongside current song
     };
 
     this.toggleMusic = this.toggleMusic.bind(this); // Bind here to keep 'this' context and keep the function ref constant, so we don't apply the same listener a dozen times
     this.canEditBook = this.canEditBook.bind(this);
     this.editUrlFor = this.editUrlFor.bind(this);
     this.removeBookFromSync = this.removeBookFromSync.bind(this);
+    this.addTranslation = this.addTranslation.bind(this);
+    this.removeTranslation = this.removeTranslation.bind(this);
 
     this.navigate = new AppNavigation(this);
     this.navigate.setupInitialHistoryState();
@@ -177,6 +180,20 @@ class SongApp extends React.Component {
     this.dbSync.pushIndexedDBToState();
   }
 
+  addTranslation(songId) {
+    if (!this.state.activeTranslations.includes(songId)) {
+      this.setState({
+        activeTranslations: [...this.state.activeTranslations, songId]
+      });
+    }
+  }
+
+  removeTranslation(songId) {
+    this.setState({
+      activeTranslations: this.state.activeTranslations.filter(id => id !== songId)
+    });
+  }
+
   render() {
     let page = this.state.page;
     let content;
@@ -262,6 +279,29 @@ class SongApp extends React.Component {
               showChords={this.state.showChords}
               toggleMusic={this.toggleMusic}/>
 
+            {this.state.activeTranslations.map(translationId => {
+              const translationSong = this.getSong(translationId);
+              if (!translationSong) return null;
+              return (
+                <div key={translationId} className="translation-display">
+                  <div className="translation-header">
+                    <span className="translation-language">{translationSong.lang}</span>
+                    <button 
+                      className="translation-remove-btn"
+                      onClick={() => this.removeTranslation(translationId)}>
+                      ×
+                    </button>
+                  </div>
+                  <SongDisplay
+                    title={translationSong.title}
+                    lyrics={translationSong.lyrics}
+                    analyticsPath={null}
+                    showChords={this.state.showChords}
+                    toggleMusic={this.toggleMusic}/>
+                </div>
+              );
+            })}
+
             <SongReferences
               goToBookIndex={this.navigate.goToBookIndex}
               toggleOrderIndexBy={this.toggleOrderIndexBy.bind(this)}
@@ -274,6 +314,11 @@ class SongApp extends React.Component {
               setSong={this.navigate.setSong}
               toggleReferenceLinks={this.toggleReferenceLinks.bind(this)}
               showReferenceLinks={this.state.showReferenceLinks}
+              selectedLanguages={this.state.settings.languages}
+              activeTranslations={this.state.activeTranslations}
+              addTranslation={this.addTranslation}
+              removeTranslation={this.removeTranslation}
+              currentSongId={song.id}
             />
           </div>
         );
