@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_16_000000) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_17_000000) do
   create_schema "songbase_production"
 
   # These are extensions that must be enabled in order to support this database
@@ -22,6 +22,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_16_000000) do
     t.integer "user_id"
     t.integer "song_id"
     t.datetime "time", precision: nil
+    t.string "action"
+    t.jsonb "changed_fields", default: {}
     t.index ["song_id"], name: "index_audits_on_song_id"
     t.index ["user_id"], name: "index_audits_on_user_id"
   end

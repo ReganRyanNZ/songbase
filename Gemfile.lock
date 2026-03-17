@@ -358,6 +358,7 @@ DEPENDENCIES
   sassc-rails
   selenium-webdriver
   serviceworker-rails
+  spring
   spring-watcher-listen
   terser
   web-console

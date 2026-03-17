@@ -35,6 +35,7 @@ class SongsController < ApplicationController
   end
 
   def admin
+    @songs = Song.search(params[:search] || '').limit(100)
   end
 
   def admin_example
@@ -67,7 +68,12 @@ class SongsController < ApplicationController
       redirect_to admin_path, notice: "Song was successfully created. #{song_flash_link(@song.duplicate)} to view in app."
     elsif @song.save
       email_diff_to_overseers(@song)
-      Audit.create(user: current_user, song: @song, time: Time.zone.now)
+      Audit.log(
+        song: @song,
+        user: current_user,
+        action: 'create',
+        changes: format_changes_for_audit(@song.previous_changes.except(:updated_at, :created_at, :id))
+      )
       redirect_to admin_path, notice: "Song was successfully created. #{song_flash_link(@song)} to view in app."
     else
       render :new
@@ -79,7 +85,12 @@ class SongsController < ApplicationController
 
     if @song.update(song_params)
       email_diff_to_overseers(@song)
-      Audit.create(user: current_user, song: @song, time: Time.zone.now)
+      Audit.log(
+        song: @song,
+        user: current_user,
+        action: 'update',
+        changes: format_changes_for_audit(@song.previous_changes.except(:updated_at, :created_at, :id))
+      )
       redirect_to admin_path, notice: "Song was successfully updated. #{song_flash_link(@song)} to view in app."
     else
       render :edit
@@ -103,6 +114,15 @@ class SongsController < ApplicationController
 
   def song_flash_link(song)
     view_context.link_to 'Click here', song_path(song), class: 'flash_link'
+  end
+
+  # Format changes for audit logging
+  # Converts Rails previous_changes format {attr => [old, new]} 
+  # to our audit format {attr => {'before' => old, 'after' => new}}
+  def format_changes_for_audit(changes)
+    changes.transform_values do |old_and_new|
+      { 'before' => old_and_new[0], 'after' => old_and_new[1] }
+    end
   end
 
   def adjust_lang_params
