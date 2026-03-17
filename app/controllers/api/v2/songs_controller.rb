@@ -42,6 +42,21 @@ class Api::V2::SongsController < ApplicationController
     render json: {songs: songs_for_language_links}, status: 200
   end
 
+  def record_analytics
+    song_counts = params[:song_counts]
+    unless song_counts.is_a?(ActionController::Parameters) || song_counts.is_a?(Hash)
+      render json: { error: "invalid params" }, status: :unprocessable_entity and return
+    end
+    SongAnalytic.record!(song_counts.to_unsafe_h)
+    render json: { ok: true }, status: :ok
+  end
+
+  def analytics_summary
+    return render json: { error: "forbidden" }, status: :forbidden unless super_admin
+
+    render json: { songs: SongAnalytic.summary }, status: :ok
+  end
+
   private
 
   def duplicate_songs

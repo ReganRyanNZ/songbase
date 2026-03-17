@@ -224,3 +224,52 @@ button.book-langauge-filter {
     cursor: pointer;
   }
 }
+
+.analytics-page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.analytics-subtitle {
+  color: grey;
+  font-style: italic;
+  margin-bottom: 16px;
+}
+
+.analytics-table {
+  width: 100%;
+
+  th {
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 2px solid #ddd;
+    font-weight: bold;
+  }
+
+  td {
+    padding: 6px 8px;
+  }
+
+  .analytics-rank {
+    color: grey;
+    width: 36px;
+  }
+
+  .analytics-lang {
+    color: grey;
+    font-style: italic;
+    font-size: 85%;
+  }
+
+  .analytics-count {
+    font-weight: bold;
+    text-align: right;
+    padding-right: 16px;
+  }
+}
+
+.analytics-loading, .analytics-error, .analytics-empty {
+  margin-top: 24px;
+  color: grey;
+  font-style: italic;
+}

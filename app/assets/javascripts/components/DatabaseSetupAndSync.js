@@ -46,6 +46,7 @@ class DatabaseSetupAndSync {
       if (!migratingDB) {
         this.pushIndexedDBToState() // push current cached data immediately
         this.fetchDataFromAPI() // sync with api
+        this.syncAnalytics() // send any pending play counts to the server
       }
     } catch (e) {
       console.error("Failed to fetch new data.", e)
@@ -56,6 +57,13 @@ class DatabaseSetupAndSync {
     // Change version number when db structure changes
     // Note that stores() specifies primary key, then *indexed* properties,
     // there may be more properties than specified here, these are just indexed ones.
+    this.db.version(6).stores({
+      settings: "settingsType",
+      songs: "id, title, lang",
+      books: "id, slug, *languages",
+      references: null,
+      analytics: "song_id"
+    });
     this.db.version(5).stores({
       settings: "settingsType",
       songs: "id, title, lang",
@@ -384,5 +392,43 @@ class DatabaseSetupAndSync {
       thisSyncTool.defineSchema();
       thisSyncTool.fetchDataFromAPI();
     });
+  }
+
+  // Increments (or creates) the pending play count for a song in IndexedDB.
+  // Called by SongDisplay after the user has been on a song long enough to count as sung.
+  async recordSongSung(songId) {
+    const id = parseInt(songId, 10);
+    if (!id || id <= 0) { return; }
+    const existing = await this.db.analytics.get(id);
+    if (existing) {
+      await this.db.analytics.update(id, { count: existing.count + 1 });
+    } else {
+      await this.db.analytics.put({ song_id: id, count: 1 });
+    }
+    this.log('Recorded song sung: ' + id);
+  }
+
+  // POSTs any pending analytics counts to the server, then clears the local store.
+  async syncAnalytics() {
+    const rows = await this.db.analytics.toArray();
+    if (rows.length === 0) { return; }
+
+    const songCounts = {};
+    rows.forEach(row => { songCounts[row.song_id] = row.count; });
+
+    const csrfToken = document.querySelector("meta[name=csrf-token]").content;
+    try {
+      const response = await fetch("/api/v2/analytics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+        body: JSON.stringify({ song_counts: songCounts })
+      });
+      if (response.ok) {
+        await this.db.analytics.clear();
+        this.log('Analytics synced and cleared.');
+      }
+    } catch (error) {
+      this.log('Analytics sync failed (will retry next time): ' + error);
+    }
   }
 }

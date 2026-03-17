@@ -277,6 +277,7 @@ class SongApp extends React.Component {
             <SongDisplay
               title={song.title}
               lyrics={song.lyrics}
+              songId={song.id}
               analyticsPath={songWasPreloaded ? null : window.location.href}
               showChords={this.state.showChords}
               toggleMusic={this.toggleMusic}/>

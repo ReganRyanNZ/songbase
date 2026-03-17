@@ -1,6 +1,6 @@
 class SongsController < ApplicationController
   before_action :set_song, only: [:show, :edit, :update, :destroy]
-  before_action :authenticate, only: [:new, :edit, :create, :update, :destroy]
+  before_action :authenticate, only: [:new, :edit, :create, :update, :destroy, :analytics]
   before_action :check_maintenance
   before_action :adjust_lang_params, only: [:create, :update]
 
@@ -36,6 +36,10 @@ class SongsController < ApplicationController
 
   def admin
     @songs = Song.search(params[:search] || '').limit(100)
+  end
+
+  def analytics
+    redirect_to admin_path, alert: "Super admin only" unless super_admin
   end
 
   def admin_example

@@ -73,6 +73,8 @@ class SongDisplay extends React.Component {
       showTuneSelectBox: false
     };
 
+    this._analyticsTimer = null;
+
     // `bind` creates a new function with an immutable "this" reference. We
     // need to bind it here so we can reuse the one function instead of
     // creating many via event listener calls.
@@ -82,14 +84,22 @@ class SongDisplay extends React.Component {
     this.changeTune = this.changeTune.bind(this);
     this.toggleTuneSelector = this.toggleTuneSelector.bind(this);
     this.clickAwayFromTuneSelector = this.clickAwayFromTuneSelector.bind(this);
-
-    this.setAnalyticsTimer();
   }
   componentDidMount() {
     this.addListeners();
+    this.setAnalyticsTimer();
   }
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     this.addListeners();
+    if (prevProps.songId !== this.props.songId || prevProps.analyticsPath !== this.props.analyticsPath) {
+      this.setAnalyticsTimer();
+    }
+  }
+  componentWillUnmount() {
+    if (this._analyticsTimer) {
+      clearTimeout(this._analyticsTimer);
+      this._analyticsTimer = null;
+    }
   }
 
   log(str) {
@@ -172,6 +182,23 @@ class SongDisplay extends React.Component {
         }
       }
       setTimeout(triggerPageView, longEnoughToCountAsSung, this.props.analyticsPath, this.props.title);
+    }
+
+    if (this.props.songId) {
+      if (this._analyticsTimer) {
+        clearTimeout(this._analyticsTimer);
+        this._analyticsTimer = null;
+      }
+
+      const capturedPath = window.location.href;
+      const capturedSongId = this.props.songId;
+      this._analyticsTimer = setTimeout(() => {
+        this._analyticsTimer = null;
+        if (window.location.href !== capturedPath) { return; }
+        if ($app && $app.dbSync) {
+          $app.dbSync.recordSongSung(capturedSongId).then(() => $app.dbSync.syncAnalytics());
+        }
+      }, 30 * 1000);
     }
   }
 

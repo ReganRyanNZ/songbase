@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   get '/:s/e', to: 'songs#edit'
   get '/:s', to: 'songs#app', s: /[0-9]+/
   get 'admin', to: 'songs#admin'
+  get 'admin/analytics', to: 'songs#analytics'
   get 'admin/example', to: 'songs#admin_example'
   get 'admin/example_with_tunes', to: 'songs#admin_example_with_tunes'
   get 'taketime', to: 'take_time#take_time'
@@ -37,6 +38,8 @@ Rails.application.routes.draw do
       get 'languages', to: 'songs#languages'
       get 'admin_songs', to: 'songs#admin_songs'
       get 'custom_book_search', to: 'songs#custom_book_search'
+      post 'analytics', to: 'songs#record_analytics'
+      get 'analytics', to: 'songs#analytics_summary'
     end
   end
 end
