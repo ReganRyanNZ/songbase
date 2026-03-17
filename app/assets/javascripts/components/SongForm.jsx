@@ -128,17 +128,12 @@ class SongForm extends React.Component {
   }
 
   linksComponent() {
-   return (<div className="edit-links">
-              <h2>Language Links</h2>
-              <input
-                id="song_language_links"
-                name="song[language_links][]"
-                type="array"
-                placeholder="E.g. 4756,1982,3390"
-                defaultValue={this.props.song.language_links}
-              />
-              <p className="admin-comment">This field is for a comma-separated list of ids to the same song in different languages. A song's id is the number in the url, e.g. "songbase.life/4756", the id is 4756.</p>
-            </div>)
+    return (
+      <LanguageLinksEditor
+        linkedSongs={this.props.linkedSongs}
+        currentSongId={this.props.song.id}
+      />
+    );
   }
 
   render() {

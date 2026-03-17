@@ -39,7 +39,7 @@ class Api::V2::SongsController < ApplicationController
   end
 
   def custom_book_search
-    render json: {songs: songs_for_admin}, status: 200
+    render json: {songs: songs_for_language_links}, status: 200
   end
 
   private
@@ -67,6 +67,12 @@ class Api::V2::SongsController < ApplicationController
   def songs_for_admin
     sort_songs(Song.search(params[:search])
                    .limit(100)
+                   .map(&:admin_entry))
+  end
+
+  def songs_for_language_links
+    sort_songs(Song.search(params[:search])
+                   .limit(20)
                    .map(&:admin_entry))
   end
 

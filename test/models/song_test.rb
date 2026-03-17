@@ -126,6 +126,55 @@ class SongTest < ActiveSupport::TestCase
     assert_equal([], song2.reload.language_links)
   end
 
+  test 'transitive_language_links' do
+    # Create three songs in different languages
+    song1 = FactoryBot.create(:song, lang: 'english')
+    song2 = FactoryBot.create(:song, lang: 'spanish')
+    song3 = FactoryBot.create(:song, lang: 'portuguese')
+
+    # Step 1: Link song1 and song2 (A↔B)
+    song1.language_links = [song2.id]
+    song1.save
+
+    assert_equal([song2.id], song1.reload.language_links, "Song1 should link to Song2")
+    assert_equal([song1.id], song2.reload.language_links, "Song2 should link to Song1")
+    assert_equal([], song3.reload.language_links, "Song3 should have no links yet")
+
+    # Step 2: Add song3 to song1's links (should create transitive links: A↔B↔C)
+    song1.language_links = [song2.id, song3.id]
+    song1.save
+
+    # All three should be interconnected
+    assert_includes song1.reload.language_links, song2.id, "Song1 should link to Song2"
+    assert_includes song1.reload.language_links, song3.id, "Song1 should link to Song3"
+    assert_includes song2.reload.language_links, song1.id, "Song2 should link to Song1"
+    assert_includes song2.reload.language_links, song3.id, "Song2 should link to Song3 - transitive"
+    assert_includes song3.reload.language_links, song1.id, "Song3 should link to Song1"
+    assert_includes song3.reload.language_links, song2.id, "Song3 should link to Song2 - transitive"
+
+    # Step 3: Add a fourth song to verify transitive linking works with larger groups
+    song4 = FactoryBot.create(:song, lang: 'german')
+    song1.language_links = [song2.id, song3.id, song4.id]
+    song1.save
+
+    # All four should be interconnected
+    [song1, song2, song3, song4].each do |song|
+      other_ids = [song1, song2, song3, song4].map(&:id) - [song.id]
+      reloaded = song.reload
+      other_ids.each do |other_id|
+        assert_includes reloaded.language_links, other_id, 
+          "#{song.lang} song should link to all other songs (transitive)"
+      end
+    end
+
+    # Step 4: Remove one link (should only remove direct connection)
+    song1.update(language_links: [song2.id, song3.id]) # Remove song4
+
+    # Song4 should no longer be linked to song1
+    refute_includes song1.reload.language_links, song4.id, "Song1 should not link to Song4 after removal"
+    # Note: Transitive links to song4 from song2/song3 remain (we only remove direct link)
+  end
+
   test 'print_format' do
     song = FactoryBot.create(:song, :abba_father)
     assert(song.print_format.include?(expected_print_format), "Expected: \n\n" + expected_print_format.inspect + "----\n\n Got: \n\n" + song.print_format.inspect)

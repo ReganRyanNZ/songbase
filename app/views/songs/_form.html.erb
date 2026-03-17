@@ -17,7 +17,8 @@
     'SongForm',
     song: song,
     languages: Song.languages,
-    bookRefs: Book.with_song(song).book_refs_for(song)) %>
+    bookRefs: Book.with_song(song).book_refs_for(song),
+    linkedSongs: song.language_links.present? ? Song.where(id: song.language_links).map(&:admin_entry) : []) %>
   <div class="actions text-center">
     <%= f.submit class: "btn btn-update" %>
 <% end %>
