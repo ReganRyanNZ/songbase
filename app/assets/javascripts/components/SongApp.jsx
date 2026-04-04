@@ -90,7 +90,7 @@ class SongApp extends React.Component {
     }
   }
 
-  getSong(id) {
+  getSong(id, skipBookLookup = false) {
     if (this.props.preloaded_song) {
       if (this.props.preloaded_current_book) {
         // If we are inside a book, the song's id will point to the song's index in that book
@@ -106,9 +106,9 @@ class SongApp extends React.Component {
     }
 
     // If we are inside a book, the song's id will point to the song's index in that book
-    let song_id = this.state.currentBook ? this.getSongIdFromBook(this.state.currentBook, id) : id;
+    let song_id = (this.state.currentBook && !skipBookLookup) ? this.getSongIdFromBook(this.state.currentBook, id) : id;
 
-    return this.state.songs.find(song => song.id == song_id) || "couldn't find song";
+    return this.state.songs.find(song => song.id == song_id) || null;
   }
 
   // Books stored songs as {song.id => index}
@@ -265,6 +265,10 @@ class SongApp extends React.Component {
 
       default: // display a song
         let song = this.getSong(page);
+        if (!song) {
+          content = <div className="song-container">{homeButton}<p>Song not found.</p></div>;
+          break;
+        }
         let songWasPreloaded = this.props.preloaded_song && this.props.preloaded_song.title == song.title;
         pageTitle = song.title;
         if(!!this.state.currentBook) {
@@ -283,7 +287,7 @@ class SongApp extends React.Component {
               toggleMusic={this.toggleMusic}/>
 
             {this.state.activeTranslations.map(translationId => {
-              const translationSong = this.getSong(translationId);
+              const translationSong = this.getSong(translationId, true);
               if (!translationSong) return null;
               return (
                 <div key={translationId} className="translation-display">
@@ -327,10 +331,15 @@ class SongApp extends React.Component {
 
     document.title = pageTitle;
 
-    let title = <h1 className="home-title" onClick={this.navigate.returnToIndex}>
+    let title = <div className="home-title-row">
+                <h1 className="home-title" onClick={this.navigate.returnToIndex}>
                   {!!this.state.currentBook ? this.state.currentBook.name : "Songbase"}
                   {indexNumber}
-                </h1>;
+                </h1>
+                {this.state.page === "index" && this.state.currentBook ? (
+                  <button className="home-title-close" onClick={this.navigate.clearBook} title="Close book">✕</button>
+                ) : null}
+              </div>;
 
     this.setTheme();
     return (

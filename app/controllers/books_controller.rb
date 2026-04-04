@@ -41,6 +41,7 @@ class BooksController < ApplicationController
   end
 
   def verify_edit_token
+    return if super_admin
     unless @book.edit_token == params[:edit_token]
       redirect_to root_path, alert: "You don't have permission to edit this book"
     end
