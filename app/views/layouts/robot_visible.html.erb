@@ -15,6 +15,13 @@
   </head>
 
   <body>
+    <script>
+      (function() {
+        var saved = localStorage.getItem('cssTheme') || 'css-normal';
+        document.body.removeAttribute('class');
+        document.body.classList.add(saved);
+      })();
+    </script>
     <div class="application-container">
       <%= render 'songs/flash' %>
       <%= yield %>

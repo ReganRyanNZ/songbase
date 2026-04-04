@@ -44,10 +44,6 @@ class AppNavigation {
   }
 
   toggleBookIndex() {
-    if(this.app.state.currentBook) {
-      return this.clearBook();
-    }
-
     if (this.app.state.page == "books") {
       this.returnToIndex();
     } else {

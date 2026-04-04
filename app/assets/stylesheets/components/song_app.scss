@@ -9,10 +9,63 @@
   }
 }
 
-.home-title {
+.home-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-inline: 40px;
   margin-top: 5px;
   margin-bottom: 28px;
+
+  .home-title {
+    margin: 0;
+    flex: 1;
+    text-align: center;
+  }
+
+  .home-title-close {
+    background: none;
+    border: 1px solid var(--ui-color);
+    border-radius: 4px;
+    color: var(--ui-color);
+    font-size: 14px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: -8px;
+    transition: color 0.15s, border-color 0.15s;
+
+    &:hover {
+      color: #e74c3c;
+      border-color: #e74c3c;
+    }
+  }
+
+  .home-title-edit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--ui-color);
+    border-radius: 4px;
+    color: var(--ui-color);
+    flex-shrink: 0;
+    margin-left: 6px;
+    transition: color 0.15s, border-color 0.15s;
+
+    &:hover {
+      color: #007bff;
+      border-color: #007bff;
+    }
+  }
+}
+
+.home-title {
   font-size: 1.8em;
   text-align: center;
   &:hover {

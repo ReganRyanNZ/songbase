@@ -203,28 +203,30 @@ class SongIndex extends React.Component {
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
           <SettingsIcon />
         </div>
-        <div className="search-form form" key="search-form" onKeyDown={this.keyNavigate}>
-          <input
-            id="index_search"
-            autoComplete="off"
-            value={this.props.search}
-            onChange={searchInputChange}
-            name="song[search]"
-            className="index_search"
-            placeholder="search..."
-            key="search-input"
-          />
-          {this.props.search.length > 0 ? (
-            <div className="btn_clear_search" onClick={this.props.clearSearch}>
-              ×
-            </div>
-          ) : null}
-        </div>
-        <div className="title-list">
+        <div className="search-row" key="search-row">
+          <div className="search-form form" onKeyDown={this.keyNavigate}>
+            <input
+              id="index_search"
+              autoComplete="off"
+              value={this.props.search}
+              onChange={searchInputChange}
+              name="song[search]"
+              className="index_search"
+              placeholder="search..."
+              key="search-input"
+            />
+            {this.props.search.length > 0 ? (
+              <div className="btn_clear_search" onClick={this.props.clearSearch}>
+                ×
+              </div>
+            ) : null}
+          </div>
           {!!this.props.currentBook ? (
             <div className="btn-sort" onClick={this.props.toggleOrderIndexBy}>
               <SortIcon />
             </div>) : null}
+        </div>
+        <div className="title-list">
 
           {(this.props.loadingData && this.props.songs.length == 0) ? (
             <div className="loading">Loading song data...</div>

@@ -53,6 +53,16 @@ div {
   background-color: #ffd1d1;
 }
 
+body.css-night #notice {
+  color: #90ee93;
+  background-color: #1a2e1a;
+}
+
+body.css-night #alert {
+  color: #ff6b6b;
+  background-color: #2e1a1a;
+}
+
 #notice, #alert {
   padding: 20px;
   border-radius: 5px;

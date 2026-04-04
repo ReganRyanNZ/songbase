@@ -1,8 +1,7 @@
 .dragging {
-  cursor: grabbing;
-  background: transparent;
-  color: transparent;
-  border: none;
+  opacity: 0.5;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .custom-book-row {
@@ -48,4 +47,275 @@
 
 .custom-book-song-title {
   cursor: pointer;
+}
+
+// Book form additions
+.admin-book-form {
+  max-width: 1400px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 1rem;
+
+  @media (max-width: 700px) {
+    padding: 0;
+  }
+}
+
+.book-form-title {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.song-count {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: normal;
+}
+
+.songs-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+// Icon buttons (+ and ×)
+.btn-icon {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  font-size: 0;
+  line-height: 0;
+  text-align: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s, color 0.15s;
+
+  svg {
+    display: block;
+  }
+}
+
+.btn-add {
+  background-color: #007bff;
+  color: white;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+}
+
+.btn-remove {
+  background-color: transparent;
+  color: #999;
+  border: 1px solid #ddd;
+
+  &:hover {
+    background-color: #ff4d4d;
+    color: white;
+    border-color: #ff4d4d;
+  }
+}
+
+.btn-icon.btn-added {
+  background-color: #e8e8e8;
+  color: #999;
+  cursor: default;
+  pointer-events: none;
+}
+
+// Spacer for search results to align with book songs
+.song-item-spacer {
+  width: 24px; // match book-song-number width
+  flex-shrink: 0;
+}
+
+// Book song number
+.book-song-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.book-song-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: #999;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 4px; // Larger touch target
+  margin: -8px -4px; // Offset padding so it doesn't affect layout
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  svg {
+    touch-action: none;
+  }
+}
+
+.song-item.drag-over {
+  border-top: 2px solid #007bff;
+  border-bottom: 1px dashed #ddd;
+}
+
+.song-item button.btn-added {
+  background-color: #6c757d;
+  cursor: default;
+  pointer-events: none;
+}
+
+// Mobile tweaks
+@media (max-width: 700px) {
+  .admin-book-form {
+    max-width: 100%;
+  }
+
+  .songs-container {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .songs-search-container,
+  .book-songs-container {
+    min-width: unset;
+    padding: 0.5rem;
+  }
+
+  .songs, .book-songs {
+    max-height: 40vh;
+  }
+
+  .btn-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .btn-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .book-song-number {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+
+  .song-item {
+    padding: 0.2rem 0;
+    min-height: 36px;
+    gap: 0.25rem;
+    margin: 0.25rem 0;
+  }
+
+  .book-song-title {
+    font-size: 14px;
+  }
+
+  .drag-handle {
+    padding: 10px 6px;
+    margin: -10px -6px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .song-item.drag-over {
+    border-top-width: 3px;
+    margin-top: -1px;
+  }
+
+  .book-form-title {
+    font-size: 16px;
+  }
+
+  .book-title h2 {
+    font-size: 1.1rem;
+  }
+}
+
+// Night theme
+body.css-night {
+  .song-count {
+    color: #aaa;
+  }
+
+  .songs-empty {
+    color: #aaa;
+  }
+
+  .drag-handle {
+    color: #aaa;
+  }
+
+  .song-item.drag-over {
+    border-top-color: var(--chord);
+  }
+
+  .book-form-title {
+    border-color: #555;
+    background-color: #111;
+    color: white;
+  }
+
+  .btn-add {
+    background-color: var(--chord);
+
+    &:hover {
+      background-color: #888;
+    }
+  }
+
+  .btn-remove {
+    color: #aaa;
+    border-color: #555;
+
+    &:hover {
+      background-color: #ff4d4d;
+      color: white;
+      border-color: #ff4d4d;
+    }
+  }
+
+  .btn-icon.btn-added {
+    background-color: #333;
+    color: #666;
+  }
+
+  .book-song-number {
+    background-color: var(--chord);
+    color: black;
+  }
 }

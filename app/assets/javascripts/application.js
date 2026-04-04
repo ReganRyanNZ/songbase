@@ -38,10 +38,46 @@ Array.from(document.querySelectorAll('[data-confirm]')).forEach((el) => {
   new Confirm(el)
 })
 
-// Hide flash messages on any click within the React app
-document.addEventListener('click', function(e) {
-  const flash = document.querySelector('#notice, #alert');
-  if (flash) {
-    flash.remove();
-  }
-}, { once: true });
+document.addEventListener('DOMContentLoaded', function() {
+  // Delete book confirmation modal
+  (function() {
+    var deleteBtn = document.getElementById('delete-book-btn');
+    var modal = document.getElementById('delete-confirm-modal');
+    var cancelBtn = document.getElementById('delete-cancel-btn');
+    var confirmBtn = document.getElementById('delete-confirm-btn');
+    var deleteForm = document.getElementById('delete-book-form');
+
+    if (deleteBtn && modal) {
+      deleteBtn.addEventListener('click', function() {
+        modal.style.display = 'flex';
+      });
+
+      cancelBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+      });
+
+      confirmBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+        if (deleteForm) deleteForm.submit();
+      });
+
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    }
+  })();
+
+  // Auto-hide flash notices
+  (function() {
+    var flash = document.querySelector('#notice, #alert');
+    if (flash) {
+      setTimeout(function() {
+        flash.style.transition = 'opacity 0.3s';
+        flash.style.opacity = '0';
+        setTimeout(function() { flash.remove(); }, 300);
+      }, 3000);
+    }
+  })();
+});

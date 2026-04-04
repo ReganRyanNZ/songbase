@@ -54,7 +54,7 @@
 .active-translations-section {
   margin-bottom: 10px;
   padding-bottom: 10px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--ui-color);
 }
 
 .translations-label {
@@ -115,7 +115,7 @@
 .translation-display {
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--ui-color);
 }
 
 .translation-header {
@@ -124,7 +124,7 @@
   align-items: center;
   margin-bottom: 10px;
   padding: 4px 8px;
-  border-left: 2px solid var(--border-color);
+  border-left: 2px solid var(--ui-color);
   background: transparent;
 }
 

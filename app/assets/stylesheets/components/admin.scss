@@ -25,6 +25,59 @@
   background-color: #90ee93;
 }
 
+.btn-cancel {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+// Delete confirmation modal
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: var(--background, white);
+  border: 1px solid var(--ui-color, #ccc);
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+
+  h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin: 0 0 1.25rem 0;
+    font-size: 0.9rem;
+    color: var(--comment-color, #666);
+    line-height: 1.4;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.modal-actions .btn {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
 a.btn-help {
   color: #4646fd;
   display: inline-block;
@@ -116,10 +169,17 @@ a.btn-help {
 
 .index_search {
   flex: 1;
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
   font-size: 1rem;
-  border-radius: 4px;
+  border-radius: 6px;
   border: 1px solid #ccc;
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+  }
 }
 
 .btn_clear_search {
@@ -139,12 +199,13 @@ a.btn-help {
 .songs-search-container,
 .book-songs-container {
   flex: 1;
-  min-width: 300px;
+  min-width: 280px;
 
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
+
 .songs, .book-songs {
   max-height: 60vh;
   overflow-y: auto;
@@ -155,7 +216,7 @@ a.btn-help {
   justify-content: space-between;
   align-items: center;
   margin: 0.5rem 0;
-  padding: 0.25rem 0;
+  padding: 0.4rem 0;
   border-bottom: 1px dashed #ddd;
 }
 

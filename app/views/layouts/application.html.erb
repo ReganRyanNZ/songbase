@@ -22,6 +22,18 @@
   </head>
 
   <body>
+    <script>
+      (function() {
+        var saved = localStorage.getItem('cssTheme') || 'css-normal';
+        document.body.removeAttribute('class');
+        document.body.classList.add(saved);
+        window.setTheme = function(theme) {
+          document.body.removeAttribute('class');
+          document.body.classList.add(theme);
+          localStorage.setItem('cssTheme', theme);
+        };
+      })();
+    </script>
     <div class="application-container">
       <%= yield %>
     </div>

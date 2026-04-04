@@ -15,6 +15,7 @@
   &:hover{
     font-weight: bold;
     cursor: pointer;
+    background-color: color-mix(in srgb, var(--index-row-bg) 50%, transparent);
   }
   &:nth-child(even) {
     background-color: var(--index-row-bg);
@@ -30,6 +31,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.create-book-btn {
+  text-decoration: none;
+  color: var(--link-color);
+
+  &:hover {
+    color: var(--link-color);
+    background-color: transparent;
+  }
 }
 
 .book-edit-btn {
@@ -56,11 +67,17 @@
   color: grey;
 }
 
+.search-row {
+  position: relative;
+  margin: 0 auto 10px auto;
+}
+
 .search-form {
   position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
   width: fit-content;
-  margin: 0 auto 10px auto;
-  text-align: center;
   .index_search {
     padding: 4px 8px;
     padding-right: 31px;
@@ -94,10 +111,16 @@
 
 .btn-sort {
   position: absolute;
-  right: 8px;
-  top: -30px;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--ui-color);
   svg {
     width: 20px;
+    height: 20px;
   }
 }
 
@@ -203,8 +226,8 @@
   }
 
   &.kabob-menu-item-trash svg {
-    width: 26px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
   }
 }
 

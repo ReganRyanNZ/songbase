@@ -23,63 +23,74 @@ const UserSettings = ({
     setSettings(newSettings);
   }
   let titleCase = (str) => str[0].toUpperCase() + str.slice(1)
-  let createLangCheckbox = (lang) => {let langName = lang[0]
-                                      let langCount = lang[1]
-                                      return (<label key={lang[0]}>
-                                                <input
-                                                  name={langName}
-                                                  type="checkbox"
-                                                  onChange={toggleLanguage}
-                                                  defaultChecked={settings.languages.includes(langName)}
-                                                  value={langName}
-                                                />
-                                                <div className="lang-label">
-                                                  {titleCase(langName) + ` (${langCount})`}
-                                                </div>
-                                              </label>)}
+  let createLangCheckbox = (lang) => (
+    <label key={lang[0]}>
+      <input
+        name={lang[0]}
+        type="checkbox"
+        onChange={toggleLanguage}
+        defaultChecked={settings.languages.includes(lang[0])}
+        value={lang[0]}
+      />
+      <span className="lang-label">
+        {titleCase(lang[0])} <span className="lang-count">({lang[1]})</span>
+      </span>
+    </label>
+  )
   let sortedLangs = settings.languagesInfo.sort((a,b) => titleCase(a[0]) >= titleCase(b[0]) ? 1 : -1)
   let langCheckboxes = sortedLangs.map(createLangCheckbox);
 
-  let themeRadioBtns = (
-    <div className='radio-btns' onChange={updateTheme}>
-      <div>
-        <input type='radio' id='css-normal' name='theme' value='css-normal'/>
-        <label htmlFor='css-normal' className='demo-css-normal app-settings-btn'>Normal</label>
-      </div>
-      <div>
-        <input type='radio' id='css-night' name='theme' value='css-night'/>
-        <label htmlFor='css-night' className='demo-css-night app-settings-btn'>Night</label>
-      </div>
-    </div>
-  );
-
-  let resetCacheBtn = (
-    <div className="reset-cache-container">
-      <div>If songs are not loading properly, you can reset the cache and download them again.</div>
-      <button type='button' className="app-settings-btn" id='reset-cache' onClick={resetCache}>Reset cache</button>
-      <div className="counter">Cached songs: {cachedSongCount}</div>
-    </div>
-  );
-
-  let loadingSpinner = loadingData ? (<div className='loading-spinner'></div>) : ""
+  let isNight = settings.cssTheme === 'css-night';
 
   return (
     <div className="settings-container">
       {homeButton}
-      <h2>
-        Languages
-        {loadingSpinner}
-      </h2>
 
-      {langCheckboxes}
-      <h2>Theme</h2>
-      {themeRadioBtns}
-      <h2>Reset Cache</h2>
-      {resetCacheBtn}
-      <h2>Install App</h2>
-      <p>First go to the website "songbase.life", from there:</p>
-      <p><b>Safari on iOS</b> <br/>Share {">"} Add to Homescreen</p>
-      <p><b>Chrome on Android</b> <br/>Options  {">"} Install App</p>
+      <div className="settings-section">
+        <h2>
+          Languages
+          {loadingData ? <span className="loading-spinner"></span> : null}
+        </h2>
+        <div className="lang-grid">
+          {langCheckboxes}
+        </div>
+      </div>
+
+      <div className="settings-section">
+        <h2>Theme</h2>
+        <div className="theme-toggle-row">
+          <label className="theme-toggle">
+            <input
+              type="checkbox"
+              checked={isNight}
+              onChange={(e) => {
+                updateTheme({ target: { value: e.target.checked ? 'css-night' : 'css-normal' } });
+              }}
+            />
+            <span className="toggle-track"></span>
+          </label>
+          <span className="theme-label">{isNight ? 'Night' : 'Normal'}</span>
+        </div>
+      </div>
+
+      <div className="settings-section reset-cache-section">
+        <h2>Reset Cache</h2>
+        <div className="reset-cache-info">
+          If songs are not loading properly, you can reset the cache and download them again.
+        </div>
+        <div className="reset-cache-row">
+          <button type="button" onClick={resetCache}>Reset cache</button>
+          <span className="counter">Cached songs: {cachedSongCount}</span>
+        </div>
+      </div>
+
+      <div className="settings-section install-section">
+        <h2>Install App</h2>
+        <p>First go to the website "songbase.life", from there:</p>
+        <p><b>Safari on iOS</b><br />Share → Add to Homescreen</p>
+        <p><b>Chrome on Android</b><br />Options → Install App</p>
+      </div>
+
       <div className="contact-footer">
         <hr />
         Site Support:{" "}
