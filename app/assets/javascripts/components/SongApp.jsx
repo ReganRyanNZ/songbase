@@ -156,6 +156,7 @@ class SongApp extends React.Component {
   }
 
   canEditBook(bookId) {
+    if (this.props.is_super_admin) return true;
     const editableBooks = this.state.settings.editableBooks || {};
     return !!editableBooks[bookId];
   }
@@ -166,6 +167,7 @@ class SongApp extends React.Component {
   }
 
   editUrlFor(bookId) {
+    if (this.props.is_super_admin) return `/books/${bookId}/edit`;
     const token = this.editTokenFor(bookId);
     return token ? `/books/${bookId}/edit?edit_token=${token}` : null;
   }
@@ -257,6 +259,7 @@ class SongApp extends React.Component {
           homeButton={homeButton}
           canEditBook={this.canEditBook}
           editUrlFor={this.editUrlFor}
+          allBookEditTokens={this.props.all_book_edit_tokens}
           onRemoveBook={this.removeBookFromSync}
           booksToSync={this.state.settings.booksToSync || []}
           />

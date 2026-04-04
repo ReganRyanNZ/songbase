@@ -1,4 +1,4 @@
-const IndexOfBooks = ({ goToBookIndex, books, languages, homeButton, canEditBook, editUrlFor, onRemoveBook, booksToSync }) => {
+const IndexOfBooks = ({ goToBookIndex, books, languages, homeButton, canEditBook, editUrlFor, allBookEditTokens, onRemoveBook, booksToSync }) => {
   const bookClicked = ({ target }) => {
     let bookSlug = target.closest('.index_row').id;
     goToBookIndex(bookSlug);
@@ -20,6 +20,7 @@ const IndexOfBooks = ({ goToBookIndex, books, languages, homeButton, canEditBook
       {homeButton}
       {scopeBooksToLanagues(books, languages).map((book, i) => {
         const editUrl = (canEditBook && editUrlFor && canEditBook(book.id)) ? editUrlFor(book.id) : null;
+        const bookEditToken = (allBookEditTokens && allBookEditTokens[String(book.id)]) || null;
         const isInSyncList = booksToSync.map(String).includes(String(book.id));
         const showKabob = isInSyncList || editUrl || book.sync_to_all; // Show kabob if user can edit, book is in sync list, or sync_to_all
         const showTrash = isInSyncList || book.sync_to_all; // Show trash for books actually on the device
@@ -37,6 +38,7 @@ const IndexOfBooks = ({ goToBookIndex, books, languages, homeButton, canEditBook
                 <KabobMenu
                   canEdit={!!editUrl}
                   editUrl={editUrl}
+                  bookEditToken={bookEditToken}
                   showTrash={showTrash}
                   onRemove={() => onRemoveBook(book.id)}
                   bookSlug={book.slug}

@@ -5,7 +5,9 @@
     preloaded_song: @preloaded_song,
     preloaded_current_book: @book_from_url,
     preloaded_book_refs: @preloaded_book_refs,
-    show_books_page: @show_books_page
+    show_books_page: @show_books_page,
+    is_super_admin: !!super_admin,
+    all_book_edit_tokens: Book.pluck(:id, :edit_token).to_h.transform_keys(&:to_s)
   )
 %>
 

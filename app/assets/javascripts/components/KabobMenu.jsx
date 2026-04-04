@@ -59,6 +59,9 @@ class KabobMenu extends React.Component {
   }
 
   getEditToken() {
+    // Check the actual book edit token from props (available for super admin)
+    if (this.props.bookEditToken) return this.props.bookEditToken;
+    // Fallback to parsing from editUrl
     if (!this.props.editUrl) return null;
     const match = this.props.editUrl.match(/edit_token=([^&]+)/);
     return match ? match[1] : null;
@@ -129,7 +132,7 @@ class KabobMenu extends React.Component {
                 canEdit ? "Share (read-only)" : "Share"
               )
             }
-            {canEdit && editUrl &&
+            {canEdit && editUrl && this.getEditToken() &&
               React.createElement("a", {
                 href: "#",
                 className: "kabob-menu-item",
