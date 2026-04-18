@@ -1,7 +1,8 @@
 <%= render 'nav' %>
 <%= render 'flash' %>
 
-<h1>Analytics</h1>
-<p><%= link_to '← Admin', admin_path %></p>
+<h1 class="admin-root-title">
+  <%= link_to "Analytics", admin_path %>
+</h1>
 
 <%= react_component('AnalyticsPage', {}) %>

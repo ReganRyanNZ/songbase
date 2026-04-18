@@ -12,6 +12,7 @@ class SongsController < ApplicationController
   def app
     @show_books_page = request.path == '/books'
     @new_book_id = params[:new_book] if params[:new_book].present?
+    Book.increment!(:downloads) if @new_book_id && Book.exists?(@new_book_id)
     @new_book_token = params[:edit_token] if params[:edit_token].present?
     @book_slug = params[:book]
     @book_from_url = Book.find_by(slug: @book_slug) if @book_slug.present?
@@ -25,6 +26,7 @@ class SongsController < ApplicationController
 
       song = Song.find(@song_id || params[:s])
       if song.present?
+        SongAnalytic.track_song_view(song.id)
         @title = song.title # sets page title in application.html.erb
         @song_id = params[:s]
         @preloaded_song = song.app_entry
@@ -41,6 +43,7 @@ class SongsController < ApplicationController
   def analytics
     redirect_to admin_path, alert: "Super admin only" unless super_admin
   end
+
 
   def admin_example
     @song = Song.new(lyrics: example_lyrics)

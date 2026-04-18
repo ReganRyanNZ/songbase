@@ -3,6 +3,9 @@ default: &default
   encoding: unicode
   pool: 5
   timeout: 5000
+  username: songbase
+  host: localhost
+  password: songbase
 
 development:
   <<: *default

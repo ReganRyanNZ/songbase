@@ -5,54 +5,43 @@ class AnalyticsPage extends React.Component {
   }
 
   componentDidMount() {
-    const csrfToken = document.querySelector("meta[name=csrf-token]").content;
+    var csrfToken = document.querySelector("meta[name=csrf-token]").content;
     fetch("/api/v2/analytics", {
       method: "GET",
       headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
     })
-      .then(response => {
+      .then(function(response) {
         if (!response.ok) { throw new Error("Failed to load analytics"); }
         return response.json();
       })
-      .then(data => this.setState({ songs: data.songs, loading: false }))
-      .catch(error => this.setState({ error: error.message, loading: false }));
+      .then(function(data) { this.setState({ songs: data.songs, loading: false }); }.bind(this))
+      .catch(function(error) { this.setState({ error: error.message, loading: false }); }.bind(this));
   }
 
   render() {
-    const { songs, loading, error } = this.state;
+    var songs = this.state.songs;
+    var loading = this.state.loading;
+    var error = this.state.error;
+    var e = React.createElement;
 
-    if (loading) { return <div className="analytics-loading">Loading analytics...</div>; }
-    if (error)   { return <div className="analytics-error">{error}</div>; }
+    if (loading) { return e('div', { className: 'analytics-loading' }, 'Loading analytics...'); }
+    if (error)   { return e('div', { className: 'analytics-error' }, error); }
     if (songs.length === 0) {
-      return <div className="analytics-empty">No analytics data yet. Songs are recorded after 30 seconds of viewing.</div>;
+      return e('div', { className: 'analytics-empty' }, 'No analytics data yet. Songs are recorded after 30 seconds of viewing.');
     }
 
-    return (
-      <div className="analytics-page">
-        <p className="analytics-subtitle">{songs.length} songs tracked, sorted by total plays</p>
-        <table className="admin_table analytics-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Song</th>
-              <th>Language</th>
-              <th>Total Plays</th>
-            </tr>
-          </thead>
-          <tbody>
-            {songs.map((song, index) => (
-              <tr key={song.id}>
-                <td className="analytics-rank">{index + 1}</td>
-                <td>
-                  <a href={`/${song.id}`} className="edit_song_link">{song.title}</a>
-                </td>
-                <td className="analytics-lang">{song.lang}</td>
-                <td className="analytics-count">{song.total_count}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    return e('div', { className: 'analytics-page' },
+      e('p', { className: 'analytics-subtitle' }, songs.length + ' songs tracked, sorted by total views'),
+      songs.map(function(song, index) {
+        return e('div', { className: 'analytics-row', key: song.id },
+          e('span', { className: 'analytics-rank' }, index + 1),
+          e('span', { className: 'analytics-title' },
+            e('a', { href: '/' + song.id }, song.title)
+          ),
+          e('span', { className: 'analytics-lang' }, song.lang),
+          e('span', { className: 'analytics-count' }, song.total_count)
+        );
+      })
     );
   }
 }

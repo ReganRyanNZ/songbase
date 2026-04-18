@@ -7,17 +7,19 @@ class Api::V2::AnalyticsControllerTest < ActionDispatch::IntegrationTest
     post api_v2_analytics_path, params: { song_counts: { song.id => 3 } }, as: :json
 
     assert_response :ok
-    assert_equal 3, SongAnalytic.find_by(song_id: song.id, counted_on: Date.today).count
+    record = SongAnalytic.find_by(date: Date.today)
+    assert_equal 3, record.song_counts[song.id.to_s]
   end
 
   test 'POST analytics accumulates existing counts' do
     song = FactoryBot.create(:song)
-    SongAnalytic.create!(song_id: song.id, counted_on: Date.today, count: 2)
+    SongAnalytic.create!(date: Date.today, song_counts: { song.id.to_s => 2 })
 
     post api_v2_analytics_path, params: { song_counts: { song.id => 5 } }, as: :json
 
     assert_response :ok
-    assert_equal 7, SongAnalytic.find_by(song_id: song.id, counted_on: Date.today).count
+    record = SongAnalytic.find_by(date: Date.today)
+    assert_equal 7, record.song_counts[song.id.to_s]
   end
 
   test 'POST analytics returns error for invalid params' do
@@ -28,7 +30,7 @@ class Api::V2::AnalyticsControllerTest < ActionDispatch::IntegrationTest
 
   test 'GET analytics summary returns top songs for superadmin' do
     song = FactoryBot.create(:song)
-    SongAnalytic.create!(song_id: song.id, counted_on: Date.today, count: 10)
+    SongAnalytic.create!(date: Date.today, song_counts: { song.id.to_s => 10 })
 
     get api_v2_analytics_path, as: :json
 

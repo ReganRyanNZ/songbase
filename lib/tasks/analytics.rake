@@ -1,11 +1,7 @@
-# NOTE: Schedule this task to run daily via Heroku Scheduler:
-#   heroku addons:create scheduler:standard
-#   heroku addons:open scheduler
-#   Add command: rake analytics:rollup
 namespace :analytics do
-  desc "Roll up daily analytics older than 7 days into monthly aggregates and delete the originals"
-  task rollup: :environment do
-    SongAnalytic.rollup!
-    puts "Analytics rollup complete."
+  desc "Clean up song analytics older than 90 days"
+  task cleanup: :environment do
+    deleted = SongAnalytic.cleanup_old(90)
+    puts "Deleted #{deleted} analytics records older than 90 days"
   end
 end

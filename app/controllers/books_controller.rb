@@ -29,9 +29,20 @@ class BooksController < ApplicationController
     end
   end
 
+
   def destroy
     @book.update(deleted_at: Time.current)
     redirect_to root_path, notice: "Book was successfully deleted"
+  end
+
+  def admin_index
+    unless super_admin
+      redirect_to root_path, alert: "Super admin only"
+      return
+    end
+    @books = Book.order(:name).map { |b|
+      { id: b.id, name: b.name, slug: b.slug, edit_token: b.edit_token, song_count: (b.songs || {}).size, downloads: b.downloads, sync_to_all: b.sync_to_all, created_at: b.created_at }
+    }
   end
 
   private

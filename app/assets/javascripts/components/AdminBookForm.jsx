@@ -327,7 +327,6 @@ class AdminBookForm extends React.Component {
               filteredSongs.map(function(song) {
                 var alreadyAdded = String(song.id) in (book.songs || {});
                 return React.createElement("div", { className: "song-item", key: song.id },
-                  React.createElement("span", { className: "song-item-spacer" }),
                   React.createElement("span", { className: "book-song-title" }, song.title),
                   React.createElement("button", {
                     type: "button",

@@ -1,0 +1,6 @@
+<%= render 'nav' %>
+<%= render 'flash' %>
+
+<h1 class="admin-root-title"><%= link_to "Book Management", admin_path %></h1>
+
+<%= react_component('AdminBookList', { books: @books, is_super_admin: true }) %>

@@ -7,9 +7,9 @@ class Api::V2::SongsController < ApplicationController
     # Build base query for books that were updated recently or match language
     books_base_query = Book.where('updated_at >= ?', client_updated_at).for_language(params[:language])
 
-    # Add books explicitly requested via params[:books]
+    # Add books explicitly requested via params[:books] — always include regardless of updated_at
     requested_book_ids = params[:books].present? ? params[:books].split(',').map(&:to_i) : []
-    requested_books = books_base_query.where(id: requested_book_ids)
+    requested_books = Book.where(id: requested_book_ids)
 
     # Always include books with sync_to_all
     # Also include books where sync_to_all recently changed (so clients get the update to remove it)
@@ -47,14 +47,41 @@ class Api::V2::SongsController < ApplicationController
     unless song_counts.is_a?(ActionController::Parameters) || song_counts.is_a?(Hash)
       render json: { error: "invalid params" }, status: :unprocessable_entity and return
     end
-    SongAnalytic.record!(song_counts.to_unsafe_h)
+
+    today = Date.today
+    record = SongAnalytic.find_or_initialize_by(date: today)
+    counts = record.song_counts || {}
+    song_counts.to_unsafe_h.each do |song_id, delta|
+      next unless delta.is_a?(Integer) && delta > 0
+      counts[song_id.to_s] = (counts[song_id.to_s] || 0) + delta
+    end
+    record.song_counts = counts
+    record.save!
+
     render json: { ok: true }, status: :ok
   end
 
   def analytics_summary
     return render json: { error: "forbidden" }, status: :forbidden unless super_admin
 
-    render json: { songs: SongAnalytic.summary }, status: :ok
+    aggregated = {}
+    SongAnalytic.find_each do |row|
+      (row.song_counts || {}).each do |song_id, count|
+        aggregated[song_id] = (aggregated[song_id] || 0) + count
+      end
+    end
+
+    songs = aggregated
+      .sort_by { |_id, total| -total }
+      .first(100)
+      .map do |song_id, total_count|
+        song = Song.find_by(id: song_id)
+        next unless song
+        { id: song.id, title: song.title, lang: song.lang, total_count: total_count }
+      end
+      .compact
+
+    render json: { songs: songs }, status: :ok
   end
 
   private

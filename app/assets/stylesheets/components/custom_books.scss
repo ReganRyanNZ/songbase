@@ -10,7 +10,7 @@
   line-height: 28px;
 
   &:nth-child(even) {
-    background-color: #F2F2F2;
+    background-color: var(--index-row-bg);
   }
 }
 
@@ -67,19 +67,19 @@
   padding: 0.5rem;
   font-size: 1rem;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--ui-color);
 }
 
 .song-count {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--comment-color);
   font-weight: normal;
 }
 
 .songs-empty {
   padding: 2rem 1rem;
   text-align: center;
-  color: #999;
+  color: var(--comment-color);
   font-size: 0.9rem;
 }
 
@@ -107,18 +107,18 @@
 }
 
 .btn-add {
-  background-color: #007bff;
+  background-color: var(--link-color);
   color: white;
 
   &:hover {
-    background-color: #0056b3;
+    filter: brightness(0.9);
   }
 }
 
 .btn-remove {
   background-color: transparent;
-  color: #999;
-  border: 1px solid #ddd;
+  color: var(--comment-color);
+  border: 1px solid var(--ui-color);
 
   &:hover {
     background-color: #ff4d4d;
@@ -128,31 +128,27 @@
 }
 
 .btn-icon.btn-added {
-  background-color: #e8e8e8;
-  color: #999;
+  background-color: var(--ui-color);
+  color: var(--comment-color);
   cursor: default;
   pointer-events: none;
 }
 
-// Spacer for search results to align with book songs
-.song-item-spacer {
-  width: 24px; // match book-song-number width
-  flex-shrink: 0;
-}
+
 
 // Book song number
 .book-song-number {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background-color: #007bff;
+  background-color: var(--link-color);
   color: white;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: bold;
-  margin-right: 0.5rem;
+  margin-right: 0.35rem;
   flex-shrink: 0;
 }
 
@@ -165,7 +161,7 @@
 
 .drag-handle {
   cursor: grab;
-  color: #999;
+  color: var(--comment-color);
   margin-right: 0.5rem;
   flex-shrink: 0;
   user-select: none;
@@ -184,8 +180,8 @@
 }
 
 .song-item.drag-over {
-  border-top: 2px solid #007bff;
-  border-bottom: 1px dashed #ddd;
+  border-top: 2px solid var(--link-color);
+  border-bottom: 1px dashed var(--ui-color);
 }
 
 .song-item button.btn-added {
@@ -212,7 +208,22 @@
   }
 
   .songs, .book-songs {
-    max-height: 40vh;
+    max-height: 45vh;
+    margin-top: 0.5rem;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--ui-color) transparent;
+
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--ui-color);
+      border-radius: 3px;
+    }
   }
 
   .btn-icon {
@@ -226,29 +237,35 @@
   }
 
   .book-song-number {
-    width: 28px;
-    height: 28px;
-    font-size: 0.8rem;
+    width: 16px;
+    height: 16px;
+    font-size: 0.6rem;
+    margin-right: 0.15rem;
   }
 
   .song-item {
-    padding: 0.2rem 0;
-    min-height: 36px;
-    gap: 0.25rem;
-    margin: 0.25rem 0;
+    padding: 0.3rem 0.15rem;
+    min-height: 38px;
+    gap: 0.15rem;
+    margin: 0.2rem 0;
   }
 
   .book-song-title {
     font-size: 14px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .drag-handle {
-    padding: 10px 6px;
-    margin: -10px -6px;
+    padding: 0;
+    margin: 0;
 
     svg {
-      width: 16px;
-      height: 16px;
+      width: 12px;
+      height: 12px;
     }
   }
 
@@ -263,6 +280,10 @@
 
   .book-title h2 {
     font-size: 1.1rem;
+  }
+
+  .book-songs-container {
+    border-top: 1px solid var(--ui-color);
   }
 }
 
