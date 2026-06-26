@@ -42,21 +42,92 @@ class Api::V2::SongsController < ApplicationController
     render json: {songs: songs_for_language_links}, status: 200
   end
 
+  # Return a source book's songs with their book numbers, so the import modal can
+  # render a searchable checklist. Ordered by book number.
+  def book_songs
+    book = Book.find_by(id: params[:book_id]) || Book.find_by(slug: params[:book_id])
+    return render json: { error: "book not found" }, status: :not_found unless book
+
+    records = book.song_records.index_by(&:id)
+    songs = book.songs.map do |song_id, number|
+      song = records[song_id.to_i]
+      next unless song
+      { number: number.to_i, id: song.id, title: song.title, lang: song.lang }
+    end.compact.sort_by { |entry| entry[:number] }
+
+    render json: { name: book.name, songs: songs }, status: :ok
+  end
+
+  # Resolve a pasted list of songs (by title, song id, or another book's index
+  # numbers) into actual songs, so the book form can add them in bulk. Reads
+  # only — the actual write happens via the existing books#create form submit.
+  def custom_book_import
+    mode = params[:mode].to_s
+    text = params[:text].to_s
+
+    all_lines = text.split(/[\n,]+/).map(&:strip).reject(&:blank?).uniq
+    max_lines = 300
+    truncated = all_lines.size > max_lines
+    lines = all_lines.first(max_lines)
+
+    matched, unmatched, ambiguous = [], [], []
+
+    case mode
+    when "ids"
+      ints = lines.map(&:to_i).reject(&:zero?).uniq
+      found = Song.where(id: ints).to_a
+      found_ids = found.map(&:id)
+      found.each { |song| matched << song.admin_entry }
+      unmatched = lines.reject { |line| found_ids.include?(line.to_i) }
+    when "numbers"
+      source = Book.find_by(id: params[:source_book_id]) || Book.find_by(slug: params[:source_book_id])
+      unless source
+        render json: { error: "source book not found" }, status: :not_found and return
+      end
+
+      number_to_song_id = {}
+      lines.each do |num|
+        song_id = source.song_id_from_index(num)
+        if song_id
+          number_to_song_id[num] = song_id
+        else
+          unmatched << num
+        end
+      end
+      songs_by_id = Song.where(id: number_to_song_id.values).index_by(&:id)
+      number_to_song_id.each_value do |song_id|
+        song = songs_by_id[song_id.to_i]
+        matched << song.admin_entry if song
+      end
+    when "titles"
+      lines.each { |line| resolve_title(line, matched, unmatched, ambiguous) }
+    when "auto"
+      # No mode toggle in the UI: per line, all-digits is treated as a song id,
+      # anything else as a title.
+      lines.each do |line|
+        if line.match?(/\A\d+\z/)
+          song = Song.find_by(id: line.to_i)
+          song ? (matched << song.admin_entry) : (unmatched << line)
+        else
+          resolve_title(line, matched, unmatched, ambiguous)
+        end
+      end
+    else
+      render json: { error: "invalid mode" }, status: :unprocessable_entity and return
+    end
+
+    matched = matched.uniq { |entry| entry[:id] }
+
+    render json: { matched: matched, unmatched: unmatched, ambiguous: ambiguous, truncated: truncated }, status: :ok
+  end
+
   def record_analytics
     song_counts = params[:song_counts]
     unless song_counts.is_a?(ActionController::Parameters) || song_counts.is_a?(Hash)
       render json: { error: "invalid params" }, status: :unprocessable_entity and return
     end
 
-    today = Date.today
-    record = SongAnalytic.find_or_initialize_by(date: today)
-    counts = record.song_counts || {}
-    song_counts.to_unsafe_h.each do |song_id, delta|
-      next unless delta.is_a?(Integer) && delta > 0
-      counts[song_id.to_s] = (counts[song_id.to_s] || 0) + delta
-    end
-    record.song_counts = counts
-    record.save!
+    SongAnalytic.record!(song_counts.to_unsafe_h)
 
     render json: { ok: true }, status: :ok
   end
@@ -64,24 +135,7 @@ class Api::V2::SongsController < ApplicationController
   def analytics_summary
     return render json: { error: "forbidden" }, status: :forbidden unless super_admin
 
-    aggregated = {}
-    SongAnalytic.find_each do |row|
-      (row.song_counts || {}).each do |song_id, count|
-        aggregated[song_id] = (aggregated[song_id] || 0) + count
-      end
-    end
-
-    songs = aggregated
-      .sort_by { |_id, total| -total }
-      .first(100)
-      .map do |song_id, total_count|
-        song = Song.find_by(id: song_id)
-        next unless song
-        { id: song.id, title: song.title, lang: song.lang, total_count: total_count }
-      end
-      .compact
-
-    render json: { songs: songs }, status: :ok
+    render json: { songs: SongAnalytic.summary }, status: :ok
   end
 
   private
@@ -116,6 +170,27 @@ class Api::V2::SongsController < ApplicationController
     sort_songs(Song.search(params[:search])
                    .limit(20)
                    .map(&:admin_entry))
+  end
+
+  # Resolve a single title line into a song, appending to matched/unmatched/
+  # ambiguous. Exact (case-insensitive) match wins; otherwise a contains (ILIKE)
+  # fallback; multiple matches are reported as ambiguous for the user to pick.
+  def resolve_title(line, matched, unmatched, ambiguous)
+    exact = Song.where("lower(title) = ?", line.downcase)
+    if exact.count == 1
+      matched << exact.first.admin_entry
+    elsif exact.count > 1
+      ambiguous << { line: line, matches: exact.map(&:admin_entry) }
+    else
+      partial = Song.where("title ILIKE ?", "%#{line}%").limit(10).to_a
+      if partial.size == 1
+        matched << partial.first.admin_entry
+      elsif partial.size > 1
+        ambiguous << { line: line, matches: partial.map(&:admin_entry) }
+      else
+        unmatched << line
+      end
+    end
   end
 
   def client_updated_at

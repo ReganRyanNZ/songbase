@@ -39,6 +39,8 @@ Rails.application.routes.draw do
       get 'languages', to: 'songs#languages'
       get 'admin_songs', to: 'songs#admin_songs'
       get 'custom_book_search', to: 'songs#custom_book_search'
+      get 'book_songs', to: 'songs#book_songs'
+      post 'custom_book_import', to: 'songs#custom_book_import'
       post 'analytics', to: 'songs#record_analytics'
       get 'analytics', to: 'songs#analytics_summary'
     end

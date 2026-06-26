@@ -36,7 +36,7 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'app_data returns book data' do
-    FactoryBot.create(:book, name: "Ignored")
+    FactoryBot.create(:book, name: "Ignored", sync_to_all: true)
 
     wait_a_tiny_bit
     client_last_updated_at = (Time.now.to_f*1000).to_i
@@ -45,14 +45,15 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
     song_1 = FactoryBot.create(:song, :accord_to_my_earnest)
     song_2 = FactoryBot.create(:song, :abba_father)
 
-    FactoryBot.create(:book, songs: {song_1.id => "1", song_2.id => "2"}, name: "Kept")
+    FactoryBot.create(:book, songs: {song_1.id => "1", song_2.id => "2"}, name: "Kept", sync_to_all: true)
 
     get api_v2_app_data_path, params: {updated_at: client_last_updated_at}
 
     expected_book_data = {name: "Kept",
                           slug: "kept",
                           songs: {song_1.id.to_s.to_sym=>"1", song_2.id.to_s.to_sym =>"2"},
-                          languages: ["english"]}
+                          languages: ["english"],
+                          sync_to_all: true}
     assert_response :success
     assert_equal(expected_book_data, response_json[:books].first.except(:id))
 

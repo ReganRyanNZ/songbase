@@ -12,15 +12,21 @@
 
   <%= react_component("AdminBookForm", {
     book: book,
+    seededSongs: @seeded_songs || [],
+    duplicatableBooks: @duplicatable_books || [],
+    isPersisted: book.persisted?,
   }) %>
 
-  <div class="actions text-center">
+  <div class="book-form-actions">
+    <% if book.persisted? %>
+      <button type="button" id="delete-book-btn" class="btn btn-delete book-form-delete">Delete book</button>
+    <% end %>
+    <%= link_to "Cancel", (book.persisted? ? "/#{book.slug}/i" : root_path), class: "btn btn-cancel" %>
     <%= f.submit "Save Book", class: "btn btn-update" %>
   </div>
 <% end %>
 
 <% if book.persisted? %>
-  <button type="button" id="delete-book-btn" class="btn btn-delete">Delete Book for All Users</button>
   <%= form_for book, url: book_path(book, edit_token: params[:edit_token]), method: :delete, html: { id: "delete-book-form", style: "display:none" } do |f| %>
   <% end %>
 <% end %>

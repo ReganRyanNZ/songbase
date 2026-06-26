@@ -2,11 +2,35 @@ class SongIndex extends React.Component {
   constructor(props) {
     super(props);
 
+    this.handleShare = this.handleShare.bind(this);
+    this.isMobile = this.isMobile.bind(this);
+
     window.addEventListener('scroll', this.props.infiniteScrolling);
   }
 
   componentWillUnmount() {
     window.removeEventListener('scroll', this.props.infiniteScrolling);
+  }
+
+  isMobile() {
+    return 'ontouchstart' in window && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  }
+
+  // Share the current book's read-only install link — same behavior as the song
+  // page's share button: native share sheet on mobile, clipboard copy with a
+  // fading "Copied!" message everywhere else.
+  handleShare() {
+    if (!this.props.currentBook) return;
+    const url = `${window.location.origin}/?new_book=${this.props.currentBook.id}`;
+    if (navigator.share && this.isMobile()) {
+      navigator.share({ text: this.props.currentBook.name, url: url });
+    } else {
+      navigator.clipboard.writeText(`${this.props.currentBook.name}\n\n${url}`);
+      if (this.shareSuccess) {
+        this.shareSuccess.classList.add("fadeOut");
+        setTimeout(() => { if (this.shareSuccess) this.shareSuccess.classList.remove("fadeOut"); }, 1200);
+      }
+    }
   }
 
   strip(string, normalize=true) {
@@ -224,6 +248,11 @@ class SongIndex extends React.Component {
           {!!this.props.currentBook ? (
             <div className="btn-sort" onClick={this.props.toggleOrderIndexBy}>
               <SortIcon />
+            </div>) : null}
+          {!!this.props.currentBook ? (
+            <div className="share-song" onClick={this.handleShare} title="Share book">
+              <div className="share-song-success" ref={(el) => { this.shareSuccess = el; }}>Copied!</div>
+              <span dangerouslySetInnerHTML={{ __html: ShareIcon }} />
             </div>) : null}
         </div>
         <div className="title-list">

@@ -1,3 +1,3 @@
-<h1 class="admin-root-title"><%= link_to "Edit Book", books_path %></h1>
+<h1 class="admin-root-title"><%= link_to "Edit Book", "/#{@book.slug}/i" %></h1>
 
 <%= render 'form', songs: @songs, book: @book %>

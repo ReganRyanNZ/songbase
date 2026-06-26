@@ -49,294 +49,848 @@
   cursor: pointer;
 }
 
-// Book form additions
+// ===== Book form =====
+// Everything is namespaced under .admin-book-form so it outranks admin.scss's
+// generic .song-item / .song-item button rules (which were meant for AdminSongList
+// and were misshaping this form's +/× icon buttons).
 .admin-book-form {
-  max-width: 1400px;
+  max-width: 1100px;
   width: 100%;
+  margin: 0 auto;
   box-sizing: border-box;
-  padding: 0 1rem;
+  padding: 0 1rem 1.5rem;
 
-  @media (max-width: 700px) {
-    padding: 0;
-  }
-}
-
-.book-form-title {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border-radius: 4px;
-  border: 1px solid var(--ui-color);
-}
-
-.song-count {
-  font-size: 0.85rem;
-  color: var(--comment-color);
-  font-weight: normal;
-}
-
-.songs-empty {
-  padding: 2rem 1rem;
-  text-align: center;
-  color: var(--comment-color);
-  font-size: 0.9rem;
-}
-
-// Icon buttons (+ and ×)
-.btn-icon {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  font-size: 0;
-  line-height: 0;
-  text-align: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.15s, color 0.15s;
-
-  svg {
-    display: block;
-  }
-}
-
-.btn-add {
-  background-color: var(--link-color);
-  color: white;
-
-  &:hover {
-    filter: brightness(0.9);
-  }
-}
-
-.btn-remove {
-  background-color: transparent;
-  color: var(--comment-color);
-  border: 1px solid var(--ui-color);
-
-  &:hover {
-    background-color: #ff4d4d;
-    color: white;
-    border-color: #ff4d4d;
-  }
-}
-
-.btn-icon.btn-added {
-  background-color: var(--ui-color);
-  color: var(--comment-color);
-  cursor: default;
-  pointer-events: none;
-}
-
-
-
-// Book song number
-.book-song-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background-color: var(--link-color);
-  color: white;
-  font-size: 0.7rem;
-  font-weight: bold;
-  margin-right: 0.35rem;
-  flex-shrink: 0;
-}
-
-.book-song-title {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.drag-handle {
-  cursor: grab;
-  color: var(--comment-color);
-  margin-right: 0.5rem;
-  flex-shrink: 0;
-  user-select: none;
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 4px; // Larger touch target
-  margin: -8px -4px; // Offset padding so it doesn't affect layout
-
-  &:active {
-    cursor: grabbing;
-  }
-
-  svg {
-    touch-action: none;
-  }
-}
-
-.song-item.drag-over {
-  border-top: 2px solid var(--link-color);
-  border-bottom: 1px dashed var(--ui-color);
-}
-
-.song-item button.btn-added {
-  background-color: #6c757d;
-  cursor: default;
-  pointer-events: none;
-}
-
-// Mobile tweaks
-@media (max-width: 700px) {
-  .admin-book-form {
-    max-width: 100%;
-  }
-
-  .songs-container {
+  // --- header (title + email) ---
+  .book-header {
+    display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
   }
 
-  .songs-search-container,
-  .book-songs-container {
-    min-width: unset;
+  .book-form-title {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.55rem 0.6rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--ui-color);
+    background: var(--background);
+    color: var(--text);
+  }
+
+  .book-form-email {
+    font-size: 0.9rem;
+  }
+
+  // --- two-pane builder ---
+  .book-builder {
+    display: flex;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .pane {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    border: 1px solid var(--ui-color);
+    border-radius: 8px;
+    background: var(--background);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .pane-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 2.6rem; // equal-height headers so the two song lists align
+    margin-bottom: 0.5rem;
+
+    h3 {
+      margin: 0;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .search-row {
+      flex: 1;
+      max-width: 420px;
+      margin-bottom: 0;
+    }
+  }
+
+  .song-count {
+    font-size: 0.8rem;
+    color: var(--comment-color);
+  }
+
+  // --- search row (lives in the Find-songs pane header) ---
+  .search-row {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .index_search {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
     padding: 0.5rem;
+    font-size: 0.95rem;
+    border-radius: 6px;
+    border: 1px solid var(--ui-color);
+    background: var(--background);
+    color: var(--text);
   }
 
-  .songs, .book-songs {
-    max-height: 45vh;
-    margin-top: 0.5rem;
+  .clear-search-btn {
+    width: 36px;
+    flex-shrink: 0;
+    border: 1px solid var(--ui-color);
+    background: transparent;
+    color: var(--comment-color);
+    border-radius: 6px;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
 
+    &:hover {
+      background: var(--ui-color);
+    }
+  }
+
+  // Book-level actions (Import songs / Clear all) — sit above the two panes.
+  .book-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0 0 0.75rem;
+  }
+
+  .action-btn {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--ui-color);
+    background: transparent;
+    color: var(--text);
+
+    &.primary {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+
+    &.danger {
+      color: #c0392b;
+      border-color: var(--ui-color);
+
+      &:hover {
+        background: #c0392b;
+        color: white;
+        border-color: #c0392b;
+      }
+    }
+  }
+
+  // --- scrollable song lists ---
+  .songs,
+  .book-songs,
+  .find-results {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 60vh;
+    min-height: 8rem;
+    margin: 0;
+    padding: 0;
     scrollbar-width: thin;
     scrollbar-color: var(--ui-color) transparent;
 
     &::-webkit-scrollbar {
       width: 6px;
     }
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
+
     &::-webkit-scrollbar-thumb {
-      background-color: var(--ui-color);
+      background: var(--ui-color);
       border-radius: 3px;
     }
   }
 
-  .btn-icon {
-    width: 30px;
-    height: 30px;
+  .songs-empty {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--comment-color);
+    font-size: 0.9rem;
   }
 
-  .btn-icon svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .book-song-number {
-    width: 16px;
-    height: 16px;
-    font-size: 0.6rem;
-    margin-right: 0.15rem;
-  }
-
+  // --- song items (namespaced to beat admin.scss) ---
   .song-item {
-    padding: 0.3rem 0.15rem;
-    min-height: 38px;
-    gap: 0.15rem;
-    margin: 0.2rem 0;
-  }
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.3rem;
+    border-bottom: 1px solid var(--ui-color);
 
-  .book-song-title {
-    font-size: 14px;
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+    // Neutralize admin.scss's generic .song-item button rule.
+    button {
+      padding: 0;
+      background: none;
+      border: none;
+      border-radius: 0;
+      font-size: inherit;
+      color: inherit;
+    }
 
-  .drag-handle {
-    padding: 0;
-    margin: 0;
-
-    svg {
-      width: 12px;
-      height: 12px;
+    .song-title {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 
-  .song-item.drag-over {
-    border-top-width: 3px;
-    margin-top: -1px;
-  }
+  .btn-icon {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0;
+    line-height: 0;
+    cursor: pointer;
+    transition: filter 0.15s, background-color 0.15s;
 
-  .book-form-title {
-    font-size: 16px;
-  }
-
-  .book-title h2 {
-    font-size: 1.1rem;
-  }
-
-  .book-songs-container {
-    border-top: 1px solid var(--ui-color);
-  }
-}
-
-// Night theme
-body.css-night {
-  .song-count {
-    color: #aaa;
-  }
-
-  .songs-empty {
-    color: #aaa;
-  }
-
-  .drag-handle {
-    color: #aaa;
-  }
-
-  .song-item.drag-over {
-    border-top-color: var(--chord);
-  }
-
-  .book-form-title {
-    border-color: #555;
-    background-color: #111;
-    color: white;
+    svg {
+      display: block;
+    }
   }
 
   .btn-add {
-    background-color: var(--chord);
+    background-color: #007bff;
+    color: white;
 
     &:hover {
-      background-color: #888;
+      filter: brightness(0.92);
     }
   }
 
   .btn-remove {
-    color: #aaa;
-    border-color: #555;
+    background-color: transparent;
+    color: var(--comment-color);
+    border: 1px solid var(--ui-color);
 
     &:hover {
-      background-color: #ff4d4d;
+      background-color: #e54949;
       color: white;
-      border-color: #ff4d4d;
+      border-color: #e54949;
     }
   }
 
   .btn-icon.btn-added {
-    background-color: #333;
-    color: #666;
+    background-color: var(--ui-color);
+    color: var(--comment-color);
+    cursor: default;
+    pointer-events: none;
   }
 
   .book-song-number {
-    background-color: var(--chord);
-    color: black;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #007bff;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .drag-handle {
+    cursor: grab;
+    color: var(--comment-color);
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 2px;       // larger touch target
+    margin: -6px -2px;      // ...without shifting layout
+    touch-action: none;     // app owns the gesture, not the browser scroll
+    user-select: none;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  // drag visuals are state-driven (no imperative classList)
+  .song-item.drag-over {
+    box-shadow: inset 0 2px 0 #007bff;
+  }
+
+  // --- responsive ---
+  @media (max-width: 760px) {
+    padding: 0 0.25rem 1.5rem;
+
+    .book-builder {
+      flex-direction: column;
+    }
+
+    .songs,
+    .book-songs,
+    .find-results {
+      max-height: 42vh;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .btn-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .book-song-number {
+      width: 18px;
+      height: 18px;
+      font-size: 0.65rem;
+    }
+  }
+}
+
+// ===== Import modal (BookImportModal) =====
+.import-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.import-modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  background: var(--background, white);
+  border: 1px solid var(--ui-color);
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+
+  input,
+  select,
+  textarea {
+    box-sizing: border-box;
+    padding: 0.45rem 0.5rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    border-radius: 6px;
+    border: 1px solid var(--ui-color);
+    background: var(--background, white);
+    color: var(--text, inherit);
+  }
+}
+
+.import-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--ui-color);
+
+  h2 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+}
+
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--comment-color);
+  cursor: pointer;
+  border-radius: 6px;
+
+  &:hover {
+    background: var(--ui-color);
+  }
+}
+
+.import-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--ui-color);
+}
+
+.import-tab {
+  flex: 1;
+  padding: 0.6rem;
+  border: none;
+  background: transparent;
+  color: var(--comment-color);
+  font-size: 0.95rem;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+
+  &.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+  }
+}
+
+.modal-tab-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.tab-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--comment-color);
+}
+
+.source-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  label {
+    font-size: 0.85rem;
+    color: var(--comment-color);
+  }
+
+  select {
+    width: 100%;
+  }
+}
+
+.checklist-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+
+  .checklist-filter {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .range-input {
+    width: 130px;
+  }
+
+  .range-select {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .select-buttons {
+    display: flex;
+    gap: 0.25rem;
+    margin-left: auto;
+  }
+}
+
+.song-checklist {
+  display: flex;
+  flex-direction: column;
+  max-height: 45vh;
+  overflow-y: auto;
+  border: 1px solid var(--ui-color);
+  border-radius: 6px;
+}
+
+.checklist-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--ui-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--index-row-bg, rgba(0, 0, 0, 0.03));
+  }
+
+  &.checked {
+    background: rgba(0, 123, 255, 0.10);
+  }
+
+  input {
+    margin: 0;
+    accent-color: #007bff;
+  }
+}
+
+.checklist-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--comment-color);
+  flex-shrink: 0;
+}
+
+.checklist-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.checklist-lang {
+  font-size: 0.75rem;
+  color: var(--comment-color);
+  flex-shrink: 0;
+}
+
+.checklist-empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--comment-color);
+  font-size: 0.9rem;
+}
+
+.paste-textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.paste-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.paste-error {
+  color: #d33;
+  font-size: 0.85rem;
+}
+
+.paste-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.paste-truncated {
+  color: var(--comment-color);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.preview-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.preview-subhead {
+  font-size: 0.8rem;
+  color: var(--comment-color);
+  margin-top: 0.3rem;
+}
+
+.preview-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.25rem;
+
+  &.matched {
+    cursor: pointer;
+
+    input {
+      margin: 0;
+      accent-color: #007bff;
+    }
+  }
+
+  &.matched.unchecked .preview-title {
+    color: var(--comment-color);
+  }
+}
+
+.preview-status {
+  width: 1.2rem;
+  text-align: center;
+  flex-shrink: 0;
+  font-weight: bold;
+
+  &.ok {
+    color: #4CAF50;
+  }
+}
+
+.preview-row.unmatched .preview-status {
+  color: #d33;
+}
+
+.preview-row.ambiguous .preview-status {
+  color: #e6a700;
+}
+
+.preview-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.muted {
+    color: var(--comment-color);
+    font-style: italic;
+  }
+}
+
+.preview-lang {
+  font-size: 0.75rem;
+  color: var(--comment-color);
+  flex-shrink: 0;
+}
+
+.ambiguous-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.ambiguous-line {
+  font-size: 0.85rem;
+  color: var(--comment-color);
+  font-style: italic;
+}
+
+.ambiguous-select {
+  width: 100%;
+}
+
+.added-flash {
+  padding: 0.6rem 1rem;
+  background: rgba(76, 175, 80, 0.15);
+  color: #2e7d32;
+  font-size: 0.85rem;
+  border-top: 1px solid var(--ui-color);
+}
+
+.import-modal-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--ui-color);
+  background: var(--background, white);
+}
+
+.selected-count {
+  margin-right: auto;
+  font-size: 0.85rem;
+  color: var(--comment-color);
+}
+
+// .btn is full-width by default (admin.scss); reset for in-modal buttons.
+.import-modal .btn {
+  width: auto;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+}
+
+.import-modal .btn-primary {
+  background: #007bff;
+  color: white;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.import-modal .btn-ghost {
+  background: transparent;
+  color: var(--text, inherit);
+  border-color: var(--ui-color);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+@media (max-width: 600px) {
+  .import-modal {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}
+
+// ===== Sticky Save/Cancel bar (rendered by _form.html.erb) =====
+.book-form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+
+  // Buttons are content-sized here (the global .btn is full-width).
+  .btn {
+    width: auto;
+    padding: 0.55rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  // Cancel reads as a secondary action (outline) next to the primary Save.
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid var(--ui-color);
+    color: var(--text);
+
+    &:hover {
+      background: var(--index-row-bg, rgba(0, 0, 0, 0.05));
+    }
+  }
+
+  // Save is the primary action — solid green (matches the Save Song button).
+  // .btn.btn-update bumps specificity above the night-mode .btn-update override
+  // so it stays green in both themes.
+  .btn.btn-update {
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+
+    &:hover {
+      background-color: #43a047;
+    }
+  }
+
+  // Delete sits on the left, separated from Save/Cancel on the right.
+  .book-form-delete {
+    margin-right: auto;
+  }
+}
+
+// ===== Night theme =====
+body.css-night {
+  .admin-book-form {
+    .book-form-title,
+    .index_search {
+      background-color: #111;
+      color: white;
+      border-color: #444;
+    }
+
+    .pane {
+      background-color: #161616;
+      border-color: #333;
+    }
+
+    .song-item {
+      border-bottom-color: #333;
+
+      button {
+        background: none;
+      }
+    }
+
+    .btn-add {
+      background-color: #007bff;
+
+      &:hover {
+        background-color: #888;
+      }
+    }
+
+    .btn-icon.btn-added {
+      background-color: #333;
+      color: #666;
+    }
+
+    .book-song-number {
+      background-color: #007bff;
+      color: black;
+    }
+
+    .drag-handle {
+      color: #aaa;
+    }
+
+    .song-item.drag-over {
+      box-shadow: inset 0 2px 0 #007bff;
+    }
+  }
+
+  .import-modal {
+    background-color: #161616;
+    border-color: #333;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+
+    input,
+    select,
+    textarea {
+      background-color: #111;
+      color: white;
+      border-color: #444;
+    }
+  }
+
+  .import-modal-header,
+  .import-modal-footer,
+  .import-tabs {
+    border-color: #333;
+  }
+
+  .import-modal-footer {
+    background-color: #161616;
+  }
+
+  .added-flash {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #8de08d;
+    border-top-color: #333;
   }
 }

@@ -30,30 +30,32 @@ Rails.application.configure do
   #   config.cache_store = :null_store
   # end
 
-  # Don't care if the mailer can't send.
-  config.action_mailer.raise_delivery_errors = false
+  # Raise on delivery errors so a missing mail catcher is loud in dev.
+  config.action_mailer.raise_delivery_errors = true
 
   config.action_mailer.perform_caching = false
 
-  config.action_mailer.delivery_method = :letter_opener
+  # --- Mail delivery in development -------------------------------------
+  # Defaults to a LOCAL mail catcher (Mailpit at localhost:1025) so every
+  # outbound message is captured and viewable at http://localhost:8025 —
+  # no real delivery, no credentials needed. Override via ENV to point at
+  # Mailtrap, Mailgun, etc. (see .env). Set delivery_method to :letter_opener
+  # instead to open each message in your browser.
+  config.action_mailer.delivery_method = :smtp
   config.action_mailer.perform_deliveries = true
-
-  # TESTING LIVE EMAIL:
-
-  # config.action_mailer.delivery_method = :smtp
-  # config.action_mailer.smtp_settings = {
-  #   address:              'smtp.mailgun.org',
-  #   port:                 587,
-  #   domain:               'songbase.life',
-  #   user_name:            ENV['SMTP_USERNAME'],
-  #   password:             ENV['SMTP_PASSWORD'],
-  #   authentication:       'plain',
-  #   enable_starttls_auto: true
-  # }
-  # config.action_mailer.default_url_options = {
-  #   host: 'songbase.life',
-  #   protocol: 'https'
-  # }
+  config.action_mailer.smtp_settings = {
+    address:              ENV['SMTP_HOST'].presence || 'localhost',
+    port:                 (ENV['SMTP_PORT'].presence || 1025).to_i,
+    domain:               ENV['SMTP_DOMAIN'].presence || 'localhost',
+    user_name:            ENV['SMTP_USERNAME'].presence,
+    password:             ENV['SMTP_PASSWORD'].presence,
+    authentication:       ENV['SMTP_USERNAME'].present? ? :plain : nil,
+    enable_starttls_auto: true
+  }
+  config.action_mailer.default_url_options = {
+    host:     ENV['APP_HOST'].presence || 'localhost:3000',
+    protocol: 'http'
+  }
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
@@ -89,6 +91,7 @@ Rails.application.configure do
   config.file_watcher = ActiveSupport::FileUpdateChecker
 
   config.hosts << "songbase.readj.dev"
+  config.hosts << "songdev.readj.dev"
   config.hosts << "localhost"
 
   # Uncomment if you wish to allow Action Cable access from any origin.

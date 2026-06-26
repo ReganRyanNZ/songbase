@@ -1,0 +1,59 @@
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#ffffff; padding:24px 0;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px; width:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#1f2328; font-size:15px; line-height:1.6;">
+
+        <tr>
+          <td style="padding:8px 32px 0;">
+            <div style="font-size:13px; letter-spacing:0.14em; text-transform:uppercase; color:#6e7781; font-weight:600;">Songbase</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:16px 32px 0;">
+            <h1 style="margin:0; font-size:22px; font-weight:700; color:#1f2328;">Your book is ready to share</h1>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:14px 32px 0;">
+            <p style="margin:0;">Thanks for creating <strong><%= @book.name %></strong>. Keep this email for your records — it has the links you need to share the book across your devices and with others.</p>
+          </td>
+        </tr>
+
+        <!-- Share (read-only) -->
+        <tr>
+          <td style="padding:24px 32px 0;">
+            <div style="font-size:13px; color:#6e7781; text-transform:uppercase; letter-spacing:0.08em; font-weight:600; margin-bottom:6px;">Share (read-only)</div>
+            <p style="margin:0 0 6px; font-size:14px; color:#57606a;">Anyone with this link can add the book to their Songbase app to view it.</p>
+            <a href="<%= @share_url %>" style="color:#1f2328; font-weight:600; text-decoration:underline; word-break:break-all;"><%= @share_url %></a>
+          </td>
+        </tr>
+
+        <!-- Share edit access -->
+        <tr>
+          <td style="padding:20px 32px 0;">
+            <div style="font-size:13px; color:#6e7781; text-transform:uppercase; letter-spacing:0.08em; font-weight:600; margin-bottom:6px;">Share edit access</div>
+            <p style="margin:0 0 6px; font-size:14px; color:#57606a;">Anyone with this link can add the book and edit it — for your other devices or trusted co-editors.</p>
+            <a href="<%= @share_edit_url %>" style="color:#1f2328; font-weight:600; text-decoration:underline; word-break:break-all;"><%= @share_edit_url %></a>
+            <p style="margin:8px 0 0; font-size:12px; color:#8b949e;">This link grants edit access. Share it only with people you trust.</p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:24px 32px 0;">
+            <hr style="border:none; border-top:1px solid #eaecef; margin:0;">
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:16px 32px 28px; color:#6e7781; font-size:12px; line-height:1.5;">
+            You're receiving this because a Songbase book was created with this email address.<br>
+            Questions? Reply to this email or write to <a href="mailto:songbase.brothers@gmail.com" style="color:#1f2328;">songbase.brothers@gmail.com</a>.
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>

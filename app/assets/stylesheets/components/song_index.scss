@@ -124,6 +124,14 @@
   }
 }
 
+// Share button on the book index — matches the song page's .share-song button
+// (defined in song_display.scss), but floated fixed so it stays put while the
+// song list scrolls.
+.song-index .share-song {
+  position: fixed;
+  cursor: pointer;
+}
+
 
 .settings-btn {
   position: absolute;
