@@ -1,20 +1,14 @@
-<%= render 'nav' %>
 <%= render 'flash' %>
 
 <h1>Songbase Admin</h1>
 
 <div class="new-song-btn">
   <%= link_to 'New Song', new_song_path, class: "new_song_link" %>
-  <% if super_admin %>
-    <%= link_to 'Analytics', admin_analytics_path, class: "btn" %>
-    <%= link_to 'Books', '/admin/books', class: "btn" %>
-  <% end %>
 </div>
 
 <%= react_component(
   'AdminSongList',
   { songs: @songs.map(&:admin_entry) },
-  superAdmin: super_admin,
   settings: {
     languages: Song.languages
   })

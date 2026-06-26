@@ -1,0 +1,24 @@
+<header class="admin-header">
+  <%= link_to "Songbase Admin", admin_path, class: "admin-header-brand" %>
+
+  <nav class="admin-nav">
+    <%= nav_link_to "Songs", admin_path %>
+    <% if super_admin %>
+      <%= nav_link_to "Books", admin_books_path %>
+      <%= nav_link_to "Analytics", admin_analytics_path %>
+      <%= nav_link_to "Trash", admin_trash_path %>
+    <% end %>
+  </nav>
+
+  <div class="admin-header-right">
+    <%= react_component('ThemeToggle', {}) %>
+    <div class="user_nav">
+      <% if current_user %>
+        Signed in as <strong><%= current_user.name %></strong>
+        <%= link_to "Sign out", signout_path, id: "sign_out" %>
+      <% else %>
+        <%= google_sign_in_button image_tag('btn_google_signin_dark_normal_web@2x.png', alt: 'Google'), proceed_to: create_session_url(:google), class: 'sign_in_google' %>
+      <% end %>
+    </div>
+  </div>
+</header>

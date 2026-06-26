@@ -2,6 +2,9 @@ class BooksController < ApplicationController
   before_action :set_book, only: [:edit, :update, :destroy]
   before_action :verify_edit_token, only: [:edit, :update, :destroy]
   before_action :set_duplicatable_books, only: [:new, :edit]
+  before_action :require_super_admin, only: [:restore]
+
+  layout "admin", only: [:admin_index, :new, :edit, :create, :update]
 
   def new
     @book = Book.new
@@ -48,6 +51,13 @@ class BooksController < ApplicationController
   def destroy
     @book.update(deleted_at: Time.current)
     redirect_to root_path, notice: "Book was successfully deleted"
+  end
+
+  # Super-admin: restore a soft-deleted book.
+  def restore
+    book = Book.unscoped.find(params[:id])
+    book.restore
+    redirect_to admin_trash_path, notice: "Restored '#{book.name}'."
   end
 
   def admin_index

@@ -135,7 +135,18 @@ class Api::V2::SongsController < ApplicationController
   def analytics_summary
     return render json: { error: "forbidden" }, status: :forbidden unless super_admin
 
-    render json: { songs: SongAnalytic.summary }, status: :ok
+    range = params[:range].presence || "all"
+    language = params[:language].presence
+    songs = SongAnalytic.summary(range: range, language: language)
+
+    respond_to do |format|
+      format.json { render json: { songs: songs }, status: :ok }
+      format.csv do
+        csv = "Rank,Title,Language,Views\n"
+        songs.each_with_index { |s, i| csv += "#{i + 1},\"#{s[:title].gsub('"', '""')}\",#{s[:lang]},#{s[:total_count]}\n" }
+        send_data csv, filename: "analytics-#{range}-#{Time.current.strftime('%Y%m%d')}.csv", type: "text/csv"
+      end
+    end
   end
 
   private

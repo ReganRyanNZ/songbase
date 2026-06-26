@@ -1,92 +1,102 @@
 class AdminSongList extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      songs: []
-    };
+    this.state = { songs: {}, loading: true, error: null, search: "" };
+    this.handleChange = this.handleChange.bind(this);
+    this.updateSongList = this.updateSongList.bind(this);
   }
 
   componentDidMount() {
-    let historyState = window.history.state;
-    let value = '';
-
-    if(historyState) {
-      value = historyState.search || '';
-      document.getElementById('admin_search').value = value;
-    }
-
-    this.updateSongList(value);
+    // Restore the search term if the user navigated back from editing a song.
+    let search = (window.history.state && window.history.state.search) || "";
+    this.setState({ search });
+    this.updateSongList(search);
   }
 
   handleChange(event) {
     let search = event.target.value;
-    // Update browser history to keep search value if the user navigates back out of a song
-    window.history.replaceState({ search: search }, "");
+    // Persist the search across navigation (back out of a song edit).
+    window.history.replaceState({ search }, "");
+    this.setState({ search });
     this.updateSongList(search);
   }
 
   updateSongList(search) {
-    let app = this;
+    this.setState({ loading: true, error: null });
+    let csrfToken = document.querySelector("meta[name=csrf-token]").content;
+    let params = new URLSearchParams({ search });
 
-    const csrfToken = document.querySelector("meta[name=csrf-token]").content;
-    const searchParams = new URLSearchParams({ search });
-
-    fetch("/api/v2/admin_songs?" + searchParams.toString(), {
+    fetch("/api/v2/admin_songs?" + params.toString(), {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-Token": csrfToken
-      }
+      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
     })
-      .then(response => response.json())
-      .then(data => { app.setState({ songs: data.songs }) })
-      .catch(error => console.error("Error:", error));
+      .then((response) => { if (!response.ok) throw new Error("Failed to load songs"); return response.json(); })
+      .then((data) => this.setState({ songs: data.songs || {}, loading: false }))
+      .catch((error) => { console.error("Error:", error); this.setState({ loading: false, error: "Couldn't load songs." }); });
+  }
+
+  // Bucket order: duplicates (super-admin, no search) → recently changed → unchanged.
+  orderedSongs() {
+    let songs = this.state.songs || {};
+    return ["duplicates", "changed", "unchanged"].reduce((acc, type) => acc.concat(songs[type] || []), []);
   }
 
   render() {
-    let editClassNames = {"duplicates": "requires-review-duplicate",
-                          "changed": "requires-review-changed",
-                          "unchanged": ""}
-    let reviewTypes = Object.keys(this.state.songs);
-    let list = reviewTypes.map((reviewType) => {
-      return [].concat.apply([],
-        this.state.songs[reviewType].map((song) => {
-            let editClass = "edit_song_link " + editClassNames[reviewType];
-            let editRef = "/songs/" + song.id + "/edit";
-            let removeLink = "";
-
-            return (
-              <tr key={song.id}>
-                <td>
-                  <a className={editClass} href={editRef}>
-                    {song.title}
-                  </a>
-                </td>
-                <td>{removeLink}</td>
-                <td>
-                  <div className="last_edited">{song.last_editor}</div>
-                </td>
-                <td>
-                  <div className="edit_timestamp">{song.edit_timestamp}</div>
-                </td>
-              </tr>
-            );
-          }
-        )
-      );
-    });
+    let editClassNames = {
+      duplicates: "requires-review-duplicate",
+      changed: "requires-review-changed",
+      unchanged: ""
+    };
+    let { loading, error, search } = this.state;
+    let rows = this.orderedSongs();
+    let bucketOf = (song) => {
+      let found = "unchanged";
+      ["duplicates", "changed"].forEach((t) => { if ((this.state.songs[t] || []).some((s) => s.id === song.id)) found = t; });
+      return found;
+    };
+    let isEmpty = !loading && !error && rows.length === 0;
 
     return (
-      <div className="admin_list">
+      <div className="admin_list" aria-busy={loading}>
         <input
           id="admin_search"
-          onChange={this.handleChange.bind(this)}
-          placeholder="Search"
+          className="admin-search"
+          value={search}
+          onChange={this.handleChange}
+          placeholder="Search songs…"
+          aria-label="Search songs"
         />
-        <table className="admin_table">
-          <tbody>{list}</tbody>
-        </table>
+
+        {error && <div className="admin-songs-empty">{error}</div>}
+        {loading && <div className="admin-songs-empty">Loading…</div>}
+        {isEmpty && <div className="admin-songs-empty">No songs found.</div>}
+
+        {!loading && !error && rows.length > 0 && (
+          <table className="admin_table">
+            <thead>
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Language</th>
+                <th scope="col">Last edited by</th>
+                <th scope="col">When</th>
+              </tr>
+            </thead>
+            <tbody aria-live="polite">
+              {rows.map((song) => (
+                <tr key={song.id}>
+                  <td>
+                    <a className={"edit_song_link " + editClassNames[bucketOf(song)]} href={"/songs/" + song.id + "/edit"}>
+                      {song.title}
+                    </a>
+                  </td>
+                  <td><span className="analytics-lang">{song.lang}</span></td>
+                  <td><div className="last_edited">{song.last_editor}</div></td>
+                  <td><div className="edit_timestamp">{song.edit_timestamp}</div></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     );
   }

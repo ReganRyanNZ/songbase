@@ -1,8 +1,11 @@
 class SongsController < ApplicationController
   before_action :set_song, only: [:show, :edit, :update, :destroy]
-  before_action :authenticate, only: [:new, :edit, :create, :update, :destroy, :analytics]
+  before_action :authenticate, only: [:new, :edit, :create, :update, :destroy, :analytics, :history, :trash, :restore]
+  before_action :require_super_admin, only: [:trash, :restore, :merge]
   before_action :check_maintenance
   before_action :adjust_lang_params, only: [:create, :update]
+
+  layout "admin", only: [:admin, :analytics, :new, :edit, :create, :update, :history, :trash, :admin_example, :admin_example_with_tunes]
 
   # Preloaded data is to send the data directly with the html
   # Usually the client gets the data from our api
@@ -68,6 +71,38 @@ class SongsController < ApplicationController
   def edit
   end
 
+  # Read-only edit history for a song (any signed-in editor).
+  def history
+    @song = Song.find(params[:id])
+    @audits = @song.audits.includes(:user).order(time: :desc)
+  end
+
+  # Super-admin: trash page listing soft-deleted songs and books.
+  def trash
+    @deleted_songs = Song.deleted.order(deleted_at: :desc).map { |s|
+      { id: s.id, title: s.title, lang: s.lang, deleted_at: s.deleted_at, deleted_by: User.find_by(id: s.deleted_by)&.name }
+    }
+    @deleted_books = Book.deleted.order(deleted_at: :desc).map { |b|
+      { id: b.id, name: b.name, slug: b.slug, deleted_at: b.deleted_at }
+    }
+  end
+
+  # Super-admin: restore a soft-deleted song.
+  def restore
+    song = Song.unscoped.find(params[:id])
+    song.restore
+    redirect_to admin_trash_path, notice: "Restored '#{song.title}'."
+  end
+
+  # Super-admin: merge another song into this one (the old song is absorbed —
+  # book indices transferred, chorded lyrics kept, old song soft-deleted).
+  def merge
+    @song = Song.find(params[:id])
+    old_song = Song.find(params[:old_id])
+    @song.merge!(old_song)
+    redirect_to edit_song_path(@song), notice: "Merged '#{old_song.title}' into '#{@song.title}'."
+  end
+
   def create
     @song = Song.new(song_params)
 
@@ -105,6 +140,13 @@ class SongsController < ApplicationController
   end
 
   def destroy
+    # Only super admins (or the creator, within 7 days) may delete a song.
+    # This matches the gate on the Remove button in _form.html.erb.
+    unless super_admin || @song.created_at > 7.days.ago
+      redirect_to edit_song_path(@song), alert: "You can only delete songs within 7 days of creating them."
+      return
+    end
+
     if @song.destroy_with_audit(current_user)
       redirect_to admin_path, notice: 'Song was successfully destroyed.'
     else

@@ -133,7 +133,7 @@ a.btn-help {
 .requires-review-duplicate {
   color: red;
   &:hover {
-    color: lightred;
+    color: #ff7777;
   }
 }
 
@@ -434,4 +434,359 @@ body.css-night {
       filter: brightness(0.9);
     }
   }
+}
+// ===== Admin header (persistent across admin pages) =====
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  background: var(--background);
+  border-bottom: 1px solid var(--ui-color);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  flex-wrap: wrap;
+}
+
+.admin-header-brand {
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+
+  a {
+    padding: 0.35rem 0.75rem;
+    border-radius: 16px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.9rem;
+
+    &:hover { background: var(--ui-color); }
+    &.active { background: #007bff; color: #fff; }
+  }
+}
+
+.admin-header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-header .user_nav {
+  font-size: 0.85rem;
+  color: var(--comment-color);
+
+  a { color: var(--link-color); }
+}
+
+body.css-night {
+  .admin-header {
+    background-color: #111;
+    border-bottom-color: #333;
+  }
+
+  .admin-nav a.active {
+    background-color: var(--chord);
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-header {
+    gap: 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .admin-header-brand { font-size: 0.95rem; }
+  .admin-nav a { padding: 0.3rem 0.5rem; font-size: 0.85rem; }
+
+  .admin-header-right {
+    margin-left: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+// ===== Modernized admin song list =====
+.admin-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.75rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--ui-color);
+  background: var(--background);
+  color: var(--text);
+  margin-bottom: 0.75rem;
+
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+  }
+}
+
+.admin_table {
+  th {
+    text-align: left;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--comment-color);
+    padding: 0.4rem 0.3rem;
+    border-bottom: 1px solid var(--ui-color);
+  }
+
+  td {
+    padding: 0.35rem 0.3rem;
+    vertical-align: middle;
+  }
+}
+
+.admin-songs-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--comment-color);
+  font-size: 0.95rem;
+}
+
+body.css-night {
+  .admin-search {
+    background-color: #111;
+    color: white;
+    border-color: #444;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin_table th:nth-child(3),
+  .admin_table td:nth-child(3) {
+    display: none; // hide "Last edited by" on narrow screens
+  }
+}
+
+// ===== Song edit history =====
+.song-history {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.history-entry {
+  padding: 1rem;
+  border-left: 4px solid var(--ui-color);
+  margin-bottom: 1rem;
+  background: var(--index-row-bg, rgba(0, 0, 0, 0.02));
+  border-radius: 0 6px 6px 0;
+
+  &.action-create { border-left-color: #4CAF50; }
+  &.action-update { border-left-color: #007bff; }
+  &.action-destroy { border-left-color: #e54949; }
+}
+
+.history-entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.history-action {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.history-time {
+  font-size: 0.8rem;
+  color: var(--comment-color);
+}
+
+.history-changes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.history-change-field {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--comment-color);
+  margin-bottom: 0.25rem;
+}
+
+.history-diff {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+
+  .history-pre {
+    flex: 1;
+    max-height: 200px;
+    overflow: auto;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--background);
+    border: 1px solid var(--ui-color);
+    border-radius: 4px;
+    margin: 0;
+    color: var(--text);
+  }
+
+  .history-arrow {
+    align-self: center;
+    color: var(--comment-color);
+  }
+}
+
+.history-inline {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.9rem;
+
+  .history-from { color: var(--comment-color); text-decoration: line-through; }
+  .history-arrow { color: var(--comment-color); }
+  .history-to { color: var(--text); font-weight: 500; }
+}
+
+.history-back {
+  text-align: center;
+  margin-bottom: 1.5rem;
+
+  a { color: var(--link-color); }
+}
+
+// ===== Trash page =====
+.admin-trash {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.trash-section {
+  margin-bottom: 2rem;
+
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  table { width: 100%; }
+  td { padding: 0.4rem 0.3rem; vertical-align: middle; }
+}
+
+.trash-meta {
+  font-size: 0.8rem;
+  color: var(--comment-color);
+}
+
+.trash-restore-btn {
+  padding: 0.3rem 0.8rem !important;
+  font-size: 0.85rem !important;
+  width: auto !important;
+}
+
+.trash-empty {
+  color: var(--comment-color);
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+.trash-note {
+  font-size: 0.8rem;
+  color: var(--comment-color);
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+// ===== Merge duplicates section =====
+.merge-section {
+  max-width: 700px;
+  margin: 1.5rem auto;
+
+  h3 { font-size: 1.05rem; margin-bottom: 0.25rem; }
+}
+
+.merge-candidates {
+  list-style: none;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--ui-color);
+
+    span:first-child { flex: 1; }
+  }
+}
+
+// ===== Analytics filters =====
+.analytics-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.analytics-range-toggle {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.analytics-range-btn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--ui-color);
+  background: transparent;
+  color: var(--text);
+  border-radius: 16px;
+  cursor: pointer;
+
+  &.active {
+    background: #007bff;
+    color: #fff;
+    border-color: #007bff;
+  }
+}
+
+.analytics-lang-select {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  border: 1px solid var(--ui-color);
+  background: var(--background);
+  color: var(--text);
+}
+
+.analytics-csv-btn {
+  margin-left: auto;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--ui-color);
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--text);
+
+  &:hover { background: var(--ui-color); }
+}
+
+@media (max-width: 700px) {
+  .analytics-csv-btn { margin-left: 0; }
 }

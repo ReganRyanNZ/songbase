@@ -22,5 +22,27 @@
   <div class="actions text-center">
     <%= f.submit class: "btn btn-update" %>
 <% end %>
+    <%= link_to "History", history_song_path(song), class: "btn btn-cancel" if song.persisted? %>
     <%= button_to 'Remove', song_path(song), method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-delete" if song.persisted? && (super_admin || song.created_at > 7.days.ago) %>
   </div>
+
+  <% if super_admin && song.persisted? %>
+    <% merge_candidates = Song.where("lower(title) LIKE ?", "%#{song.title.downcase}%").where.not(id: song.id).limit(8) %>
+    <% if merge_candidates.any? %>
+      <div class="merge-section">
+        <h3>Merge duplicates</h3>
+        <p class="admin-comment">Songs with a similar title. "Merge" absorbs the candidate into this song — its book indices are transferred here, and the candidate is deleted.</p>
+        <ul class="merge-candidates">
+          <% merge_candidates.each do |candidate| %>
+            <li>
+              <span><%= candidate.title %></span>
+              <span class="analytics-lang"><%= candidate.lang %></span>
+              <%= button_to "Merge", merge_song_path(song, old_id: candidate.id), method: :post,
+                    data: { confirm: "Merge '#{candidate.title}' into '#{song.title}'?\n\n'#{candidate.title}' will be deleted and its book indices transferred to '#{song.title}'. This cannot be undone from the UI (but the song is recoverable from Trash)." },
+                    class: "btn btn-delete trash-restore-btn" %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  <% end %>

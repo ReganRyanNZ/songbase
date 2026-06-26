@@ -1,0 +1,47 @@
+<%= render 'flash' %>
+
+<div class="admin-trash">
+  <h1 class="admin-root-title">Trash</h1>
+
+  <section class="trash-section">
+    <h2>Deleted Songs (<%= @deleted_songs.length %>)</h2>
+    <% if @deleted_songs.empty? %>
+      <p class="trash-empty">No deleted songs.</p>
+    <% else %>
+      <table class="admin_table">
+        <tbody>
+          <% @deleted_songs.each do |song| %>
+            <tr>
+              <td><%= song[:title] %></td>
+              <td><span class="analytics-lang"><%= song[:lang] %></span></td>
+              <td class="trash-meta">by <%= song[:deleted_by] || "Unknown" %></td>
+              <td class="trash-meta"><%= song[:deleted_at]&.strftime("%b %d, %Y") %></td>
+              <td><%= button_to "Restore", restore_song_path(id: song[:id]), method: :patch, class: "btn btn-update trash-restore-btn" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </section>
+
+  <section class="trash-section">
+    <h2>Deleted Books (<%= @deleted_books.length %>)</h2>
+    <% if @deleted_books.empty? %>
+      <p class="trash-empty">No deleted books.</p>
+    <% else %>
+      <table class="admin_table">
+        <tbody>
+          <% @deleted_books.each do |book| %>
+            <tr>
+              <td><%= book[:name] %></td>
+              <td class="trash-meta"><%= book[:deleted_at]&.strftime("%b %d, %Y") %></td>
+              <td><%= button_to "Restore", restore_book_path(id: book[:id]), method: :patch, class: "btn btn-update trash-restore-btn" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </section>
+
+  <p class="trash-note">Restoring un-deletes the item. A restored song will not reappear in books it was previously removed from.</p>
+</div>

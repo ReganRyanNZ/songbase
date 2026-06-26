@@ -3,7 +3,7 @@ class Audit < ApplicationRecord
   belongs_to :user
   before_save :add_user_to_song
 
-  ACTIONS = %w[create update destroy].freeze
+  ACTIONS = %w[create update destroy restore].freeze
 
   validates :action, inclusion: { in: ACTIONS }, allow_nil: true
 

@@ -35,12 +35,23 @@ class SongAnalytic < ApplicationRecord
 
   # Top songs by total views across all rows, most-viewed first.
   # Deleted songs are excluded (Song's default_scope filters deleted_at).
-  def self.summary(limit: 100)
+  def self.summary(range: :all, language: nil, limit: 100)
+    since = case range.to_s
+            when "7d"  then 7.days.ago.to_date
+            when "30d" then 30.days.ago.to_date
+            else nil
+            end
+
     totals = Hash.new(0)
-    find_each do |row|
+    query = since ? where("date >= ?", since) : all
+    query.find_each do |row|
       (row.song_counts || {}).each do |song_id, count| totals[song_id.to_i] += count.to_i end
     end
-    songs_by_id = Song.where(id: totals.keys).index_by(&:id)
+
+    songs = Song.where(id: totals.keys)
+    songs = songs.where(lang: language) if language.present?
+    songs_by_id = songs.index_by(&:id)
+
     totals.sort_by { |_, total| -total }.first(limit).map do |song_id, total|
       song = songs_by_id[song_id]
       next unless song

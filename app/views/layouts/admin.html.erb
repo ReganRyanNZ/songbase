@@ -1,0 +1,7 @@
+<%# Admin chrome: injects the persistent admin header into the shared
+    application layout. The public SPA never sets content_for :header. %>
+<% content_for :header do %>
+  <%= render 'shared/admin_header' %>
+<% end %>
+
+<%= render template: 'layouts/application' %>

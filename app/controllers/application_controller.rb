@@ -14,10 +14,10 @@ class ApplicationController < ActionController::Base
   ].include?(current_user&.email)
   end
 
-  def book_admin(book)
-     redirect_to admin_path, alert: "You must sign in / have permission to edit this book" unless super_admin
+  # Redirect non-super-admins away from super-admin-only actions.
+  def require_super_admin
+    redirect_to admin_path, alert: "Super admin only" unless super_admin
   end
-
 
   def current_user
     # @current_user ||= User.placeholder
