@@ -27,15 +27,15 @@
 }
 
 .actions {
-  margin-top: 20px;
+  margin-top: 1.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
-  height: 100px;
+  gap: 0.6rem;
 
   &> * {
-    width: 200px;
+    width: 100%;
+    max-width: 240px;
     box-sizing: border-box;
   }
 }

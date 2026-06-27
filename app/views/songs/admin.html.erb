@@ -1,11 +1,5 @@
 <%= render 'flash' %>
 
-<h1>Songbase Admin</h1>
-
-<div class="new-song-btn">
-  <%= link_to 'New Song', new_song_path, class: "new_song_link" %>
-</div>
-
 <%= react_component(
   'AdminSongList',
   { songs: @songs.map(&:admin_entry) },

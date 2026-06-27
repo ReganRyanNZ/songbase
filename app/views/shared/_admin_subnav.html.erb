@@ -1,0 +1,14 @@
+<%# Section navigation, rendered in the content column (below the sticky
+    header) so the header stays identical for every access level. Super
+    admins get the full section switcher; everyone else sees a plain
+    "Songs" label since the other sections are super-admin-only. %>
+<nav class="admin-nav">
+  <% if super_admin %>
+    <%= nav_link_to "Songs", admin_path %>
+    <%= nav_link_to "Books", admin_books_path %>
+    <%= nav_link_to "Analytics", admin_analytics_path %>
+    <%= nav_link_to "Trash", admin_trash_path %>
+  <% else %>
+    <span class="nav-label">Songs</span>
+  <% end %>
+</nav>

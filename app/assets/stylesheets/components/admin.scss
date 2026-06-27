@@ -10,12 +10,21 @@
 }
 
 .btn {
+  display: inline-block;
   width: 100%;
-  padding: 10px 50px;
-  background-color: #d4d4d4;
-  border-radius: 5px;
+  padding: 0.55rem 1rem;
+  background-color: var(--ui-color);
+  color: var(--text);
+  border: 1px solid var(--ui-color);
+  border-radius: 6px;
   text-decoration: none;
-  border-width: 1px;
+  text-align: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: filter 0.15s;
+
+  &:hover { filter: brightness(0.95); }
 }
 
 .btn-delete {
@@ -87,19 +96,24 @@
 }
 
 a.btn-help {
-  color: #4646fd;
+  color: var(--accent);
   display: inline-block;
-  padding: 9px;
+  padding: 0.3rem 0;
+  margin-right: 0.75rem;
+  font-size: 0.85rem;
+
   &:hover {
-    color: #4646fd;;
-    background-color: #fff;
+    color: var(--accent-hover);
+    background: none;
   }
 }
 
 .admin-root-title {
-  margin-bottom: 45px;
+  margin: 0 0 1.25rem;
+  font-size: 1.4rem;
   text-align: center;
 }
+
 
 .last_edited, .edit_timestamp {
   font-style: italic;
@@ -148,21 +162,25 @@ a.btn-help {
 }
 
 .new_song_link, .new_book_link {
-  padding: 10px 10px;
-  display: inline;
-  border: 1px solid grey;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--accent);
   border-radius: 6px;
-  background: palegreen;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 0.85rem;
+  text-decoration: none;
   &:hover {
-    background: forestgreen;
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
   }
 }
 
 .admin_table {
   width: 100%;
-  & td {
-    padding: 0;
-  }
+  border-collapse: collapse;
 }
 
 .flash_link {
@@ -379,12 +397,9 @@ button.book-langauge-filter {
 }
 
 .analytics-lang {
-  display: inline-block;
-  background: var(--ui-color);
-  color: var(--text);
-  border-radius: 12px;
-  padding: 2px 8px;
+  color: var(--comment-color);
   font-size: 0.75rem;
+  line-height: 1.6;
   flex-shrink: 0;
   margin: 0 0.75rem;
 }
@@ -440,9 +455,10 @@ body.css-night {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.6rem 1rem;
-  background: var(--background);
-  border-bottom: 1px solid var(--ui-color);
+  padding: 0.55rem 1rem;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  box-shadow: var(--header-shadow);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -450,27 +466,35 @@ body.css-night {
 }
 
 .admin-header-brand {
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 800;
   color: var(--text);
   text-decoration: none;
-  font-size: 1rem;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
 .admin-nav {
   display: flex;
-  gap: 0.25rem;
+  gap: 1.25rem;
   flex-wrap: wrap;
 
-  a {
-    padding: 0.35rem 0.75rem;
-    border-radius: 16px;
-    text-decoration: none;
+  // Base typography shared by links and the non-clickable label.
+  a, span {
+    padding: 0.35rem 0;
     color: var(--text);
     font-size: 0.9rem;
+    border-bottom: 2px solid transparent;
+  }
 
-    &:hover { background: var(--ui-color); }
-    &.active { background: #007bff; color: #fff; }
+  a {
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+
+    &:hover { color: var(--accent); }
+    &.active { color: var(--accent); border-bottom-color: var(--accent); }
   }
 }
 
@@ -478,24 +502,64 @@ body.css-night {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
+  padding-left: 1rem;
+  border-left: 1px solid var(--header-border);
+}
+
+// Theme toggle — single icon button (sun by day, moon by night)
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--header-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
 }
 
 .admin-header .user_nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.85rem;
-  color: var(--comment-color);
-
-  a { color: var(--link-color); }
+  color: var(--text);
 }
 
-body.css-night {
-  .admin-header {
-    background-color: #111;
-    border-bottom-color: #333;
-  }
+// "Sign out" — outlined button matching the other header controls. Uses the id
+// selector to override the legacy #sign_out rule in nav.scss.
+.admin-header #sign_out {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  margin-left: 0;
+  padding: 0 0.7rem;
+  color: var(--text);
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid var(--header-border);
+  border-radius: 6px;
+  transition: border-color 0.15s, color 0.15s;
 
-  .admin-nav a.active {
-    background-color: var(--chord);
+  &:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: transparent;
   }
 }
 
@@ -505,17 +569,40 @@ body.css-night {
     padding: 0.5rem;
   }
 
-  .admin-header-brand { font-size: 0.95rem; }
-  .admin-nav a { padding: 0.3rem 0.5rem; font-size: 0.85rem; }
+  .admin-header-brand { font-size: 1.1rem; }
+  .admin-nav a { padding: 0.3rem 0; font-size: 0.85rem; }
 
   .admin-header-right {
     margin-left: 0;
     width: 100%;
+    padding-left: 0;
+    border-left: none;
     justify-content: space-between;
   }
+
 }
 
 // ===== Modernized admin song list =====
+// Search input + inline "New Song" action share one row; the input grows and
+// the button pins to the right edge.
+.admin-search-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-search-bar .admin-search {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.admin-search-bar .new_song_link {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .admin-search {
   width: 100%;
   box-sizing: border-box;
@@ -529,7 +616,7 @@ body.css-night {
 
   &:focus {
     outline: none;
-    border-color: #007bff;
+    border-color: var(--accent);
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
   }
 }
@@ -537,18 +624,56 @@ body.css-night {
 .admin_table {
   th {
     text-align: left;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--comment-color);
-    padding: 0.4rem 0.3rem;
-    border-bottom: 1px solid var(--ui-color);
+    padding: 0.55rem 0.5rem;
+    border-bottom: 2px solid var(--ui-color);
+    white-space: nowrap;
   }
 
   td {
-    padding: 0.35rem 0.3rem;
+    padding: 0.5rem 0.5rem;
     vertical-align: middle;
+    border-bottom: 1px solid var(--ui-color);
   }
+
+  tbody tr {
+    transition: background 0.12s;
+
+    &:hover {
+      background: var(--index-row-bg);
+    }
+  }
+
+  // Keep meta/timestamps tidy on one line
+  .last_edited,
+  .edit_timestamp,
+  .trash-meta { white-space: nowrap; }
+}
+
+// Song list: let the Title column expand and bunch the meta columns
+// (Language / Edited by / When) to the right instead of splitting evenly.
+.admin_list .admin_table {
+  th:nth-child(n+2),
+  td:nth-child(n+2) {
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  // Cap the editor-name column and ellipsis-truncate long names so it stays tight.
+  td:nth-child(3) { max-width: 112px; }
+  .last_edited {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Language badge aligned to the right edge of its column.
+  td:nth-child(2) { text-align: right; }
+  .analytics-lang { margin: 0; }
 }
 
 .admin-songs-empty {
@@ -760,9 +885,9 @@ body.css-night {
   cursor: pointer;
 
   &.active {
-    background: #007bff;
-    color: #fff;
-    border-color: #007bff;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    border-color: var(--accent);
   }
 }
 
@@ -789,4 +914,97 @@ body.css-night {
 
 @media (max-width: 700px) {
   .analytics-csv-btn { margin-left: 0; }
+}
+
+// ===== Admin-scoped resets (body.admin is set by layouts/admin) =====
+// scaffolds.scss applies app-wide 33px margins to p/ul/td and a dark-box
+// link hover (color:#fff; background:#333). The public SPA never renders raw
+// <p>/<ul>/<table> so it's unaffected, but the admin ERB views inherit them,
+// which is what made the admin content look cramped and dated. Neutralize here
+// — scoped to body.admin so the public app is never touched.
+body.admin {
+  // Neutralize scaffolds' dark-box link hover for admin content links — no
+  // background, no added underline, color stays as the link color. Specific
+  // controls below opt back into their own hover.
+  a:hover {
+    color: var(--link-color);
+    background: none;
+    text-decoration: none;
+  }
+
+  // Header controls keep their intended hover (the rule above would override).
+  .admin-nav a:hover {
+    color: var(--accent);
+    background: none;
+    text-decoration: none;
+  }
+  .admin-header-brand:hover { text-decoration: none; }
+
+  // Primary action buttons (rendered as links) keep their filled-accent hover
+  // instead of the plain content-link hover above.
+  .new_song_link:hover,
+  .new_book_link:hover {
+    background: var(--accent-hover);
+    color: var(--accent-contrast);
+    text-decoration: none;
+  }
+
+  // Sensible margins for chrome that scaffolds inflates to 33px.
+  #notice, #alert { margin: 0 0 1rem; }
+  .history-back { margin: 0 0 1.5rem; }
+  #error_explanation { margin-bottom: 1.25rem; }
+}
+
+// ===== Admin layout: full-width nav bar, 800px content column =====
+// The admin header (brand + nav + controls) is a full-bleed sticky bar. All
+// page content below it lives in a centered 800px column. Scoped to body.admin
+// so the public SPA (which sets its own .song-app width) is unaffected.
+body.admin {
+  margin: 0; // override application.scss body { margin: 8px }
+
+  .application-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  // Full-bleed sticky nav bar with its own internal gutter.
+  .admin-header {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  // Page content: centered 800px column with a side gutter.
+  .application-container > *:not(.admin-header) {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  // Space the content away from the sticky header.
+  .admin-header + * { margin-top: 1.5rem; }
+
+  // Section nav relocated into the content column reads as a tab bar — a
+  // divider under the links separates it from the page content below.
+  .admin-header + .admin-nav {
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--ui-color);
+  }
+
+  @media (max-width: 600px) {
+    .admin-header { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .application-container > *:not(.admin-header) {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+  }
+}
+
+// Form/edit pages render without the admin header (body lacks .admin-landing);
+// give their content the same top gap the header would have provided.
+body.admin:not(.admin-landing) .application-container {
+  padding-top: 1.5rem;
 }

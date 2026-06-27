@@ -58,14 +58,17 @@ class AdminSongList extends React.Component {
 
     return (
       <div className="admin_list" aria-busy={loading}>
-        <input
-          id="admin_search"
-          className="admin-search"
-          value={search}
-          onChange={this.handleChange}
-          placeholder="Search songs…"
-          aria-label="Search songs"
-        />
+        <div className="admin-search-bar">
+          <input
+            id="admin_search"
+            className="admin-search"
+            value={search}
+            onChange={this.handleChange}
+            placeholder="Search songs…"
+            aria-label="Search songs"
+          />
+          <a className="new_song_link" href="/songs/new">New Song</a>
+        </div>
 
         {error && <div className="admin-songs-empty">{error}</div>}
         {loading && <div className="admin-songs-empty">Loading…</div>}
@@ -73,14 +76,6 @@ class AdminSongList extends React.Component {
 
         {!loading && !error && rows.length > 0 && (
           <table className="admin_table">
-            <thead>
-              <tr>
-                <th scope="col">Title</th>
-                <th scope="col">Language</th>
-                <th scope="col">Last edited by</th>
-                <th scope="col">When</th>
-              </tr>
-            </thead>
             <tbody aria-live="polite">
               {rows.map((song) => (
                 <tr key={song.id}>
@@ -90,7 +85,7 @@ class AdminSongList extends React.Component {
                     </a>
                   </td>
                   <td><span className="analytics-lang">{song.lang}</span></td>
-                  <td><div className="last_edited">{song.last_editor}</div></td>
+                  <td><div className="last_edited" title={song.last_editor}>{song.last_editor}</div></td>
                   <td><div className="edit_timestamp">{song.edit_timestamp}</div></td>
                 </tr>
               ))}

@@ -21,15 +21,21 @@
     <%= javascript_include_tag 'application' %>
   </head>
 
-  <body>
+  <body class="<%= yield(:body_class) %>">
     <script>
       (function() {
         var saved = localStorage.getItem('cssTheme') || 'css-normal';
-        document.body.removeAttribute('class');
-        document.body.classList.add(saved);
-        window.setTheme = function(theme) {
-          document.body.removeAttribute('class');
+        // Swap only the theme class (css-normal / css-night), preserving any
+        // other body classes such as "admin" (set via layouts). The old code
+        // used removeAttribute('class'), which stripped the admin class.
+        var THEMES = ['css-normal', 'css-night'];
+        function apply(theme) {
+          document.body.classList.remove.apply(document.body.classList, THEMES);
           document.body.classList.add(theme);
+        }
+        apply(saved);
+        window.setTheme = function(theme) {
+          apply(theme);
           localStorage.setItem('cssTheme', theme);
         };
       })();

@@ -8,6 +8,14 @@ body {
   --link-color: #333; // found at the bottom of user settings page
   --comment-color: #aaa;
   --ui-color: #ccc;
+
+  // Admin accent + header surface
+  --accent: #007bff;
+  --accent-hover: #0069d9;
+  --accent-contrast: #fff;
+  --header-bg: #fff;
+  --header-border: #e4e4e4;
+  --header-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 
@@ -21,4 +29,12 @@ body.css-night {
   --link-color: #aaa;
   --comment-color: #aaa;
   --ui-color: #aaa;
+
+  // Admin accent + header surface (brighter accent for contrast on dark)
+  --accent: #3d8bff;
+  --accent-hover: #5a9dff;
+  --accent-contrast: #07111f;
+  --header-bg: #161616;
+  --header-border: #2e2e2e;
+  --header-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
