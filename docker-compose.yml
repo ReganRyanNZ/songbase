@@ -1,0 +1,27 @@
+# Songbase dev instance — supervised (survives reboots) + live reload.
+#
+# Design notes:
+#  * network_mode: host — the container behaves like the old host puma:
+#      - localhost:5432 reaches the host postgres (pg_hba already permits
+#        localhost for the `songbase` role), so NO db/pg_hba changes.
+#      - puma binds 0.0.0.0:3000, so traefik's existing route
+#        songdev.readj.dev -> 172.17.0.1:3000 keeps working unchanged
+#        (no DNS / cloudflared / traefik edits).
+#  * bind-mount . -> /app — Rails' dev reloader sees file edits instantly,
+#    same as when it ran on the host.
+#  * user 1000:1000 — files created on the bind mount stay owned by jethro.
+services:
+  songbase:
+    build: .
+    image: songbase-dev:latest
+    container_name: songbase
+    network_mode: host
+    user: "1000:1000"
+    working_dir: /app
+    environment:
+      RAILS_ENV: development
+      BUNDLE_PATH: /app/vendor/bundle
+      HOME: /tmp
+    volumes:
+      - .:/app
+    restart: unless-stopped

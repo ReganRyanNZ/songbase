@@ -50,3 +50,8 @@ bower.json
 
 .DS_Store
 .claude/settings.local.json
+.env.example
+.gitignore
+SETUP.md
+.gitignore
+.cloudflared/config.yml
