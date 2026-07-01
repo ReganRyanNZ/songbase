@@ -36,7 +36,8 @@ class AdminBookForm extends React.Component {
     this.state = {
       search: "",
       searchResults: [],          // latest results from the API (Find songs list)
-      songData: indexSongs(props.seededSongs || []),  // { id -> song } for rendering book rows
+      songData: {},               // { id -> song } render cache; populated on mount (edit/duplicate) or by search (new)
+      loadingBookSongs: Boolean(props.isPersisted || props.duplicateFromId),  // fetching title/lang for existing rows
       book: {
         name: props.book.name || "",
         email: props.book.email || "",
@@ -68,11 +69,22 @@ class AdminBookForm extends React.Component {
     this.closeImport = this.closeImport.bind(this);
     this.addSongsFromImport = this.addSongsFromImport.bind(this);
     this.clearAllSongs = this.clearAllSongs.bind(this);
+    this.loadBookSongs = this.loadBookSongs.bind(this);
 
     this.searchTimeout = null;
     this.bookListEl = null;       // callback ref to the .book-songs container
+  }
 
-    this.searchSongs("");
+  componentDidMount() {
+    // book.songs (source of truth) already arrived via SSR props; we only need
+    // title/lang to render existing rows. Edit fetches its own book; duplicate
+    // fetches the source book. New-empty books have nothing to load.
+    if (this.props.isPersisted) {
+      this.loadBookSongs(this.props.book.id);
+    } else if (this.props.duplicateFromId) {
+      this.loadBookSongs(this.props.duplicateFromId);
+    }
+    this.searchSongs(""); // seed the Find songs pane
   }
 
   componentWillUnmount() {
@@ -129,6 +141,36 @@ class AdminBookForm extends React.Component {
       .catch((error) => {
         console.error("Error:", error);
         this.setState({ loading: false });
+      });
+  }
+
+  // Fetch title/lang for every song already in book.songs (edit/duplicate).
+  // book.songs (source of truth) arrived via SSR props; this only fills the
+  // render-only songData cache. Merges rather than replaces so concurrent
+  // searchSongs results and user-added rows survive.
+  loadBookSongs(bookId) {
+    var csrfToken = document.querySelector("meta[name='csrf-token']").content;
+    fetch("/api/v2/book_songs?book_id=" + encodeURIComponent(bookId), {
+      method: "GET",
+      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error("book_songs " + r.status);
+        return r.json();
+      })
+      .then((data) => {
+        var fetched = {};
+        (data.songs || []).forEach(function(s) {
+          fetched[String(s.id)] = { id: s.id, title: s.title, lang: s.lang };
+        });
+        this.setState((prev) => ({
+          songData: Object.assign({}, prev.songData, fetched),
+          loadingBookSongs: false,
+        }));
+      })
+      .catch((error) => {
+        console.error("Error loading book songs:", error);
+        this.setState({ loadingBookSongs: false });
       });
   }
 
@@ -424,7 +466,9 @@ class AdminBookForm extends React.Component {
               <h3>Your book</h3>
               <span className="song-count">{bookSongCount + (bookSongCount === 1 ? " song" : " songs")}</span>
             </div>
-            {bookSongCount === 0 ? (
+            {this.state.loadingBookSongs ? (
+              <div className="songs-empty book-empty">Loading your book…</div>
+            ) : bookSongCount === 0 ? (
               <div className="songs-empty book-empty">Songs you add or import will appear here.</div>
             ) : (
               <div className="book-songs" ref={(el) => { this.bookListEl = el; }}>

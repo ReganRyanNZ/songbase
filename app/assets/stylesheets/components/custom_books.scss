@@ -95,7 +95,9 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    padding: 0.75rem;
+    // No right padding so the scrollable list + scrollbar run flush to the pane
+    // edge, maximizing width for long titles.
+    padding: 0.75rem 0 0.75rem 0.75rem;
     border: 1px solid var(--ui-color);
     border-radius: 8px;
     background: var(--background);

@@ -14,7 +14,7 @@ class SongsController < ApplicationController
   # still loading via api.
   def app
     @show_books_page = request.path == '/books'
-    @new_book_id = params[:new_book] if params[:new_book].present?
+    @new_book_id = params[:add_book] if params[:add_book].present?
     Book.increment_counter(:downloads, @new_book_id) if @new_book_id && Book.exists?(@new_book_id)
     @new_book_token = params[:edit_token] if params[:edit_token].present?
     @book_slug = params[:book]

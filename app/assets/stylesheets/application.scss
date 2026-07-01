@@ -3,15 +3,15 @@
         "themes";
 
 
-@media(min-width: 500px){
-  html{
-    font-size: 14px;
-  }
+// Fluid root font-size: holds 16px on phones (keeps inputs >=16px so iOS Safari
+// won't zoom on focus), then smoothly interpolates down to 14px between ~500px
+// and ~800px — instead of a hard step at 500px that made em/rem-sized text
+// (e.g. .home-title at 1.8em) visibly jump bigger and push the layout taller.
+html {
+  font-size: clamp(14px, calc(19.33px - 0.667vw), 16px);
 }
+
 @media(max-width: 499px){
-  html {
-    font-size: 16px;
-  }
   .home-title-row {
     margin-top: 0px;
   }

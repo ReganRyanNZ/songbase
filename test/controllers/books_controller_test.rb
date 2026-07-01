@@ -17,7 +17,7 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     assert_match(/Private Book/, response.body)
   end
 
-  test 'new with from= seeds a copy of a public book' do
+  test 'new with from= copies source songs and surfaces duplicateFromId' do
     song = FactoryBot.create(:song, :abba_father) # "Abba, Father"
     source = FactoryBot.create(:book, name: 'Hymnal', sync_to_all: true,
                                songs: { song.id => '1' }, languages: ['english'])
@@ -25,7 +25,21 @@ class BooksControllerTest < ActionDispatch::IntegrationTest
     get new_book_path, params: { from: source.id }
     assert_response :success
     assert_match(/Hymnal \(copy\)/, response.body)
-    assert_match(/Abba, Father/, response.body) # seeded song serialized into props
+    # book.songs hash (inlined into react_component props) carries the source song id.
+    # react-rails HTML-escapes the JSON attribute, so quotes appear as &quot;.
+    assert_match(/&quot;#{song.id}&quot;:&quot;1&quot;/, response.body)
+    # the source id is passed as a prop so the builder can fetch display data
+    assert_match(/duplicateFromId.{0,10}#{source.id}/, response.body)
+  end
+
+  test 'edit surfaces the persisted book for the client fetch' do
+    song = FactoryBot.create(:song, :abba_father) # "Abba, Father"
+    book = FactoryBot.create(:book, name: 'Edit Me', songs: { song.id => '1' }, languages: ['english'])
+
+    get edit_book_path(book, edit_token: book.edit_token)
+    assert_response :success
+    assert_match(/&quot;isPersisted&quot;:true/, response.body)
+    assert_match(/&quot;#{song.id}&quot;:&quot;1&quot;/, response.body)
   end
 
   test 'new with from= ignores a missing source book' do

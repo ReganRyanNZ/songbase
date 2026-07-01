@@ -12,8 +12,8 @@
 
   <%= react_component("AdminBookForm", {
     book: book,
-    seededSongs: @seeded_songs || [],
     duplicatableBooks: @duplicatable_books || [],
+    duplicateFromId: @duplicate_from_id,
     isPersisted: book.persisted?,
   }) %>
 

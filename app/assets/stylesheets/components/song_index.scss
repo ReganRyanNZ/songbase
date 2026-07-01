@@ -31,14 +31,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  // color: #CCC
 }
 
 .create-book-btn {
   text-decoration: none;
-  color: var(--link-color);
+  color: var(--text);
 
   &:hover {
-    color: var(--link-color);
+    color: var(--text);
     background-color: transparent;
   }
 }
@@ -70,6 +71,23 @@
 .search-row {
   position: relative;
   margin: 0 auto 10px auto;
+}
+
+// Lay the search box and sort icon out as in-flow flex siblings so they can
+// never overlap. Previously the sort icon was pinned to the row's right edge
+// and collided with the centered input on narrow viewports. Scoped under
+// .song-index so the admin book form's own .search-row layout is untouched.
+.song-index .search-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+// As a flex item the form's `margin: 0 auto` would re-center the form alone
+// and shove the sort icon back to the far edge, so neutralize it here.
+.song-index .search-form {
+  margin: 0;
 }
 
 .search-form {
@@ -110,10 +128,6 @@
 }
 
 .btn-sort {
-  position: absolute;
-  right: 5px;
-  top: 50%;
-  transform: translateY(-50%);
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -178,7 +192,7 @@
   border: none;
   padding: 4px;
   cursor: pointer;
-  color: var(--ui-color);
+  color: var(--text);
   display: flex;
   align-items: center;
 

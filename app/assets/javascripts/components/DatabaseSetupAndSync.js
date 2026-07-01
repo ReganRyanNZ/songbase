@@ -146,9 +146,9 @@ class DatabaseSetupAndSync {
         }
         this.app.setState({ settings: settings, pendingBookNavigation: newBookId });
         this.db.settings.put(settings);
-        // Remove new_book and edit_token parameters from URL
+        // Remove add_book and edit_token parameters from URL
         const url = new URL(window.location);
-        url.searchParams.delete('new_book');
+        url.searchParams.delete('add_book');
         url.searchParams.delete('edit_token');
         window.history.replaceState({}, '', url);
       }

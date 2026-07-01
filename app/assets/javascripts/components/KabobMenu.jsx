@@ -90,7 +90,7 @@ class KabobMenu extends React.Component {
   handleShare(e) {
     e.preventDefault();
     e.stopPropagation();
-    const url = `${window.location.origin}/?new_book=${this.props.bookId}`;
+    const url = `${window.location.origin}/?add_book=${this.props.bookId}`;
     this.shareUrl(url);
   }
 
@@ -98,7 +98,7 @@ class KabobMenu extends React.Component {
     e.preventDefault();
     e.stopPropagation();
     const token = this.getEditToken();
-    const url = `${window.location.origin}/?new_book=${this.props.bookId}&edit_token=${token}`;
+    const url = `${window.location.origin}/?add_book=${this.props.bookId}&edit_token=${token}`;
     this.shareUrl(url);
   }
 
@@ -129,7 +129,7 @@ class KabobMenu extends React.Component {
                 onClick: this.handleShare
               },
                 React.createElement("span", { dangerouslySetInnerHTML: { __html: ShareIcon }, className: "kabob-icon" }),
-                canEdit ? "Share (read-only)" : "Share"
+                "Share"
               )
             }
             {canEdit && editUrl && this.getEditToken() &&
@@ -139,7 +139,7 @@ class KabobMenu extends React.Component {
                 onClick: this.handleShareEdit
               },
                 React.createElement("span", { dangerouslySetInnerHTML: { __html: ShareIcon }, className: "kabob-icon" }),
-                "Share (edit)"
+                "Share (edit access)"
               )
             }
             {canEdit && editUrl &&

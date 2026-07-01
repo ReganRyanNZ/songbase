@@ -16,11 +16,11 @@ class AdminBookList extends React.Component {
   }
 
   shareUrl(book) {
-    return window.location.origin + '/?new_book=' + book.id;
+    return window.location.origin + '/?add_book=' + book.id;
   }
 
   shareEditUrl(book) {
-    return window.location.origin + '/?new_book=' + book.id + '&edit_token=' + book.edit_token;
+    return window.location.origin + '/?add_book=' + book.id + '&edit_token=' + book.edit_token;
   }
 
   copyToClipboard(text, key) {

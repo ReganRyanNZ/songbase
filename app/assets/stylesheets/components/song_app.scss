@@ -25,23 +25,21 @@
 
   .home-title-close {
     background: none;
-    border: 1px solid var(--ui-color);
-    border-radius: 4px;
+    border: none;
     color: var(--ui-color);
-    font-size: 14px;
-    width: 28px;
-    height: 28px;
+    font-size: 16px;
+    width: 32px;
+    height: 32px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    margin-left: -8px;
-    transition: color 0.15s, border-color 0.15s;
+    margin-left: 4px;
+    transition: color 0.15s;
 
     &:hover {
       color: #e74c3c;
-      border-color: #e74c3c;
     }
   }
 

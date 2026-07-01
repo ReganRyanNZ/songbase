@@ -4,8 +4,8 @@ class BookMailer < ApplicationMailer
   # from the device they created the book on; no direct web-edit link is exposed.
   def book_created(book)
     @book = book
-    @share_url      = root_url(new_book: book.id)
-    @share_edit_url = root_url(new_book: book.id, edit_token: book.edit_token)
+    @share_url      = root_url(add_book: book.id)
+    @share_edit_url = root_url(add_book: book.id, edit_token: book.edit_token)
 
     mail(
       to: book.email,

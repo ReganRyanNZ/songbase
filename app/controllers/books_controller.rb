@@ -11,13 +11,15 @@ class BooksController < ApplicationController
 
     if params[:from].present?
       source = Book.find_by(id: params[:from]) || Book.find_by(slug: params[:from])
-      # Only allow duplicating public books, or any book for a super admin —
+      # Only allow duplicating public or books, or any book for a super admin —
       # otherwise a hand-crafted URL could leak a private book's song list.
       if source && (source.sync_to_all || super_admin)
         @book.name = "#{source.name} (copy)"
         @book.songs = source.songs.dup
         @book.languages = source.languages.dup
-        @seeded_songs = source.song_records.map(&:admin_entry)
+        # Surface the source id so the builder can fetch display data (title/lang)
+        # client-side via book_songs — book.songs above already carries the hash.
+        @duplicate_from_id = source.id
       end
     end
 
@@ -33,7 +35,7 @@ class BooksController < ApplicationController
 
     if @book.save
       BookMailer.book_created(@book).deliver_later if @book.email.present?
-      redirect_to "/#{@book.slug}/i?new_book=#{@book.id}&edit_token=#{@book.edit_token}", notice: "Book was successfully created"
+      redirect_to "/#{@book.slug}/i?add_book=#{@book.id}&edit_token=#{@book.edit_token}", notice: "Book was successfully created"
     else
       render :new
     end
