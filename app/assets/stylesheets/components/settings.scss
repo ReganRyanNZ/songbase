@@ -4,12 +4,26 @@
   padding: 20px 16px 40px;
 }
 
+// The whole SPA sits in a narrow 380px column (.song-app in song_app.scss).
+// The settings page needs more room for the two-column grid below, so widen
+// the shell only when the settings page is showing.
+.song-app.settings-page {
+  max-width: 760px;
+}
+
+// Widen on tablet/desktop so the two-column grid has room; phones stay narrow.
+@media (min-width: 720px) {
+  .settings-container {
+    max-width: 760px;
+  }
+}
+
 .settings-section {
   background: var(--background);
   border: 1px solid var(--ui-color);
   border-radius: 8px;
   padding: 16px;
-  margin-bottom: 16px;
+  // Vertical rhythm comes from the grid/flex gaps below, not per-section margins.
 
   h2 {
     font-size: 14px;
@@ -21,17 +35,37 @@
   }
 }
 
+// Two-column layout: Languages (tall) on the left, the smaller sections
+// stacked on the right. Collapses to a single column on phones.
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 720px) {
+  .settings-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+    align-items: start;
+  }
+}
+
+.settings-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
 // Language grid
 .lang-grid {
   display: flex;
   flex-direction: column;
-  gap: 2px;
 
   label {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 8px;
+    padding: 5px 8px;
     border-radius: 4px;
     cursor: pointer;
     transition: background 0.15s;
@@ -110,9 +144,9 @@
   color: var(--text);
 }
 
-// Reset cache
-.reset-cache-section {
-  .reset-cache-info {
+// Reset cache box.
+.reset-section {
+  .reset-info {
     font-size: 13px;
     color: var(--comment-color);
     margin-bottom: 12px;
@@ -164,21 +198,63 @@
   }
 }
 
-// Contact footer
-.contact-footer {
-  text-align: center;
-  padding-top: 20px;
-  font-size: 13px;
-  color: var(--comment-color);
-
-  hr {
-    border: none;
-    border-top: 1px solid var(--ui-color);
-    margin-bottom: 12px;
+// Site support box (under Install App).
+.support-section {
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
   }
 
   a {
     color: var(--link-color, #007bff);
+  }
+}
+
+// Help & Tips — collapsible <details> blocks.
+.help-section {
+  margin-top: 16px;
+
+  details {
+    border-top: 1px solid var(--ui-color);
+    padding: 10px 0;
+
+    &:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    summary {
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      list-style: none;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      &::before {
+        content: '▸';
+        display: inline-block;
+        margin-right: 8px;
+        color: var(--comment-color);
+        transition: transform 0.2s;
+      }
+    }
+
+    &[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    p {
+      margin: 8px 0 0 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--comment-color);
+    }
   }
 }
 

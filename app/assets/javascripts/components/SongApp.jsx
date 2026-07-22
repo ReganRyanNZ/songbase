@@ -36,6 +36,7 @@ class SongApp extends React.Component {
     this.canEditBook = this.canEditBook.bind(this);
     this.editUrlFor = this.editUrlFor.bind(this);
     this.removeBookFromSync = this.removeBookFromSync.bind(this);
+    this.resetBooks = this.resetBooks.bind(this);
     this.addTranslation = this.addTranslation.bind(this);
     this.removeTranslation = this.removeTranslation.bind(this);
 
@@ -190,6 +191,20 @@ class SongApp extends React.Component {
     this.dbSync.pushIndexedDBToState();
   }
 
+  // Bulk version of removeBookFromSync: drops every user-added (booksToSync)
+  // book from the device while leaving the default sync_to_all hymnals intact.
+  resetBooks() {
+    let settings = this.state.settings;
+    let bookIds = (settings.booksToSync || []).slice();
+    if (bookIds.length === 0) { return; }
+    this.navigate.clearBook();
+    settings.booksToSync = [];
+    this.setState({ settings: settings });
+    this.dbSync.db.settings.put(settings);
+    bookIds.forEach(id => this.dbSync.db.books.delete(id));
+    this.dbSync.pushIndexedDBToState();
+  }
+
   addTranslation(songId) {
     if (!this.state.activeTranslations.includes(songId)) {
       this.setState({
@@ -251,6 +266,7 @@ class SongApp extends React.Component {
             setTheme={this.setTheme.bind(this)}
             cachedSongCount={this.state.totalSongsCached}
             resetCache={this.dbSync.resetDbData}
+            resetBooks={this.resetBooks}
             loadingData={this.state.loadingData}
             homeButton={homeButton}
           />
@@ -354,7 +370,7 @@ class SongApp extends React.Component {
 
     this.setTheme();
     return (
-      <div className="song-app" key="song-app">
+      <div className={"song-app" + (this.state.page === "settings" ? " settings-page" : "")} key="song-app">
         {title}
         {content}
       </div>
