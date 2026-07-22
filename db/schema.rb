@@ -10,12 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_25_000000) do
+ActiveRecord::Schema[7.1].define(version: 2026_07_05_051103) do
   create_schema "songbase_production"
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
+
+  create_table "app_settings", force: :cascade do |t|
+    t.string "key"
+    t.text "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_app_settings_on_key", unique: true
+  end
 
   create_table "audits", id: :serial, force: :cascade do |t|
     t.integer "user_id"

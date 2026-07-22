@@ -288,11 +288,32 @@ class DatabaseSetupAndSync {
       )
     }
 
+    // If the server's cache_version has advanced past what this device last
+    // saw, wipe the local cache and re-download from scratch. Mirrors the
+    // admin "Clear all users' cache" lever (AppSetting.cache_version /
+    // SongsController#reset_cache). A fresh install (settings.cache_version
+    // undefined) just adopts the server's version without a wipe.
+    const checkCacheVersion = (data) => {
+      const server = data.cache_version;
+      const local = app.state.settings.cache_version;
+      if (server != null && local != null && server > local) {
+        thisSyncTool.log("cache_version " + local + " -> " + server + ": resetting DB");
+        app.state.settings.cache_version = server; // survives resetDbData (mutates React-state settings)
+        thisSyncTool.resetDbData();                 // wipe + updated_at=0 + re-fetch (re-runs this chain)
+        return new Promise(() => {});               // halt THIS chain; the re-fetch takes over
+      }
+      if (server != null) {
+        app.state.settings.cache_version = server;  // adopt (fresh install / normal sync); persisted by updateTimestamp
+      }
+      return data;
+    };
+
     fetch("/api/v2/languages", {
       method: "GET",
       headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
     })
     .then((response) => response.json())
+    .then(checkCacheVersion)
     .then(fetchEnglish)
     .then(fetchOtherLanguages)
     .then(updateTimestamp)
@@ -359,6 +380,17 @@ class DatabaseSetupAndSync {
             }
           }
         });
+
+        // Prune requested book ids that are deleted/gone server-side so they
+        // don't linger in booksToSync forever (self-healing — see app_data
+        // gone_books). Also clears any phantom local copy left by a missed
+        // deletion window.
+        if (data.gone_books && data.gone_books.length) {
+          const gone = data.gone_books.map(String);
+          settings.booksToSync = settings.booksToSync.filter(id => !gone.includes(String(id)));
+          db.books.bulkDelete(data.gone_books);
+          thisSyncTool.log('Pruned gone books from booksToSync: ' + gone.join(','));
+        }
 
         settings['languagesInfo'] = settings['languagesInfo'].filter(info => info[0] != language); // remove previous value
 

@@ -1,11 +1,11 @@
 class SongsController < ApplicationController
   before_action :set_song, only: [:show, :edit, :update, :destroy]
-  before_action :authenticate, only: [:new, :edit, :create, :update, :destroy, :analytics, :history, :trash, :restore]
+  before_action :authenticate, only: [:new, :edit, :create, :update, :destroy, :analytics, :history, :trash, :restore, :cache, :reset_cache]
   before_action :require_super_admin, only: [:trash, :restore, :merge]
   before_action :check_maintenance
   before_action :adjust_lang_params, only: [:create, :update]
 
-  layout "admin", only: [:admin, :analytics, :new, :edit, :create, :update, :history, :trash, :admin_example, :admin_example_with_tunes]
+  layout "admin", only: [:admin, :analytics, :new, :edit, :create, :update, :history, :trash, :admin_example, :admin_example_with_tunes, :cache]
 
   # Preloaded data is to send the data directly with the html
   # Usually the client gets the data from our api
@@ -45,6 +45,20 @@ class SongsController < ApplicationController
 
   def analytics
     redirect_to admin_path, alert: "Super admin only" unless super_admin
+  end
+
+  # Super-admin lever to force every client device to wipe its IndexedDB cache
+  # and re-download on the next sync. Bumps a monotonic cache_version that the
+  # client compares against its stored version (DatabaseSetupAndSync#checkCacheVersion).
+  def cache
+    redirect_to admin_path, alert: "Super admin only" and return unless super_admin
+    @cache_version = AppSetting.cache_version
+  end
+
+  def reset_cache
+    redirect_to admin_cache_path, alert: "Super admin only" and return unless super_admin
+    @cache_version = AppSetting.bump_cache_version!
+    redirect_to admin_cache_path, notice: "Cache bumped to version #{@cache_version}. All devices will re-download on their next sync."
   end
 
 

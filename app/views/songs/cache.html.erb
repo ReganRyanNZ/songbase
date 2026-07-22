@@ -1,0 +1,28 @@
+<%= render 'flash' %>
+
+<h1 class="admin-root-title">
+  <%= link_to "Clear Cache", admin_path %>
+</h1>
+
+<div class="cache-page">
+  <p class="cache-version">
+    Current cache version: <strong><%= @cache_version %></strong>
+  </p>
+
+  <p>
+    Bumping the cache version forces every device — phone, tablet, browser — to wipe
+    its cached songs and books and re-download them fresh on the next sync. Each user's
+    own settings (selected languages, theme, and the custom books they've added) are kept.
+  </p>
+
+  <p class="cache-warning">
+    Use this when content appears stuck or out of sync across devices. It triggers a
+    one-time full re-download for everyone, so expect a brief spike in traffic.
+  </p>
+
+  <%= button_to "Clear all users' cache",
+        admin_cache_reset_path,
+        method: :post,
+        class: "btn btn-update cache-reset-btn",
+        data: { confirm: "Force every device to wipe its cache and re-download all songs and books?" } %>
+</div>

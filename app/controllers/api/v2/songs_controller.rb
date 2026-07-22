@@ -17,19 +17,25 @@ class Api::V2::SongsController < ApplicationController
     recently_changed_sync_to_all = books_base_query.where('sync_to_all_changed_at >= ?', client_updated_at)
     books_to_sync = requested_books.or(sync_to_all_books).or(recently_changed_sync_to_all)
 
+    # ids the client still lists in booksToSync but which are deleted or gone —
+    # lets the client prune them (see DatabaseSetupAndSync#fetchDataByLanguage).
+    gone_book_ids = requested_book_ids - requested_books.pluck(:id)
+
     render json: {
       songs: songs_to_sync.app_data,
       books: books_to_sync.app_data,
       destroyed: { songs: Song.deleted_after(client_updated_at).pluck(:id),
                    books: Book.deleted_after(client_updated_at).pluck(:id) },
+      gone_books: gone_book_ids,
       songCount: Song.for_language(params[:language]).count,
+      cache_version: AppSetting.cache_version,
       data_updated_between: [client_updated_at, Time.now.utc]
     },
       status: 200
   end
 
   def languages
-    render json: { languages: Song.languages }
+    render json: { languages: Song.languages, cache_version: AppSetting.cache_version }
   end
 
   def admin_songs

@@ -22,6 +22,8 @@ Rails.application.routes.draw do
   get '/:s', to: 'songs#app', s: /[0-9]+/
   get 'admin', to: 'songs#admin'
   get 'admin/books', to: 'books#admin_index'
+  get 'admin/cache', to: 'songs#cache'
+  post 'admin/cache/reset', to: 'songs#reset_cache'
   get 'admin/trash', to: 'songs#trash'
   get 'admin/analytics', to: 'songs#analytics'
   get 'admin/example', to: 'songs#admin_example'
