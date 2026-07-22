@@ -29,6 +29,7 @@
 
 .btn-delete {
   background-color: #ff4d4d;
+  color: white;
   width: auto;
   display: inline-block;
 }
@@ -263,7 +264,6 @@ a.btn-help {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0.25rem 0;
   padding: 0.3rem 0.25rem;
   border-bottom: 1px dashed var(--ui-color);
   gap: 0.5rem;
@@ -1007,4 +1007,90 @@ body.admin {
 // give their content the same top gap the header would have provided.
 body.admin:not(.admin-landing) .application-container {
   padding-top: 1.5rem;
+}
+
+// "Clear cache" admin page (SongsController#cache).
+.cache-page {
+  text-align: left;
+  max-width: 640px;
+
+  p {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 12px;
+  }
+
+  .cache-version {
+    font-size: 15px;
+  }
+
+  .cache-warning {
+    color: var(--comment-color);
+  }
+
+  .cache-reset-btn {
+    margin-top: 8px;
+  }
+}
+
+// Book activity history (BooksController#activity).
+.book-activity-table {
+  th, td {
+    text-align: left;
+    vertical-align: top;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  thead th {
+    border-bottom: 1px solid var(--ui-color);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: var(--comment-color);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--ui-color);
+  }
+
+  .activity-time {
+    white-space: nowrap;
+    color: var(--comment-color);
+  }
+
+  .activity-action {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--index-row-bg);
+    color: var(--text);
+
+    &.activity-action-create { color: #1a7f37; }
+    &.activity-action-update { color: #0969da; }
+    &.activity-action-destroy { color: #cf222e; }
+    &.activity-action-restore { color: #1a7f37; }
+  }
+
+  .activity-change {
+    margin-bottom: 2px;
+
+    .activity-field {
+      font-weight: 600;
+      color: var(--comment-color);
+    }
+
+    .activity-from {
+      color: var(--comment-color);
+      text-decoration: line-through;
+    }
+
+    .activity-to {
+      color: var(--text);
+    }
+  }
 }

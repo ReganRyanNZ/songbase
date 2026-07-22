@@ -18,10 +18,12 @@ Rails.application.routes.draw do
   get '/:book/:s', to: 'songs#app', constraints: { s: /[i0-9]+/ }
 
   get 'edit', to: 'songs#edit' # shortcut when wanting to edit a song from main app
-  get '/:s/e', to: 'songs#edit'
+  get '/:s/e', to: 'songs#edit', constraints: { s: /[0-9]+/ }
+  get '/:book/e', to: 'books#edit_by_slug'
   get '/:s', to: 'songs#app', s: /[0-9]+/
   get 'admin', to: 'songs#admin'
   get 'admin/books', to: 'books#admin_index'
+  get 'admin/books/activity', to: 'books#activity'
   get 'admin/cache', to: 'songs#cache'
   post 'admin/cache/reset', to: 'songs#reset_cache'
   get 'admin/trash', to: 'songs#trash'

@@ -179,15 +179,6 @@ class SongsController < ApplicationController
     view_context.link_to 'Click here', song_path(song), class: 'flash_link'
   end
 
-  # Format changes for audit logging
-  # Converts Rails previous_changes format {attr => [old, new]} 
-  # to our audit format {attr => {'before' => old, 'after' => new}}
-  def format_changes_for_audit(changes)
-    changes.transform_values do |old_and_new|
-      { 'before' => old_and_new[0], 'after' => old_and_new[1] }
-    end
-  end
-
   def adjust_lang_params
     if params[:song][:lang] == "new_lang"
       params[:song][:lang] = params[:song][:new_lang]

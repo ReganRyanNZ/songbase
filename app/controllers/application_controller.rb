@@ -33,4 +33,13 @@ class ApplicationController < ActionController::Base
   def check_maintenance
     redirect_to maintenance_path if ENV['maintenance_mode'] == 'true'
   end
+
+  # Format changes for audit logging (used by song and book audits).
+  # Converts Rails previous_changes format {attr => [old, new]}
+  # to our audit format {attr => {'before' => old, 'after' => new}}.
+  def format_changes_for_audit(changes)
+    changes.transform_values do |old_and_new|
+      { 'before' => old_and_new[0], 'after' => old_and_new[1] }
+    end
+  end
 end

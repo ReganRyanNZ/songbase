@@ -1,5 +1,6 @@
 <%= render 'flash' %>
 
 <h1 class="admin-root-title"><%= link_to "Book Management", admin_path %></h1>
+<p class="history-back"><%= link_to "Book activity history", admin_books_activity_path %></p>
 
 <%= react_component('AdminBookList', { books: @books, is_super_admin: true }) %>

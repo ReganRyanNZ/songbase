@@ -35,6 +35,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_05_051103) do
     t.index ["user_id"], name: "index_audits_on_user_id"
   end
 
+  create_table "book_audits", id: :serial, force: :cascade do |t|
+    t.integer "book_id"
+    t.integer "user_id"
+    t.string "action"
+    t.jsonb "changed_fields", default: {}
+    t.datetime "time", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_id"], name: "index_book_audits_on_book_id"
+    t.index ["user_id"], name: "index_book_audits_on_user_id"
+  end
+
   create_table "books", id: :serial, force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: nil, null: false
