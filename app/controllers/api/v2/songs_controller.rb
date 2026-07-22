@@ -39,7 +39,15 @@ class Api::V2::SongsController < ApplicationController
   end
 
   def custom_book_search
-    render json: {songs: songs_for_language_links}, status: 200
+    if params[:search].present?
+      songs = SongSearcher.new(Song.all.to_a).rank(params[:search]).take(20)
+    else
+      # Empty query: seed the Find songs pane with a browseable list instead of
+      # "Type to search". Skips building SongSearcher, which would otherwise
+      # load the whole table into memory just to return [].
+      songs = Song.order(Arel.sql("LOWER(title)")).limit(20)
+    end
+    render json: {songs: songs.map(&:admin_entry)}, status: 200
   end
 
   # Return a source book's songs with their book numbers, so the import modal can
@@ -100,16 +108,18 @@ class Api::V2::SongsController < ApplicationController
         matched << song.admin_entry if song
       end
     when "titles"
-      lines.each { |line| resolve_title(line, matched, unmatched, ambiguous) }
+      searcher = SongSearcher.new(Song.all.to_a)
+      lines.each { |line| bucket_line(line, searcher, matched, unmatched, ambiguous) }
     when "auto"
       # No mode toggle in the UI: per line, all-digits is treated as a song id,
       # anything else as a title.
+      searcher = SongSearcher.new(Song.all.to_a)
       lines.each do |line|
         if line.match?(/\A\d+\z/)
           song = Song.find_by(id: line.to_i)
           song ? (matched << song.admin_entry) : (unmatched << line)
         else
-          resolve_title(line, matched, unmatched, ambiguous)
+          bucket_line(line, searcher, matched, unmatched, ambiguous)
         end
       end
     else
@@ -172,35 +182,22 @@ class Api::V2::SongsController < ApplicationController
   end
 
   def songs_for_admin
-    sort_songs(Song.search(params[:search])
-                   .limit(100)
-                   .map(&:admin_entry))
+    # With a search term, use the index-page engine (SongSearcher) so admin
+    # search matches the homepage ranking. Without one, fall back to the
+    # baseline list (recently-added/changed bucketing is done by the caller).
+    return sort_songs(Song.search(params[:search]).limit(100).map(&:admin_entry)) unless params[:search].present?
+
+    SongSearcher.new(Song.all.to_a).rank(params[:search]).take(100).map(&:admin_entry)
   end
 
-  def songs_for_language_links
-    sort_songs(Song.search(params[:search])
-                   .limit(20)
-                   .map(&:admin_entry))
-  end
-
-  # Resolve a single title line into a song, appending to matched/unmatched/
-  # ambiguous. Exact (case-insensitive) match wins; otherwise a contains (ILIKE)
-  # fallback; multiple matches are reported as ambiguous for the user to pick.
-  def resolve_title(line, matched, unmatched, ambiguous)
-    exact = Song.where("lower(title) = ?", line.downcase)
-    if exact.count == 1
-      matched << exact.first.admin_entry
-    elsif exact.count > 1
-      ambiguous << { line: line, matches: exact.map(&:admin_entry) }
-    else
-      partial = Song.where("title ILIKE ?", "%#{line}%").limit(10).to_a
-      if partial.size == 1
-        matched << partial.first.admin_entry
-      elsif partial.size > 1
-        ambiguous << { line: line, matches: partial.map(&:admin_entry) }
-      else
-        unmatched << line
-      end
+  # Resolve a single pasted line via SongSearcher and append it to the right
+  # bucket. SongSearcher mirrors the index-page search (see app/models/song_searcher.rb).
+  def bucket_line(line, searcher, matched, unmatched, ambiguous)
+    kind, payload = searcher.resolve(line)
+    case kind
+    when :matched then matched << payload.admin_entry
+    when :ambiguous then ambiguous << { line: line, matches: payload.map(&:admin_entry) }
+    when :unmatched then unmatched << line
     end
   end
 
@@ -234,6 +231,6 @@ class Api::V2::SongsController < ApplicationController
   def clean_for_sorting(str)
     return '' unless str.present?
 
-    str.gsub(/[[:punct]]/, "").downcase
+    str.gsub(/[[:punct:]]/, "").downcase
   end
 end
