@@ -72,6 +72,7 @@ class AdminBookForm extends React.Component {
     this.loadBookSongs = this.loadBookSongs.bind(this);
 
     this.searchTimeout = null;
+    this.searchAbort = null;      // AbortController for the in-flight custom_book_search request
     this.bookListEl = null;       // callback ref to the .book-songs container
   }
 
@@ -88,6 +89,10 @@ class AdminBookForm extends React.Component {
   }
 
   componentWillUnmount() {
+    // Cancel any pending debounced search and in-flight request so neither can
+    // setState after the form is gone.
+    if (this.searchTimeout) { clearTimeout(this.searchTimeout); this.searchTimeout = null; }
+    if (this.searchAbort) { this.searchAbort.abort(); }
     // Clean up any in-flight touch-drag listeners if the form unmounts mid-drag.
     if (this.bookListEl) {
       this.bookListEl.removeEventListener("touchmove", this.onTouchMove);
@@ -118,17 +123,29 @@ class AdminBookForm extends React.Component {
   }
 
   clearSearch() {
+    // Cancel any pending debounced search so it can't fire after the clear and
+    // re-stale the list, then re-seed the pane (the index page re-renders from
+    // pre-loaded data; this form has none, so we re-fetch the seed list).
+    if (this.searchTimeout) { clearTimeout(this.searchTimeout); this.searchTimeout = null; }
     this.setState({ search: "" });
+    this.searchSongs("");
     var input = document.getElementById("index_search");
     if (input) input.focus();
   }
 
   searchSongs(search) {
+    // Abort any prior in-flight request so a slow earlier query (each one loads
+    // the whole songs table into SongSearcher) can't overwrite a newer result.
+    if (this.searchAbort) { this.searchAbort.abort(); }
+    var abort = new AbortController();
+    this.searchAbort = abort;
+
     this.setState({ loading: true });
     var csrfToken = document.querySelector("meta[name='csrf-token']").content;
     fetch("/api/v2/custom_book_search?search=" + encodeURIComponent(search), {
       method: "GET",
-      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
+      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+      signal: abort.signal
     })
       .then((r) => r.json())
       .then((data) => {
@@ -139,6 +156,8 @@ class AdminBookForm extends React.Component {
         });
       })
       .catch((error) => {
+        // An AbortError just means a newer search superseded this one.
+        if (error && error.name === "AbortError") return;
         console.error("Error:", error);
         this.setState({ loading: false });
       });
@@ -348,6 +367,7 @@ class AdminBookForm extends React.Component {
           placeholder="Book title"
           aria-label="Book title"
         />
+        <div className="book-form-hint">Try to keep it under 25 characters for best display - current characters: {book.name.length}</div>
         {!this.props.isPersisted && (
           <input
             id="book_email"
@@ -360,6 +380,13 @@ class AdminBookForm extends React.Component {
             placeholder="Contact email (optional)"
             aria-label="Contact email (optional)"
           />
+        )}
+        {!this.props.isPersisted && (
+          <div className="book-form-hint">
+            Only collected when you create your book. If you lose access later,
+            email us at{" "}
+            <a href="mailto:songbase.brothers@gmail.com">songbase.brothers@gmail.com</a>.
+          </div>
         )}
       </div>
     );
@@ -389,6 +416,11 @@ class AdminBookForm extends React.Component {
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
         <line x1="7" y1="2" x2="7" y2="12" />
         <line x1="2" y1="7" x2="12" y2="7" />
+      </svg>
+    );
+    var tickIcon = (
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="2,7 6,11 12,3" />
       </svg>
     );
     var removeIcon = (
@@ -452,7 +484,7 @@ class AdminBookForm extends React.Component {
                         onClick={alreadyAdded ? null : () => this.handleAddSong(song)}
                         title={alreadyAdded ? "Already added" : "Add to book"}
                         aria-label={alreadyAdded ? "Already added" : "Add " + song.title}
-                      >{addIcon}</button>
+                      >{alreadyAdded ? tickIcon : addIcon}</button>
                     </div>
                   );
                 })
@@ -463,7 +495,7 @@ class AdminBookForm extends React.Component {
           {/* --- Your book pane --- */}
           <div className="pane book-pane">
             <div className="pane-header">
-              <h3>Your book</h3>
+              <h3>{book.name || "Your Book"}</h3>
               <span className="song-count">{bookSongCount + (bookSongCount === 1 ? " song" : " songs")}</span>
             </div>
             {this.state.loadingBookSongs ? (
