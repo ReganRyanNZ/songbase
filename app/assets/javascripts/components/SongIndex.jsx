@@ -2,14 +2,46 @@ class SongIndex extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = { historySongs: [] };
     this.handleShare = this.handleShare.bind(this);
     this.isMobile = this.isMobile.bind(this);
+    this.loadHistory = this.loadHistory.bind(this);
 
     window.addEventListener('scroll', this.props.infiniteScrolling);
   }
 
+  componentDidMount() {
+    if (this.props.showHistory) { this.loadHistory(); }
+  }
+
+  componentDidUpdate(prevProps) {
+    // Load the on-device history whenever history view is turned on (toggle,
+    // or return-to-index while it's still on) so the list reflects the latest
+    // views — including the song just visited.
+    if (this.props.showHistory && !prevProps.showHistory) {
+      this.loadHistory();
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('scroll', this.props.infiniteScrolling);
+  }
+
+  // Pulls the most-recent views from IndexedDB and resolves each to its live
+  // song object from props.songs (skipping any that have since been deleted).
+  // Uses .then rather than async/await — the .jsx Babel pipeline doesn't ship
+  // regeneratorRuntime (see AnalyticsPage/AdminSongList for the same pattern).
+  loadHistory() {
+    if (!$app || !$app.dbSync) { return; }
+    $app.dbSync.getRecentlyViewed(100).then(rows => {
+      var songs = this.props.songs || [];
+      var historySongs = [];
+      rows.forEach(row => {
+        var song = songs.find(s => s.id == row.song_id);
+        if (song) { historySongs.push(song); }
+      });
+      this.setState({ historySongs: historySongs });
+    });
   }
 
   isMobile() {
@@ -254,14 +286,31 @@ class SongIndex extends React.Component {
               <div className="share-song-success" ref={(el) => { this.shareSuccess = el; }}>Copied!</div>
               <span dangerouslySetInnerHTML={{ __html: ShareIcon }} />
             </div>) : null}
+          {!this.props.currentBook ? (
+            <div
+              className={"btn-history" + (this.props.showHistory ? " active" : "")}
+              onClick={this.props.toggleHistory}
+              title="Recently viewed"
+              role="button"
+              aria-label="Recently viewed"
+              aria-pressed={this.props.showHistory}
+              tabIndex={0}>
+              <HistoryIcon />
+            </div>) : null}
         </div>
         <div className="title-list">
 
           {(this.props.loadingData && this.props.songs.length == 0) ? (
             <div className="loading">Loading song data...</div>
+          ) : (this.props.showHistory ? (
+            this.state.historySongs.length === 0 ? (
+              <div className="history-empty">No songs viewed yet</div>
+            ) : (
+              this.state.historySongs.map((song, i) => this.songIndexRow({ song: song, tag: "" }, i))
+            )
           ) : (
             this.getSearchResults().map(this.songIndexRow, this)
-          )}
+          ))}
         </div>
       </div>
     );

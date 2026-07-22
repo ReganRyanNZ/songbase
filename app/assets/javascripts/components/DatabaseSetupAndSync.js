@@ -57,6 +57,9 @@ class DatabaseSetupAndSync {
     // Change version number when db structure changes
     // Note that stores() specifies primary key, then *indexed* properties,
     // there may be more properties than specified here, these are just indexed ones.
+    this.db.version(7).stores({
+      recently_viewed: "song_id, viewed_at"
+    });
     this.db.version(6).stores({
       settings: "settingsType",
       songs: "id, title, lang",
@@ -438,6 +441,25 @@ class DatabaseSetupAndSync {
       await this.db.analytics.put({ song_id: id, count: 1 });
     }
     this.log('Recorded song sung: ' + id);
+  }
+
+  // Records (or refreshes) a song view in IndexedDB. Purely on-device — nothing
+  // syncs to the server. song_id is the primary key, so put() upserts and a
+  // re-view simply updates viewed_at, floating the song back to the top. The
+  // store is capped at the 100 most recent views.
+  async recordSongView(songId) {
+    const id = parseInt(songId, 10);
+    if (!id || id <= 0) { return; } // translation SongDisplays pass no songId
+    await this.db.recently_viewed.put({ song_id: id, viewed_at: Date.now() });
+    const count = await this.db.recently_viewed.count();
+    if (count > 100) {
+      await this.db.recently_viewed.orderBy('viewed_at').limit(count - 100).delete();
+    }
+  }
+
+  // Returns up to `limit` recently viewed songs, most recent first.
+  async getRecentlyViewed(limit = 100) {
+    return this.db.recently_viewed.orderBy('viewed_at').reverse().limit(limit).toArray();
   }
 
   // POSTs any pending analytics counts to the server, then clears the local store.

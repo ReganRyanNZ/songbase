@@ -22,6 +22,7 @@ class SongApp extends React.Component {
       loadingData: false,
       search: "",
       orderIndexBy: 'alpha',
+      showHistory: false, // when true, the index title list shows recently-viewed songs instead of search results
       scrollTo: null,
       rowLimit: 100,
       logSongApp: true,
@@ -120,13 +121,18 @@ class SongApp extends React.Component {
   setSearch(search) {
     this.setState({
       search: search,
-      rowLimit: 100
+      rowLimit: 100,
+      showHistory: false // typing implies the user wants to search the catalog, not browse history
     });
   }
 
   clearSearch() {
     this.setState({ search: "" });
     document.getElementById("index_search").focus();
+  }
+
+  toggleHistory() {
+    this.setState({ showHistory: !this.state.showHistory });
   }
 
   // toggle unless given a specific order
@@ -225,6 +231,8 @@ class SongApp extends React.Component {
             setSearch={this.setSearch.bind(this)}
             clearSearch={this.clearSearch.bind(this)}
             search={this.state.search}
+            showHistory={this.state.showHistory}
+            toggleHistory={this.toggleHistory.bind(this)}
             getSongIdFromBook={this.getSongIdFromBook}
             orderIndexBy={this.state.orderIndexBy}
             toggleOrderIndexBy={this.toggleOrderIndexBy.bind(this)}

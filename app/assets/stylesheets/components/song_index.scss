@@ -85,9 +85,13 @@
 }
 
 // As a flex item the form's `margin: 0 auto` would re-center the form alone
-// and shove the sort icon back to the far edge, so neutralize it here.
+// and shove the sort icon back to the far edge, so neutralize it here. Let the
+// form grow to fill the row so the input spans the full available width and the
+// sort/share/history icons tuck against the right edge.
 .song-index .search-form {
   margin: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .search-form {
@@ -99,7 +103,7 @@
   .index_search {
     padding: 4px 8px;
     padding-right: 31px;
-    width: 240px;
+    width: 100%;
     height: 30px;
 
     background-color: var(--background);
@@ -127,15 +131,59 @@
   position: relative;
 }
 
+// Sort toggle — mirrors .btn-history's sizing and hover treatment so the
+// search-row slot reads consistently whether it holds the history toggle (no
+// book) or the sort toggle (book open). Sort has no on/off state, so it gets no
+// "active" pill — it only brightens on hover like the history toggle does.
 .btn-sort {
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
   color: var(--ui-color);
+  padding: 3px;
+  border-radius: 6px;
   svg {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
   }
+  &:hover {
+    color: var(--text);
+  }
+}
+
+// Recently-viewed toggle — shown in the search row only when no book is
+// selected, reusing the slot sort/share occupy when a book is open. Clicking
+// it swaps the title list to the on-device history. A single icon: the active
+// state is shown with a brighter glyph on a tinted pill (rather than a second
+// icon) so it reads unambiguously as the current view.
+.btn-history {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ui-color);
+  padding: 3px;
+  border-radius: 6px;
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+  &:hover {
+    color: var(--text);
+  }
+  &.active {
+    color: var(--text);
+    background: color-mix(in srgb, var(--ui-color) 30%, transparent);
+  }
+}
+
+// Empty state shown in the title list when history is on but nothing is recorded.
+.history-empty {
+  padding: 24px 8px;
+  color: var(--ui-color);
+  font-size: 14px;
+  text-align: center;
 }
 
 // Share button on the book index — matches the song page's .share-song button

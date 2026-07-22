@@ -88,11 +88,25 @@ class SongDisplay extends React.Component {
   componentDidMount() {
     this.addListeners();
     this.setAnalyticsTimer();
+    this.recordView();
   }
   componentDidUpdate(prevProps) {
     this.addListeners();
     if (prevProps.songId !== this.props.songId || prevProps.analyticsPath !== this.props.analyticsPath) {
       this.setAnalyticsTimer();
+    }
+    if (prevProps.songId !== this.props.songId) {
+      this.recordView();
+    }
+  }
+
+  // Adds this song to the on-device "recently viewed" list. Covers every entry
+  // route: click navigation (mount), browser back/forward (songId prop change),
+  // and hard load of a song URL (mount). No-ops for translation SongDisplays,
+  // which have no songId prop.
+  recordView() {
+    if (this.props.songId && $app && $app.dbSync) {
+      $app.dbSync.recordSongView(this.props.songId);
     }
   }
   componentWillUnmount() {
