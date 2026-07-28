@@ -31,6 +31,12 @@ class BookTest < ActiveSupport::TestCase
     assert_equal [['test_book', 'Test Book', '1']], Book.with_song(song).book_refs_for(song)
   end
 
+  test 'name is required' do
+    book = Book.new(name: '')
+    refute book.valid?
+    assert_includes book.errors[:name], "is required"
+  end
+
   test 'song_id_from_index returns the song id at a given index' do
     song_1 = FactoryBot.create(:song, :abba_father)
     song_2 = FactoryBot.create(:song, :accord_to_my_earnest)

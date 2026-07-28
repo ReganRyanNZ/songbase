@@ -86,6 +86,14 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
     assert_equal song_data, response_json[:songs][:changed].first.except(:id)
   end
 
+  test 'admin_songs without search param does not 500' do
+    create_songs
+    get api_v2_admin_songs_path
+
+    assert_response :success
+    assert_equal 2, response_json[:songs][:changed].count
+  end
+
   private
 
   def wait_a_tiny_bit

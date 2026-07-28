@@ -39,6 +39,55 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # Super-admin should reach every section in the admin chrome (Songs, Books,
+  # Analytics, Cache, Trash) and each page should render with its data.
+  test 'super admin can load every admin page with data' do
+    song  = FactoryBot.create(:song, :abba_father)
+    book  = FactoryBot.create(:book, name: 'Super Hymnal', sync_to_all: true,
+                               songs: { song.id.to_s => '1' }, languages: ['english'])
+
+    # Songs — page body should include the song and the device-books component.
+    get admin_path
+    assert_response :success
+    assert_match(/Abba, Father/, response.body)
+    assert_match(/AdminDeviceBooks/, response.body)
+
+    # Books — page body should include the book name.
+    get admin_books_path
+    assert_response :success
+    assert_match(/Super Hymnal/, response.body)
+
+    # Analytics, Cache, Trash — each section landing should render.
+    get admin_analytics_path
+    assert_response :success
+    get admin_cache_path
+    assert_response :success
+    get admin_trash_path
+    assert_response :success
+  end
+
+  # Regular (non-super) admins only get the Songs section. Books / Analytics /
+  # Cache / Trash are super-admin-only and should redirect away. The Songs
+  # page must still render the device-books component so they can see what
+  # is cached locally on their device.
+  test 'regular admin loads songs and device books but is blocked from other sections' do
+    song = FactoryBot.create(:song, :abba_father)
+
+    with_super_admin(false) do
+      get admin_path
+      assert_response :success
+      assert_match(/Abba, Father/, response.body)
+      # Device-books React component is mounted on the Songs page.
+      assert_match(/AdminDeviceBooks/, response.body)
+
+      # Every super-admin-only section should bounce a regular admin out.
+      [admin_books_path, admin_analytics_path, admin_cache_path, admin_trash_path].each do |path|
+        get path
+        assert_response :redirect, "expected #{path} to redirect a non-super-admin"
+      end
+    end
+  end
+
   private
 
   # Stub ApplicationController#super_admin for the duration of a block

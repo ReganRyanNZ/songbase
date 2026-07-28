@@ -13,7 +13,7 @@ class BookMailerTest < ActionMailer::TestCase
 
     body = [email.text_part&.body&.decoded, email.html_part&.body&.decoded].join("\n")
     assert_includes body, 'My Hymnal'
-    assert_includes body, "new_book=#{book.id}"                 # read-only share link
+    assert_includes body, "add_book=#{book.id}"                 # read-only share link
     assert_includes body, "edit_token=#{book.edit_token}"       # share-edit (edit access) link
     # No direct web-edit page link is exposed — only the device-share links:
     refute_includes body, "/books/#{book.id}/edit"

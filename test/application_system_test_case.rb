@@ -32,9 +32,9 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
                       @song_be_thou_supreme]
     @song_bendito = FactoryBot.create(:song, :portuguese)
     @all_songs = @english_songs + [@song_bendito]
-    @test_book = FactoryBot.create(:book, name: 'Test Book', songs: {@song_from_the_time.id => '1',
-                                                                     @song_abba_father.id => '2',
-                                                                     @song_according_to.id => '3'})
+    @test_book = FactoryBot.create(:book, name: 'Test Book', sync_to_all: true, songs: {@song_from_the_time.id => '1',
+                                                                                       @song_abba_father.id => '2',
+                                                                                       @song_according_to.id => '3'})
     @book_songs = [@song_from_the_time,
                    @song_abba_father,
                    @song_according_to]
