@@ -1,0 +1,18 @@
+<div id="clerk-mount">
+  <p class="clerk-auth-fallback">Loading sign-up…</p>
+</div>
+
+<script>
+  window.addEventListener('load', async function () {
+    if (!window.Clerk) {
+      document.getElementById('clerk-mount').innerHTML =
+        '<p class="clerk-auth-fallback">Clerk failed to load. Check that CLERK_PUBLISHABLE_KEY is set.</p>';
+      return;
+    }
+    await Clerk.load({ ui: { ClerkUI: window.__internal_ClerkUICtor } });
+    Clerk.mountSignUp(document.getElementById('clerk-mount'), {
+      redirectUrl: <%= @redirect_url.to_json.html_safe %>,
+      signInUrl: "/sign-in?redirect_url=" + encodeURIComponent(<%= @redirect_url.to_json.html_safe %>)
+    });
+  });
+</script>

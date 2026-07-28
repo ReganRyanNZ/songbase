@@ -10,9 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_07_05_051103) do
-  create_schema "songbase_production"
-
+ActiveRecord::Schema[7.1].define(version: 2026_07_25_023656) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -92,6 +90,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_05_051103) do
     t.datetime "oauth_expires_at", precision: nil
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.boolean "super_admin", default: false, null: false
   end
 
   add_foreign_key "audits", "songs"

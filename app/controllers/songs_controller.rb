@@ -1,6 +1,6 @@
 class SongsController < ApplicationController
   before_action :set_song, only: [:show, :edit, :update, :destroy]
-  before_action :authenticate, only: [:new, :edit, :create, :update, :destroy, :analytics, :history, :trash, :restore, :cache, :reset_cache]
+  before_action :authenticate, only: [:admin, :admin_example, :admin_example_with_tunes, :new, :edit, :create, :update, :destroy, :analytics, :history, :trash, :restore, :cache, :reset_cache]
   before_action :require_super_admin, only: [:trash, :restore, :merge]
   before_action :check_maintenance
   before_action :adjust_lang_params, only: [:create, :update]

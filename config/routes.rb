@@ -1,10 +1,17 @@
 Rails.application.routes.draw do
-  get 'auth/:provider/callback', to: 'sessions#create', as: 'create_session'
-  get 'auth/failure', to: redirect('/admin')
-  get 'signout', to: 'sessions#destroy', as: 'signout'
-
   get 'maintenance', to: 'sessions#maintenance_mode'
   get 'privacy', to: 'application#privacy'
+
+  # Embedded Clerk auth pages — must be declared before the catch-all
+  # /:s and /:book/:s routes below.
+  get '/sign-in',     to: 'clerk_auth#sign_in',     as: :sign_in
+  get '/sign-in/*path', to: 'clerk_auth#sign_in'
+  get '/sign-up',     to: 'clerk_auth#sign_up',     as: :sign_up
+  get '/sign-up/*path', to: 'clerk_auth#sign_up'
+  get '/sign-out',     to: 'clerk_auth#sign_out',   as: :sign_out
+  get '/sign-out/*path', to: 'clerk_auth#sign_out'
+  get '/oauth-consent', to: 'clerk_auth#oauth_consent', as: :oauth_consent
+  get '/oauth-consent/*path', to: 'clerk_auth#oauth_consent'
   resources :songs, except: ["show"] do
     member { get :history; patch :restore; post :merge }
   end

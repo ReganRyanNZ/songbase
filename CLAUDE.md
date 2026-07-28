@@ -9,7 +9,7 @@ Songbase is a song sheet database for psalms, hymns, and spiritual songs. It's a
 - **Backend**: Ruby on Rails, Postgres, hosted on Heroku
 - **Frontend**: React served via react-rails gem (not separate codebase)
 - **Offline Storage**: Dexie (IndexedDB wrapper) for client-side song data caching
-- **Auth**: Google OAuth via google_sign_in gem for admin users
+- **Auth**: Clerk (clerk-sdk-ruby) for admin users
 
 ## Common Commands
 

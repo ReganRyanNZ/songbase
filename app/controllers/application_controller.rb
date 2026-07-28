@@ -1,6 +1,10 @@
 class ApplicationController < ActionController::Base
+  include Clerk::Authenticatable
+
   protect_from_forgery with: :exception
-  helper_method :current_user, :authenticate, :super_admin, :all_languages
+  helper_method :current_user, :authenticate, :super_admin, :all_languages,
+                :clerk_sign_in_url, :clerk_sign_up_url, :clerk_sign_out_url,
+                :clerk_publishable_key, :clerk_frontend_api_url
 
   def privacy
   end
@@ -8,10 +12,7 @@ class ApplicationController < ActionController::Base
   private
 
   def super_admin
-  [
-    "regan.ryan.nz@gmail.com",
-    "readjethro@gmail.com"
-  ].include?(current_user&.email)
+    !!current_user&.super_admin?
   end
 
   # Redirect non-super-admins away from super-admin-only actions.
@@ -20,14 +21,65 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-    # @current_user ||= User.placeholder
-    @current_user ||= User.test_user(:admin) if Rails.env.development? || Rails.env.test?
-    @current_user ||= User.find(session[:user_id]) if session[:user_id]
-    @current_user
+    return @current_user if defined?(@current_user)
+
+    # Test env has no live Clerk session — synthesize a super-admin so
+    # controller/system tests don't need to stub JWT cookies.
+    @current_user = if Rails.env.test?
+      User.test_user(:admin)
+    elsif clerk&.user?
+      User.from_clerk(clerk.user)
+    end
   end
 
   def authenticate
-    redirect_to admin_path, alert: "You must sign in to edit songs" unless current_user
+    redirect_to clerk_sign_in_url, alert: "You must sign in to view that page" unless current_user
+  end
+
+  # Sign-in / sign-up / sign-out all point at our own embedded Clerk pages
+  # (see ClerkAuthController) so the user stays on our domain through the
+  # whole auth flow.
+  def clerk_sign_in_url
+    clerk_auth_url("/sign-in")
+  end
+
+  def clerk_sign_up_url
+    clerk_auth_url("/sign-up")
+  end
+
+  def clerk_sign_out_url
+    "/sign-out"
+  end
+
+  def clerk_publishable_key
+    ENV['CLERK_PUBLISHABLE_KEY'].presence
+  end
+
+  # Frontend API URL for the current Clerk instance, decoded from the
+  # publishable key. Used to build the Clerk JS script tags.
+  def clerk_frontend_api_url
+    pk = clerk_publishable_key
+    return nil unless pk&.start_with?("pk_test_", "pk_live_")
+    decoded = Clerk::Utils.decode_publishable_key(pk).chop
+    # decoded is ASCII-8BIT; force UTF-8 and reject dummy/garbage keys (e.g.
+    # the placeholder values used in the test env) whose bytes aren't valid
+    # UTF-8, so the layout's Clerk JS block is skipped entirely.
+    decoded = decoded.force_encoding("UTF-8")
+    decoded.valid_encoding? ? decoded : nil
+  rescue
+    nil
+  end
+
+  def clerk_auth_url(base)
+    return base unless request&.get? && request.original_url.present?
+    # Strip Clerk's own handshake/redirect query params so we don't carry
+    # a stale anonymous handshake JWT into the next redirect_url.
+    clean = request.original_url.dup
+    clean = clean.sub(/([?&])__clerk_handshake=[^&]*&?/, '\1')
+    clean = clean.sub(/([?&])redirect_url=[^&]*&?/, '\1')
+    clean = clean.sub(/[?&]$/, '')
+    separator = base.include?('?') ? '&' : '?'
+    "#{base}#{separator}redirect_url=#{CGI.escape(clean)}"
   end
 
   def check_maintenance

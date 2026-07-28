@@ -32,7 +32,7 @@ gem 'terser'
 
 gem 'react-rails'
 
-gem 'google_sign_in'
+gem 'clerk-sdk-ruby', require: "clerk"
 
 #Api gems
 gem 'active_model_serializers'
@@ -58,7 +58,5 @@ end
 
 group :development do
   gem 'listen'
-  gem 'spring-watcher-listen'
-  gem 'spring'
   gem 'web-console'
 end

@@ -1,0 +1,29 @@
+<%# Embedded sign-out. Clerk JS clears the __session cookie client-side and
+    then navigates to root, keeping the user on our domain through the whole
+    flow — no redirect to Clerk's hosted /sign-out page. The controller's
+    before_action :set_redirect_url still runs and whitelists a path, but sign-
+    out always returns to the public root so the param is intentionally
+    ignored here. %>
+<div id="clerk-mount">
+  <p class="clerk-auth-fallback">Signing out…</p>
+</div>
+
+<script>
+  window.addEventListener('load', async function () {
+    var goHome = function () { window.location.href = <%= root_path.to_json.html_safe %>; };
+    if (!window.Clerk) {
+      // Clerk JS didn't load — we can't clear the session cookie client-side.
+      // Send the user home; the __session cookie will expire on its own.
+      goHome();
+      return;
+    }
+    try {
+      await Clerk.load({ ui: { ClerkUI: window.__internal_ClerkUICtor } });
+      // signOut accepts a callback that runs after the session is cleared.
+      await Clerk.signOut(goHome);
+    } catch (e) {
+      console.warn('Clerk sign-out failed:', e);
+      goHome();
+    }
+  });
+</script>

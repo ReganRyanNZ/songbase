@@ -12,6 +12,18 @@
     <meta name="robots" content="noindex">
 
     <meta charset="UTF-8" />
+    <%= render partial: "layouts/clerk_handshake_cleanup" %>
+    <% if clerk_publishable_key.present? && clerk_frontend_api_url.present? %>
+      <%# Clerk JS keeps the session token fresh (the __session cookie's JWT
+          expires every ~60s) so that authenticated fetch() calls — e.g. the
+          admin song list — don't trip the middleware's handshake-on-expiry
+          redirect, which only works for full-page navigations. Loaded on every
+          page that uses this layout (admin/edit/etc.); the public app uses a
+          separate layout and stays lightweight. %>
+      <script defer crossorigin="anonymous"
+              data-clerk-publishable-key="<%= clerk_publishable_key %>"
+              src="https://<%= clerk_frontend_api_url %>/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
+    <% end %>
     <link rel="icon" type="image/svg+xml" sizes="any" href="/logo.svg" />
     <link rel="icon" href="/favicon.ico" sizes="48x48" >
     <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>

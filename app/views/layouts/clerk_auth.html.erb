@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= @title || "Songbase" %></title>
+    <%= csrf_meta_tags %>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/logo.svg" />
+
+    <% if clerk_publishable_key.present? && clerk_frontend_api_url.present? %>
+      <script defer crossorigin="anonymous"
+              src="https://<%= clerk_frontend_api_url %>/npm/@clerk/ui@1/dist/ui.browser.js"></script>
+      <script defer crossorigin="anonymous"
+              data-clerk-publishable-key="<%= clerk_publishable_key %>"
+              src="https://<%= clerk_frontend_api_url %>/npm/@clerk/clerk-js@6/dist/clerk.browser.js"></script>
+    <% end %>
+
+    <%= stylesheet_link_tag 'application', media: 'all' %>
+    <style>
+      .clerk-auth-page {
+        display: flex;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        box-sizing: border-box;
+      }
+      .clerk-auth-card {
+        width: 100%;
+        max-width: 480px;
+      }
+      .clerk-auth-brand {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+      .clerk-auth-brand a { color: inherit; text-decoration: none; }
+      .clerk-auth-fallback {
+        text-align: center;
+        color: #888;
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body class="clerk-auth-page <%= yield(:body_class) %>">
+    <div class="clerk-auth-card">
+      <div class="clerk-auth-brand"><%= link_to "Songbase", root_path %></div>
+      <%= yield %>
+    </div>
+  </body>
+</html>

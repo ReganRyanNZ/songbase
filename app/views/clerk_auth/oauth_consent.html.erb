@@ -1,0 +1,22 @@
+<%# Clerk completes the OAuth consent step inside the SignIn flow itself.
+    This route exists so the URL resolves cleanly if Clerk redirects here
+    mid-flow; we just remount SignIn which will continue the OAuth
+    handshake and show the consent screen inline. %>
+<div id="clerk-mount">
+  <p class="clerk-auth-fallback">Loading…</p>
+</div>
+
+<script>
+  window.addEventListener('load', async function () {
+    if (!window.Clerk) {
+      document.getElementById('clerk-mount').innerHTML =
+        '<p class="clerk-auth-fallback">Clerk failed to load.</p>';
+      return;
+    }
+    await Clerk.load({ ui: { ClerkUI: window.__internal_ClerkUICtor } });
+    Clerk.mountSignIn(document.getElementById('clerk-mount'), {
+      redirectUrl: <%= @redirect_url.to_json.html_safe %>,
+      signUpUrl: "/sign-up?redirect_url=" + encodeURIComponent(<%= @redirect_url.to_json.html_safe %>)
+    });
+  });
+</script>
