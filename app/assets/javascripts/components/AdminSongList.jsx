@@ -30,7 +30,10 @@ class AdminSongList extends React.Component {
       method: "GET",
       headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
     })
-      .then((response) => { if (!response.ok) throw new Error("Failed to load songs"); return response.json(); })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to load songs");
+        return response.json();
+      })
       .then((data) => this.setState({ songs: data.songs || {}, loading: false }))
       .catch((error) => { console.error("Error:", error); this.setState({ loading: false, error: "Couldn't load songs." }); });
   }

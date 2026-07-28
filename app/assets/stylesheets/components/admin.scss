@@ -566,20 +566,49 @@ body.css-night {
 @media (max-width: 700px) {
   .admin-header {
     gap: 0.5rem;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
   }
 
   .admin-header-brand { font-size: 1.1rem; }
   .admin-nav a { padding: 0.3rem 0; font-size: 0.85rem; }
 
+  // Keep the controls clustered on the right of the same row as the brand,
+  // instead of wrapping to a second row. The border-left divider is retained
+  // as a visual separator between brand and controls.
   .admin-header-right {
-    margin-left: 0;
-    width: 100%;
-    padding-left: 0;
-    border-left: none;
-    justify-content: space-between;
+    margin-left: auto;
+    gap: 0.5rem;
+    padding-left: 0.75rem;
   }
 
+  // Larger touch targets for thumb use (was 34px — below the 40px mobile
+  // touch-target baseline).
+  .theme-toggle-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .admin-header #sign_out {
+    min-height: 40px;
+    padding: 0 0.85rem;
+  }
+}
+
+// ===== Admin device books (books cached in this device's IndexedDB) =====
+.admin-device-books {
+  margin-bottom: 2.5rem;
+}
+
+.admin-section-title {
+  font-size: 1.1rem;
+  margin: 0 0 0.75rem;
+  color: var(--text);
+}
+
+.device-book-count,
+.device-book-type {
+  font-size: 0.8rem;
+  color: var(--comment-color);
+  white-space: nowrap;
 }
 
 // ===== Modernized admin song list =====
@@ -952,7 +981,55 @@ body.admin {
   // Sensible margins for chrome that scaffolds inflates to 33px.
   #notice, #alert { margin: 0 0 1rem; }
   .history-back { margin: 0 0 1.5rem; }
-  #error_explanation { margin-bottom: 1.25rem; }
+
+  // Validation errors: replace scaffolds.scss' default red box (fixed 450px
+  // width, 2px red border, dark-red header bar) with a clean, modern callout
+  // that matches the #alert styling and the rest of the admin UI.
+  #error_explanation {
+    width: auto;
+    max-width: none;
+    border: none;
+    border-left: 3px solid #cf222e;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    background: #fdecec;
+    color: var(--text);
+
+    p {
+      margin: 0 0 0.25rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+
+      li {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #8a1f1f;
+      }
+    }
+  }
+
+  // scaffolds wraps errored Rails form fields in a red-background box. The
+  // React-rendered inputs aren't affected, but neutralize anyway so any ERB
+  // field keeps its own styling.
+  .field_with_errors {
+    padding: 0;
+    background: none;
+    display: revert;
+  }
+}
+
+// Night-mode variant for the error callout.
+body.css-night.admin #error_explanation {
+  background: #2e1a1a;
+
+  ul li { color: #ff8b8b; }
 }
 
 // ===== Admin layout: full-width nav bar, 800px content column =====
@@ -1011,8 +1088,17 @@ body.admin:not(.admin-landing) .application-container {
 
 // "Clear cache" admin page (SongsController#cache).
 .cache-page {
-  text-align: left;
-  max-width: 640px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.cache-section {
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
 
   p {
     font-size: 14px;
@@ -1029,7 +1115,7 @@ body.admin:not(.admin-landing) .application-container {
   }
 
   .cache-reset-btn {
-    margin-top: 8px;
+    margin-top: 1.5rem;
   }
 }
 

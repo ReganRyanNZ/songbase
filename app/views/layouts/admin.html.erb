@@ -1,9 +1,10 @@
 <%# Admin chrome (header + section nav) only on section landing pages —
-    Songs/Books/Analytics/Trash. Edit/new/history forms render without it so
-    the page stays focused; each form carries its own back/cancel link. The
-    :body_class resets global scaffolds styling (33px margins, dark-box link
-    hovers) on every admin page; "admin-landing" flags pages that have chrome. %>
-<% landing = %w[admin admin_index analytics trash].include?(action_name) %>
+    Songs/Books/Analytics/Cache/Trash. Edit/new/history forms render without
+    it so the page stays focused; each form carries its own back/cancel link.
+    The :body_class resets global scaffolds styling (33px margins, dark-box
+    link hovers) on every admin page; "admin-landing" flags pages that have
+    chrome. %>
+<% landing = %w[admin admin_index analytics cache trash].include?(action_name) %>
 <% content_for :body_class, landing ? "admin admin-landing" : "admin" %>
 <% if landing %>
   <% content_for :header do %>

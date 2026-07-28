@@ -366,6 +366,7 @@ class AdminBookForm extends React.Component {
           className="book-form-title"
           placeholder="Book title"
           aria-label="Book title"
+          required
         />
         <div className="book-form-hint">Try to keep it under 25 characters for best display - current characters: {book.name.length}</div>
         {!this.props.isPersisted && (
