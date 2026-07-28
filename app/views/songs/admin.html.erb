@@ -1,5 +1,7 @@
 <%= render 'flash' %>
 
+<%= react_component('AdminDeviceBooks', {}) %>
+
 <%= react_component(
   'AdminSongList',
   { songs: @songs.map(&:admin_entry) },
