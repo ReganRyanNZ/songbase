@@ -1,7 +1,7 @@
 class BooksController < ApplicationController
   before_action :set_book, only: [:edit, :update, :destroy]
   before_action :verify_edit_token, only: [:edit, :update, :destroy]
-  before_action :set_duplicatable_books, only: [:new, :edit]
+  before_action :set_duplicatable_books, only: [:new, :edit, :create, :update]
   before_action :require_super_admin, only: [:restore]
 
   layout "admin", only: [:admin_index, :new, :edit, :create, :update, :activity]
@@ -49,7 +49,7 @@ class BooksController < ApplicationController
                     changes: format_changes_for_audit(book_audit_changes(@book)))
       redirect_to "/#{@book.slug}/i?add_book=#{@book.id}&edit_token=#{@book.edit_token}", notice: "Book was successfully created"
     else
-      render :new
+      render :new, status: :unprocessable_entity
     end
   end
 
@@ -59,7 +59,7 @@ class BooksController < ApplicationController
                     changes: format_changes_for_audit(book_audit_changes(@book)))
       redirect_to "/#{@book.slug}/i", notice: "Book was successfully updated"
     else
-      render :edit
+      render :edit, status: :unprocessable_entity
     end
   end
 
