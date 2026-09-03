@@ -239,3 +239,35 @@ div[data-react-class='SongDisplay'] {
   position: absolute;
   left: 9px;
 }
+
+.apply-chords-stanzas {
+  all: unset;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  text-align: center;
+  font-size: 85%;
+  line-height: 1.3;
+  color: var(--comment-color);
+  border: 1px dashed var(--comment-color);
+  border-radius: 4px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  opacity: 0.85;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &.active {
+    opacity: 1;
+    border-style: solid;
+    color: var(--chord);
+    border-color: var(--chord);
+  }
+}
