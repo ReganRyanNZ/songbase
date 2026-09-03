@@ -70,7 +70,8 @@ class SongDisplay extends React.Component {
       transpose: props.transpose || 0,
       originalKey: this.getKeyFromChords(this.lyrics(selectedTune)),
       logSongDisplay: false,
-      showTuneSelectBox: false
+      showTuneSelectBox: false,
+      applyChordsToFurtherStanzas: false
     };
 
     // `bind` creates a new function with an immutable "this" reference. We
@@ -82,13 +83,19 @@ class SongDisplay extends React.Component {
     this.changeTune = this.changeTune.bind(this);
     this.toggleTuneSelector = this.toggleTuneSelector.bind(this);
     this.clickAwayFromTuneSelector = this.clickAwayFromTuneSelector.bind(this);
+    this.toggleApplyChordsToFurtherStanzas = this.toggleApplyChordsToFurtherStanzas.bind(this);
+    this.shareSong = this.shareSong.bind(this);
 
     this.setAnalyticsTimer();
   }
   componentDidMount() {
     this.addListeners();
   }
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
+    if (prevProps.lyrics !== this.props.lyrics && this.state.applyChordsToFurtherStanzas) {
+      this.setState({ applyChordsToFurtherStanzas: false });
+      return;
+    }
     this.addListeners();
   }
 
@@ -143,7 +150,8 @@ class SongDisplay extends React.Component {
 
     this.setState({selectedTune: tuneNumber,
                    transpose: 0,
-                   originalKey: this.getKeyFromChords(this.lyrics(tuneNumber))})
+                   originalKey: this.getKeyFromChords(this.lyrics(tuneNumber)),
+                   applyChordsToFurtherStanzas: false})
     localStorage.setItem(window.location.pathname, tuneNumber)
     this.pushTuneToUrl(tuneNumber)
   }
@@ -213,10 +221,37 @@ class SongDisplay extends React.Component {
     // If the select is open, click anywhere to close it
     let tuneSelectBox = document.querySelector(".tune-select-box")
     if (tuneSelectBox) { document.body.addEventListener('click', this.clickAwayFromTuneSelector), {once : true} }
+
+    let applyChordsBtn = document.getElementById("apply-chords-stanzas")
+    if (applyChordsBtn) {
+      applyChordsBtn.addEventListener("click", this.toggleApplyChordsToFurtherStanzas)
+    }
+  }
+
+  toggleApplyChordsToFurtherStanzas() {
+    this.setState({ applyChordsToFurtherStanzas: !this.state.applyChordsToFurtherStanzas })
+  }
+
+  // Raw lyrics for the selected tune, optionally with chords projected onto later stanzas.
+  displayLyrics() {
+    let lyrics = this.lyrics()
+    if (this.state.applyChordsToFurtherStanzas && this.props.showChords && typeof ChordProjection !== "undefined") {
+      lyrics = ChordProjection.applyToFurtherStanzas(lyrics)
+    }
+    return lyrics
   }
 
   chordsExist() {
     return /\[/.test(this.lyrics());
+  }
+
+  // True when at least one later verse has no chords (worth offering the beta toggle).
+  furtherStanzasCanReceiveChords() {
+    if (typeof ChordProjection === "undefined") return false
+    let lyrics = this.lyrics()
+    if (!this.chordsExist()) return false
+    let projected = ChordProjection.applyToFurtherStanzas(lyrics)
+    return projected !== lyrics
   }
 
   getKeyFromChords(lyrics) {
@@ -294,7 +329,7 @@ class SongDisplay extends React.Component {
   }
 
   getLyricsHTML() {
-    let lyrics = this.lyrics();
+    let lyrics = this.displayLyrics();
 
     if (regex.html_safety.test(lyrics)) {
       return "ERROR: HTML tags are forbidden. Please do not use '<', '>', or backticks.";
@@ -459,6 +494,15 @@ class SongDisplay extends React.Component {
               </div>`
     }
 
+    let applyChordsControl = () => {
+      if (!this.chordsExist() || !showChords || this.props.editMode) { return '' }
+      if (!this.furtherStanzasCanReceiveChords()) { return '' }
+
+      let active = this.state.applyChordsToFurtherStanzas
+      return `<button type="button" id="apply-chords-stanzas" class="apply-chords-stanzas${active ? ' active' : ''}" aria-pressed="${active}">
+                ${active ? 'Using projected chords (beta) — tap to undo' : 'Apply chords to further stanzas (beta)'}
+              </button>\n`
+    }
 
     return `
       <div class='song-controls'>
@@ -469,7 +513,8 @@ class SongDisplay extends React.Component {
         ${shareButton()}
         ${transposeControls()}
         ${tuneSelector()}
-      </div>\n
+      </div>
+      ${applyChordsControl()}\n
     `
   }
 
