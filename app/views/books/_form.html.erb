@@ -15,6 +15,7 @@
     duplicatableBooks: @duplicatable_books || [],
     duplicateFromId: @duplicate_from_id,
     isPersisted: book.persisted?,
+    languages: @languages || Song.languages,
   }) %>
 
   <div class="book-form-actions">

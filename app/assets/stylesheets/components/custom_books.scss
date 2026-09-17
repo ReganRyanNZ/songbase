@@ -957,3 +957,592 @@ body.css-night {
     border-top-color: #333;
   }
 }
+
+// ===== Book-form additions: per-song tunes + just-added flash =====
+// (Appended after restoring the two-pane layout; these style the tune chip on
+// multi-tune rows in the "Your book" pane and the Add-songs overlay.)
+.admin-book-form {
+  // Brief highlight on a freshly added row — confirms where it landed.
+  .song-item.just-added {
+    animation: just-added-flash 1.3s ease-out;
+  }
+
+  @keyframes just-added-flash {
+    0%   { background: rgba(0, 123, 255, 0.22); }
+    100% { background: transparent; }
+  }
+
+  // per-song tune chip (multi-tune songs only) — click to change
+  .tune-badge {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 123, 255, 0.4);
+    background: rgba(0, 123, 255, 0.08);
+    color: #007bff;
+    cursor: pointer;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+
+    &:hover {
+      background: rgba(0, 123, 255, 0.18);
+      border-color: #007bff;
+    }
+  }
+
+  .tune-expand {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.5rem 0.4rem;
+    margin-top: 0.3rem;
+    background: var(--index-row-bg, rgba(0, 0, 0, 0.035));
+    border-radius: 6px;
+  }
+
+  .tune-option {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    padding: 0.28rem 0.6rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    border: 1px solid var(--ui-color);
+    background: var(--background);
+    color: var(--text);
+    cursor: pointer;
+    transition: background-color 0.12s ease, border-color 0.12s ease;
+
+    &:hover {
+      border-color: #007bff;
+    }
+
+    &.selected {
+      border-color: #007bff;
+      background: rgba(0, 123, 255, 0.12);
+      color: #007bff;
+    }
+  }
+
+  .tune-option-num {
+    font-weight: 700;
+    font-size: 0.72rem;
+  }
+
+  .tune-option-title {
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 760px) {
+    .tune-expand {
+      flex-direction: column;
+      align-items: stretch;
+
+      .tune-option {
+        justify-content: flex-start;
+      }
+    }
+  }
+}
+// ===== Add-songs modal =====
+.add-songs-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.add-songs-modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  background: var(--background, white);
+  border: 1px solid var(--ui-color);
+  border-radius: 12px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+
+  input,
+  select,
+  textarea {
+    box-sizing: border-box;
+    padding: 0.5rem 0.6rem;
+    font-size: 1rem; // ≥16px prevents iOS Safari auto-zoom
+    font-family: inherit;
+    border-radius: 6px;
+    border: 1px solid var(--ui-color);
+    background: var(--background);
+    color: var(--text);
+  }
+}
+
+.asm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--ui-color);
+
+  h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+}
+
+.asm-close {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--comment-color);
+  cursor: pointer;
+  border-radius: 6px;
+
+  &:hover {
+    background: var(--index-row-bg);
+    color: var(--text);
+  }
+}
+
+.asm-tabs {
+  display: flex;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--ui-color);
+}
+
+.asm-tab {
+  padding: 0.6rem 1rem;
+  margin-right: 0.25rem;
+  border: none;
+  background: transparent;
+  color: var(--comment-color);
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.14s ease, border-color 0.14s ease;
+
+  &:hover:not(.active) {
+    color: var(--text);
+  }
+
+  &.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    font-weight: 600;
+  }
+}
+
+.asm-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 0;
+}
+
+.asm-search {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 0;
+}
+
+.search-row {
+  position: relative;
+  display: flex;
+}
+
+.index_search {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  padding-right: 2rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid var(--ui-color);
+  background: var(--background);
+  color: var(--text);
+}
+
+.clear-search-btn {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--comment-color);
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--text);
+  }
+}
+
+.asm-results {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 50vh;
+  min-height: 8rem;
+  margin: 0 -0.25rem;
+  padding: 0 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ui-color) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--ui-color);
+    border-radius: 3px;
+  }
+}
+
+// search results reuse the form's .song-item / .btn-icon / .btn-add / .btn-added
+.add-songs-modal .song-item.search-result {
+  border-bottom: 1px solid var(--ui-color);
+}
+
+.add-songs-modal .btn-icon.btn-add {
+  background-color: #007bff;
+  color: white;
+
+  &:hover {
+    filter: brightness(0.92);
+  }
+}
+
+.add-songs-modal .btn-icon.btn-added {
+  background-color: #2e7d32;
+  color: #fff;
+  cursor: default;
+  pointer-events: none;
+}
+
+.asm-paste {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+// base .btn reset (global .btn is full-width in admin.scss)
+.add-songs-modal .btn {
+  width: auto;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+}
+
+.add-songs-modal .btn-primary {
+  background: #007bff;
+  color: white;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.add-songs-modal .btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--ui-color);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.add-bulk-btn {
+  align-self: flex-start;
+}
+
+.tab-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--comment-color);
+}
+
+.paste-textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.paste-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.paste-error {
+  color: #c0392b;
+  font-size: 0.85rem;
+}
+
+.paste-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.paste-truncated {
+  color: var(--comment-color);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.preview-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.preview-subhead {
+  font-size: 0.8rem;
+  color: var(--comment-color);
+  margin-top: 0.3rem;
+}
+
+.preview-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.25rem;
+
+  &.matched {
+    cursor: pointer;
+
+    input {
+      margin: 0;
+      accent-color: #007bff;
+    }
+  }
+
+  &.matched.unchecked .preview-title {
+    color: var(--comment-color);
+  }
+}
+
+.preview-status {
+  width: 1.2rem;
+  text-align: center;
+  flex-shrink: 0;
+  font-weight: bold;
+
+  &.ok {
+    color: #2e7d32;
+  }
+}
+
+.preview-row.unmatched .preview-status {
+  color: #c0392b;
+}
+
+.preview-row.ambiguous .preview-status {
+  color: #b8860b;
+}
+
+.preview-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.muted {
+    color: var(--comment-color);
+    font-style: italic;
+  }
+}
+
+.ambiguous-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.ambiguous-line {
+  font-size: 0.85rem;
+  color: var(--comment-color);
+  font-style: italic;
+}
+
+.ambiguous-select {
+  width: 100%;
+}
+
+.asm-footer {
+  display: flex;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--ui-color);
+}
+
+// "Done" is the modal's clear primary action — full-width, solid, prominent.
+.asm-done {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+  .add-songs-modal {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .add-songs-overlay {
+    padding: 0;
+  }
+
+  .asm-close {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+// ===== Sticky Save/Cancel bar (rendered by _form.html.erb) =====
+.book-form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+
+  .btn {
+    width: auto;
+    padding: 0.55rem 1.25rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid var(--ui-color);
+    color: var(--text);
+
+    &:hover {
+      background: var(--index-row-bg, rgba(0, 0, 0, 0.05));
+    }
+  }
+
+  .btn.btn-update {
+    background-color: #2e7d32;
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: #256628;
+    }
+  }
+
+  .book-form-delete {
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .book-form-actions {
+    position: static;
+    bottom: auto;
+    z-index: auto;
+    border-top: 1px solid var(--ui-color);
+  }
+}
+
+// Global --comment-color is #aaa in both themes — on white it fails WCAG AA.
+.admin-book-form { --comment-color: #666; }
+body.css-night .admin-book-form { --comment-color: #aaa; }
+
+// ===== Night theme =====
+body.css-night {
+  .admin-book-form {
+    .book-title-input,
+    .book-email-input {
+      background-color: transparent;
+      color: white;
+    }
+
+    .book-email-input {
+      background-color: #111;
+      border-color: #444;
+    }
+
+    .song-item {
+      border-bottom-color: #333;
+
+      button {
+        background: none;
+      }
+    }
+
+    .book-song-number {
+      background-color: #007bff;
+      color: black;
+    }
+
+    .drag-handle {
+      color: #aaa;
+    }
+
+    .song-item.drag-over {
+      box-shadow: inset 0 2px 0 #007bff;
+    }
+  }
+
+  .add-songs-modal {
+    background-color: #161616;
+    border-color: #333;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+
+    input,
+    select,
+    textarea {
+      background-color: #111;
+      color: white;
+      border-color: #444;
+    }
+  }
+
+  .asm-header,
+  .asm-tabs,
+  .asm-footer {
+    border-color: #333;
+  }
+}

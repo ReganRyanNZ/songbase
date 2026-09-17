@@ -123,6 +123,47 @@ class Api::V2::CustomBookImportTest < ActionDispatch::IntegrationTest
     assert_equal 'Abba, Father', data[:songs].second[:title]
   end
 
+  test 'book_songs includes tune_count and tune_titles' do
+    multi = FactoryBot.create(:song, :be_thou_supreme) # 2 tunes
+    single = FactoryBot.create(:song, :abba_father)    # 1 tune
+    book = FactoryBot.create(:book, name: 'Source',
+                              songs: { multi.id => '1', single.id => '2' })
+
+    get api_v2_book_songs_path, params: { book_id: book.id }
+
+    assert_response :ok
+    entries = response_json[:songs]
+    multi_entry = entries.find { |s| s[:id] == multi.id }
+    single_entry = entries.find { |s| s[:id] == single.id }
+    assert_equal 2, multi_entry[:tune_count]
+    assert_equal ['Original tune', 'New tune (with chorus)'], multi_entry[:tune_titles]
+    assert_equal 1, single_entry[:tune_count]
+    assert_equal ['Tune 1'], single_entry[:tune_titles]
+  end
+
+  test 'custom_book_search scopes the seed list by language' do
+    english = FactoryBot.create(:song, :abba_father, lang: 'english')
+    portuguese = FactoryBot.create(:song, :portuguese, lang: 'portuguese')
+
+    get api_v2_custom_book_search_path, params: { language: 'portuguese' }
+
+    assert_response :ok
+    ids = response_json[:songs].map { |s| s[:id] }
+    assert_includes ids, portuguese.id
+    refute_includes ids, english.id
+  end
+
+  test 'custom_book_search scopes a title search by language' do
+    FactoryBot.create(:song, :abba_father, lang: 'english') # "Abba, Father"
+    portuguese = FactoryBot.create(:song, :portuguese, lang: 'portuguese')
+
+    get api_v2_custom_book_search_path, params: { search: 'bendito', language: 'portuguese' }
+
+    assert_response :ok
+    titles = response_json[:songs].map { |s| s[:title] }
+    assert_includes titles, portuguese.title
+  end
+
   test 'book_songs 404s for a missing book' do
     get api_v2_book_songs_path, params: { book_id: 999_999 }
     assert_response :not_found

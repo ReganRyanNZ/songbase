@@ -73,6 +73,43 @@ class SongTest < ActiveSupport::TestCase
     assert_equal({}, book.reload.songs)
   end
 
+  test 'destroying a song also clears its song_tunes reference in books' do
+    song = FactoryBot.create(:song)
+    book = FactoryBot.create(:book, songs: { song.id.to_s => '1' },
+                             song_tunes: { song.id.to_s => 2 })
+
+    song.destroy_with_audit
+
+    assert_equal({}, book.reload.song_tunes)
+  end
+
+  test ".merge! remaps song_tunes from the old song's id to the new song's id" do
+    old_song = FactoryBot.create(:song)
+    new_song = FactoryBot.create(:song)
+    book = FactoryBot.create(:book, songs: { old_song.id.to_s => '7' },
+                             song_tunes: { old_song.id.to_s => 2 })
+
+    new_song.merge!(old_song)
+
+    assert_nil(book.reload.song_tunes[old_song.id.to_s])
+    assert_equal(2, book.song_tunes[new_song.id.to_s])
+  end
+
+  test '#tune_count reports one tune for songs without ### headers' do
+    assert_equal 1, FactoryBot.create(:song, :abba_father).tune_count
+  end
+
+  test '#tune_count counts ### separated sections' do
+    assert_equal 2, FactoryBot.create(:song, :be_thou_supreme).tune_count
+    assert_equal 3, FactoryBot.create(:song, :a_little_bird_i_am).tune_count
+  end
+
+  test '#tune_titles parses ### headers and falls back to "Tune N"' do
+    assert_equal ['Tune 1'], FactoryBot.create(:song, :abba_father).tune_titles
+    assert_equal ['Original tune', 'New tune (with chorus)'],
+                 FactoryBot.create(:song, :be_thou_supreme).tune_titles
+  end
+
   test 'languages gets a distinct list of languages, sorted but with english first' do
     FactoryBot.create(:song, lang: 'english')
     FactoryBot.create(:song, lang: 'Afrikaans')

@@ -45,13 +45,15 @@ class Api::V2::SongsController < ApplicationController
   end
 
   def custom_book_search
+    # Language filter scopes the candidate pool before ranking/seed list.
+    base = Song.for_language(params[:language])
     if params[:search].present?
-      songs = SongSearcher.new(Song.all.to_a).rank(params[:search]).take(20)
+      songs = SongSearcher.new(base.to_a).rank(params[:search]).take(20)
     else
       # Empty query: seed the Find songs pane with a browseable list instead of
       # "Type to search". Skips building SongSearcher, which would otherwise
       # load the whole table into memory just to return [].
-      songs = Song.order(Arel.sql("LOWER(title)")).limit(20)
+      songs = base.order(Arel.sql("LOWER(title)")).limit(20)
     end
     render json: {songs: songs.map(&:admin_entry)}, status: 200
   end
@@ -66,7 +68,8 @@ class Api::V2::SongsController < ApplicationController
     songs = book.songs.map do |song_id, number|
       song = records[song_id.to_i]
       next unless song
-      { number: number.to_i, id: song.id, title: song.title, lang: song.lang }
+      { number: number.to_i, id: song.id, title: song.title, lang: song.lang,
+        tune_count: song.tune_count, tune_titles: song.tune_titles }
     end.compact.sort_by { |entry| entry[:number] }
 
     render json: { name: book.name, songs: songs }, status: :ok

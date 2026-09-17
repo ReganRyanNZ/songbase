@@ -2,6 +2,9 @@
 // with a sticky Save/Cancel bar rendered by the ERB form. Song state is split
 // into `searchResults` (transient API list) and `songData` ({ id -> song }) so
 // book rows render without coupling them to the current search.
+//
+// Per-song tune choices for multi-tune songs live in `book.songTunes`; the
+// paste-import overlay (AddSongs) opens from the actions row.
 function indexSongs(list) {
   var map = {};
   (list || []).forEach(function(s) { map[String(s.id)] = s; });
@@ -29,6 +32,34 @@ function reorderSongObject(songObject) {
   return result;
 }
 
+// --- tune helpers (mirror Song#tune_count / Song#tune_titles) ---
+function computeTuneCount(lyrics) {
+  var sections = (lyrics || "").split(/(?=###)/).filter(function(s) { return s.trim() !== ""; });
+  return Math.max(sections.length, 1);
+}
+
+function computeTuneTitles(lyrics) {
+  var sections = (lyrics || "").split(/(?=###)/).filter(function(s) { return s.trim() !== ""; });
+  if (!sections.some(function(s) { return /^###/.test(s); })) return ["Tune 1"];
+  var titles = sections.map(function (section, i) {
+    var match = section.match(/^###\s*(.+?)$/);
+    return match ? match[1].trim() : ("Tune " + (i + 1));
+  });
+  return titles.length ? titles : ["Tune 1"];
+}
+
+function songTuneCount(song) {
+  if (!song) return 1;
+  if (song.tune_count != null) return song.tune_count;
+  return computeTuneCount(song.lyrics);
+}
+
+function songTuneTitles(song) {
+  if (!song) return ["Tune 1"];
+  if (song.tune_titles != null) return song.tune_titles;
+  return computeTuneTitles(song.lyrics);
+}
+
 class AdminBookForm extends React.Component {
   constructor(props) {
     super(props);
@@ -42,12 +73,16 @@ class AdminBookForm extends React.Component {
         name: props.book.name || "",
         email: props.book.email || "",
         songs: props.book.songs || {},
+        songTunes: props.book.song_tunes || {},
         languages: props.book.languages || [],
       },
       loading: false,
       dragIndex: null,            // index of the row being dragged
       dragOverIndex: null,        // index where the dragged row will drop
+      editingTuneId: null,        // book row with its tune picker expanded
+      highlightedId: null,        // freshly added row to flash + scroll to
       importModalOpen: false,
+      pasteOpen: false,
     };
 
     this.handleSearchChange = this.handleSearchChange.bind(this);
@@ -67,13 +102,17 @@ class AdminBookForm extends React.Component {
     this.onTouchEnd = this.onTouchEnd.bind(this);
     this.openImport = this.openImport.bind(this);
     this.closeImport = this.closeImport.bind(this);
+    this.openPaste = this.openPaste.bind(this);
+    this.closePaste = this.closePaste.bind(this);
     this.addSongsFromImport = this.addSongsFromImport.bind(this);
     this.clearAllSongs = this.clearAllSongs.bind(this);
     this.loadBookSongs = this.loadBookSongs.bind(this);
+    this.handleChangeTune = this.handleChangeTune.bind(this);
 
     this.searchTimeout = null;
     this.searchAbort = null;      // AbortController for the in-flight custom_book_search request
     this.bookListEl = null;       // callback ref to the .book-songs container
+    this.highlightTimer = null;
   }
 
   componentDidMount() {
@@ -88,6 +127,15 @@ class AdminBookForm extends React.Component {
     this.searchSongs(""); // seed the Find songs pane
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.highlightedId && this.state.highlightedId !== prevState.highlightedId) {
+      var row = this.bookListEl && this.bookListEl.querySelector('.song-item[data-id="' + this.state.highlightedId + '"]');
+      if (row) row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      if (this.highlightTimer) clearTimeout(this.highlightTimer);
+      this.highlightTimer = setTimeout(() => this.setState({ highlightedId: null }), 1400);
+    }
+  }
+
   componentWillUnmount() {
     // Cancel any pending debounced search and in-flight request so neither can
     // setState after the form is gone.
@@ -99,6 +147,7 @@ class AdminBookForm extends React.Component {
       this.bookListEl.removeEventListener("touchend", this.onTouchEnd);
       this.bookListEl.removeEventListener("touchcancel", this.onTouchEnd);
     }
+    if (this.highlightTimer) clearTimeout(this.highlightTimer);
   }
 
   // --- title / email ---
@@ -163,7 +212,7 @@ class AdminBookForm extends React.Component {
       });
   }
 
-  // Fetch title/lang for every song already in book.songs (edit/duplicate).
+  // Fetch title/lang/tunes for every song already in book.songs (edit/duplicate).
   // book.songs (source of truth) arrived via SSR props; this only fills the
   // render-only songData cache. Merges rather than replaces so concurrent
   // searchSongs results and user-added rows survive.
@@ -180,7 +229,10 @@ class AdminBookForm extends React.Component {
       .then((data) => {
         var fetched = {};
         (data.songs || []).forEach(function(s) {
-          fetched[String(s.id)] = { id: s.id, title: s.title, lang: s.lang };
+          fetched[String(s.id)] = {
+            id: s.id, title: s.title, lang: s.lang,
+            tune_count: s.tune_count, tune_titles: s.tune_titles
+          };
         });
         this.setState((prev) => ({
           songData: Object.assign({}, prev.songData, fetched),
@@ -195,7 +247,7 @@ class AdminBookForm extends React.Component {
 
   // --- add / remove ---
 
-  handleAddSong(song) {
+  handleAddSong(song, tuneIndex) {
     this.setState((prev) => {
       var key = String(song.id);
       var songs = Object.assign({}, prev.book.songs);
@@ -203,8 +255,10 @@ class AdminBookForm extends React.Component {
       songs[key] = String(Object.keys(songs).length + 1);
       var songData = Object.assign({}, prev.songData);
       songData[key] = song;
+      var songTunes = Object.assign({}, prev.book.songTunes);
+      if (tuneIndex && tuneIndex > 0) songTunes[key] = tuneIndex;
       var languages = buildLanguages(songs, songData);
-      return { book: Object.assign({}, prev.book, { songs, languages }), songData };
+      return { highlightedId: key, book: Object.assign({}, prev.book, { songs, songTunes, languages }), songData };
     });
   }
 
@@ -214,9 +268,21 @@ class AdminBookForm extends React.Component {
       var id = Object.keys(songs).find((k) => songs[k] === index);
       if (id === undefined) return null;
       delete songs[id];
+      var songTunes = Object.assign({}, prev.book.songTunes);
+      delete songTunes[id];
       var reordered = reorderSongObject(songs);
       var languages = buildLanguages(reordered, prev.songData);
-      return { book: Object.assign({}, prev.book, { songs: reordered, languages }) };
+      return { book: Object.assign({}, prev.book, { songs: reordered, songTunes, languages }) };
+    });
+  }
+
+  // --- tune per song (multi-tune songs) ---
+
+  handleChangeTune(id, tuneIndex) {
+    this.setState((prev) => {
+      var songTunes = Object.assign({}, prev.book.songTunes);
+      if (tuneIndex > 0) songTunes[id] = tuneIndex; else delete songTunes[id];
+      return { book: Object.assign({}, prev.book, { songTunes }), editingTuneId: null };
     });
   }
 
@@ -226,7 +292,7 @@ class AdminBookForm extends React.Component {
       .sort((a, b) => parseInt(a[1]) - parseInt(b[1]))
       .map((entry) => {
         var song = songData[entry[0]];
-        return song ? { song, index: entry[1] } : null;
+        return song ? { song, id: entry[0], index: entry[1] } : null;
       })
       .filter(Boolean);
   }
@@ -316,7 +382,7 @@ class AdminBookForm extends React.Component {
     this.setState({ dragIndex: null, dragOverIndex: null });
   }
 
-  // --- import modal ---
+  // --- import modal (duplicate another book) ---
 
   openImport() {
     this.setState({ importModalOpen: true });
@@ -326,8 +392,19 @@ class AdminBookForm extends React.Component {
     this.setState({ importModalOpen: false });
   }
 
-  // Merge songs ([{id, title, lang}, ...]) from the import modal into the book
-  // in a single setState pass so language recomputation sees the new song data.
+  // --- paste-import overlay (titles / ids) ---
+
+  openPaste() {
+    this.setState({ pasteOpen: true });
+  }
+
+  closePaste() {
+    this.setState({ pasteOpen: false });
+  }
+
+  // Merge songs ([{id, title, lang}, ...]) from the import modal or the paste
+  // overlay into the book in a single setState pass so language recomputation
+  // sees the new song data.
   addSongsFromImport(songs) {
     this.setState((prev) => {
       var songData = Object.assign({}, prev.songData);
@@ -346,7 +423,7 @@ class AdminBookForm extends React.Component {
   clearAllSongs() {
     if (!window.confirm("Remove all songs from this book?")) return;
     this.setState((prev) => ({
-      book: Object.assign({}, prev.book, { songs: {}, languages: [] })
+      book: Object.assign({}, prev.book, { songs: {}, songTunes: {}, languages: [] })
     }));
   }
 
@@ -394,12 +471,14 @@ class AdminBookForm extends React.Component {
   }
 
   // Book-level actions that sit ABOVE the two panes (not inside Find songs):
-  // Import songs (opens the modal) and, for a new book with songs, Clear all.
+  // Import songs (duplicate another book), Paste titles (bulk add) and, for a
+  // new book with songs, Clear all.
   renderBookActions(bookSongCount) {
     var canClear = !this.props.isPersisted && bookSongCount > 0;
     return (
       <div className="book-actions">
         <button type="button" className="action-btn primary" onClick={this.openImport}>Import songs</button>
+        <button type="button" className="action-btn" onClick={this.openPaste}>Paste titles</button>
         {canClear && <button type="button" className="action-btn danger" onClick={this.clearAllSongs}>Clear all</button>}
       </div>
     );
@@ -507,13 +586,21 @@ class AdminBookForm extends React.Component {
               <div className="book-songs" ref={(el) => { this.bookListEl = el; }}>
                 {bookSongs.map((songData, arrayIndex) => {
                   var song = songData.song;
+                  var key = songData.id;
                   var bookIndex = songData.index;
                   var isDragging = this.state.dragIndex === arrayIndex;
                   var isDragOver = this.state.dragOverIndex === arrayIndex;
+                  var tuneCount = songTuneCount(song);
+                  var tuneTitles = songTuneTitles(song);
+                  var multi = tuneCount > 1;
+                  var currentTune = book.songTunes[key] || 0;
+                  var editingTune = this.state.editingTuneId === key;
+                  var highlighted = this.state.highlightedId === key;
                   return (
                     <div
-                      className={"song-item" + (isDragging ? " dragging" : "") + (isDragOver ? " drag-over" : "")}
+                      className={"song-item" + (isDragging ? " dragging" : "") + (isDragOver ? " drag-over" : "") + (editingTune ? " tune-expanded" : "") + (highlighted ? " just-added" : "")}
                       key={song.id}
+                      data-id={key}
                       draggable={true}
                       onDragStart={(e) => this.handleDragStart(e, arrayIndex)}
                       onDragOver={(e) => this.handleDragOver(e, arrayIndex)}
@@ -524,6 +611,14 @@ class AdminBookForm extends React.Component {
                       <span className="drag-handle" title="Drag to reorder" aria-label="Drag to reorder">{gripIcon}</span>
                       <span className="book-song-number">{bookIndex}</span>
                       <span className="song-title">{song.title}</span>
+                      {multi && !editingTune && (
+                        <button
+                          type="button"
+                          className="tune-badge"
+                          onClick={() => this.setState({ editingTuneId: key })}
+                          title="Change tune"
+                        >{"Tune " + (currentTune + 1)}</button>
+                      )}
                       <button
                         type="button"
                         className="btn-icon btn-remove"
@@ -531,6 +626,21 @@ class AdminBookForm extends React.Component {
                         title="Remove from book"
                         aria-label={"Remove " + song.title}
                       >{removeIcon}</button>
+                      {editingTune && multi && (
+                        <div className="tune-expand">
+                          {tuneTitles.map((title, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              className={"tune-option" + (i === currentTune ? " selected" : "")}
+                              onClick={() => this.handleChangeTune(key, i)}
+                            >
+                              <span className="tune-option-num">{"Tune " + (i + 1)}</span>
+                              <span className="tune-option-title">{title}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -540,6 +650,7 @@ class AdminBookForm extends React.Component {
         </div>
 
         <input type="hidden" name="book[songs]" value={JSON.stringify(book.songs || {})} />
+        <input type="hidden" name="book[song_tunes]" value={JSON.stringify(book.songTunes || {})} />
         <input type="hidden" name="book[languages]" value={JSON.stringify(book.languages || [])} />
         {/* Email is hidden when editing (not editable), but re-submitted so the stored value is preserved on save. */}
         {this.props.isPersisted && <input type="hidden" name="book[email]" value={book.email || ""} />}
@@ -549,6 +660,16 @@ class AdminBookForm extends React.Component {
             duplicatableBooks={this.props.duplicatableBooks}
             onAddSongs={this.addSongsFromImport}
             onClose={this.closeImport}
+          />
+        )}
+
+        {this.state.pasteOpen && (
+          <AddSongs
+            initialTab="paste"
+            bookSongs={book.songs}
+            onAddSong={this.handleAddSong}
+            onAddSongs={this.addSongsFromImport}
+            onClose={this.closePaste}
           />
         )}
       </div>
