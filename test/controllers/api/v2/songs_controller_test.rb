@@ -51,6 +51,7 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
 
     expected_book_data = {name: "Kept",
                           slug: "kept",
+                          share_code: Book.find_by(name: "Kept").share_code,
                           songs: {song_1.id.to_s.to_sym=>"1", song_2.id.to_s.to_sym =>"2"},
                           languages: ["english"],
                           sync_to_all: true}

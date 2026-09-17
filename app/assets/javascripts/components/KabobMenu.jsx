@@ -87,10 +87,16 @@ class KabobMenu extends React.Component {
     }
   }
 
+  // Share links use the book's share code (name prefix + number); older
+  // cached books without one fall back to the numeric id (still accepted).
+  shareIdentifier() {
+    return this.props.bookShareCode || this.props.bookId;
+  }
+
   handleShare(e) {
     e.preventDefault();
     e.stopPropagation();
-    const url = `${window.location.origin}/?add_book=${this.props.bookId}`;
+    const url = `${window.location.origin}/?add_book=${this.shareIdentifier()}`;
     this.shareUrl(url);
   }
 
@@ -98,7 +104,7 @@ class KabobMenu extends React.Component {
     e.preventDefault();
     e.stopPropagation();
     const token = this.getEditToken();
-    const url = `${window.location.origin}/?add_book=${this.props.bookId}&edit_token=${token}`;
+    const url = `${window.location.origin}/?add_book=${this.shareIdentifier()}&edit_token=${token}`;
     this.shareUrl(url);
   }
 

@@ -53,7 +53,10 @@ class SongIndex extends React.Component {
   // fading "Copied!" message everywhere else.
   handleShare() {
     if (!this.props.currentBook) return;
-    const url = `${window.location.origin}/?add_book=${this.props.currentBook.id}`;
+    // Share code (name prefix + number) preferred; older cached books
+    // fall back to the numeric id, which the server still accepts.
+    const identifier = this.props.currentBook.share_code || this.props.currentBook.id;
+    const url = `${window.location.origin}/?add_book=${identifier}`;
     if (navigator.share && this.isMobile()) {
       navigator.share({ text: this.props.currentBook.name, url: url });
     } else {

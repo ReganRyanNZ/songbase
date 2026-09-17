@@ -15,12 +15,18 @@ class AdminBookList extends React.Component {
     return this.props.books.filter(b => b.name.toLowerCase().includes(q));
   }
 
+  // Share links use the book's share code (name prefix + number) instead of
+  // the numeric id so ids can't be guessed.
+  shareIdentifier(book) {
+    return book.share_code || book.id;
+  }
+
   shareUrl(book) {
-    return window.location.origin + '/?add_book=' + book.id;
+    return window.location.origin + '/?add_book=' + this.shareIdentifier(book);
   }
 
   shareEditUrl(book) {
-    return window.location.origin + '/?add_book=' + book.id + '&edit_token=' + book.edit_token;
+    return window.location.origin + '/?add_book=' + this.shareIdentifier(book) + '&edit_token=' + book.edit_token;
   }
 
   copyToClipboard(text, key) {

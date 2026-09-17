@@ -43,6 +43,7 @@ const IndexOfBooks = ({ goToBookIndex, books, languages, homeButton, canEditBook
                   onRemove={() => onRemoveBook(book.id)}
                   bookSlug={book.slug}
                   bookId={book.id}
+                  bookShareCode={book.share_code}
                 />
               )}
             </span>

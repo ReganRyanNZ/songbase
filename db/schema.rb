@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_07_25_023656) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_17_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -58,6 +58,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_07_25_023656) do
     t.datetime "sync_to_all_changed_at"
     t.integer "downloads", default: 0
     t.string "email"
+    t.jsonb "song_tunes", default: {}, null: false
+    t.string "share_code"
+    t.index ["share_code"], name: "index_books_on_share_code", unique: true
   end
 
   create_table "song_analytics", force: :cascade do |t|

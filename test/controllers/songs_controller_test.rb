@@ -16,6 +16,40 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
     assert Song.unscoped.find(song.id).deleted_at.present?, 'song should be soft-deleted'
   end
 
+  # authenticate sends the user to the embedded Clerk sign-in page with the
+  # ORIGINAL request path as redirect_url (a path, not an absolute URL —
+  # ClerkAuthController#safe_redirect_url only accepts same-origin paths).
+  test 'signed-out admin visit redirects to sign-in with the path as redirect_url' do
+    with_current_user(nil) do
+      get admin_path
+      assert_redirected_to 'http://www.example.com/sign-in?redirect_url=%2Fadmin'
+
+      get admin_books_path
+      assert_redirected_to 'http://www.example.com/sign-in?redirect_url=%2Fadmin%2Fbooks'
+    end
+  end
+
+  # Share links carry the book's share code (camp-w-48392); the app resolves
+  # it to the numeric id that the client stores. Legacy numeric links still work.
+  test 'share links resolve by share code and count a download' do
+    book = FactoryBot.create(:book, name: 'Camp Weekend 2026')
+    assert_match(/\Acamp-w-\d{5}\z/, book.share_code)
+
+    get "/?add_book=#{book.share_code}"
+    assert_response :success
+    assert_equal 1, book.reload.downloads, 'share-link visit should count a download'
+    assert_select "meta[name=new-book-id][content='#{book.id}']"
+  end
+
+  test 'legacy numeric add_book links still resolve' do
+    book = FactoryBot.create(:book, name: 'Camp Weekend 2026')
+
+    get "/?add_book=#{book.id}"
+    assert_response :success
+    assert_equal 1, book.reload.downloads
+    assert_select "meta[name=new-book-id][content='#{book.id}']"
+  end
+
   test 'non-super-admin cannot delete a song older than 7 days' do
     with_super_admin(false) do
       song = FactoryBot.create(:song, :abba_father)
@@ -89,6 +123,19 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  # Stub ApplicationController#current_user for the duration of a block —
+  # the test env otherwise synthesizes a signed-in super-admin for every
+  # request.
+  def with_current_user(user)
+    original = ApplicationController.instance_method(:current_user)
+    ApplicationController.define_method(:current_user) { user }
+    begin
+      yield
+    ensure
+      ApplicationController.define_method(:current_user, original)
+    end
+  end
 
   # Stub ApplicationController#super_admin for the duration of a block
   # (same technique used in books_controller_test / analytics_controller_test).

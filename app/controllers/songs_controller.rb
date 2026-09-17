@@ -14,7 +14,7 @@ class SongsController < ApplicationController
   # still loading via api.
   def app
     @show_books_page = request.path == '/books'
-    @new_book_id = params[:add_book] if params[:add_book].present?
+    @new_book_id = resolve_add_book_param(params[:add_book]) if params[:add_book].present?
     Book.increment_counter(:downloads, @new_book_id) if @new_book_id && Book.exists?(@new_book_id)
     @new_book_token = params[:edit_token] if params[:edit_token].present?
     @book_slug = params[:book]
@@ -172,7 +172,7 @@ class SongsController < ApplicationController
 
   def email_diff_to_overseers(song)
     changes = song.previous_changes.except(:updated_at, :created_at, :id)
-    SongMailer.song_changed(song, changes).deliver_later unless changes.empty?
+    SongMailer.song_changed(song, changes, current_user&.name).deliver_later unless changes.empty?
   end
 
   def song_flash_link(song)
@@ -189,6 +189,13 @@ class SongsController < ApplicationController
     @song = Song.find(params[:id] || params[:s])
   end
 
+
+  # Share links carry the book's share code (camp-w-48392); older links carry
+  # the raw numeric id. Resolve either to the numeric id — the client stores ids.
+  def resolve_add_book_param(value)
+    return value if value.match?(/\A\d+\z/)
+    Book.find_by(share_code: value)&.id
+  end
 
   def song_params
     result = params.require(:song).permit(:lyrics, :title, :lang, language_links: [])

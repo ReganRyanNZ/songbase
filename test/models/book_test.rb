@@ -46,4 +46,25 @@ class BookTest < ActiveSupport::TestCase
     assert_equal song_2.id.to_s, book.song_id_from_index(7)
     assert_nil book.song_id_from_index('99')
   end
+
+  # Share links use a name-prefix + 5-digit code instead of the numeric id so
+  # book ids can't be guessed: "Camp Weekend" → camp-w-48392.
+  test 'share_code is generated on create from the first six name characters' do
+    book = FactoryBot.create(:book, name: 'Camp Weekend 2026')
+    assert_match(/\Acamp-w-\d{5}\z/, book.share_code)
+
+    single_word = FactoryBot.create(:book, name: 'Sunday Services')
+    assert_match(/\Asunday-\d{5}\z/, single_word.share_code)
+  end
+
+  test 'share_code is unique across books' do
+    book_1 = FactoryBot.create(:book, name: 'Camp Weekend 2026')
+    book_2 = FactoryBot.create(:book, name: 'Camp Weekend 2026')
+    refute_equal book_1.share_code, book_2.share_code
+  end
+
+  test 'app_entry exposes the share_code to clients' do
+    book = FactoryBot.create(:book, name: 'Camp Weekend 2026')
+    assert_equal book.share_code, book.app_entry[:share_code]
+  end
 end

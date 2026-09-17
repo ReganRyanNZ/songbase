@@ -2,7 +2,9 @@ class BooksController < ApplicationController
   before_action :set_book, only: [:edit, :update, :destroy]
   before_action :verify_edit_token, only: [:edit, :update, :destroy]
   before_action :set_duplicatable_books, only: [:new, :edit, :create, :update]
-  before_action :require_super_admin, only: [:restore]
+  before_action :set_languages, only: [:new, :edit, :create, :update]
+  before_action :authenticate, only: [:admin_index, :activity]
+  before_action :require_super_admin, only: [:admin_index, :activity, :restore]
 
   layout "admin", only: [:admin_index, :new, :edit, :create, :update, :activity]
 
@@ -16,6 +18,7 @@ class BooksController < ApplicationController
       if source && (source.sync_to_all || super_admin)
         @book.name = "#{source.name} (copy)"
         @book.songs = source.songs.dup
+        @book.song_tunes = (source.song_tunes || {}).dup
         @book.languages = source.languages.dup
         # Surface the source id so the builder can fetch display data (title/lang)
         # client-side via book_songs — book.songs above already carries the hash.
@@ -45,9 +48,10 @@ class BooksController < ApplicationController
 
     if @book.save
       BookMailer.book_created(@book).deliver_later if @book.email.present?
+      BookMailer.book_created_admin(@book).deliver_later
       BookAudit.log(book: @book, user: current_user, action: 'create',
                     changes: format_changes_for_audit(book_audit_changes(@book)))
-      redirect_to "/#{@book.slug}/i?add_book=#{@book.id}&edit_token=#{@book.edit_token}", notice: "Book was successfully created"
+      redirect_to "/#{@book.slug}/i?add_book=#{@book.share_code}&edit_token=#{@book.edit_token}", notice: "Book was successfully created"
     else
       render :new, status: :unprocessable_entity
     end
@@ -81,21 +85,13 @@ class BooksController < ApplicationController
   end
 
   def admin_index
-    unless super_admin
-      redirect_to root_path, alert: "Super admin only"
-      return
-    end
     @books = Book.order(:name).map { |b|
-      { id: b.id, name: b.name, slug: b.slug, edit_token: b.edit_token, song_count: (b.songs || {}).size, downloads: b.downloads, sync_to_all: b.sync_to_all, created_at: b.created_at }
+      { id: b.id, name: b.name, slug: b.slug, share_code: b.share_code, edit_token: b.edit_token, song_count: (b.songs || {}).size, downloads: b.downloads, sync_to_all: b.sync_to_all, created_at: b.created_at }
     }
   end
 
   # Super-admin: recent book edit history across all books.
   def activity
-    unless super_admin
-      redirect_to root_path, alert: "Super admin only"
-      return
-    end
     @audits = BookAudit.includes(:user).order(time: :desc).limit(200)
   end
 
@@ -123,6 +119,10 @@ class BooksController < ApplicationController
     @duplicatable_books = duplicatable_books
   end
 
+  def set_languages
+    @languages = Song.languages
+  end
+
   def verify_edit_token
     return if super_admin
     unless @book.edit_token == params[:edit_token]
@@ -131,9 +131,10 @@ class BooksController < ApplicationController
   end
 
   def book_params
-    permitted = params.require(:book).permit(:name, :email, :songs, :languages)
+    permitted = params.require(:book).permit(:name, :email, :songs, :song_tunes, :languages)
 
     permitted[:songs] = JSON.parse(permitted[:songs]) rescue {} if permitted[:songs].is_a?(String)
+    permitted[:song_tunes] = JSON.parse(permitted[:song_tunes]) rescue {} if permitted[:song_tunes].is_a?(String)
     permitted[:languages] = JSON.parse(permitted[:languages]) rescue [] if permitted[:languages].is_a?(String)
 
     permitted
