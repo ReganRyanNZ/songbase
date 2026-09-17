@@ -44,6 +44,30 @@ class SongMailerTest < ActionMailer::TestCase
     assert_match(%r{http://test\.host/322}, text)
   end
 
+  test "reordered stanzas diff as removal and addition, not false pairs" do
+    song = Song.new(lang: "english", title: "Swapped")
+    song.id = 323
+    changes = {
+      "lyrics" => [
+        "1\nAlpha verse\n\n2\nBeta verse\n",
+        "1\nBeta verse\n\n2\nAlpha verse\n"
+      ]
+    }
+
+    email = SongMailer.song_changed(song, changes, "Regan Ryan").deliver_now
+
+    text = email.text_part.body.decoded
+    # Alpha (and Beta) each appear once per version but in different stanzas —
+    # LCS must classify both as moved (removed + added), with stanza numbers
+    # as context.
+    assert_match(/- Alpha verse/, text)
+    assert_match(/\+ Alpha verse/, text)
+    assert_match(/- Beta verse/, text)
+    assert_match(/\+ Beta verse/, text)
+    assert_match(/^  1\r?$/, text)
+    assert_match(/^  2\r?$/, text)
+  end
+
   test "new song email goes to the support address when the language has no overseers" do
     song = Song.new(lang: "english")
     song.id = 321
