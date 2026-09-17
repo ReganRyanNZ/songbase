@@ -332,7 +332,7 @@ DEPENDENCIES
   byebug
   capybara
   cgi
-  clerk-sdk-ruby
+  clerk-sdk-ruby (= 4.2.1)
   date
   dotenv-rails
   factory_bot_rails

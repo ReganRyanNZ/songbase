@@ -32,7 +32,7 @@ gem 'terser'
 
 gem 'react-rails'
 
-gem 'clerk-sdk-ruby', require: "clerk"
+gem 'clerk-sdk-ruby', '4.2.1', require: "clerk" # pinned: clerk_handshake_patch.rb monkey-patches its internals
 
 #Api gems
 gem 'active_model_serializers'
