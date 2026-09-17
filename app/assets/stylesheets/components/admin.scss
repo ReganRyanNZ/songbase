@@ -1180,3 +1180,171 @@ body.admin:not(.admin-landing) .application-container {
     }
   }
 }
+
+// ===== Email previews (EmailPreviewsController, super-admin only) =====
+.email-previews-page,
+.email-preview-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.email-previews-intro,
+.email-preview-description {
+  color: var(--comment-color);
+  font-size: 0.9rem;
+  margin: 0 0 1.25rem;
+}
+
+.email-preview-back {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+
+  a { color: var(--link-color); }
+}
+
+// Index: one row per previewable email.
+.email-preview-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.email-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 0.25rem;
+  border-bottom: 1px solid var(--ui-color);
+
+  &:last-child { border-bottom: none; }
+}
+
+.email-preview-item-info {
+  flex: 1;
+  min-width: 0;
+
+  h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+
+    a {
+      color: var(--link-color);
+      text-decoration: none;
+
+      &:hover { text-decoration: underline; }
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--comment-color);
+  }
+}
+
+.email-preview-open {
+  flex-shrink: 0;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--ui-color);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.85rem;
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}
+
+// Show: envelope metadata + rendered email.
+.email-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--ui-color);
+  border-radius: 8px;
+  font-size: 0.85rem;
+
+  dt {
+    color: var(--comment-color);
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    align-self: center;
+    white-space: nowrap;
+  }
+
+  dd {
+    margin: 0;
+    word-break: break-word;
+  }
+}
+
+.email-preview-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.email-preview-toggle {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.email-preview-pill {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--ui-color);
+  background: transparent;
+  color: var(--text);
+  border-radius: 16px;
+  text-decoration: none;
+
+  &.active {
+    background: var(--accent);
+    color: var(--accent-contrast);
+    border-color: var(--accent);
+  }
+}
+
+// Emails are authored on a white canvas — keep it that way in night mode.
+.email-preview-frame-wrap {
+  border: 1px solid var(--ui-color);
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+
+  &.mobile { max-width: 375px; }
+}
+
+.email-preview-frame {
+  display: block;
+  width: 100%;
+  height: 600px; // fallback until the load handler sizes it
+  border: none;
+  background: #fff;
+}
+
+.email-preview-text {
+  padding: 1rem;
+  border: 1px solid var(--ui-color);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--text);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.email-preview-empty {
+  color: var(--comment-color);
+  font-style: italic;
+  font-size: 0.85rem;
+  margin: 0.75rem 0 0;
+}

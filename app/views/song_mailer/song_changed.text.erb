@@ -1,0 +1,22 @@
+SONGBASE
+<%= @song.title %> (<%= @song.lang %>) - <%= @is_new_song ? "new song" : "updated" %><%= " - by #{@editor_name}" if @editor_name %>
+
+<% if !@is_new_song && @attr_changes.any? %>
+CHANGES
+<% @attr_changes.each do |attribute, old_value, new_value| %>
+<%= attribute.upcase %>: <%= old_value.presence || "(empty)" %> -> <%= new_value.presence || "(empty)" %>
+<% end %>
+<% end %>
+
+<% if @lyrics_rows.any? %>
+LYRICS<%= " - NEW" if @is_new_song %>
+<% @lyrics_rows.each do |kind, line| %><%= kind == :removed ? "- " : kind == :added ? "+ " : "  " %><%= line %>
+<% end %>
+<% end %>
+
+View the song: <%= @song_url %>
+
+------------------------------------------------------------
+You're receiving this because you oversee the <%= @song.lang %> song
+collection. Questions? Reply to this email or write to
+songbase.brothers@gmail.com.

@@ -1,0 +1,22 @@
+<%= render 'songs/flash' %>
+
+<div class="email-previews-page">
+  <h1 class="admin-root-title">Email previews</h1>
+
+  <p class="email-previews-intro">
+    Each preview renders the real mailer templates with sample data — nothing is sent.
+    Tweak the mailers or their views and refresh to see the result.
+  </p>
+
+  <ul class="email-preview-list">
+    <% @previews.each do |preview| %>
+      <li class="email-preview-item">
+        <div class="email-preview-item-info">
+          <h2><%= link_to preview[:name], admin_preview_email_path(preview[:id]) %></h2>
+          <p><%= preview[:description] %></p>
+        </div>
+        <%= link_to "Preview", admin_preview_email_path(preview[:id]), class: "email-preview-open" %>
+      </li>
+    <% end %>
+  </ul>
+</div>

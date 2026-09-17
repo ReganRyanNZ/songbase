@@ -1,0 +1,68 @@
+<div style="display:none; max-height:0; overflow:hidden; mso-hide:all;">
+  New Songbase book: “<%= @book.name %>” (<%= @song_count %> songs)
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#ffffff; padding:24px 0;">
+  <tr>
+    <td align="center">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px; width:100%; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#1f2328; font-size:15px; line-height:1.6;">
+
+        <tr>
+          <td style="padding:8px 32px 0;">
+            <div style="font-size:13px; letter-spacing:0.14em; text-transform:uppercase; color:#6e7781; font-weight:600;">Songbase</div>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:16px 32px 0;">
+            <h1 style="margin:0; font-size:22px; font-weight:700; color:#1f2328;">New book created</h1>
+            <p style="margin:4px 0 0; font-size:15px;"><strong><%= @book.name %></strong></p>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:18px 32px 0;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; font-size:14px;">
+              <tr>
+                <td width="130" style="padding:4px 0; color:#6e7781;" valign="top">Created by</td>
+                <td style="padding:4px 0;"><%= @book.email.presence || "<span style=\"color:#8b949e;\">no contact email</span>".html_safe %></td>
+              </tr>
+              <tr>
+                <td style="padding:4px 0; color:#6e7781;" valign="top">Languages</td>
+                <td style="padding:4px 0;"><%= @book.languages&.join(', ').presence || "&mdash;".html_safe %></td>
+              </tr>
+              <tr>
+                <td style="padding:4px 0; color:#6e7781;" valign="top">Songs</td>
+                <td style="padding:4px 0;"><%= @song_count %></td>
+              </tr>
+              <tr>
+                <td style="padding:4px 0; color:#6e7781;" valign="top">Book id</td>
+                <td style="padding:4px 0;"><%= @book.id %></td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:22px 32px 0; font-size:14px;">
+            <a href="<%= @admin_books_url %>" style="color:#1f2328; font-weight:600; text-decoration:underline;">Manage books in the admin</a>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:24px 32px 0;">
+            <hr style="border:none; border-top:1px solid #eaecef; margin:0;">
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding:16px 32px 28px; color:#6e7781; font-size:12px; line-height:1.5;">
+            You're receiving this because you administer Songbase.<br>
+            Questions? Reply to this email or write to <a href="mailto:songbase.brothers@gmail.com" style="color:#1f2328;">songbase.brothers@gmail.com</a>.
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>

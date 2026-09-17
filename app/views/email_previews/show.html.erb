@@ -1,0 +1,69 @@
+<%= render 'songs/flash' %>
+
+<div class="email-preview-page">
+  <p class="email-preview-back">
+    <%= link_to "← All email previews", admin_preview_emails_path %>
+  </p>
+
+  <h1 class="admin-root-title"><%= @preview[:name] %></h1>
+  <p class="email-preview-description"><%= @preview[:description] %></p>
+
+  <dl class="email-meta">
+    <dt>From</dt>
+    <dd><%= @meta[:from] %></dd>
+    <dt>To</dt>
+    <dd><%= @meta[:to] %></dd>
+    <dt>Subject</dt>
+    <dd><%= @meta[:subject] %></dd>
+  </dl>
+
+  <div class="email-preview-controls">
+    <div class="email-preview-toggle">
+      <% if @part == "html" %>
+        <span class="email-preview-pill active">HTML</span>
+      <% else %>
+        <%= link_to "HTML", admin_preview_email_path(@preview[:id], part: "html", width: ("mobile" if @mobile)), class: "email-preview-pill" %>
+      <% end %>
+
+      <% if @text_part.present? %>
+        <% if @part == "text" %>
+          <span class="email-preview-pill active">Plain text</span>
+        <% else %>
+          <%= link_to "Plain text", admin_preview_email_path(@preview[:id], part: "text", width: ("mobile" if @mobile)), class: "email-preview-pill" %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <% if @part == "html" %>
+      <div class="email-preview-toggle">
+        <% if @mobile %>
+          <%= link_to "Desktop", admin_preview_email_path(@preview[:id], part: "html"), class: "email-preview-pill" %>
+          <span class="email-preview-pill active">Mobile</span>
+        <% else %>
+          <span class="email-preview-pill active">Desktop</span>
+          <%= link_to "Mobile", admin_preview_email_path(@preview[:id], part: "html", width: "mobile"), class: "email-preview-pill" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @part == "html" %>
+    <div class="email-preview-frame-wrap <%= "mobile" if @mobile %>">
+      <iframe class="email-preview-frame" srcdoc="<%= @html_part %>" title="Email HTML preview"></iframe>
+    </div>
+    <script>
+      (function () {
+        var frame = document.querySelector("iframe.email-preview-frame");
+        frame.addEventListener("load", function () {
+          frame.style.height = frame.contentDocument.documentElement.scrollHeight + "px";
+        });
+      })();
+    </script>
+  <% else %>
+    <pre class="email-preview-text"><%= @text_part %></pre>
+  <% end %>
+
+  <% if @text_part.blank? %>
+    <p class="email-preview-empty">This email has no plain-text part — it is HTML-only.</p>
+  <% end %>
+</div>
