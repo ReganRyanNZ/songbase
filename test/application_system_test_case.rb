@@ -15,6 +15,24 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
 
   Capybara.default_max_wait_time = 2
 
+  # The test env serves JS/CSS from the precompiled bundles in public/assets.
+  # If those are older than the sources in app/assets, the browser silently
+  # runs OLD code and the tests assert against yesterday's UI (this actually
+  # happened: a book-editor rework "passed" while testing the stale bundle).
+  # Fail fast with a fix hint instead.
+  setup do
+    manifest = Rails.root.glob("public/assets/.sprockets-manifest-*.json").max_by(&:mtime)
+    next if manifest.nil? # never precompiled — sprockets serves dynamically
+
+    newest_source = Rails.root.glob("app/assets/**/*.*").select { |f| File.file?(f) }.max_by(&:mtime)
+    next if newest_source.nil?
+
+    if newest_source.mtime > manifest.mtime
+      flunk "Stale asset bundle: #{newest_source.relative_path_from(Rails.root)} is newer than " \
+           "#{manifest.relative_path_from(Rails.root)}. Run: RAILS_ENV=test bin/rails assets:precompile"
+    end
+  end
+
   private
 
   def setup_data
