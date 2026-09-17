@@ -35,6 +35,8 @@ Rails.application.routes.draw do
   post 'admin/cache/reset', to: 'songs#reset_cache'
   get 'admin/trash', to: 'songs#trash'
   get 'admin/analytics', to: 'songs#analytics'
+  get 'admin/preview_emails', to: 'email_previews#index'
+  get 'admin/preview_emails/:id', to: 'email_previews#show', as: :admin_preview_email
   get 'admin/example', to: 'songs#admin_example'
   get 'admin/example_with_tunes', to: 'songs#admin_example_with_tunes'
   get 'taketime', to: 'take_time#take_time'
