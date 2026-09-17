@@ -71,10 +71,13 @@ class ApplicationController < ActionController::Base
   end
 
   def clerk_auth_url(base)
-    return base unless request&.get? && request.original_url.present?
+    return base unless request&.get? && request.fullpath.present?
+    # Keep the redirect_url a same-origin path (not an absolute URL) —
+    # ClerkAuthController#safe_redirect_url whitelists paths only, so an
+    # absolute URL here would silently fall back to /admin after sign-in.
     # Strip Clerk's own handshake/redirect query params so we don't carry
     # a stale anonymous handshake JWT into the next redirect_url.
-    clean = request.original_url.dup
+    clean = request.fullpath.dup
     clean = clean.sub(/([?&])__clerk_handshake=[^&]*&?/, '\1')
     clean = clean.sub(/([?&])redirect_url=[^&]*&?/, '\1')
     clean = clean.sub(/[?&]$/, '')

@@ -38,7 +38,24 @@ class ClerkAuthController < ApplicationController
   end
 
   def safe_redirect_url(raw)
-    return admin_path unless raw.is_a?(String) && raw.start_with?('/')
+    return admin_path unless raw.is_a?(String)
+
+    # Absolute URLs are reduced to their path+query, but only when they
+    # point at this host — anything else is an open-redirect attempt.
+    if raw.match?(%r{\Ahttps?://}i)
+      begin
+        uri = URI.parse(raw)
+        return admin_path unless uri.host == request.host && uri.port == request.port
+
+        path = uri.path.presence || "/"
+        path += "?#{uri.query}" if uri.query.present?
+        return path
+      rescue URI::InvalidURIError
+        return admin_path
+      end
+    end
+
+    return admin_path unless raw.start_with?('/')
     # Reject scheme-relative or protocol-prefixed URLs ("//evil.com/x"
     # or "/javascript:..."). We only want same-origin paths.
     return admin_path if raw.match?(/\A\/\//) || raw.downcase.include?('javascript:')

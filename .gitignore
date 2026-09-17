@@ -24,6 +24,12 @@ config/secrets.yml
 # dotenv
 # TODO Comment out this rule if environment variables can be committed
 .env
+.env.local
+
+# Locally precompiled asset bundles — serving a stale bundle makes system
+# tests silently exercise old JS (see the staleness guard in
+# test/application_system_test_case.rb).
+/public/assets
 
 ## Environment normalization:
 /.bundle

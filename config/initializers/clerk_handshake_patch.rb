@@ -42,6 +42,62 @@ Clerk::AuthenticateRequest.class_eval do
     [307, debug_auth_headers(**opts).merge(redirect_headers), []]
   end
 
+  # Patched copy of upstream resolve_handshake (clerk-sdk-ruby 4.2.1) with one
+  # fix: on the signed-in path, upstream returns
+  # `verify_token_with_retry(...)` — a bare [nil, {}, []] — DISCARDING the
+  # Set-Cookie directives it just extracted from the handshake token. The
+  # page renders signed-in but the fresh __session/__client_uat cookies never
+  # reach the browser, so every subsequent navigation repeats the
+  # stale-cookie → 307 handshake dance (and a dead dev-browser session
+  # mid-dance bounces the user to whatever page initiated it). Carrying the
+  # directives through lets Clerk::Rack::Middleware merge them into the app
+  # response (it does this for nil-status results), so one successful
+  # handshake actually persists the session.
+  def resolve_handshake(env)
+    headers = {
+      Clerk::ACCESS_CONTROL_ALLOW_ORIGIN_HEADER => "null",
+      Clerk::ACCESS_CONTROL_ALLOW_CREDENTIALS_HEADER => "true"
+    }
+    session_token = nil
+
+    handshake_payload = verify_token(auth_context.handshake_token)
+    unless handshake_payload
+      return signed_out(enforce_auth: true, reason: Clerk::TokenVerificationErrorReason::JWK_FAILED_TO_RESOLVE)
+    end
+
+    cookies_to_set = handshake_payload[Clerk::HANDSHAKE_COOKIE_DIRECTIVES_KEY] || []
+    cookies_to_set.each do |cookie|
+      headers[Clerk::SET_COOKIE_HEADER] ||= []
+      headers[Clerk::SET_COOKIE_HEADER] << cookie
+
+      session_token = cookie.split(";")[0].split("=")[1] if cookie.start_with?("#{Clerk::SESSION_COOKIE}=")
+    end
+
+    if auth_context.development_instance?
+      redirect_url = auth_context.clerk_url.dup
+      remove_from_query_string(redirect_url, Clerk::HANDSHAKE_COOKIE)
+
+      headers[Clerk::LOCATION_HEADER] = redirect_url.to_s
+    end
+
+    return signed_out(reason: Clerk::AuthErrorReason::SESSION_TOKEN_MISSING, headers: headers) unless session_token
+
+    result = verify_token_with_retry(env, session_token)
+
+    # PATCH: attach the handshake's Set-Cookie directives to the signed-in
+    # pass-through result. The location header is deliberately NOT carried
+    # over — the page renders at /path?__clerk_handshake=... and the app's
+    # layout script strips the param client-side (no extra round-trip). A
+    # nil result (token didn't verify without raising) falls back to a plain
+    # signed-out response instead of crashing the middleware with
+    # nil.empty? like upstream does.
+    return signed_out if result.nil?
+    if result.is_a?(Array) && result[0].nil?
+      result[1][Clerk::SET_COOKIE_HEADER] = headers[Clerk::SET_COOKIE_HEADER] if headers[Clerk::SET_COOKIE_HEADER]
+    end
+    result
+  end
+
   private
 
   def expire_session_cookie_directives(env)
