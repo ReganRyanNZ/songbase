@@ -48,7 +48,18 @@ class Api::V2::SongsController < ApplicationController
     # Language filter scopes the candidate pool before ranking/seed list.
     base = Song.for_language(params[:language])
     if params[:search].present?
-      songs = SongSearcher.new(base.to_a).rank(params[:search]).take(20)
+      # Ranking normally resolves on the title tiers, so first scan with a
+      # light select (id/title/lang — no lyrics, the heavy column). Only when
+      # nothing matched by title do we fall back to the full-table lyrics
+      # scan, which needs every column loaded.
+      light = SongSearcher.new(base.select(:id, :title, :lang).to_a).rank(params[:search])
+      ranked = light.empty? ? SongSearcher.new(base.to_a).rank(params[:search]) : light
+
+      # Re-fetch the winners with all columns — admin_entry renders lyrics
+      # and timestamps.
+      ids = ranked.take(20).map(&:id)
+      by_id = Song.where(id: ids).index_by(&:id)
+      songs = ids.filter_map { |id| by_id[id] }
     else
       # Empty query: seed the Find songs pane with a browseable list instead of
       # "Type to search". Skips building SongSearcher, which would otherwise
