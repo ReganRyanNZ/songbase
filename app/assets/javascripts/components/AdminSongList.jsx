@@ -23,7 +23,13 @@ class AdminSongList extends React.Component {
     let search = event.target.value;
     // Update browser history to keep search value if the user navigates back out of a song
     window.history.replaceState({ search: search }, "");
-    this.updateSongList(search);
+    // Wait for typing to pause so we don't fire a request per keystroke
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => this.updateSongList(search), 300);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.searchTimeout);
   }
 
   updateSongList(search) {
