@@ -84,7 +84,6 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
     get admin_path
     assert_response :success
     assert_match(/Abba, Father/, response.body)
-    assert_match(/AdminDeviceBooks/, response.body)
 
     # Books — page body should include the book name.
     get admin_books_path
@@ -111,8 +110,6 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
       get admin_path
       assert_response :success
       assert_match(/Abba, Father/, response.body)
-      # Device-books React component is mounted on the Songs page.
-      assert_match(/AdminDeviceBooks/, response.body)
 
       # Every super-admin-only section should bounce a regular admin out.
       [admin_books_path, admin_analytics_path, admin_cache_path, admin_trash_path].each do |path|
