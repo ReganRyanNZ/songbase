@@ -15,6 +15,24 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
 
   Capybara.default_max_wait_time = 2
 
+  # The test env serves JS/CSS from the precompiled bundles in public/assets.
+  # If those are older than the sources in app/assets, the browser silently
+  # runs OLD code and the tests assert against yesterday's UI (this actually
+  # happened: a book-editor rework "passed" while testing the stale bundle).
+  # Fail fast with a fix hint instead.
+  setup do
+    manifest = Rails.root.glob("public/assets/.sprockets-manifest-*.json").max_by(&:mtime)
+    next if manifest.nil? # never precompiled — sprockets serves dynamically
+
+    newest_source = Rails.root.glob("app/assets/**/*.*").select { |f| File.file?(f) }.max_by(&:mtime)
+    next if newest_source.nil?
+
+    if newest_source.mtime > manifest.mtime
+      flunk "Stale asset bundle: #{newest_source.relative_path_from(Rails.root)} is newer than " \
+           "#{manifest.relative_path_from(Rails.root)}. Run: RAILS_ENV=test bin/rails assets:precompile"
+    end
+  end
+
   private
 
   def setup_data
@@ -32,9 +50,9 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
                       @song_be_thou_supreme]
     @song_bendito = FactoryBot.create(:song, :portuguese)
     @all_songs = @english_songs + [@song_bendito]
-    @test_book = FactoryBot.create(:book, name: 'Test Book', songs: {@song_from_the_time.id => '1',
-                                                                     @song_abba_father.id => '2',
-                                                                     @song_according_to.id => '3'})
+    @test_book = FactoryBot.create(:book, name: 'Test Book', sync_to_all: true, songs: {@song_from_the_time.id => '1',
+                                                                                       @song_abba_father.id => '2',
+                                                                                       @song_according_to.id => '3'})
     @book_songs = [@song_from_the_time,
                    @song_abba_father,
                    @song_according_to]

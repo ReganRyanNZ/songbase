@@ -9,14 +9,27 @@
     <meta name="google" content="notranslate">
     <meta name="google-site-verification" content="37ffvoSa1-N_lySTBC3xeLJozjNWNh0Sy-rI9g3DBVY" />
     <meta name="description" content="Songbook for psalms, hymns, and spiritual songs" />
+    <%= render partial: "layouts/clerk_handshake_cleanup" %>
     <%= stylesheet_link_tag    'application', media: 'all' %>
     <%= javascript_include_tag 'application' %>
     <link rel="manifest" href=<%= asset_path "manifest.json" %> />
   </head>
 
   <body>
+    <script>
+      (function() {
+        var saved = localStorage.getItem('cssTheme') || 'css-normal';
+        document.body.removeAttribute('class');
+        document.body.classList.add(saved);
+      })();
+    </script>
     <div class="application-container">
+      <%= render 'songs/flash' %>
       <%= yield %>
     </div>
+    <% if @new_book_id %>
+      <meta name="new-book-id" content="<%= @new_book_id %>">
+      <meta name="new-book-token" content="<%= @new_book_token %>">
+    <% end %>
   </body>
 </html>

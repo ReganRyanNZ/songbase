@@ -73,6 +73,43 @@ class SongTest < ActiveSupport::TestCase
     assert_equal({}, book.reload.songs)
   end
 
+  test 'destroying a song also clears its song_tunes reference in books' do
+    song = FactoryBot.create(:song)
+    book = FactoryBot.create(:book, songs: { song.id.to_s => '1' },
+                             song_tunes: { song.id.to_s => 2 })
+
+    song.destroy_with_audit
+
+    assert_equal({}, book.reload.song_tunes)
+  end
+
+  test ".merge! remaps song_tunes from the old song's id to the new song's id" do
+    old_song = FactoryBot.create(:song)
+    new_song = FactoryBot.create(:song)
+    book = FactoryBot.create(:book, songs: { old_song.id.to_s => '7' },
+                             song_tunes: { old_song.id.to_s => 2 })
+
+    new_song.merge!(old_song)
+
+    assert_nil(book.reload.song_tunes[old_song.id.to_s])
+    assert_equal(2, book.song_tunes[new_song.id.to_s])
+  end
+
+  test '#tune_count reports one tune for songs without ### headers' do
+    assert_equal 1, FactoryBot.create(:song, :abba_father).tune_count
+  end
+
+  test '#tune_count counts ### separated sections' do
+    assert_equal 2, FactoryBot.create(:song, :be_thou_supreme).tune_count
+    assert_equal 3, FactoryBot.create(:song, :a_little_bird_i_am).tune_count
+  end
+
+  test '#tune_titles parses ### headers and falls back to "Tune N"' do
+    assert_equal ['Tune 1'], FactoryBot.create(:song, :abba_father).tune_titles
+    assert_equal ['Original tune', 'New tune (with chorus)'],
+                 FactoryBot.create(:song, :be_thou_supreme).tune_titles
+  end
+
   test 'languages gets a distinct list of languages, sorted but with english first' do
     FactoryBot.create(:song, lang: 'english')
     FactoryBot.create(:song, lang: 'Afrikaans')
@@ -124,6 +161,55 @@ class SongTest < ActiveSupport::TestCase
     assert_equal([song1.id], song2.reload.language_links)
     song1.destroy
     assert_equal([], song2.reload.language_links)
+  end
+
+  test 'transitive_language_links' do
+    # Create three songs in different languages
+    song1 = FactoryBot.create(:song, lang: 'english')
+    song2 = FactoryBot.create(:song, lang: 'spanish')
+    song3 = FactoryBot.create(:song, lang: 'portuguese')
+
+    # Step 1: Link song1 and song2 (A↔B)
+    song1.language_links = [song2.id]
+    song1.save
+
+    assert_equal([song2.id], song1.reload.language_links, "Song1 should link to Song2")
+    assert_equal([song1.id], song2.reload.language_links, "Song2 should link to Song1")
+    assert_equal([], song3.reload.language_links, "Song3 should have no links yet")
+
+    # Step 2: Add song3 to song1's links (should create transitive links: A↔B↔C)
+    song1.language_links = [song2.id, song3.id]
+    song1.save
+
+    # All three should be interconnected
+    assert_includes song1.reload.language_links, song2.id, "Song1 should link to Song2"
+    assert_includes song1.reload.language_links, song3.id, "Song1 should link to Song3"
+    assert_includes song2.reload.language_links, song1.id, "Song2 should link to Song1"
+    assert_includes song2.reload.language_links, song3.id, "Song2 should link to Song3 - transitive"
+    assert_includes song3.reload.language_links, song1.id, "Song3 should link to Song1"
+    assert_includes song3.reload.language_links, song2.id, "Song3 should link to Song2 - transitive"
+
+    # Step 3: Add a fourth song to verify transitive linking works with larger groups
+    song4 = FactoryBot.create(:song, lang: 'german')
+    song1.language_links = [song2.id, song3.id, song4.id]
+    song1.save
+
+    # All four should be interconnected
+    [song1, song2, song3, song4].each do |song|
+      other_ids = [song1, song2, song3, song4].map(&:id) - [song.id]
+      reloaded = song.reload
+      other_ids.each do |other_id|
+        assert_includes reloaded.language_links, other_id, 
+          "#{song.lang} song should link to all other songs (transitive)"
+      end
+    end
+
+    # Step 4: Remove one link (should only remove direct connection)
+    song1.update(language_links: [song2.id, song3.id]) # Remove song4
+
+    # Song4 should no longer be linked to song1
+    refute_includes song1.reload.language_links, song4.id, "Song1 should not link to Song4 after removal"
+    # Note: Transitive links to song4 from song2/song3 remain (we only remove direct link)
   end
 
   test 'print_format' do

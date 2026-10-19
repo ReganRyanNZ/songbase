@@ -1,7 +1,16 @@
-ruby '3.2.2'
+ruby '4.0.1'
 
 source 'https://rubygems.org'
 
+# Ruby 4.0 removed these from stdlib
+gem 'ostruct'
+gem 'benchmark'
+gem 'cgi'
+gem 'logger'
+gem 'mutex_m'
+gem 'date'
+
+gem 'ffi', '~> 1.17'
 gem 'rails', '~> 7.0'
 # Use postgres as the database for Active Record
 gem 'pg', '~> 1.5'
@@ -23,7 +32,7 @@ gem 'terser'
 
 gem 'react-rails'
 
-gem 'google_sign_in'
+gem 'clerk-sdk-ruby', '4.2.1', require: "clerk" # pinned: clerk_handshake_patch.rb monkey-patches its internals
 
 #Api gems
 gem 'active_model_serializers'
@@ -49,7 +58,5 @@ end
 
 group :development do
   gem 'listen'
-  gem 'spring-watcher-listen'
-  gem 'spring'
   gem 'web-console'
 end

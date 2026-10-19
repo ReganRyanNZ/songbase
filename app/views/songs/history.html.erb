@@ -1,0 +1,23 @@
+<%= render 'flash' %>
+
+<div class="admin-history">
+  <h1 class="admin-root-title">History: <%= @song.title %></h1>
+  <p class="history-back">
+    <%= link_to "Edit song", edit_song_path(@song) %> ·
+    <%= link_to "All songs", admin_path %>
+  </p>
+
+  <%= react_component('SongHistory', {
+    song: { id: @song.id, title: @song.title },
+    audits: @audits.map { |a|
+      {
+        id: a.id,
+        action: a.action,
+        description: a.description,
+        time: a.time&.iso8601,
+        user: a.user&.name,
+        changes: a.formatted_changes
+      }
+    }
+  }) %>
+</div>

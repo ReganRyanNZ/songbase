@@ -38,7 +38,7 @@
     top: 2px;
     height: 26px;
     width: 19px;
-    border: 2px solid white;
+    border: 2px solid var(--background);
     border-radius: 2px;
     background-color: var(--ui-color);
   }
@@ -54,7 +54,7 @@
   width: 12px;
   height: 12px;
   background-color: var(--ui-color);
-  border: 1px solid white;
+  border: 1px solid var(--background);
   border-radius: 12px;
 
   .book-icon-close-x1 {
@@ -62,14 +62,14 @@
     width: 1px;
     margin-left: 5px;
     margin-top: 1px;
-    background-color: white;
+    background-color: var(--background);
     transform: rotate(45deg);
     z-index: 1;
   }
   .book-icon-close-x2 {
     height: 10px;
     width: 1px;
-    background-color: white;
+    background-color: var(--background);
     transform: rotate(-90deg);
     z-index: 2;
   }

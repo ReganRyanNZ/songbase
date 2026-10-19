@@ -3,14 +3,16 @@ class SongApp extends React.Component {
     super(props);
 
     this.state = {
-      page: props.song_id || "index",
+      page: props.show_books_page ? "books" : (props.song_id || "index"),
       settings: {
         // default settings, these will be overridden if db settings are found
         settingsType: "global",
         languages: ["english"],
         languagesInfo: [],
         updated_at: 0,
-        cssTheme: localStorage.getItem('cssTheme') || 'css-normal'
+        cssTheme: localStorage.getItem('cssTheme') || 'css-normal',
+        booksToSync: [],
+        editableBooks: {}  // { "book_id": "edit_token" }
       },
       totalSongsCached: 0,
       currentBook: props.preloaded_current_book || null,
@@ -20,14 +22,23 @@ class SongApp extends React.Component {
       loadingData: false,
       search: "",
       orderIndexBy: 'alpha',
+      showHistory: false, // when true, the index title list shows recently-viewed songs instead of search results
       scrollTo: null,
       rowLimit: 100,
       logSongApp: true,
       showReferenceLinks: localStorage.getItem('showReferenceLinks') == 'true',
       showChords: localStorage.getItem('showChords') == 'false' ? false : true, // Local storage to load faster than indexedDB, and synchronously
+      activeTranslations: [], // Array of song IDs for translations to display alongside current song
+      pendingBookNavigation: null, // Book ID to navigate to after sync completes
     };
 
     this.toggleMusic = this.toggleMusic.bind(this); // Bind here to keep 'this' context and keep the function ref constant, so we don't apply the same listener a dozen times
+    this.canEditBook = this.canEditBook.bind(this);
+    this.editUrlFor = this.editUrlFor.bind(this);
+    this.removeBookFromSync = this.removeBookFromSync.bind(this);
+    this.resetBooks = this.resetBooks.bind(this);
+    this.addTranslation = this.addTranslation.bind(this);
+    this.removeTranslation = this.removeTranslation.bind(this);
 
     this.navigate = new AppNavigation(this);
     this.navigate.setupInitialHistoryState();
@@ -81,7 +92,7 @@ class SongApp extends React.Component {
     }
   }
 
-  getSong(id) {
+  getSong(id, skipBookLookup = false) {
     if (this.props.preloaded_song) {
       if (this.props.preloaded_current_book) {
         // If we are inside a book, the song's id will point to the song's index in that book
@@ -97,9 +108,9 @@ class SongApp extends React.Component {
     }
 
     // If we are inside a book, the song's id will point to the song's index in that book
-    let song_id = this.state.currentBook ? this.getSongIdFromBook(this.state.currentBook, id) : id;
+    let song_id = (this.state.currentBook && !skipBookLookup) ? this.getSongIdFromBook(this.state.currentBook, id) : id;
 
-    return this.state.songs.find(song => song.id == song_id) || "couldn't find song";
+    return this.state.songs.find(song => song.id == song_id) || null;
   }
 
   // Books stored songs as {song.id => index}
@@ -111,13 +122,18 @@ class SongApp extends React.Component {
   setSearch(search) {
     this.setState({
       search: search,
-      rowLimit: 100
+      rowLimit: 100,
+      showHistory: false // typing implies the user wants to search the catalog, not browse history
     });
   }
 
   clearSearch() {
     this.setState({ search: "" });
     document.getElementById("index_search").focus();
+  }
+
+  toggleHistory() {
+    this.setState({ showHistory: !this.state.showHistory });
   }
 
   // toggle unless given a specific order
@@ -144,6 +160,63 @@ class SongApp extends React.Component {
 
   getBookReferencesForSong(song) {
     return this.state.books.map(book => {return book.songs[song.id] ? [book.slug, book.name, book.songs[song.id]] : null }).filter(notNull => notNull);
+  }
+
+  canEditBook(bookId) {
+    if (this.props.is_super_admin) return true;
+    const editableBooks = this.state.settings.editableBooks || {};
+    return !!editableBooks[bookId];
+  }
+
+  editTokenFor(bookId) {
+    const editableBooks = this.state.settings.editableBooks || {};
+    return editableBooks[bookId];
+  }
+
+  editUrlFor(bookId) {
+    if (this.props.is_super_admin) return `/books/${bookId}/edit`;
+    const token = this.editTokenFor(bookId);
+    return token ? `/books/${bookId}/edit?edit_token=${token}` : null;
+  }
+
+  removeBookFromSync(bookId) {
+    this.navigate.clearBook();
+    let settings = this.state.settings;
+    if (settings.booksToSync) {
+      settings.booksToSync = settings.booksToSync.filter(id => id != bookId);
+    }
+    this.setState({ settings: settings });
+    this.dbSync.db.settings.put(settings);
+    this.dbSync.db.books.delete(bookId);
+    this.dbSync.pushIndexedDBToState();
+  }
+
+  // Bulk version of removeBookFromSync: drops every user-added (booksToSync)
+  // book from the device while leaving the default sync_to_all hymnals intact.
+  resetBooks() {
+    let settings = this.state.settings;
+    let bookIds = (settings.booksToSync || []).slice();
+    if (bookIds.length === 0) { return; }
+    this.navigate.clearBook();
+    settings.booksToSync = [];
+    this.setState({ settings: settings });
+    this.dbSync.db.settings.put(settings);
+    bookIds.forEach(id => this.dbSync.db.books.delete(id));
+    this.dbSync.pushIndexedDBToState();
+  }
+
+  addTranslation(songId) {
+    if (!this.state.activeTranslations.includes(songId)) {
+      this.setState({
+        activeTranslations: [...this.state.activeTranslations, songId]
+      });
+    }
+  }
+
+  removeTranslation(songId) {
+    this.setState({
+      activeTranslations: this.state.activeTranslations.filter(id => id !== songId)
+    });
   }
 
   render() {
@@ -173,6 +246,8 @@ class SongApp extends React.Component {
             setSearch={this.setSearch.bind(this)}
             clearSearch={this.clearSearch.bind(this)}
             search={this.state.search}
+            showHistory={this.state.showHistory}
+            toggleHistory={this.toggleHistory.bind(this)}
             getSongIdFromBook={this.getSongIdFromBook}
             orderIndexBy={this.state.orderIndexBy}
             toggleOrderIndexBy={this.toggleOrderIndexBy.bind(this)}
@@ -191,6 +266,7 @@ class SongApp extends React.Component {
             setTheme={this.setTheme.bind(this)}
             cachedSongCount={this.state.totalSongsCached}
             resetCache={this.dbSync.resetDbData}
+            resetBooks={this.resetBooks}
             loadingData={this.state.loadingData}
             homeButton={homeButton}
           />
@@ -205,12 +281,21 @@ class SongApp extends React.Component {
           languages={this.state.settings.languages}
           goToBookIndex={this.navigate.goToBookIndex}
           homeButton={homeButton}
+          canEditBook={this.canEditBook}
+          editUrlFor={this.editUrlFor}
+          allBookEditTokens={this.props.all_book_edit_tokens}
+          onRemoveBook={this.removeBookFromSync}
+          booksToSync={this.state.settings.booksToSync || []}
           />
         );
         break;
 
       default: // display a song
         let song = this.getSong(page);
+        if (!song) {
+          content = <div className="song-container">{homeButton}<p>Song not found.</p></div>;
+          break;
+        }
         let songWasPreloaded = this.props.preloaded_song && this.props.preloaded_song.title == song.title;
         pageTitle = song.title;
         if(!!this.state.currentBook) {
@@ -223,9 +308,33 @@ class SongApp extends React.Component {
             <SongDisplay
               title={song.title}
               lyrics={song.lyrics}
+              songId={song.id}
               analyticsPath={songWasPreloaded ? null : window.location.href}
               showChords={this.state.showChords}
               toggleMusic={this.toggleMusic}/>
+
+            {this.state.activeTranslations.map(translationId => {
+              const translationSong = this.getSong(translationId, true);
+              if (!translationSong) return null;
+              return (
+                <div key={translationId} className="translation-display">
+                  <div className="translation-header">
+                    <span className="translation-language">{translationSong.lang}</span>
+                    <button 
+                      className="translation-remove-btn"
+                      onClick={() => this.removeTranslation(translationId)}>
+                      ×
+                    </button>
+                  </div>
+                  <SongDisplay
+                    title={translationSong.title}
+                    lyrics={translationSong.lyrics}
+                    analyticsPath={null}
+                    showChords={this.state.showChords}
+                    toggleMusic={this.toggleMusic}/>
+                </div>
+              );
+            })}
 
             <SongReferences
               goToBookIndex={this.navigate.goToBookIndex}
@@ -239,6 +348,9 @@ class SongApp extends React.Component {
               setSong={this.navigate.setSong}
               toggleReferenceLinks={this.toggleReferenceLinks.bind(this)}
               showReferenceLinks={this.state.showReferenceLinks}
+              activeTranslations={this.state.activeTranslations}
+              addTranslation={this.addTranslation}
+              removeTranslation={this.removeTranslation}
             />
           </div>
         );
@@ -246,14 +358,19 @@ class SongApp extends React.Component {
 
     document.title = pageTitle;
 
-    let title = <h1 className="home-title" onClick={this.navigate.returnToIndex}>
+    let title = <div className="home-title-row">
+                <h1 className="home-title" onClick={this.navigate.returnToIndex}>
                   {!!this.state.currentBook ? this.state.currentBook.name : "Songbase"}
                   {indexNumber}
-                </h1>;
+                </h1>
+                {this.state.page === "index" && this.state.currentBook ? (
+                  <button className="home-title-close" onClick={this.navigate.clearBook} title="Close book">✕</button>
+                ) : null}
+              </div>;
 
     this.setTheme();
     return (
-      <div className="song-app" key="song-app">
+      <div className={"song-app" + (this.state.page === "settings" ? " settings-page" : "")} key="song-app">
         {title}
         {content}
       </div>

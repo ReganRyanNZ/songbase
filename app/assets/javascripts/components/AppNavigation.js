@@ -44,10 +44,6 @@ class AppNavigation {
   }
 
   toggleBookIndex() {
-    if(this.app.state.currentBook) {
-      return this.clearBook();
-    }
-
     if (this.app.state.page == "books") {
       this.returnToIndex();
     } else {
@@ -77,7 +73,7 @@ class AppNavigation {
       book = this.app.state.currentBook
       path = songId
     }
-    this.app.setState({ page: songId, currentBook: book });
+    this.app.setState({ page: songId, currentBook: book, activeTranslations: [] });
     window.history.pushState({ page: songId, currentBook: book }, "", path);
     window.scrollTo(0, 0);
   }

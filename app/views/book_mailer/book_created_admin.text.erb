@@ -1,0 +1,13 @@
+SONGBASE
+New book created: "<%= @book.name %>" (id <%= @book.id %>)
+
+Created by: <%= @book.email.presence || "(no contact email)" %>
+Languages: <%= @book.languages&.join(', ').presence || "-" %>
+Songs: <%= @song_count %>
+
+Manage books: <%= @admin_books_url %>
+
+------------------------------------------------------------
+You're receiving this because you administer Songbase.
+Questions? Reply to this email or write to
+songbase.brothers@gmail.com.

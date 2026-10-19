@@ -1,6 +1,7 @@
 class Song < ApplicationRecord
   has_many :audits, dependent: :destroy
   validates :title, presence: true
+  validate :no_malicious_content
 
   before_save :remove_windows_carriage_returns
   before_save :sanitize_lang
@@ -17,6 +18,13 @@ class Song < ApplicationRecord
   scope :deleted_after, ->(last_updated_at) { unscoped.where('deleted_at >= ?', last_updated_at).where('created_at < ?', last_updated_at) }
   scope :recently_changed, -> { where('updated_at >= ?', 1.week.ago).order(updated_at: :desc) }
 
+  # Soft-deleted songs (for the admin trash page).
+  scope :deleted, -> { unscoped.where.not(deleted_at: nil) }
+
+  def restore
+    update(deleted_at: nil, deleted_by: nil)
+  end
+
   scope :duplicate_titles, -> {
     where("(SELECT COUNT(*) FROM songs AS songs1
                             WHERE songs1.title LIKE (songs.title || '%')
@@ -24,7 +32,7 @@ class Song < ApplicationRecord
   }
 
   scope :search, ->(search_term) {
-    return number_search(search_term) if search_term.match?(/^\d+$/)
+    return number_search(search_term) if search_term&.match?(/^\d+$/)
 
     search_term ||= ''
     chord_regex = "(?:\\[[^\\]]*\\])"
@@ -65,11 +73,18 @@ class Song < ApplicationRecord
     # keep indicies of old songs' books
     old_song.books.each do |book|
       songs = book.songs
+      song_tunes = book.song_tunes || {}
 
       songs[self.id.to_s] = songs[old_song.id.to_s] # insert new song into book
       songs.delete(old_song.id.to_s) # remove old song from book
 
-      book.update(songs: songs)
+      # mirror tune choice: carry the old song's tune to the new id, drop the old key
+      if song_tunes.key?(old_song.id.to_s)
+        song_tunes[self.id.to_s] = song_tunes[old_song.id.to_s]
+        song_tunes.delete(old_song.id.to_s)
+      end
+
+      book.update(songs: songs, song_tunes: song_tunes)
     end
 
     # choose the lyrics that has chords
@@ -98,6 +113,25 @@ class Song < ApplicationRecord
 
   def has_chords?
     lyrics.include?('[')
+  end
+
+  # A song's lyrics may contain multiple tunes, separated by `### ` headers.
+  # Single-tune songs (no headers) report a count of 1.
+  def tune_count
+    [lyrics.to_s.split(/(?=###)/).count { |section| !section.strip.empty? }, 1].max
+  end
+
+  # Titles parsed from `### Tune Name` headers. Falls back to "Tune N" for
+  # songs without headers (one entry for a single-tune song).
+  def tune_titles
+    sections = lyrics.to_s.split(/(?=###)/).reject { |s| s.strip.empty? }
+    return ["Tune 1"] if sections.none? { |s| s =~ /^###/ }
+
+    titles = sections.each_with_index.map do |section, i|
+      match = section.match(/^###\s*(.+?)$/)
+      match ? match[1].strip : "Tune #{i + 1}"
+    end
+    titles.empty? ? ["Tune 1"] : titles
   end
 
   def app_entry
@@ -129,13 +163,22 @@ class Song < ApplicationRecord
 
   def destroy_with_audit(user=nil)
     user ||= User.system_user
+    Audit.log(
+      song: self,
+      user: user,
+      action: 'destroy',
+      changes: { 'title' => { 'before' => title, 'after' => nil } }
+    )
     update(deleted_at: Time.current, deleted_by: user.id)
     remove_references_from_books
   end
 
   def remove_references_from_books
     Book.with_song(self).each do |book|
-      book.update(songs: book.songs.except(self.id.to_s))
+      book.update(
+        songs: book.songs.except(self.id.to_s),
+        song_tunes: (book.song_tunes || {}).except(self.id.to_s)
+      )
     end
   end
 
@@ -219,6 +262,19 @@ class Song < ApplicationRecord
     self.title = self.title.strip.unicode_normalize(:nfd)
   end
 
+  def no_malicious_content
+    # Prevent XSS attacks by rejecting dangerous content
+    dangerous_pattern = /<script|javascript:|on\ w+\\s*=|<iframe|<object|<embed/i
+    
+    if title =~ dangerous_pattern
+      errors.add(:title, "contains forbidden content")
+    end
+    
+    if lyrics.present? && lyrics =~ /<script|javascript:|on\ w+\ s*=|<iframe|<object|<embed/i
+      errors.add(:lyrics, "contains forbidden content")
+    end
+  end
+
   def sanitize_lyrics
     self.lyrics = lyrics.strip.unicode_normalize(:nfd)
     self.lyrics = "  #{lyrics}" if lyrics.split("\n")[1]&.match?(/  \S/) # put stripped leading spaces back if lyrics start with a chorus
@@ -226,17 +282,40 @@ class Song < ApplicationRecord
 
   # If we add or remove a link, we want to add/remove the mirrored link in the other record.
   # This is the downside of using an array db field instead of a join table.
+  # 
+  # Transitive linking: When adding song C to a group of A↔B, we create A↔B↔C (all interconnected).
+  # This ensures all translations of the same song are fully connected.
   def reciprocate_language_links
     return unless saved_change_to_language_links?
 
-    new_links = saved_change_to_language_links[1] - saved_change_to_language_links[0]
-    removed_links = saved_change_to_language_links[0] - saved_change_to_language_links[1]
+    old_links = saved_change_to_language_links[0] || []
+    new_links = saved_change_to_language_links[1] - old_links
+    removed_links = old_links - saved_change_to_language_links[1]
 
     if new_links.present?
-      Song.where(id: new_links).each do |song|
-        song.language_links << self.id
-        song.language_links.uniq!
-        song.save
+      # Get existing linked songs (before the new links were added) for transitive linking
+      existing_links = old_links
+
+      Song.where(id: new_links).each do |new_song|
+        # Standard reciprocation: add self to the new song's links
+        new_song.language_links << self.id
+        new_song.language_links.uniq!
+
+        # Transitive linking: connect the new song to all existing linked songs
+        if existing_links.present?
+          Song.where(id: existing_links).each do |existing_song|
+            # Add new_song to existing_song's links
+            existing_song.language_links << new_song.id
+            existing_song.language_links.uniq!
+            existing_song.save
+
+            # Add existing_song to new_song's links
+            new_song.language_links << existing_song.id
+            new_song.language_links.uniq!
+          end
+        end
+
+        new_song.save
       end
     end
 

@@ -81,7 +81,7 @@ class SongAppTest < ApplicationSystemTestCase
     find('div.btn_clear_search').click
 
     find('div.settings-btn').click
-    assert_selector 'h2', text: 'Languages'
+    assert_selector 'h2', text: /Languages/i
 
     check 'Portuguese'
     find('h1', text: 'Songbase').click
@@ -92,12 +92,12 @@ class SongAppTest < ApplicationSystemTestCase
     find('h1', text: 'Songbase').click
     assert_index_titles(only: @song_bendito)
 
-    # Selecting theme in settings:
+    # Selecting theme in settings (toggle switch: one click = night, another = normal):
     find('div.settings-btn').click
-    find('label', text: 'Night').click
+    find('label.theme-toggle').click
     assert_selector 'body.css-night'
     refute_selector 'body.css-normal'
-    find('label', text: 'Normal').click
+    find('label.theme-toggle').click
     refute_selector 'body.css-night'
     assert_selector 'body.css-normal'
 
@@ -151,8 +151,8 @@ class SongAppTest < ApplicationSystemTestCase
     find('div.song-reference', text: 'Test Book: #3').click
     assert_book_titles(sort_by: :index)
 
-    # Clicking book icon will exit out of current book:
-    find('div.book-icon').click
+    # Clicking ✕ closes the book and returns to all songs:
+    find('button.home-title-close').click
     assert_index_titles(only: @all_songs)
 
     # Test preloaded pages

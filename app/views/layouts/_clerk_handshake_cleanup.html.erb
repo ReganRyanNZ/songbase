@@ -1,0 +1,19 @@
+<script>
+  // Clerk's dev-browser handshake bounces back to us with a large
+  // ?__clerk_handshake=<JWT> query param. The Clerk Rack middleware
+  // consumes that token server-side and sets the dev cookies, but the
+  // URL-bar cleanup is meant to happen client-side via Clerk JS —
+  // which we only load on /sign-in, /sign-up, /oauth-consent. Strip
+  // the param here so it doesn't linger in the address bar (and in
+  // copied links) on every other page. No-op in production, where
+  // the handshake param never appears.
+  (function () {
+    var s = window.location.search;
+    if (!s || s.indexOf('__clerk_handshake') === -1) return;
+    var params = new URLSearchParams(s);
+    params.delete('__clerk_handshake');
+    var qs = params.toString();
+    window.history.replaceState(null, '',
+      window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
+  })();
+</script>

@@ -1,8 +1,11 @@
 class SongsController < ApplicationController
   before_action :set_song, only: [:show, :edit, :update, :destroy]
-  before_action :authenticate, only: [:new, :edit, :create, :update, :destroy]
+  before_action :authenticate, only: [:admin, :admin_example, :admin_example_with_tunes, :new, :edit, :create, :update, :destroy, :analytics, :history, :trash, :restore, :cache, :reset_cache]
+  before_action :require_super_admin, only: [:analytics, :cache, :reset_cache, :trash, :restore, :merge]
   before_action :check_maintenance
   before_action :adjust_lang_params, only: [:create, :update]
+
+  layout "admin", only: [:admin, :analytics, :new, :edit, :create, :update, :history, :trash, :admin_example, :admin_example_with_tunes, :cache]
 
   # Preloaded data is to send the data directly with the html
   # Usually the client gets the data from our api
@@ -10,6 +13,10 @@ class SongsController < ApplicationController
   # we can deliver the data instantly while the rest is
   # still loading via api.
   def app
+    @show_books_page = request.path == '/books'
+    @new_book_id = resolve_add_book_param(params[:add_book]) if params[:add_book].present?
+    Book.increment_counter(:downloads, @new_book_id) if @new_book_id && Book.exists?(@new_book_id)
+    @new_book_token = params[:edit_token] if params[:edit_token].present?
     @book_slug = params[:book]
     @book_from_url = Book.find_by(slug: @book_slug) if @book_slug.present?
     if(params[:s].present? && params[:s] != 'i')
@@ -22,6 +29,7 @@ class SongsController < ApplicationController
 
       song = Song.find(@song_id || params[:s])
       if song.present?
+        SongAnalytic.track_song_view(song.id)
         @title = song.title # sets page title in application.html.erb
         @song_id = params[:s]
         @preloaded_song = song.app_entry
@@ -32,7 +40,24 @@ class SongsController < ApplicationController
   end
 
   def admin
+    @songs = Song.search(params[:search] || '').limit(100)
   end
+
+  def analytics
+  end
+
+  # Super-admin lever to force every client device to wipe its IndexedDB cache
+  # and re-download on the next sync. Bumps a monotonic cache_version that the
+  # client compares against its stored version (DatabaseSetupAndSync#checkCacheVersion).
+  def cache
+    @cache_version = AppSetting.cache_version
+  end
+
+  def reset_cache
+    @cache_version = AppSetting.bump_cache_version!
+    redirect_to admin_cache_path, notice: "Cache bumped to version #{@cache_version}. All devices will re-download on their next sync."
+  end
+
 
   def admin_example
     @song = Song.new(lyrics: example_lyrics)
@@ -57,6 +82,38 @@ class SongsController < ApplicationController
   def edit
   end
 
+  # Read-only edit history for a song (any signed-in editor).
+  def history
+    @song = Song.find(params[:id])
+    @audits = @song.audits.includes(:user).order(time: :desc)
+  end
+
+  # Super-admin: trash page listing soft-deleted songs and books.
+  def trash
+    @deleted_songs = Song.deleted.order(deleted_at: :desc).map { |s|
+      { id: s.id, title: s.title, lang: s.lang, deleted_at: s.deleted_at, deleted_by: User.find_by(id: s.deleted_by)&.name }
+    }
+    @deleted_books = Book.deleted.order(deleted_at: :desc).map { |b|
+      { id: b.id, name: b.name, slug: b.slug, deleted_at: b.deleted_at }
+    }
+  end
+
+  # Super-admin: restore a soft-deleted song.
+  def restore
+    song = Song.unscoped.find(params[:id])
+    song.restore
+    redirect_to admin_trash_path, notice: "Restored '#{song.title}'."
+  end
+
+  # Super-admin: merge another song into this one (the old song is absorbed —
+  # book indices transferred, chorded lyrics kept, old song soft-deleted).
+  def merge
+    @song = Song.find(params[:id])
+    old_song = Song.find(params[:old_id])
+    @song.merge!(old_song)
+    redirect_to edit_song_path(@song), notice: "Merged '#{old_song.title}' into '#{@song.title}'."
+  end
+
   def create
     @song = Song.new(song_params)
 
@@ -64,7 +121,12 @@ class SongsController < ApplicationController
       redirect_to admin_path, notice: "Song was successfully created. #{song_flash_link(@song.duplicate)} to view in app."
     elsif @song.save
       email_diff_to_overseers(@song)
-      Audit.create(user: current_user, song: @song, time: Time.zone.now)
+      Audit.log(
+        song: @song,
+        user: current_user,
+        action: 'create',
+        changes: format_changes_for_audit(@song.previous_changes.except(:updated_at, :created_at, :id))
+      )
       redirect_to admin_path, notice: "Song was successfully created. #{song_flash_link(@song)} to view in app."
     else
       render :new
@@ -76,7 +138,12 @@ class SongsController < ApplicationController
 
     if @song.update(song_params)
       email_diff_to_overseers(@song)
-      Audit.create(user: current_user, song: @song, time: Time.zone.now)
+      Audit.log(
+        song: @song,
+        user: current_user,
+        action: 'update',
+        changes: format_changes_for_audit(@song.previous_changes.except(:updated_at, :created_at, :id))
+      )
       redirect_to admin_path, notice: "Song was successfully updated. #{song_flash_link(@song)} to view in app."
     else
       render :edit
@@ -84,6 +151,13 @@ class SongsController < ApplicationController
   end
 
   def destroy
+    # Only super admins (or the creator, within 7 days) may delete a song.
+    # This matches the gate on the Remove button in _form.html.erb.
+    unless super_admin || @song.created_at > 7.days.ago
+      redirect_to edit_song_path(@song), alert: "You can only delete songs within 7 days of creating them."
+      return
+    end
+
     if @song.destroy_with_audit(current_user)
       redirect_to admin_path, notice: 'Song was successfully destroyed.'
     else
@@ -95,7 +169,7 @@ class SongsController < ApplicationController
 
   def email_diff_to_overseers(song)
     changes = song.previous_changes.except(:updated_at, :created_at, :id)
-    SongMailer.song_changed(song, changes).deliver_later unless changes.empty?
+    SongMailer.song_changed(song, changes, current_user&.name).deliver_later unless changes.empty?
   end
 
   def song_flash_link(song)
@@ -112,6 +186,13 @@ class SongsController < ApplicationController
     @song = Song.find(params[:id] || params[:s])
   end
 
+
+  # Share links carry the book's share code (camp-w-48392); older links carry
+  # the raw numeric id. Resolve either to the numeric id — the client stores ids.
+  def resolve_add_book_param(value)
+    return value if value.match?(/\A\d+\z/)
+    Book.find_by(share_code: value)&.id
+  end
 
   def song_params
     result = params.require(:song).permit(:lyrics, :title, :lang, language_links: [])

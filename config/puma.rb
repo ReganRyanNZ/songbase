@@ -7,7 +7,9 @@
 max_threads_count = ENV.fetch("RAILS_MAX_THREADS") { 5 }
 min_threads_count = ENV.fetch("RAILS_MIN_THREADS") { max_threads_count }
 threads min_threads_count, max_threads_count
-workers ENV.fetch("WEB_CONCURRENCY") { 2 }
+# Cluster mode forks workers, which crashes on macOS due to Objective-C fork-safety
+# issues with the pg gem. Single-process mode (workers=0) is fine for local dev.
+workers ENV.fetch("WEB_CONCURRENCY") { ENV.fetch("RAILS_ENV", "development") == "production" ? 2 : 0 }
 
 
 # Specifies the `worker_timeout` threshold that Puma will use to wait before

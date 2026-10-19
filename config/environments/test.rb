@@ -5,6 +5,13 @@ require "active_support/core_ext/integer/time"
 # your test database is "scratch space" for the test suite and is wiped
 # and recreated between test runs. Don't rely on the data there!
 
+# Clerk middleware crashes without a secret key. In test env there's no
+# real Clerk backend, so use dummy keys to let the middleware boot. The
+# controller's current_user synthesizes a test user via User.test_user
+# regardless of Clerk state (see ApplicationController#current_user).
+ENV['CLERK_SECRET_KEY'] ||= 'sk_test_dummy'
+ENV['CLERK_PUBLISHABLE_KEY'] ||= 'pk_test_dummy'
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -41,6 +48,10 @@ Rails.application.configure do
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
   config.action_mailer.delivery_method = :test
+  config.action_mailer.default_url_options = { host: "test.host", protocol: "http" }
+
+  # Buffer jobs so mailer/enqueue assertions (assert_enqueued_emails) are reliable.
+  config.active_job.queue_adapter = :test
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr

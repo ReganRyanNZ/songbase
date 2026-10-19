@@ -1,0 +1,17 @@
+<header class="admin-header">
+  <%= link_to root_path, class: "admin-header-brand" do %>
+    <span>Songbase</span>
+  <% end %>
+
+  <div class="admin-header-right">
+    <%= react_component('ThemeToggle', {}) %>
+    <div class="user_nav">
+      <% if current_user %>
+        <strong><%= current_user.name %></strong>
+        <%= link_to "Sign out", clerk_sign_out_url, id: "sign_out" %>
+      <% else %>
+        <%= link_to "Sign in", clerk_sign_in_url, class: 'sign_in_clerk' %>
+      <% end %>
+    </div>
+  </div>
+</header>

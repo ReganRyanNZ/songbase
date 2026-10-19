@@ -10,17 +10,39 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_02_29_185439) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_17_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
+
+  create_table "app_settings", force: :cascade do |t|
+    t.string "key"
+    t.text "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["key"], name: "index_app_settings_on_key", unique: true
+  end
 
   create_table "audits", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.integer "song_id"
     t.datetime "time", precision: nil
+    t.string "action"
+    t.jsonb "changed_fields", default: {}
     t.index ["song_id"], name: "index_audits_on_song_id"
     t.index ["user_id"], name: "index_audits_on_user_id"
+  end
+
+  create_table "book_audits", id: :serial, force: :cascade do |t|
+    t.integer "book_id"
+    t.integer "user_id"
+    t.string "action"
+    t.jsonb "changed_fields", default: {}
+    t.datetime "time", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["book_id"], name: "index_book_audits_on_book_id"
+    t.index ["user_id"], name: "index_book_audits_on_user_id"
   end
 
   create_table "books", id: :serial, force: :cascade do |t|
@@ -32,6 +54,21 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_29_185439) do
     t.boolean "sync_to_all", default: false
     t.jsonb "songs", default: {}
     t.string "languages", default: [], array: true
+    t.string "edit_token"
+    t.datetime "sync_to_all_changed_at"
+    t.integer "downloads", default: 0
+    t.string "email"
+    t.jsonb "song_tunes", default: {}, null: false
+    t.string "share_code"
+    t.index ["share_code"], name: "index_books_on_share_code", unique: true
+  end
+
+  create_table "song_analytics", force: :cascade do |t|
+    t.date "date", null: false
+    t.jsonb "song_counts", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date"], name: "index_song_analytics_on_date", unique: true
   end
 
   create_table "songs", id: :serial, force: :cascade do |t|
@@ -56,6 +93,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_02_29_185439) do
     t.datetime "oauth_expires_at", precision: nil
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
+    t.boolean "super_admin", default: false, null: false
   end
 
   add_foreign_key "audits", "songs"

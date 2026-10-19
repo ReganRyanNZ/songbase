@@ -15,6 +15,7 @@
   &:hover{
     font-weight: bold;
     cursor: pointer;
+    background-color: color-mix(in srgb, var(--index-row-bg) 50%, transparent);
   }
   &:nth-child(even) {
     background-color: var(--index-row-bg);
@@ -29,6 +30,35 @@
 .index_row_title {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  // color: #CCC
+}
+
+.create-book-btn {
+  text-decoration: none;
+  color: var(--text);
+
+  &:hover {
+    color: var(--text);
+    background-color: transparent;
+  }
+}
+
+.book-edit-btn {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  color: var(--ui-color);
+  text-decoration: none;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    color: var(--text);
+  }
 }
 
 .index_row_tag {
@@ -38,15 +68,42 @@
   color: grey;
 }
 
+.search-row {
+  position: relative;
+  margin: 0 auto 10px auto;
+}
+
+// Lay the search box and sort icon out as in-flow flex siblings so they can
+// never overlap. Previously the sort icon was pinned to the row's right edge
+// and collided with the centered input on narrow viewports. Scoped under
+// .song-index so the admin book form's own .search-row layout is untouched.
+.song-index .search-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+// As a flex item the form's `margin: 0 auto` would re-center the form alone
+// and shove the sort icon back to the far edge, so neutralize it here. Let the
+// form grow to fill the row so the input spans the full available width and the
+// sort/share/history icons tuck against the right edge.
+.song-index .search-form {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
 .search-form {
   position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
   width: fit-content;
-  margin: 0 auto 10px auto;
-  text-align: center;
   .index_search {
     padding: 4px 8px;
     padding-right: 31px;
-    width: 240px;
+    width: 100%;
     height: 30px;
 
     background-color: var(--background);
@@ -74,13 +131,67 @@
   position: relative;
 }
 
+// Sort toggle — mirrors .btn-history's sizing and hover treatment so the
+// search-row slot reads consistently whether it holds the history toggle (no
+// book) or the sort toggle (book open). Sort has no on/off state, so it gets no
+// "active" pill — it only brightens on hover like the history toggle does.
 .btn-sort {
-  position: absolute;
-  right: 8px;
-  top: -30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ui-color);
+  padding: 3px;
+  border-radius: 6px;
   svg {
-    width: 20px;
+    width: 24px;
+    height: 24px;
   }
+  &:hover {
+    color: var(--text);
+  }
+}
+
+// Recently-viewed toggle — shown in the search row only when no book is
+// selected, reusing the slot sort/share occupy when a book is open. Clicking
+// it swaps the title list to the on-device history. A single icon: the active
+// state is shown with a brighter glyph on a tinted pill (rather than a second
+// icon) so it reads unambiguously as the current view.
+.btn-history {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ui-color);
+  padding: 3px;
+  border-radius: 6px;
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+  &:hover {
+    color: var(--text);
+  }
+  &.active {
+    color: var(--text);
+    background: color-mix(in srgb, var(--ui-color) 30%, transparent);
+  }
+}
+
+// Empty state shown in the title list when history is on but nothing is recorded.
+.history-empty {
+  padding: 24px 8px;
+  color: var(--ui-color);
+  font-size: 14px;
+  text-align: center;
+}
+
+// Share button on the book index — matches the song page's .share-song button
+// (defined in song_display.scss), but floated fixed so it stays put while the
+// song list scrolls.
+.song-index .share-song {
+  position: fixed;
+  cursor: pointer;
 }
 
 
@@ -111,4 +222,102 @@
   &:hover {
     cursor: pointer;
   }
+}
+
+.kabob-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.kabob-button,
+.kabob-menu {
+  font-weight: normal;
+}
+
+.kabob-button {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    color: var(--text);
+  }
+}
+
+.kabob-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: var(--background);
+  border: 1px solid var(--ui-color);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  min-width: 150px;
+}
+
+.kabob-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  white-space: nowrap;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: var(--ui-color);
+    color: var(--background);
+  }
+
+  &:first-child {
+    border-radius: 4px 4px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 4px 4px;
+  }
+
+  &.kabob-menu-item-trash svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.kabob-copied {
+  position: absolute;
+  right: 100%;
+  top: 0;
+  margin-right: 10px;
+  padding: 6px 10px;
+  background: var(--background);
+  border: 1px solid var(--text);
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  animation: fadeOut 1.2s ease-out;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
 }

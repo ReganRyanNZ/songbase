@@ -10,35 +10,111 @@
 }
 
 .btn {
+  display: inline-block;
   width: 100%;
-  padding: 10px 50px;
-  background-color: #d4d4d4;
-  border-radius: 5px;
+  padding: 0.55rem 1rem;
+  background-color: var(--ui-color);
+  color: var(--text);
+  border: 1px solid var(--ui-color);
+  border-radius: 6px;
   text-decoration: none;
+  text-align: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: filter 0.15s;
+
+  &:hover { filter: brightness(0.95); }
 }
 
 .btn-delete {
   background-color: #ff4d4d;
+  color: white;
+  width: auto;
+  display: inline-block;
 }
 
 .btn-update {
-  background-color: #90ee93;
+  background-color: #4CAF50;
+  color: white;
+
+  &:hover {
+    background-color: #388E3C;
+  }
+}
+
+.btn-cancel {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+// Delete confirmation modal
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: var(--background, white);
+  border: 1px solid var(--ui-color, #ccc);
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+
+  h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.1rem;
+  }
+
+  p {
+    margin: 0 0 1.25rem 0;
+    font-size: 0.9rem;
+    color: var(--comment-color, #666);
+    line-height: 1.4;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.modal-actions .btn {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
 }
 
 a.btn-help {
-  color: #4646fd;
+  color: var(--accent);
   display: inline-block;
-  padding: 9px;
+  padding: 0.3rem 0;
+  margin-right: 0.75rem;
+  font-size: 0.85rem;
+
   &:hover {
-    color: #4646fd;;
-    background-color: #fff;
+    color: var(--accent-hover);
+    background: none;
   }
 }
 
 .admin-root-title {
-  margin-bottom: 45px;
+  margin: 0 0 1.25rem;
+  font-size: 1.4rem;
   text-align: center;
 }
+
 
 .last_edited, .edit_timestamp {
   font-style: italic;
@@ -51,7 +127,11 @@ a.btn-help {
   white-space: nowrap;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 700px) {
+  .song-item {
+    gap: 0.15rem;
+  }
+
   .edit_timestamp {
     display: none;
   }
@@ -68,7 +148,7 @@ a.btn-help {
 .requires-review-duplicate {
   color: red;
   &:hover {
-    color: lightred;
+    color: #ff7777;
   }
 }
 
@@ -77,28 +157,1194 @@ a.btn-help {
   display: block;
 }
 
-.new-song-btn {
+.new-song-btn, .new-book-btn {
   text-align: right;
+  margin: 15px 0px
 }
 
-.new_song_link {
-  padding: 10px 10px;
-  display: inline;
-  border: 1px solid grey;
+.new_song_link, .new_book_link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--accent);
   border-radius: 6px;
-  background: palegreen;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 0.85rem;
+  text-decoration: none;
   &:hover {
-    background: forestgreen;
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
   }
 }
 
 .admin_table {
   width: 100%;
-  & td {
-    padding: 0;
-  }
+  border-collapse: collapse;
 }
 
 .flash_link {
   color: #4646fd;
+}
+.admin-book-form {
+  padding: 1rem;
+  font-family: sans-serif;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.index_search {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--ui-color);
+  outline: none;
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+  }
+}
+
+.btn_clear_search {
+  cursor: pointer;
+  padding: 0 0.5rem;
+  font-size: 1.5rem;
+  color: var(--comment-color);
+  user-select: none;
+}
+
+.songs-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.songs-search-container,
+.book-songs-container {
+  flex: 1;
+  min-width: 280px;
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--background);
+  border: 1px solid var(--ui-color);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.songs, .book-songs {
+  max-height: 60vh;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+
+  // Thin scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: var(--ui-color) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--ui-color);
+    border-radius: 3px;
+  }
+}
+
+.song-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.3rem 0.25rem;
+  border-bottom: 1px dashed var(--ui-color);
+  gap: 0.5rem;
+
+  > *:first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.song-item button {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  background-color: var(--link-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.song-item button:hover {
+  filter: brightness(0.9);
+}
+
+.songs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.language-filter {
+  display: flex;
+  flex-direction: column;
+}
+
+.language-filter label {
+  display: flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.language-filter label:hover {
+  background: #d6e4ff;
+}
+
+.language-filter input[type="checkbox"] {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+button.book-langauge-filter {
+  height: 24px;
+  width: 24px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ui-color);
+  fill: var(--ui-color);
+  z-index: 10;
+
+  & svg {
+    height: 100%;
+    fill: currentColor;
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.analytics-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.analytics-subtitle {
+  color: var(--comment-color);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.analytics-row {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0.25rem;
+  border-bottom: 1px solid var(--ui-color);
+  transition: background 0.15s;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--index-row-bg, transparent);
+  }
+}
+
+.analytics-rank {
+  width: 30px;
+  color: var(--comment-color);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.analytics-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--title);
+
+  a {
+    color: var(--link-color);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.analytics-lang {
+  color: var(--comment-color);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  flex-shrink: 0;
+  margin: 0 0.75rem;
+}
+
+.analytics-count {
+  font-weight: bold;
+  color: var(--text);
+  flex-shrink: 0;
+  margin-left: auto;
+  min-width: 40px;
+  text-align: right;
+}
+
+.analytics-loading, .analytics-error, .analytics-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--comment-color);
+}
+
+body.css-night {
+  .analytics-row {
+    border-bottom-color: #333;
+
+    &:hover {
+      background: var(--index-row-bg, rgba(255, 255, 255, 0.03));
+    }
+  }
+}
+
+@media (max-width: 700px) {
+  .analytics-row {
+    flex-wrap: wrap;
+    padding: 0.65rem 0.25rem;
+  }
+
+  .analytics-lang {
+    margin: 0;
+  }
+}
+
+body.css-night {
+  .btn-update {
+    background-color: var(--chord);
+    color: black;
+
+    &:hover {
+      filter: brightness(0.9);
+    }
+  }
+}
+// ===== Admin header (persistent across admin pages) =====
+.admin-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.55rem 1rem;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  box-shadow: var(--header-shadow);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  flex-wrap: wrap;
+}
+
+.admin-header-brand {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 800;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+
+  // Base typography shared by links and the non-clickable label.
+  a, span {
+    padding: 0.35rem 0;
+    color: var(--text);
+    font-size: 0.9rem;
+    border-bottom: 2px solid transparent;
+  }
+
+  a {
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+
+    &:hover { color: var(--accent); }
+    &.active { color: var(--accent); border-bottom-color: var(--accent); }
+  }
+}
+
+.admin-header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding-left: 1rem;
+  border-left: 1px solid var(--header-border);
+}
+
+// Theme toggle — single icon button (sun by day, moon by night)
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--header-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+}
+
+.admin-header .user_nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+// "Sign out" — outlined button matching the other header controls. Uses the id
+// selector to override the legacy #sign_out rule in nav.scss.
+.admin-header #sign_out {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  margin-left: 0;
+  padding: 0 0.7rem;
+  color: var(--text);
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid var(--header-border);
+  border-radius: 6px;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: transparent;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-header {
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .admin-header-brand { font-size: 1.1rem; }
+  .admin-nav a { padding: 0.3rem 0; font-size: 0.85rem; }
+
+  // Keep the controls clustered on the right of the same row as the brand,
+  // instead of wrapping to a second row. The border-left divider is retained
+  // as a visual separator between brand and controls.
+  .admin-header-right {
+    margin-left: auto;
+    gap: 0.5rem;
+    padding-left: 0.75rem;
+  }
+
+  // Larger touch targets for thumb use (was 34px — below the 40px mobile
+  // touch-target baseline).
+  .theme-toggle-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .admin-header #sign_out {
+    min-height: 40px;
+    padding: 0 0.85rem;
+  }
+}
+
+// ===== Admin device books (books cached in this device's IndexedDB) =====
+.admin-device-books {
+  margin-bottom: 2.5rem;
+}
+
+.admin-section-title {
+  font-size: 1.1rem;
+  margin: 0 0 0.75rem;
+  color: var(--text);
+}
+
+.device-book-count,
+.device-book-type {
+  font-size: 0.8rem;
+  color: var(--comment-color);
+  white-space: nowrap;
+}
+
+// ===== Modernized admin song list =====
+// Search input + inline "New Song" action share one row; the input grows and
+// the button pins to the right edge.
+.admin-search-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-search-bar .admin-search {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.admin-search-bar .new_song_link {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.admin-search {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.75rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--ui-color);
+  background: var(--background);
+  color: var(--text);
+  margin-bottom: 0.75rem;
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.15);
+  }
+}
+
+.admin_table {
+  th {
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--comment-color);
+    padding: 0.55rem 0.5rem;
+    border-bottom: 2px solid var(--ui-color);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.5rem 0.5rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--ui-color);
+  }
+
+  tbody tr {
+    transition: background 0.12s;
+
+    &:hover {
+      background: var(--index-row-bg);
+    }
+  }
+
+  // Keep meta/timestamps tidy on one line
+  .last_edited,
+  .edit_timestamp,
+  .trash-meta { white-space: nowrap; }
+}
+
+// Song list: let the Title column expand and bunch the meta columns
+// (Language / Edited by / When) to the right instead of splitting evenly.
+.admin_list .admin_table {
+  th:nth-child(n+2),
+  td:nth-child(n+2) {
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  // Cap the editor-name column and ellipsis-truncate long names so it stays tight.
+  td:nth-child(3) { max-width: 112px; }
+  .last_edited {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Language badge aligned to the right edge of its column.
+  td:nth-child(2) { text-align: right; }
+  .analytics-lang { margin: 0; }
+}
+
+.admin-songs-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--comment-color);
+  font-size: 0.95rem;
+}
+
+body.css-night {
+  .admin-search {
+    background-color: #111;
+    color: white;
+    border-color: #444;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin_table th:nth-child(3),
+  .admin_table td:nth-child(3) {
+    display: none; // hide "Last edited by" on narrow screens
+  }
+}
+
+// ===== Song edit history =====
+.song-history {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.history-entry {
+  padding: 1rem;
+  border-left: 4px solid var(--ui-color);
+  margin-bottom: 1rem;
+  background: var(--index-row-bg, rgba(0, 0, 0, 0.02));
+  border-radius: 0 6px 6px 0;
+
+  &.action-create { border-left-color: #4CAF50; }
+  &.action-update { border-left-color: #007bff; }
+  &.action-destroy { border-left-color: #e54949; }
+}
+
+.history-entry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.history-action {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.history-time {
+  font-size: 0.8rem;
+  color: var(--comment-color);
+}
+
+.history-changes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.history-change-field {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--comment-color);
+  margin-bottom: 0.25rem;
+}
+
+.history-diff {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+
+  .history-pre {
+    flex: 1;
+    max-height: 200px;
+    overflow: auto;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--background);
+    border: 1px solid var(--ui-color);
+    border-radius: 4px;
+    margin: 0;
+    color: var(--text);
+  }
+
+  .history-arrow {
+    align-self: center;
+    color: var(--comment-color);
+  }
+}
+
+.history-inline {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.9rem;
+
+  .history-from { color: var(--comment-color); text-decoration: line-through; }
+  .history-arrow { color: var(--comment-color); }
+  .history-to { color: var(--text); font-weight: 500; }
+}
+
+.history-back {
+  text-align: center;
+  margin-bottom: 1.5rem;
+
+  a { color: var(--link-color); }
+}
+
+// ===== Trash page =====
+.admin-trash {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.trash-section {
+  margin-bottom: 2rem;
+
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  table { width: 100%; }
+  td { padding: 0.4rem 0.3rem; vertical-align: middle; }
+}
+
+.trash-meta {
+  font-size: 0.8rem;
+  color: var(--comment-color);
+}
+
+.trash-restore-btn {
+  padding: 0.3rem 0.8rem !important;
+  font-size: 0.85rem !important;
+  width: auto !important;
+}
+
+.trash-empty {
+  color: var(--comment-color);
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+.trash-note {
+  font-size: 0.8rem;
+  color: var(--comment-color);
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+// ===== Merge duplicates section =====
+.merge-section {
+  max-width: 700px;
+  margin: 1.5rem auto;
+
+  h3 { font-size: 1.05rem; margin-bottom: 0.25rem; }
+}
+
+.merge-candidates {
+  list-style: none;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--ui-color);
+
+    span:first-child { flex: 1; }
+  }
+}
+
+// ===== Analytics filters =====
+.analytics-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.analytics-range-toggle {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.analytics-range-btn {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--ui-color);
+  background: transparent;
+  color: var(--text);
+  border-radius: 16px;
+  cursor: pointer;
+
+  &.active {
+    background: var(--accent);
+    color: var(--accent-contrast);
+    border-color: var(--accent);
+  }
+}
+
+.analytics-lang-select {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  border: 1px solid var(--ui-color);
+  background: var(--background);
+  color: var(--text);
+}
+
+.analytics-csv-btn {
+  margin-left: auto;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--ui-color);
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--text);
+
+  &:hover { background: var(--ui-color); }
+}
+
+@media (max-width: 700px) {
+  .analytics-csv-btn { margin-left: 0; }
+}
+
+// ===== Admin-scoped resets (body.admin is set by layouts/admin) =====
+// scaffolds.scss applies app-wide 33px margins to p/ul/td and a dark-box
+// link hover (color:#fff; background:#333). The public SPA never renders raw
+// <p>/<ul>/<table> so it's unaffected, but the admin ERB views inherit them,
+// which is what made the admin content look cramped and dated. Neutralize here
+// — scoped to body.admin so the public app is never touched.
+body.admin {
+  // Neutralize scaffolds' dark-box link hover for admin content links — no
+  // background, no added underline, color stays as the link color. Specific
+  // controls below opt back into their own hover.
+  a:hover {
+    color: var(--link-color);
+    background: none;
+    text-decoration: none;
+  }
+
+  // Header controls keep their intended hover (the rule above would override).
+  .admin-nav a:hover {
+    color: var(--accent);
+    background: none;
+    text-decoration: none;
+  }
+  .admin-header-brand:hover { text-decoration: none; }
+
+  // Primary action buttons (rendered as links) keep their filled-accent hover
+  // instead of the plain content-link hover above.
+  .new_song_link:hover,
+  .new_book_link:hover {
+    background: var(--accent-hover);
+    color: var(--accent-contrast);
+    text-decoration: none;
+  }
+
+  // Sensible margins for chrome that scaffolds inflates to 33px.
+  #notice, #alert { margin: 0 0 1rem; }
+  .history-back { margin: 0 0 1.5rem; }
+
+  // Validation errors: replace scaffolds.scss' default red box (fixed 450px
+  // width, 2px red border, dark-red header bar) with a clean, modern callout
+  // that matches the #alert styling and the rest of the admin UI.
+  #error_explanation {
+    width: auto;
+    max-width: none;
+    border: none;
+    border-left: 3px solid #cf222e;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    background: #fdecec;
+    color: var(--text);
+
+    p {
+      margin: 0 0 0.25rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+
+      li {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #8a1f1f;
+      }
+    }
+  }
+
+  // scaffolds wraps errored Rails form fields in a red-background box. The
+  // React-rendered inputs aren't affected, but neutralize anyway so any ERB
+  // field keeps its own styling.
+  .field_with_errors {
+    padding: 0;
+    background: none;
+    display: revert;
+  }
+}
+
+// Night-mode variant for the error callout.
+body.css-night.admin #error_explanation {
+  background: #2e1a1a;
+
+  ul li { color: #ff8b8b; }
+}
+
+// ===== Admin layout: full-width nav bar, 800px content column =====
+// The admin header (brand + nav + controls) is a full-bleed sticky bar. All
+// page content below it lives in a centered 800px column. Scoped to body.admin
+// so the public SPA (which sets its own .song-app width) is unaffected.
+body.admin {
+  margin: 0; // override application.scss body { margin: 8px }
+
+  .application-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  // Full-bleed sticky nav bar with its own internal gutter.
+  .admin-header {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  // Page content: centered 800px column with a side gutter.
+  .application-container > *:not(.admin-header) {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  // Space the content away from the sticky header.
+  .admin-header + * { margin-top: 1.5rem; }
+
+  // Section nav relocated into the content column reads as a tab bar — a
+  // divider under the links separates it from the page content below.
+  .admin-header + .admin-nav {
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--ui-color);
+  }
+
+  @media (max-width: 600px) {
+    .admin-header { padding-left: 0.75rem; padding-right: 0.75rem; }
+    .application-container > *:not(.admin-header) {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+  }
+}
+
+// Form/edit pages render without the admin header (body lacks .admin-landing);
+// give their content the same top gap the header would have provided.
+body.admin:not(.admin-landing) .application-container {
+  padding-top: 1.5rem;
+}
+
+// "Clear cache" admin page (SongsController#cache).
+.cache-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.cache-section {
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+
+  p {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 12px;
+  }
+
+  .cache-version {
+    font-size: 15px;
+  }
+
+  .cache-warning {
+    color: var(--comment-color);
+  }
+
+  .cache-reset-btn {
+    margin-top: 1.5rem;
+  }
+}
+
+// Book activity history (BooksController#activity).
+.book-activity-table {
+  th, td {
+    text-align: left;
+    vertical-align: top;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  thead th {
+    border-bottom: 1px solid var(--ui-color);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    color: var(--comment-color);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--ui-color);
+  }
+
+  .activity-time {
+    white-space: nowrap;
+    color: var(--comment-color);
+  }
+
+  .activity-action {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--index-row-bg);
+    color: var(--text);
+
+    &.activity-action-create { color: #1a7f37; }
+    &.activity-action-update { color: #0969da; }
+    &.activity-action-destroy { color: #cf222e; }
+    &.activity-action-restore { color: #1a7f37; }
+  }
+
+  .activity-change {
+    margin-bottom: 2px;
+
+    .activity-field {
+      font-weight: 600;
+      color: var(--comment-color);
+    }
+
+    .activity-from {
+      color: var(--comment-color);
+      text-decoration: line-through;
+    }
+
+    .activity-to {
+      color: var(--text);
+    }
+  }
+}
+
+// ===== Email previews (EmailPreviewsController, super-admin only) =====
+.email-previews-page,
+.email-preview-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.email-previews-intro,
+.email-preview-description {
+  color: var(--comment-color);
+  font-size: 0.9rem;
+  margin: 0 0 1.25rem;
+}
+
+.email-preview-back {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+
+  a { color: var(--link-color); }
+}
+
+// Index: one row per previewable email.
+.email-preview-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.email-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 0.25rem;
+  border-bottom: 1px solid var(--ui-color);
+
+  &:last-child { border-bottom: none; }
+}
+
+.email-preview-item-info {
+  flex: 1;
+  min-width: 0;
+
+  h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+
+    a {
+      color: var(--link-color);
+      text-decoration: none;
+
+      &:hover { text-decoration: underline; }
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--comment-color);
+  }
+}
+
+.email-preview-open {
+  flex-shrink: 0;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--ui-color);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.85rem;
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}
+
+// Show: envelope metadata + rendered email.
+.email-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 1rem;
+  margin: 0 0 1.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--ui-color);
+  border-radius: 8px;
+  font-size: 0.85rem;
+
+  dt {
+    color: var(--comment-color);
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    align-self: center;
+    white-space: nowrap;
+  }
+
+  dd {
+    margin: 0;
+    word-break: break-word;
+  }
+}
+
+.email-preview-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.email-preview-toggle {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.email-preview-pill {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  border: 1px solid var(--ui-color);
+  background: transparent;
+  color: var(--text);
+  border-radius: 16px;
+  text-decoration: none;
+
+  &.active {
+    background: var(--accent);
+    color: var(--accent-contrast);
+    border-color: var(--accent);
+  }
+}
+
+// Emails are authored on a white canvas — keep it that way in night mode.
+.email-preview-frame-wrap {
+  border: 1px solid var(--ui-color);
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+
+  &.mobile { max-width: 375px; }
+}
+
+.email-preview-frame {
+  display: block;
+  width: 100%;
+  height: 600px; // fallback until the load handler sizes it
+  border: none;
+  background: #fff;
+}
+
+.email-preview-text {
+  padding: 1rem;
+  border: 1px solid var(--ui-color);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--text);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.email-preview-empty {
+  color: var(--comment-color);
+  font-style: italic;
+  font-size: 0.85rem;
+  margin: 0.75rem 0 0;
 }

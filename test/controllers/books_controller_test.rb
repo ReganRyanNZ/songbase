@@ -1,0 +1,151 @@
+require 'test_helper'
+
+class BooksControllerTest < ActionDispatch::IntegrationTest
+  # books#create/update are CSRF-protected; disable forgery protection in tests
+  # so we can POST book params directly without a token, and restore it after.
+  setup { ActionController::Base.allow_forgery_protection = false }
+  teardown { ActionController::Base.allow_forgery_protection = true }
+
+  test 'new offers duplicatable books' do
+    FactoryBot.create(:book, name: 'Public Hymnal', sync_to_all: true)
+    FactoryBot.create(:book, name: 'Private Book', sync_to_all: false)
+
+    get new_book_path
+    assert_response :success
+    # super_admin test user => every book is duplicatable
+    assert_match(/Public Hymnal/, response.body)
+    assert_match(/Private Book/, response.body)
+  end
+
+  test 'new with from= copies source songs and surfaces duplicateFromId' do
+    song = FactoryBot.create(:song, :abba_father) # "Abba, Father"
+    source = FactoryBot.create(:book, name: 'Hymnal', sync_to_all: true,
+                               songs: { song.id => '1' }, languages: ['english'],
+                               song_tunes: { song.id.to_s => 1 })
+
+    get new_book_path, params: { from: source.id }
+    assert_response :success
+    assert_match(/Hymnal \(copy\)/, response.body)
+    # book.songs hash (inlined into react_component props) carries the source song id.
+    # react-rails HTML-escapes the JSON attribute, so quotes appear as &quot;.
+    assert_match(/&quot;#{song.id}&quot;:&quot;1&quot;/, response.body)
+    # song_tunes is copied too (integer value serialized without quotes)
+    assert_match(/&quot;#{song.id}&quot;:1/, response.body)
+    # the source id is passed as a prop so the builder can fetch display data
+    assert_match(/duplicateFromId.{0,10}#{source.id}/, response.body)
+  end
+
+  test 'edit surfaces the persisted book for the client fetch' do
+    song = FactoryBot.create(:song, :abba_father) # "Abba, Father"
+    book = FactoryBot.create(:book, name: 'Edit Me', songs: { song.id => '1' }, languages: ['english'])
+
+    get edit_book_path(book, edit_token: book.edit_token)
+    assert_response :success
+    assert_match(/&quot;isPersisted&quot;:true/, response.body)
+    assert_match(/&quot;#{song.id}&quot;:&quot;1&quot;/, response.body)
+  end
+
+  test 'new with from= ignores a missing source book' do
+    get new_book_path, params: { from: 999_999 }
+    assert_response :success
+    refute_match(/\(copy\)/, response.body)
+  end
+
+  test 'new with from= ignores a private book for non-super-admin' do
+    original = ApplicationController.instance_method(:super_admin)
+    ApplicationController.define_method(:super_admin) { false }
+    begin
+      private_book = FactoryBot.create(:book, name: 'Secret', sync_to_all: false)
+      get new_book_path, params: { from: private_book.id }
+      assert_response :success
+      refute_match(/Secret \(copy\)/, response.body)
+    ensure
+      ApplicationController.define_method(:super_admin, original)
+    end
+  end
+
+  test 'create persists the email field' do
+    song = FactoryBot.create(:song, :abba_father)
+    post books_path, params: {
+      book: {
+        name: 'My Book',
+        email: 'author@example.com',
+        songs: { song.id.to_s => '1' }.to_json,
+        languages: ['english'].to_json
+      }
+    }
+    assert_response :redirect
+    book = Book.find_by(name: 'My Book')
+    assert_not_nil book
+    assert_equal 'author@example.com', book.email
+    assert_equal({ song.id.to_s => '1' }, book.songs)
+  end
+
+  test 'create persists the song_tunes field' do
+    song = FactoryBot.create(:song, :be_thou_supreme)
+    post books_path, params: {
+      book: {
+        name: 'Tune Book',
+        email: '',
+        songs: { song.id.to_s => '1' }.to_json,
+        song_tunes: { song.id.to_s => 1 }.to_json,
+        languages: ['english'].to_json
+      }
+    }
+    assert_response :redirect
+    book = Book.find_by(name: 'Tune Book')
+    assert_not_nil book
+    assert_equal({ song.id.to_s => 1 }, book.song_tunes)
+  end
+
+  test 'update persists the song_tunes field' do
+    song = FactoryBot.create(:song, :be_thou_supreme)
+    book = FactoryBot.create(:book, name: 'Updatable', songs: { song.id.to_s => '1' })
+    patch book_path(book, edit_token: book.edit_token), params: {
+      book: {
+        name: 'Updatable',
+        songs: { song.id.to_s => '1' }.to_json,
+        song_tunes: { song.id.to_s => 2 }.to_json,
+        languages: ['english'].to_json
+      }
+    }
+    assert_response :redirect
+    assert_equal({ song.id.to_s => 2 }, book.reload.song_tunes)
+  end
+
+  test 'create enqueues the creator email and the admin notification when an email is provided' do
+    song = FactoryBot.create(:song, :abba_father)
+    assert_enqueued_emails(2) do
+      post books_path, params: {
+        book: {
+          name: 'With Email',
+          email: 'author@example.com',
+          songs: { song.id.to_s => '1' }.to_json,
+          languages: ['english'].to_json
+        }
+      }
+    end
+    assert_response :redirect
+  end
+
+  test 'create still enqueues the admin notification when no email is provided' do
+    song = FactoryBot.create(:song, :abba_father)
+    assert_enqueued_emails(1) do
+      post books_path, params: {
+        book: {
+          name: 'No Email',
+          email: '',
+          songs: { song.id.to_s => '1' }.to_json,
+          languages: ['english'].to_json
+        }
+      }
+    end
+    assert_response :redirect
+  end
+
+  private
+
+  def response_json
+    JSON.parse(response.body, symbolize_names: true)
+  end
+end

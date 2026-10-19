@@ -1,0 +1,218 @@
+.admin-books-list {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+// Search
+.admin-books-search-wrap {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+.admin-books-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--comment-color);
+  pointer-events: none;
+}
+
+.admin-books-search {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  font-size: 1rem;
+  border: 1px solid var(--ui-color);
+  border-radius: 10px;
+  background: var(--background);
+  color: var(--text);
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder {
+    color: var(--comment-color);
+  }
+
+  &:focus {
+    border-color: var(--link-color);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  }
+}
+
+// Empty state
+.admin-books-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--comment-color);
+  font-size: 0.95rem;
+}
+
+// List container
+.admin-books-cards {
+  display: flex;
+  flex-direction: column;
+}
+
+// Individual row
+.admin-book-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--ui-color);
+  transition: background 0.15s;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: var(--index-row-bg, transparent);
+  }
+}
+
+.admin-book-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-book-name {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--title);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-book-meta {
+  font-size: 0.82rem;
+  color: var(--comment-color);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.admin-book-system-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--chord);
+  color: white;
+  line-height: 1.6;
+}
+
+// Actions
+.admin-book-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.admin-book-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid var(--ui-color);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--link-color);
+  cursor: pointer;
+  font-size: 0.82rem;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--ui-color);
+    border-color: var(--link-color);
+  }
+
+  svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+}
+
+// Copied feedback
+.admin-book-copied {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  animation: admin-book-copied-fade 1.5s ease forwards;
+  white-space: nowrap;
+}
+
+@keyframes admin-book-copied-fade {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+// Night theme
+body.css-night {
+  .admin-book-card {
+    border-bottom-color: #333;
+
+    &:hover {
+      background: var(--index-row-bg, rgba(255, 255, 255, 0.03));
+    }
+  }
+
+  .admin-books-search {
+    background: var(--index-row-bg, #1a1a2e);
+    border-color: #444;
+
+    &:focus {
+      border-color: var(--link-color);
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .admin-book-btn {
+    border-color: #444;
+
+    &:hover {
+      background: #333;
+    }
+  }
+
+  .admin-book-copied {
+    background: rgba(34, 197, 94, 0.15);
+  }
+}
+
+// Mobile
+@media (max-width: 700px) {
+  .admin-book-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .admin-book-actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .admin-book-btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+  }
+}

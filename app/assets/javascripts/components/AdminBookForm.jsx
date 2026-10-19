@@ -1,0 +1,678 @@
+// Book create/edit form. Two-pane builder: Find songs (left) / Your book (right),
+// with a sticky Save/Cancel bar rendered by the ERB form. Song state is split
+// into `searchResults` (transient API list) and `songData` ({ id -> song }) so
+// book rows render without coupling them to the current search.
+//
+// Per-song tune choices for multi-tune songs live in `book.songTunes`; the
+// paste-import overlay (AddSongs) opens from the actions row.
+function indexSongs(list) {
+  var map = {};
+  (list || []).forEach(function(s) { map[String(s.id)] = s; });
+  return map;
+}
+
+function buildLanguages(songsMap, songData) {
+  var set = {};
+  Object.keys(songsMap).forEach(function(id) {
+    var song = songData[id];
+    if (song) {
+      var lang = song.lang || song.language;
+      if (lang) set[lang] = true;
+    }
+  });
+  return Object.keys(set);
+}
+
+function reorderSongObject(songObject) {
+  var orderedKeys = Object.keys(songObject).sort(function(a, b) {
+    return parseInt(songObject[a]) - parseInt(songObject[b]);
+  });
+  var result = {};
+  orderedKeys.forEach(function(id, index) { result[id] = String(index + 1); });
+  return result;
+}
+
+// --- tune helpers (mirror Song#tune_count / Song#tune_titles) ---
+function computeTuneCount(lyrics) {
+  var sections = (lyrics || "").split(/(?=###)/).filter(function(s) { return s.trim() !== ""; });
+  return Math.max(sections.length, 1);
+}
+
+function computeTuneTitles(lyrics) {
+  var sections = (lyrics || "").split(/(?=###)/).filter(function(s) { return s.trim() !== ""; });
+  if (!sections.some(function(s) { return /^###/.test(s); })) return ["Tune 1"];
+  var titles = sections.map(function (section, i) {
+    var match = section.match(/^###\s*(.+?)$/);
+    return match ? match[1].trim() : ("Tune " + (i + 1));
+  });
+  return titles.length ? titles : ["Tune 1"];
+}
+
+function songTuneCount(song) {
+  if (!song) return 1;
+  if (song.tune_count != null) return song.tune_count;
+  return computeTuneCount(song.lyrics);
+}
+
+function songTuneTitles(song) {
+  if (!song) return ["Tune 1"];
+  if (song.tune_titles != null) return song.tune_titles;
+  return computeTuneTitles(song.lyrics);
+}
+
+class AdminBookForm extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      search: "",
+      searchResults: [],          // latest results from the API (Find songs list)
+      songData: {},               // { id -> song } render cache; populated on mount (edit/duplicate) or by search (new)
+      loadingBookSongs: Boolean(props.isPersisted || props.duplicateFromId),  // fetching title/lang for existing rows
+      book: {
+        name: props.book.name || "",
+        email: props.book.email || "",
+        songs: props.book.songs || {},
+        songTunes: props.book.song_tunes || {},
+        languages: props.book.languages || [],
+      },
+      loading: false,
+      dragIndex: null,            // index of the row being dragged
+      dragOverIndex: null,        // index where the dragged row will drop
+      editingTuneId: null,        // book row with its tune picker expanded
+      highlightedId: null,        // freshly added row to flash + scroll to
+      importModalOpen: false,
+      pasteOpen: false,
+    };
+
+    this.handleSearchChange = this.handleSearchChange.bind(this);
+    this.clearSearch = this.clearSearch.bind(this);
+    this.searchSongs = this.searchSongs.bind(this);
+    this.handleAddSong = this.handleAddSong.bind(this);
+    this.handleRemoveSong = this.handleRemoveSong.bind(this);
+    this.handleBookTitle = this.handleBookTitle.bind(this);
+    this.handleBookEmail = this.handleBookEmail.bind(this);
+    this.handleDragStart = this.handleDragStart.bind(this);
+    this.handleDragOver = this.handleDragOver.bind(this);
+    this.handleDrop = this.handleDrop.bind(this);
+    this.handleDragEnd = this.handleDragEnd.bind(this);
+    this.handleDropAt = this.handleDropAt.bind(this);
+    this.handleTouchStart = this.handleTouchStart.bind(this);
+    this.onTouchMove = this.onTouchMove.bind(this);
+    this.onTouchEnd = this.onTouchEnd.bind(this);
+    this.openImport = this.openImport.bind(this);
+    this.closeImport = this.closeImport.bind(this);
+    this.openPaste = this.openPaste.bind(this);
+    this.closePaste = this.closePaste.bind(this);
+    this.addSongsFromImport = this.addSongsFromImport.bind(this);
+    this.clearAllSongs = this.clearAllSongs.bind(this);
+    this.loadBookSongs = this.loadBookSongs.bind(this);
+    this.handleChangeTune = this.handleChangeTune.bind(this);
+
+    this.searchTimeout = null;
+    this.searchAbort = null;      // AbortController for the in-flight custom_book_search request
+    this.bookListEl = null;       // callback ref to the .book-songs container
+    this.highlightTimer = null;
+  }
+
+  componentDidMount() {
+    // book.songs (source of truth) already arrived via SSR props; we only need
+    // title/lang to render existing rows. Edit fetches its own book; duplicate
+    // fetches the source book. New-empty books have nothing to load.
+    if (this.props.isPersisted) {
+      this.loadBookSongs(this.props.book.id);
+    } else if (this.props.duplicateFromId) {
+      this.loadBookSongs(this.props.duplicateFromId);
+    }
+    this.searchSongs(""); // seed the Find songs pane
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.highlightedId && this.state.highlightedId !== prevState.highlightedId) {
+      var row = this.bookListEl && this.bookListEl.querySelector('.song-item[data-id="' + this.state.highlightedId + '"]');
+      if (row) row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      if (this.highlightTimer) clearTimeout(this.highlightTimer);
+      this.highlightTimer = setTimeout(() => this.setState({ highlightedId: null }), 1400);
+    }
+  }
+
+  componentWillUnmount() {
+    // Cancel any pending debounced search and in-flight request so neither can
+    // setState after the form is gone.
+    if (this.searchTimeout) { clearTimeout(this.searchTimeout); this.searchTimeout = null; }
+    if (this.searchAbort) { this.searchAbort.abort(); }
+    // Clean up any in-flight touch-drag listeners if the form unmounts mid-drag.
+    if (this.bookListEl) {
+      this.bookListEl.removeEventListener("touchmove", this.onTouchMove);
+      this.bookListEl.removeEventListener("touchend", this.onTouchEnd);
+      this.bookListEl.removeEventListener("touchcancel", this.onTouchEnd);
+    }
+    if (this.highlightTimer) clearTimeout(this.highlightTimer);
+  }
+
+  // --- title / email ---
+
+  handleBookTitle(e) {
+    var name = e.target.value;
+    this.setState((prev) => ({ book: Object.assign({}, prev.book, { name }) }));
+  }
+
+  handleBookEmail(e) {
+    var email = e.target.value;
+    this.setState((prev) => ({ book: Object.assign({}, prev.book, { email }) }));
+  }
+
+  // --- search ---
+
+  handleSearchChange(e) {
+    var search = e.target.value;
+    this.setState({ search });
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => this.searchSongs(search), 300);
+  }
+
+  clearSearch() {
+    // Cancel any pending debounced search so it can't fire after the clear and
+    // re-stale the list, then re-seed the pane (the index page re-renders from
+    // pre-loaded data; this form has none, so we re-fetch the seed list).
+    if (this.searchTimeout) { clearTimeout(this.searchTimeout); this.searchTimeout = null; }
+    this.setState({ search: "" });
+    this.searchSongs("");
+    var input = document.getElementById("index_search");
+    if (input) input.focus();
+  }
+
+  searchSongs(search) {
+    // Abort any prior in-flight request so a slow earlier query (each one loads
+    // the whole songs table into SongSearcher) can't overwrite a newer result.
+    if (this.searchAbort) { this.searchAbort.abort(); }
+    var abort = new AbortController();
+    this.searchAbort = abort;
+
+    this.setState({ loading: true });
+    var csrfToken = document.querySelector("meta[name='csrf-token']").content;
+    fetch("/api/v2/custom_book_search?search=" + encodeURIComponent(search), {
+      method: "GET",
+      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+      signal: abort.signal
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        var results = data.songs || [];
+        this.setState((prev) => {
+          var songData = Object.assign({}, prev.songData, indexSongs(results));
+          return { searchResults: results, songData, loading: false };
+        });
+      })
+      .catch((error) => {
+        // An AbortError just means a newer search superseded this one.
+        if (error && error.name === "AbortError") return;
+        console.error("Error:", error);
+        this.setState({ loading: false });
+      });
+  }
+
+  // Fetch title/lang/tunes for every song already in book.songs (edit/duplicate).
+  // book.songs (source of truth) arrived via SSR props; this only fills the
+  // render-only songData cache. Merges rather than replaces so concurrent
+  // searchSongs results and user-added rows survive.
+  loadBookSongs(bookId) {
+    var csrfToken = document.querySelector("meta[name='csrf-token']").content;
+    fetch("/api/v2/book_songs?book_id=" + encodeURIComponent(bookId), {
+      method: "GET",
+      headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error("book_songs " + r.status);
+        return r.json();
+      })
+      .then((data) => {
+        var fetched = {};
+        (data.songs || []).forEach(function(s) {
+          fetched[String(s.id)] = {
+            id: s.id, title: s.title, lang: s.lang,
+            tune_count: s.tune_count, tune_titles: s.tune_titles
+          };
+        });
+        this.setState((prev) => ({
+          songData: Object.assign({}, prev.songData, fetched),
+          loadingBookSongs: false,
+        }));
+      })
+      .catch((error) => {
+        console.error("Error loading book songs:", error);
+        this.setState({ loadingBookSongs: false });
+      });
+  }
+
+  // --- add / remove ---
+
+  handleAddSong(song, tuneIndex) {
+    this.setState((prev) => {
+      var key = String(song.id);
+      var songs = Object.assign({}, prev.book.songs);
+      if (songs[key]) return null;
+      songs[key] = String(Object.keys(songs).length + 1);
+      var songData = Object.assign({}, prev.songData);
+      songData[key] = song;
+      var songTunes = Object.assign({}, prev.book.songTunes);
+      if (tuneIndex && tuneIndex > 0) songTunes[key] = tuneIndex;
+      var languages = buildLanguages(songs, songData);
+      return { highlightedId: key, book: Object.assign({}, prev.book, { songs, songTunes, languages }), songData };
+    });
+  }
+
+  handleRemoveSong(index) {
+    this.setState((prev) => {
+      var songs = Object.assign({}, prev.book.songs);
+      var id = Object.keys(songs).find((k) => songs[k] === index);
+      if (id === undefined) return null;
+      delete songs[id];
+      var songTunes = Object.assign({}, prev.book.songTunes);
+      delete songTunes[id];
+      var reordered = reorderSongObject(songs);
+      var languages = buildLanguages(reordered, prev.songData);
+      return { book: Object.assign({}, prev.book, { songs: reordered, songTunes, languages }) };
+    });
+  }
+
+  // --- tune per song (multi-tune songs) ---
+
+  handleChangeTune(id, tuneIndex) {
+    this.setState((prev) => {
+      var songTunes = Object.assign({}, prev.book.songTunes);
+      if (tuneIndex > 0) songTunes[id] = tuneIndex; else delete songTunes[id];
+      return { book: Object.assign({}, prev.book, { songTunes }), editingTuneId: null };
+    });
+  }
+
+  getOrderedBookSongs() {
+    var songData = this.state.songData;
+    return Object.entries(this.state.book.songs || {})
+      .sort((a, b) => parseInt(a[1]) - parseInt(b[1]))
+      .map((entry) => {
+        var song = songData[entry[0]];
+        return song ? { song, id: entry[0], index: entry[1] } : null;
+      })
+      .filter(Boolean);
+  }
+
+  // --- drag reorder (desktop HTML5 + scoped touch) ---
+
+  handleDragStart(e, index) {
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", String(index));
+    this.setState({ dragIndex: index });
+  }
+
+  handleDragOver(e, index) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (this.state.dragOverIndex !== index) this.setState({ dragOverIndex: index });
+  }
+
+  handleDrop(e, dropIndex) {
+    e.preventDefault();
+    var dragIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
+    this.handleDropAt(dragIndex, dropIndex);
+    this.setState({ dragIndex: null, dragOverIndex: null });
+  }
+
+  handleDragEnd() {
+    this.setState({ dragIndex: null, dragOverIndex: null });
+  }
+
+  handleDropAt(fromIndex, toIndex) {
+    if (fromIndex === undefined || toIndex === undefined || fromIndex === toIndex) return;
+    this.setState((prev) => {
+      var entries = Object.entries(prev.book.songs).sort((a, b) => parseInt(a[1]) - parseInt(b[1]));
+      var dragged = entries.splice(fromIndex, 1);
+      entries.splice(toIndex, 0, dragged[0]);
+      var reordered = {};
+      entries.forEach((entry, i) => { reordered[entry[0]] = String(i + 1); });
+      return { book: Object.assign({}, prev.book, { songs: reordered }) };
+    });
+  }
+
+  // Touch: begin only after a 10px move on a drag handle; attach non-passive
+  // listeners to the list container so preventDefault stops scrolling reliably.
+  handleTouchStart(e, index) {
+    if (!e.target.closest(".drag-handle")) return;
+    this._touchDragIndex = index;
+    this._touchStartY = e.touches[0].clientY;
+    this._touchStarted = false;
+    if (this.bookListEl) {
+      this.bookListEl.addEventListener("touchmove", this.onTouchMove, { passive: false });
+      this.bookListEl.addEventListener("touchend", this.onTouchEnd);
+      this.bookListEl.addEventListener("touchcancel", this.onTouchEnd);
+    }
+  }
+
+  onTouchMove(e) {
+    if (this._touchDragIndex === undefined || !this.bookListEl) return;
+    var touch = e.touches[0];
+    var deltaY = Math.abs(touch.clientY - this._touchStartY);
+    if (!this._touchStarted && deltaY < 10) return;
+    if (!this._touchStarted) {
+      this._touchStarted = true;
+      this.setState({ dragIndex: this._touchDragIndex });
+    }
+    e.preventDefault(); // listener is non-passive, so this works
+    var items = this.bookListEl.querySelectorAll(".song-item");
+    var newIndex = items.length - 1;
+    for (var i = 0; i < items.length; i++) {
+      var rect = items[i].getBoundingClientRect();
+      if (touch.clientY < rect.top + rect.height / 2) { newIndex = i; break; }
+    }
+    if (newIndex !== this.state.dragOverIndex) this.setState({ dragOverIndex: newIndex });
+  }
+
+  onTouchEnd() {
+    if (this.bookListEl) {
+      this.bookListEl.removeEventListener("touchmove", this.onTouchMove);
+      this.bookListEl.removeEventListener("touchend", this.onTouchEnd);
+      this.bookListEl.removeEventListener("touchcancel", this.onTouchEnd);
+    }
+    if (this._touchStarted) {
+      this.handleDropAt(this._touchDragIndex, this.state.dragOverIndex);
+    }
+    this._touchDragIndex = undefined;
+    this._touchStartY = undefined;
+    this._touchStarted = false;
+    this.setState({ dragIndex: null, dragOverIndex: null });
+  }
+
+  // --- import modal (duplicate another book) ---
+
+  openImport() {
+    this.setState({ importModalOpen: true });
+  }
+
+  closeImport() {
+    this.setState({ importModalOpen: false });
+  }
+
+  // --- paste-import overlay (titles / ids) ---
+
+  openPaste() {
+    this.setState({ pasteOpen: true });
+  }
+
+  closePaste() {
+    this.setState({ pasteOpen: false });
+  }
+
+  // Merge songs ([{id, title, lang}, ...]) from the import modal or the paste
+  // overlay into the book in a single setState pass so language recomputation
+  // sees the new song data.
+  addSongsFromImport(songs) {
+    this.setState((prev) => {
+      var songData = Object.assign({}, prev.songData);
+      songs.forEach((s) => { songData[String(s.id)] = s; });
+      var bookSongs = Object.assign({}, prev.book.songs);
+      songs.forEach((s) => {
+        var key = String(s.id);
+        if (!bookSongs[key]) bookSongs[key] = String(Object.keys(bookSongs).length + 1);
+      });
+      var languages = buildLanguages(bookSongs, songData);
+      return { songData, book: Object.assign({}, prev.book, { songs: bookSongs, languages }) };
+    });
+  }
+
+  // New books only: empty the song list (title/email are kept).
+  clearAllSongs() {
+    if (!window.confirm("Remove all songs from this book?")) return;
+    this.setState((prev) => ({
+      book: Object.assign({}, prev.book, { songs: {}, songTunes: {}, languages: [] })
+    }));
+  }
+
+  // --- render ---
+
+  renderTitleAndEmail(book) {
+    // The contact email is only collected when creating a book (it's where the
+    // share-links email is sent). It's hidden when editing.
+    return (
+      <div className="book-header">
+        <input
+          id="book_title"
+          autoComplete="off"
+          value={book.name}
+          onChange={this.handleBookTitle}
+          name="book[name]"
+          className="book-form-title"
+          placeholder="Book title"
+          aria-label="Book title"
+          required
+        />
+        <div className="book-form-hint">Try to keep it under 25 characters for best display - current characters: {book.name.length}</div>
+        {!this.props.isPersisted && (
+          <input
+            id="book_email"
+            autoComplete="off"
+            type="email"
+            value={book.email || ""}
+            onChange={this.handleBookEmail}
+            name="book[email]"
+            className="book-form-title book-form-email"
+            placeholder="Contact email (optional)"
+            aria-label="Contact email (optional)"
+          />
+        )}
+        {!this.props.isPersisted && (
+          <div className="book-form-hint">
+            Only collected when you create your book. If you lose access later,
+            email us at{" "}
+            <a href="mailto:songbase.brothers@gmail.com">songbase.brothers@gmail.com</a>.
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Book-level actions that sit ABOVE the two panes (not inside Find songs):
+  // Import songs (duplicate another book), Paste titles (bulk add) and, for a
+  // new book with songs, Clear all.
+  renderBookActions(bookSongCount) {
+    var canClear = !this.props.isPersisted && bookSongCount > 0;
+    return (
+      <div className="book-actions">
+        <button type="button" className="action-btn primary" onClick={this.openImport}>Import songs</button>
+        <button type="button" className="action-btn" onClick={this.openPaste}>Paste titles</button>
+        {canClear && <button type="button" className="action-btn danger" onClick={this.clearAllSongs}>Clear all</button>}
+      </div>
+    );
+  }
+
+  render() {
+    var search = this.state.search;
+    var book = this.state.book;
+    var loading = this.state.loading;
+    var results = this.state.searchResults;
+    var bookSongs = this.getOrderedBookSongs();
+    var bookSongCount = Object.keys(book.songs || {}).length;
+
+    var addIcon = (
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <line x1="7" y1="2" x2="7" y2="12" />
+        <line x1="2" y1="7" x2="12" y2="7" />
+      </svg>
+    );
+    var tickIcon = (
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="2,7 6,11 12,3" />
+      </svg>
+    );
+    var removeIcon = (
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <line x1="3" y1="3" x2="11" y2="11" />
+        <line x1="11" y1="3" x2="3" y2="11" />
+      </svg>
+    );
+    var gripIcon = (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <circle cx="5.5" cy="3" r="1.5" />
+        <circle cx="10.5" cy="3" r="1.5" />
+        <circle cx="5.5" cy="8" r="1.5" />
+        <circle cx="10.5" cy="8" r="1.5" />
+        <circle cx="5.5" cy="13" r="1.5" />
+        <circle cx="10.5" cy="13" r="1.5" />
+      </svg>
+    );
+
+    return (
+      <div className="admin-book-form">
+        {this.renderTitleAndEmail(book)}
+        {this.renderBookActions(bookSongCount)}
+
+        <div className="book-builder">
+          {/* --- Find songs pane --- */}
+          <div className="pane find-pane">
+            <div className="pane-header">
+              <h3>Find songs</h3>
+              <div className="search-row">
+                <input
+                  id="index_search"
+                  autoComplete="off"
+                  value={search}
+                  onChange={this.handleSearchChange}
+                  name="search"
+                  className="index_search"
+                  placeholder="Search songs…"
+                  aria-label="Search songs"
+                />
+                {search.length > 0 && (
+                  <button type="button" className="clear-search-btn" onClick={this.clearSearch} aria-label="Clear search">×</button>
+                )}
+              </div>
+            </div>
+            <div className="find-results songs">
+              {loading ? (
+                <div className="songs-empty">Loading…</div>
+              ) : results.length === 0 ? (
+                <div className="songs-empty">{search.length > 0 ? "No songs found" : "Type to search"}</div>
+              ) : (
+                results.map((song) => {
+                  var alreadyAdded = String(song.id) in (book.songs || {});
+                  return (
+                    <div className="song-item" key={song.id}>
+                      <span className="song-title">{song.title}</span>
+                      <button
+                        type="button"
+                        className={alreadyAdded ? "btn-icon btn-added" : "btn-icon btn-add"}
+                        disabled={alreadyAdded}
+                        onClick={alreadyAdded ? null : () => this.handleAddSong(song)}
+                        title={alreadyAdded ? "Already added" : "Add to book"}
+                        aria-label={alreadyAdded ? "Already added" : "Add " + song.title}
+                      >{alreadyAdded ? tickIcon : addIcon}</button>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* --- Your book pane --- */}
+          <div className="pane book-pane">
+            <div className="pane-header">
+              <h3>{book.name || "Your Book"}</h3>
+              <span className="song-count">{bookSongCount + (bookSongCount === 1 ? " song" : " songs")}</span>
+            </div>
+            {this.state.loadingBookSongs ? (
+              <div className="songs-empty book-empty">Loading your book…</div>
+            ) : bookSongCount === 0 ? (
+              <div className="songs-empty book-empty">Songs you add or import will appear here.</div>
+            ) : (
+              <div className="book-songs" ref={(el) => { this.bookListEl = el; }}>
+                {bookSongs.map((songData, arrayIndex) => {
+                  var song = songData.song;
+                  var key = songData.id;
+                  var bookIndex = songData.index;
+                  var isDragging = this.state.dragIndex === arrayIndex;
+                  var isDragOver = this.state.dragOverIndex === arrayIndex;
+                  var tuneCount = songTuneCount(song);
+                  var tuneTitles = songTuneTitles(song);
+                  var multi = tuneCount > 1;
+                  var currentTune = book.songTunes[key] || 0;
+                  var editingTune = this.state.editingTuneId === key;
+                  var highlighted = this.state.highlightedId === key;
+                  return (
+                    <div
+                      className={"song-item" + (isDragging ? " dragging" : "") + (isDragOver ? " drag-over" : "") + (editingTune ? " tune-expanded" : "") + (highlighted ? " just-added" : "")}
+                      key={song.id}
+                      data-id={key}
+                      draggable={true}
+                      onDragStart={(e) => this.handleDragStart(e, arrayIndex)}
+                      onDragOver={(e) => this.handleDragOver(e, arrayIndex)}
+                      onDrop={(e) => this.handleDrop(e, arrayIndex)}
+                      onDragEnd={this.handleDragEnd}
+                      onTouchStart={(e) => this.handleTouchStart(e, arrayIndex)}
+                    >
+                      <span className="drag-handle" title="Drag to reorder" aria-label="Drag to reorder">{gripIcon}</span>
+                      <span className="book-song-number">{bookIndex}</span>
+                      <span className="song-title">{song.title}</span>
+                      {multi && !editingTune && (
+                        <button
+                          type="button"
+                          className="tune-badge"
+                          onClick={() => this.setState({ editingTuneId: key })}
+                          title="Change tune"
+                        >{"Tune " + (currentTune + 1)}</button>
+                      )}
+                      <button
+                        type="button"
+                        className="btn-icon btn-remove"
+                        onClick={() => this.handleRemoveSong(bookIndex)}
+                        title="Remove from book"
+                        aria-label={"Remove " + song.title}
+                      >{removeIcon}</button>
+                      {editingTune && multi && (
+                        <div className="tune-expand">
+                          {tuneTitles.map((title, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              className={"tune-option" + (i === currentTune ? " selected" : "")}
+                              onClick={() => this.handleChangeTune(key, i)}
+                            >
+                              <span className="tune-option-num">{"Tune " + (i + 1)}</span>
+                              <span className="tune-option-title">{title}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <input type="hidden" name="book[songs]" value={JSON.stringify(book.songs || {})} />
+        <input type="hidden" name="book[song_tunes]" value={JSON.stringify(book.songTunes || {})} />
+        <input type="hidden" name="book[languages]" value={JSON.stringify(book.languages || [])} />
+        {/* Email is hidden when editing (not editable), but re-submitted so the stored value is preserved on save. */}
+        {this.props.isPersisted && <input type="hidden" name="book[email]" value={book.email || ""} />}
+
+        {this.state.importModalOpen && (
+          <BookImportModal
+            duplicatableBooks={this.props.duplicatableBooks}
+            onAddSongs={this.addSongsFromImport}
+            onClose={this.closeImport}
+          />
+        )}
+
+        {this.state.pasteOpen && (
+          <AddSongs
+            initialTab="paste"
+            bookSongs={book.songs}
+            onAddSong={this.handleAddSong}
+            onAddSongs={this.addSongsFromImport}
+            onClose={this.closePaste}
+          />
+        )}
+      </div>
+    );
+  }
+}

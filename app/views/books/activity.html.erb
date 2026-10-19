@@ -1,0 +1,50 @@
+<%= render 'flash' %>
+
+<div class="admin-history">
+  <h1 class="admin-root-title">Book activity</h1>
+  <p class="history-back">
+    <%= link_to "All books", admin_books_path %>
+  </p>
+
+  <% if @audits.any? %>
+    <table class="admin-table book-activity-table">
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Book</th>
+          <th>Action</th>
+          <th>By</th>
+          <th>Changes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <%# Book may be soft-deleted; look it up unscoped so history survives deletion. %>
+        <% book_names = Book.unscoped.where(id: @audits.map(&:book_id).compact).pluck(:id, :name).to_h %>
+        <% @audits.each do |audit| %>
+          <tr>
+            <td class="activity-time"><%= audit.time&.strftime('%Y-%m-%d %H:%M') %></td>
+            <td><%= book_names[audit.book_id] || "##{audit.book_id} (deleted)" %></td>
+            <td><span class="activity-action activity-action-<%= audit.action %>"><%= audit.action %></span></td>
+            <td><%= audit.user&.name || 'Unknown' %></td>
+            <td class="activity-changes">
+              <% audit.formatted_changes.each do |field, change| %>
+                <div class="activity-change">
+                  <span class="activity-field"><%= field %></span>:
+                  <% if change.is_a?(Hash) && change[:from] %>
+                    <span class="activity-from"><%= truncate(change[:from].to_s, length: 40) %></span>
+                    &rarr;
+                    <span class="activity-to"><%= truncate(change[:to].to_s, length: 40) %></span>
+                  <% else %>
+                    <span class="activity-to"><%= truncate(change.to_s, length: 60) %></span>
+                  <% end %>
+                </div>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p>No book activity yet.</p>
+  <% end %>
+</div>

@@ -37,12 +37,16 @@ class DatabaseSetupAndSync {
       let cachedSettings = await this.db.settings.get({ settingsType: "global" }) // Fetch settings from indexedDB
       await this.loadSettingsToState(cachedSettings) // Push settings to React state
 
+      // Check for new book that was just created and add it to sync list
+      this.checkForNewBook();
+
       // Nuke IndexedDB if client hasn't synced since v2 came out:
       let migratingDB = this.migrateFromV1toV2()
 
       if (!migratingDB) {
         this.pushIndexedDBToState() // push current cached data immediately
         this.fetchDataFromAPI() // sync with api
+        this.syncAnalytics() // send any pending play counts to the server
       }
     } catch (e) {
       console.error("Failed to fetch new data.", e)
@@ -53,6 +57,16 @@ class DatabaseSetupAndSync {
     // Change version number when db structure changes
     // Note that stores() specifies primary key, then *indexed* properties,
     // there may be more properties than specified here, these are just indexed ones.
+    this.db.version(7).stores({
+      recently_viewed: "song_id, viewed_at"
+    });
+    this.db.version(6).stores({
+      settings: "settingsType",
+      songs: "id, title, lang",
+      books: "id, slug, *languages",
+      references: null,
+      analytics: "song_id"
+    });
     this.db.version(5).stores({
       settings: "settingsType",
       songs: "id, title, lang",
@@ -106,6 +120,44 @@ class DatabaseSetupAndSync {
     this.db.settings.put(settings).then(this.pushIndexedDBToState);
   }
 
+  checkForNewBook() {
+    const newBookMeta = document.querySelector("meta[name='new-book-id']");
+    if (newBookMeta) {
+      const newBookId = newBookMeta.content;
+      const newBookTokenMeta = document.querySelector("meta[name='new-book-token']");
+      const newBookToken = newBookTokenMeta ? newBookTokenMeta.content : null;
+
+      if (newBookId) {
+        let settings = this.app.state.settings;
+        if (!settings.booksToSync) {
+          settings.booksToSync = [];
+        }
+        if (!settings.booksToSync.includes(newBookId)) {
+          settings.booksToSync.push(newBookId);
+        }
+        if (newBookToken) {
+          if (!settings.editableBooks) {
+            settings.editableBooks = {};
+          }
+          // Store as object: { "book_id": "edit_token" }
+          if (!settings.editableBooks[newBookId]) {
+            settings.editableBooks[newBookId] = newBookToken;
+          }
+          this.log('Added new book ' + newBookId + ' to sync and editable lists with token');
+        } else {
+          this.log('Added new book ' + newBookId + ' to sync (read-only)');
+        }
+        this.app.setState({ settings: settings, pendingBookNavigation: newBookId });
+        this.db.settings.put(settings);
+        // Remove add_book and edit_token parameters from URL
+        const url = new URL(window.location);
+        url.searchParams.delete('add_book');
+        url.searchParams.delete('edit_token');
+        window.history.replaceState({}, '', url);
+      }
+    }
+  }
+
 
   // Push data from indexedDB to React's state
   pushIndexedDBToState() {
@@ -137,6 +189,22 @@ class DatabaseSetupAndSync {
       .then(() => {
         db.songs.count(songCount => { app.setState({totalSongsCached: songCount}) });
         this.log("IndexedDB loaded into state.");
+      })
+      .then(() => {
+        // Check if there's a pending book navigation (from share link)
+        if (app.state.pendingBookNavigation && app.state.books.length > 0) {
+          const bookId = app.state.pendingBookNavigation;
+          const book = app.state.books.find(b => b.id == bookId);
+          if (book) {
+            this.log('Navigating to shared book: ' + book.slug);
+            app.setState({
+              currentBook: book,
+              page: "index",
+              pendingBookNavigation: null
+            });
+            window.history.pushState({ page: "index", currentBook: book }, "", `/${book.slug}/i`);
+          }
+        }
       });
     return true
   }
@@ -223,11 +291,32 @@ class DatabaseSetupAndSync {
       )
     }
 
+    // If the server's cache_version has advanced past what this device last
+    // saw, wipe the local cache and re-download from scratch. Mirrors the
+    // admin "Clear all users' cache" lever (AppSetting.cache_version /
+    // SongsController#reset_cache). A fresh install (settings.cache_version
+    // undefined) just adopts the server's version without a wipe.
+    const checkCacheVersion = (data) => {
+      const server = data.cache_version;
+      const local = app.state.settings.cache_version;
+      if (server != null && local != null && server > local) {
+        thisSyncTool.log("cache_version " + local + " -> " + server + ": resetting DB");
+        app.state.settings.cache_version = server; // survives resetDbData (mutates React-state settings)
+        thisSyncTool.resetDbData();                 // wipe + updated_at=0 + re-fetch (re-runs this chain)
+        return new Promise(() => {});               // halt THIS chain; the re-fetch takes over
+      }
+      if (server != null) {
+        app.state.settings.cache_version = server;  // adopt (fresh install / normal sync); persisted by updateTimestamp
+      }
+      return data;
+    };
+
     fetch("/api/v2/languages", {
       method: "GET",
       headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken }
     })
     .then((response) => response.json())
+    .then(checkCacheVersion)
     .then(fetchEnglish)
     .then(fetchOtherLanguages)
     .then(updateTimestamp)
@@ -243,6 +332,13 @@ class DatabaseSetupAndSync {
     thisSyncTool.log("Fetching " + language + " songs");
     const csrfToken = document.querySelector("meta[name=csrf-token]").content;
     const searchParams = new URLSearchParams({ updated_at: lastUpdatedAt, language });
+
+    // Add books parameter if there are books to sync
+    const booksToSync = app.state.settings.booksToSync || [];
+    if (booksToSync.length > 0) {
+      searchParams.append('books', booksToSync.join(','));
+      thisSyncTool.log('Including books in sync: ' + booksToSync.join(','));
+    }
 
     let response = await fetch("/api/v2/app_data?" + searchParams.toString(), {
       method: "GET",
@@ -268,6 +364,37 @@ class DatabaseSetupAndSync {
         db.books.bulkDelete(data.destroyed.books);
 
         let settings = app.state.settings;
+        if (!settings.booksToSync) {
+          settings.booksToSync = [];
+        }
+
+        // Handle books that changed sync_to_all to false
+        // If the book already exists locally and sync_to_all changed to false, add to booksToSync to preserve it
+        data.books.forEach(book => {
+          if (book.sync_to_all === false) {
+            // Check if this book was previously sync_to_all (exists locally but not in booksToSync)
+            const bookExistsLocally = app.state.books.find(b => b.id == book.id);
+            const notExplicitlySynced = !settings.booksToSync.map(String).includes(String(book.id));
+
+            if (bookExistsLocally && notExplicitlySynced) {
+              // Book was sync_to_all, now it's not - add to booksToSync to preserve it
+              settings.booksToSync.push(book.id);
+              thisSyncTool.log('Added book ' + book.id + ' to sync list (was sync_to_all, now preserved)');
+            }
+          }
+        });
+
+        // Prune requested book ids that are deleted/gone server-side so they
+        // don't linger in booksToSync forever (self-healing — see app_data
+        // gone_books). Also clears any phantom local copy left by a missed
+        // deletion window.
+        if (data.gone_books && data.gone_books.length) {
+          const gone = data.gone_books.map(String);
+          settings.booksToSync = settings.booksToSync.filter(id => !gone.includes(String(id)));
+          db.books.bulkDelete(data.gone_books);
+          thisSyncTool.log('Pruned gone books from booksToSync: ' + gone.join(','));
+        }
+
         settings['languagesInfo'] = settings['languagesInfo'].filter(info => info[0] != language); // remove previous value
 
         if(data.songCount > 0) {
@@ -300,5 +427,62 @@ class DatabaseSetupAndSync {
       thisSyncTool.defineSchema();
       thisSyncTool.fetchDataFromAPI();
     });
+  }
+
+  // Increments (or creates) the pending play count for a song in IndexedDB.
+  // Called by SongDisplay after the user has been on a song long enough to count as sung.
+  async recordSongSung(songId) {
+    const id = parseInt(songId, 10);
+    if (!id || id <= 0) { return; }
+    const existing = await this.db.analytics.get(id);
+    if (existing) {
+      await this.db.analytics.update(id, { count: existing.count + 1 });
+    } else {
+      await this.db.analytics.put({ song_id: id, count: 1 });
+    }
+    this.log('Recorded song sung: ' + id);
+  }
+
+  // Records (or refreshes) a song view in IndexedDB. Purely on-device — nothing
+  // syncs to the server. song_id is the primary key, so put() upserts and a
+  // re-view simply updates viewed_at, floating the song back to the top. The
+  // store is capped at the 100 most recent views.
+  async recordSongView(songId) {
+    const id = parseInt(songId, 10);
+    if (!id || id <= 0) { return; } // translation SongDisplays pass no songId
+    await this.db.recently_viewed.put({ song_id: id, viewed_at: Date.now() });
+    const count = await this.db.recently_viewed.count();
+    if (count > 100) {
+      await this.db.recently_viewed.orderBy('viewed_at').limit(count - 100).delete();
+    }
+  }
+
+  // Returns up to `limit` recently viewed songs, most recent first.
+  async getRecentlyViewed(limit = 100) {
+    return this.db.recently_viewed.orderBy('viewed_at').reverse().limit(limit).toArray();
+  }
+
+  // POSTs any pending analytics counts to the server, then clears the local store.
+  async syncAnalytics() {
+    const rows = await this.db.analytics.toArray();
+    if (rows.length === 0) { return; }
+
+    const songCounts = {};
+    rows.forEach(row => { songCounts[row.song_id] = row.count; });
+
+    const csrfToken = document.querySelector("meta[name=csrf-token]").content;
+    try {
+      const response = await fetch("/api/v2/analytics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfToken },
+        body: JSON.stringify({ song_counts: songCounts })
+      });
+      if (response.ok) {
+        await this.db.analytics.clear();
+        this.log('Analytics synced and cleared.');
+      }
+    } catch (error) {
+      this.log('Analytics sync failed (will retry next time): ' + error);
+    }
   }
 }

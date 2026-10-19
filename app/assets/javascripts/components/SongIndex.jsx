@@ -2,11 +2,70 @@ class SongIndex extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = { historySongs: [] };
+    this.handleShare = this.handleShare.bind(this);
+    this.isMobile = this.isMobile.bind(this);
+    this.loadHistory = this.loadHistory.bind(this);
+
     window.addEventListener('scroll', this.props.infiniteScrolling);
+  }
+
+  componentDidMount() {
+    if (this.props.showHistory) { this.loadHistory(); }
+  }
+
+  componentDidUpdate(prevProps) {
+    // Load the on-device history whenever history view is turned on (toggle,
+    // or return-to-index while it's still on) so the list reflects the latest
+    // views — including the song just visited.
+    if (this.props.showHistory && !prevProps.showHistory) {
+      this.loadHistory();
+    }
   }
 
   componentWillUnmount() {
     window.removeEventListener('scroll', this.props.infiniteScrolling);
+  }
+
+  // Pulls the most-recent views from IndexedDB and resolves each to its live
+  // song object from props.songs (skipping any that have since been deleted).
+  // Uses .then rather than async/await — the .jsx Babel pipeline doesn't ship
+  // regeneratorRuntime (see AnalyticsPage/AdminSongList for the same pattern).
+  loadHistory() {
+    if (!$app || !$app.dbSync) { return; }
+    $app.dbSync.getRecentlyViewed(100).then(rows => {
+      var songs = this.props.songs || [];
+      var historySongs = [];
+      rows.forEach(row => {
+        var song = songs.find(s => s.id == row.song_id);
+        if (song) { historySongs.push(song); }
+      });
+      this.setState({ historySongs: historySongs });
+    });
+  }
+
+  isMobile() {
+    return 'ontouchstart' in window && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  }
+
+  // Share the current book's read-only install link — same behavior as the song
+  // page's share button: native share sheet on mobile, clipboard copy with a
+  // fading "Copied!" message everywhere else.
+  handleShare() {
+    if (!this.props.currentBook) return;
+    // Share code (name prefix + number) preferred; older cached books
+    // fall back to the numeric id, which the server still accepts.
+    const identifier = this.props.currentBook.share_code || this.props.currentBook.id;
+    const url = `${window.location.origin}/?add_book=${identifier}`;
+    if (navigator.share && this.isMobile()) {
+      navigator.share({ text: this.props.currentBook.name, url: url });
+    } else {
+      navigator.clipboard.writeText(`${this.props.currentBook.name}\n\n${url}`);
+      if (this.shareSuccess) {
+        this.shareSuccess.classList.add("fadeOut");
+        setTimeout(() => { if (this.shareSuccess) this.shareSuccess.classList.remove("fadeOut"); }, 1200);
+      }
+    }
   }
 
   strip(string, normalize=true) {
@@ -22,7 +81,17 @@ class SongIndex extends React.Component {
 
     return result
   }
+  escapeRegExp(string) {
+    // Escape special regex characters to prevent regex errors
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
 
+  escapeHtml(text) {
+    // Escape HTML entities to prevent XSS attacks
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
   songs() {
     let results = this.props.songs;
 
@@ -58,7 +127,7 @@ class SongIndex extends React.Component {
         song: song,
         tag:
           '<span class="search_tag">' +
-          book.name +
+          this.escapeHtml(book.name) +
           ": #" +
           number +
           "</span>"
@@ -78,7 +147,8 @@ class SongIndex extends React.Component {
       // If search is a number, we can look for book index instead of title/lyrics
       rowData = this.rowDataForNumericalSearch(strippedSearch);
     } else {
-      let containsSearchRegex = new RegExp(strippedSearch);
+      let escapedSearch = this.escapeRegExp(strippedSearch);
+      let containsSearchRegex = new RegExp(escapedSearch);
       let toRowData = (song) => { return { song: song, tag: "" } };
       let songContainsSearch = (song) => {
         let title = this.strip(song.title, false);
@@ -93,8 +163,9 @@ class SongIndex extends React.Component {
   }
 
   sortRowData(rows, search) {
-    let titleStartRegex = new RegExp("^" + search, 'i');
-    let titleMatchRegex = new RegExp(search, 'i');
+    let escapedSearch = this.escapeRegExp(search);
+    let titleStartRegex = new RegExp("^" + escapedSearch, 'i');
+    let titleMatchRegex = new RegExp(escapedSearch, 'i');
 
     if (this.props.currentBook && this.props.orderIndexBy == 'number') {
       let bookIndex = this.props.currentBook.songs;
@@ -191,34 +262,58 @@ class SongIndex extends React.Component {
         <div className="settings-btn" onClick={this.props.toggleSettingsPage}>
           <SettingsIcon />
         </div>
-        <div className="search-form form" key="search-form" onKeyDown={this.keyNavigate}>
-          <input
-            id="index_search"
-            autoComplete="off"
-            value={this.props.search}
-            onChange={searchInputChange}
-            name="song[search]"
-            className="index_search"
-            placeholder="search..."
-            key="search-input"
-          />
-          {this.props.search.length > 0 ? (
-            <div className="btn_clear_search" onClick={this.props.clearSearch}>
-              ×
-            </div>
-          ) : null}
-        </div>
-        <div className="title-list">
+        <div className="search-row" key="search-row">
+          <div className="search-form form" onKeyDown={this.keyNavigate}>
+            <input
+              id="index_search"
+              autoComplete="off"
+              value={this.props.search}
+              onChange={searchInputChange}
+              name="song[search]"
+              className="index_search"
+              placeholder="search..."
+              key="search-input"
+            />
+            {this.props.search.length > 0 ? (
+              <div className="btn_clear_search" onClick={this.props.clearSearch}>
+                ×
+              </div>
+            ) : null}
+          </div>
           {!!this.props.currentBook ? (
             <div className="btn-sort" onClick={this.props.toggleOrderIndexBy}>
               <SortIcon />
             </div>) : null}
+          {!!this.props.currentBook ? (
+            <div className="share-song" onClick={this.handleShare} title="Share book">
+              <div className="share-song-success" ref={(el) => { this.shareSuccess = el; }}>Copied!</div>
+              <span dangerouslySetInnerHTML={{ __html: ShareIcon }} />
+            </div>) : null}
+          {!this.props.currentBook ? (
+            <div
+              className={"btn-history" + (this.props.showHistory ? " active" : "")}
+              onClick={this.props.toggleHistory}
+              title="Recently viewed"
+              role="button"
+              aria-label="Recently viewed"
+              aria-pressed={this.props.showHistory}
+              tabIndex={0}>
+              <HistoryIcon />
+            </div>) : null}
+        </div>
+        <div className="title-list">
 
           {(this.props.loadingData && this.props.songs.length == 0) ? (
             <div className="loading">Loading song data...</div>
+          ) : (this.props.showHistory ? (
+            this.state.historySongs.length === 0 ? (
+              <div className="history-empty">No songs viewed yet</div>
+            ) : (
+              this.state.historySongs.map((song, i) => this.songIndexRow({ song: song, tag: "" }, i))
+            )
           ) : (
             this.getSearchResults().map(this.songIndexRow, this)
-          )}
+          ))}
         </div>
       </div>
     );
