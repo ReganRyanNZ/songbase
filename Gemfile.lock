@@ -107,7 +107,7 @@ GEM
       logger (~> 1.5)
     concurrent-ruby (1.2.3)
     connection_pool (2.4.1)
-    crass (1.0.6)
+    crass (1.0.7)
     date (3.3.4)
     dotenv (2.8.1)
     dotenv-rails (2.8.1)
